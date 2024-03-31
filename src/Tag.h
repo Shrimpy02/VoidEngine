@@ -16,7 +16,7 @@ public:
     {
         if (sExistingTags.find(val) != sExistingTags.end())
         {
-            throw std::runtime_error("Tag already exists: " + val);
+           throw std::runtime_error("Tag already exists: " + val);
         }
         mValue = val;
         sExistingTags.insert(val);

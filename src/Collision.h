@@ -1,42 +1,29 @@
 #pragma once
+
 struct CollisionProperties;
 
 class IBounded
 {
 public:
-    // ---------- Global Variables --------------
-
-    glm::vec3 mMinExtent;
-    glm::vec3 mMaxExtent;
+	// ---------- Global Variables --------------
 
 private:
-    // ---------- Local Variables --------------
-    bool mIsColliding = false;
+	// ---------- Local Variables --------------
 
 public:
-    // ---------- Global functions --------------
-    class Mesh* CreateCollisionCube(Material* _material, std::vector<Vertex>& _existingMesh, const std::string _key = "CollisionCube");
+	// ---------- Global functions --------------
+	virtual struct AABB GetAABB() const = 0;
+	virtual CollisionProperties GetCollisionProperties() const = 0;
 
-    virtual struct AABB GenAABB() = 0;
-    virtual struct BoundingSphere GenBoundingSphere() = 0;
+
+	//  class Mesh* CreateCollisionCube(Material* _material, std::vector<Vertex>& _existingMesh, const std::string _key = "CollisionCube");
+
 
 private:
-    // ---------- Local functions --------------
+	// ---------- Local functions --------------
 
 public:
-    // ---------- Getters / setters / Adders --------------
-
-    // Adders
-
-    // Setters
-    void SetIsColliding(bool _isColiding) { mIsColliding = _isColiding; }
-
-    // Getters
-    virtual CollisionProperties* GetCollisionProperties() = 0;
-    bool IsColliding() { return mIsColliding; }
-    glm::vec3 GetMinExtent() { return mMinExtent; }
-    glm::vec3 GetMaxExtent() { return mMaxExtent; }
-
+	// ---------- Getters / setters / Adders --------------
 
 };
 

@@ -13,44 +13,54 @@
 
 #include <GLFW/glfw3.h>
 
+#include "ModelLoader/AssimpLoader.h"
+
 
 Scene::Scene(const std::string& _name, Window* _window)
 	:mSceneGraph(_name), mWindow(_window) {}
 
 void Scene::LoadContent()
 {
-	auto diffuseTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/ConstainerDiffuse.jpg"));
+	//auto diffuseTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/ConstainerDiffuse.jpg"));
+	auto diffuseTex = Texture::Load(SOURCE_DIRECTORY("assets/Models/StoneScene/Textures/wgprbiq_2K_Albedo.jpg"));
 	auto specTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/container2Specular.jpg"));
 	auto mat = Material::Load("Default", { diffuseTex, specTex }, {});
 
-	mCube0 = new MeshActor("Cube0", Mesh::CreatePyramid(mat));
-	mCube1 = new MeshActor("Cube1", Mesh::CreateCube(mat));
-	mCube2 = new MeshActor("Cube2", Mesh::CreateCube(mat));
+	mCube0 = new MeshActor("Cube0", Mesh::CreateCube(mat));
 
-	mPointLightActor0 = new PointLightActor("PointLight0");
-	mPointLightActor1 = new PointLightActor("PointLight1");
+	Actor* meshTest = new Actor("test");
+	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Sponza/Sponza.fbx"), meshTest);
+
+
+	
+	//mCube1 = new MeshActor("Cube1", Mesh::CreateCube(mat));
+	//mCube2 = new MeshActor("Cube2", Mesh::CreateCube(mat));
+
+	//mPointLightActor0 = new PointLightActor("PointLight0");
+	//mPointLightActor1 = new PointLightActor("PointLight1");
 	mDirectionalLightActor = new DirectionalLightActor("DirectionalLight0");
 
 	mShader = new Shader(SOURCE_DIRECTORY("shaderSrc/shader.vs"),SOURCE_DIRECTORY("shaderSrc/shader.fs"));
 	
 	mSceneGraph.AddChild(mCube0);
 	mSceneGraph.AddChild(&mSceneCamera);
-	mSceneGraph.AddChild(mCube1);
-	mSceneGraph.AddChild(mCube2);
+	//mSceneGraph.AddChild(mCube1);
+	//mSceneGraph.AddChild(mCube2);
+	mSceneGraph.AddChild(meshTest);
 
 	mCube0->mCollisionProperties.mType = CollisionType::DYNAMIC;
-	mCube1->mCollisionProperties.mType = CollisionType::DYNAMIC;
+	//mCube1->mCollisionProperties.mType = CollisionType::DYNAMIC;
 
-	mSceneGraph.AddChild(mPointLightActor0);
-	mSceneGraph.AddChild(mPointLightActor1);
+	//mSceneGraph.AddChild(mPointLightActor0);
+	//mSceneGraph.AddChild(mPointLightActor1);
 	mSceneGraph.AddChild(mDirectionalLightActor);
 
 	mDirectionalLightActor->SetRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)),Actor::TransformSpace::Global);
 
-	mCube0->SetPosition({ -2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
-	mCube1->SetPosition({ 2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
-	mPointLightActor0->SetPosition({0.0f,-1.0f,0.0f}, Actor::TransformSpace::Global);
-	mPointLightActor1->SetPosition({ 0.0f,1.0f,0.0f }, Actor::TransformSpace::Global);
+	mCube0->SetPosition({ 0.f, 15.f, 0.f }, Actor::TransformSpace::Global);
+	//mCube1->SetPosition({ 2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
+	//mPointLightActor0->SetPosition({0.0f,-1.0f,0.0f}, Actor::TransformSpace::Global);
+	//mPointLightActor1->SetPosition({ 0.0f,1.0f,0.0f }, Actor::TransformSpace::Global);
 	mSceneCamera.SetPosition({ 0.f, 0.f, 3.f });
 
 	mActorController = std::shared_ptr<ActorController>(new ActorController(mCube0, mWindow));
@@ -134,9 +144,10 @@ void Scene::Render(float _dt)
 	BindDirectionalLights();
 	BindPointLights();
 	BindCamera();
-
-	RenderUI();
 	RenderSceneGraph(&mSceneGraph, _dt);
+	RenderUI();
+
+	glDepthFunc(GL_LEQUAL);
 }
 
 void Scene::RenderUI()
@@ -278,6 +289,7 @@ void Scene::imguiSub_WorldDetails(Actor* _aptr)
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(mItemWidth);
 	ImGui::InputFloat("##PZ", &currentActorsPosition.z);
+
 	_aptr->SetPosition(currentActorsPosition, Actor::TransformSpace::Global);
 
 	// Can edit the x, y, z rotation for selected actor
@@ -370,42 +382,42 @@ void Scene::imguiSub_WorldDetails(Actor* _aptr)
 
 void Scene::imguiSub_Collision(IBounded* _cptr)
 {
-	// Handles all collision setting logic with
-	// ImGui and shared_ptr of the object selected
+	//// Handles all collision setting logic with
+	//// ImGui and shared_ptr of the object selected
 
-	ImGui::Text("Collision Details");
-	ImGui::Separator();
-	// Shows if actor is colliding 
-	// ----------------------------------------------
-	ImGui::Text("Is Colliding: "); ImGui::SameLine();
-	if (_cptr->IsColliding())
-		ImGui::TextColored(ImVec4(0, 1, 0, 1), "True");
-	else
-		ImGui::TextColored(ImVec4(1, 0, 0, 1), "False");
+	//ImGui::Text("Collision Details");
+	//ImGui::Separator();
+	//// Shows if actor is colliding 
+	//// ----------------------------------------------
+	//ImGui::Text("Is Colliding: "); ImGui::SameLine();
+	//if (_cptr->IsColliding())
+	//	ImGui::TextColored(ImVec4(0, 1, 0, 1), "True");
+	//else
+	//	ImGui::TextColored(ImVec4(1, 0, 0, 1), "False");
 
-	// Edit collision type
-	// ----------------------------------------------
-	const char* typeItems[] = { "STATIC","DYNAMIC","KINETIC" };
-	int currentTypeItem = 0;
+	//// Edit collision type
+	//// ----------------------------------------------
+	//const char* typeItems[] = { "STATIC","DYNAMIC","KINETIC" };
+	//int currentTypeItem = 0;
 
-	currentTypeItem = static_cast<int>(_cptr->GetCollisionProperties()->mType);
+	//currentTypeItem = static_cast<int>(_cptr->GetCollisionProperties()->mType);
 
-	ImGui::Text("Collision Type");
-	ImGui::Combo("##TB", &currentTypeItem, typeItems, IM_ARRAYSIZE(typeItems));
+	//ImGui::Text("Collision Type");
+	//ImGui::Combo("##TB", &currentTypeItem, typeItems, IM_ARRAYSIZE(typeItems));
 
-	_cptr->GetCollisionProperties()->SetCollisionType(static_cast<CollisionType>(currentTypeItem));
+	//_cptr->GetCollisionProperties()->SetCollisionType(static_cast<CollisionType>(currentTypeItem));
 
-	// Edit collision response
-	// ----------------------------------------------
-	const char* responseItems[] = { "BLOCK","OVERLAP","IGNORE" };
-	int currentResponseItem = 0;
+	//// Edit collision response
+	//// ----------------------------------------------
+	//const char* responseItems[] = { "BLOCK","OVERLAP","IGNORE" };
+	//int currentResponseItem = 0;
 
-	currentResponseItem = static_cast<int>(_cptr->GetCollisionProperties()->mResponse);
+	//currentResponseItem = static_cast<int>(_cptr->GetCollisionProperties()->mResponse);
 
-	ImGui::Text("Collision Response");
-	ImGui::Combo("##RB", &currentResponseItem, responseItems, IM_ARRAYSIZE(responseItems));
+	//ImGui::Text("Collision Response");
+	//ImGui::Combo("##RB", &currentResponseItem, responseItems, IM_ARRAYSIZE(responseItems));
 
-	_cptr->GetCollisionProperties()->SetCollisionResponse(static_cast<CollisionResponse>(currentResponseItem));
+	//_cptr->GetCollisionProperties()->SetCollisionResponse(static_cast<CollisionResponse>(currentResponseItem));
 }
 
 void Scene::imguiSub_Light(Light* _lptr)
@@ -451,26 +463,47 @@ void Scene::HandleCollision()
 			IBounded* iA = dynamic_cast<IBounded*>(collisionActors[i]);
 			IBounded* iB = dynamic_cast<IBounded*>(collisionActors[j]);
 
-			iA->SetIsColliding(false);
-			iB->SetIsColliding(false);
+			shint++;
+
+			// for imgui
+			//iA->SetIsColliding(false);
+			//iB->SetIsColliding(false);
 
 			// if both are static, skip collision check
-			if (iA->GetCollisionProperties()->IsStatic() && iB->GetCollisionProperties()->IsStatic())
+			// Skip intersection if a object ignores collision
+			if (iA->GetCollisionProperties().IsIgnoreResponse() ||
+				iB->GetCollisionProperties().IsIgnoreResponse())
+			{
 				continue;
+			}
 
-			auto a = iA->GenAABB();
-			auto b = iB->GenAABB();
+			// Skip intersection checks for two static objects
+			if (iA->GetCollisionProperties().IsStatic() &&
+				iB->GetCollisionProperties().IsStatic())
+			{
+				continue;
+			}
 
-			glm::vec3 mtvA(0.f), mtvB(0.f);
+			if (shint > 375)
+			{
+				std::cout << "Shint reached";
+			}
 
-			glm::vec3 mtv{};
+			auto a = iA->GetAABB();
+			auto b = iB->GetAABB();
+
+		
+			
+			glm::vec3 mtv(0.f);
 			if(a.IsIntersecting(b,&mtv))
 			{
-				iA->SetIsColliding(true);
-				iB->SetIsColliding(true);
+				//iA->SetIsColliding(true);
+				//iB->SetIsColliding(true);
 
-				bool isADynamic = iA->GetCollisionProperties()->IsDynamic();
-				bool isBDynamic = iB->GetCollisionProperties()->IsDynamic();
+				bool isADynamic = iA->GetCollisionProperties().IsDynamic();
+				bool isBDynamic = iB->GetCollisionProperties().IsDynamic();
+
+				glm::vec3 mtvA(0.f), mtvB(0.f);
 
 				if(isADynamic && isBDynamic)
 				{
@@ -496,7 +529,6 @@ void Scene::HandleCollision()
 				}
 				if (isBDynamic)
 				{
-
 					collisionActors[j]->SetPosition(collisionActors[j]->GetPosition(Actor::TransformSpace::Global) + mtvB, Actor::TransformSpace::Global);
 				}
 			}
@@ -546,11 +578,10 @@ void Scene::BindDirectionalLights()
 
 	if (!directionalLights.empty())
 	{
-		auto DirLight = dynamic_cast<DirectionalLightActor*>(directionalLights[0]);
-		glm::vec3 dir = glm::normalize(DirLight->GetDirection());
-		mShader->setVec3("DirLight.direction", dir);
-		mShader->setVec3("DirLight.color", DirLight->mColor);
-		mShader->setVec3("DirLight.ambient", DirLight->mAmbient);
+		auto dl = dynamic_cast<DirectionalLightActor*>(directionalLights[0]);
+		mShader->setVec3("dl.direction", glm::normalize(dl->GetDirection()));
+		mShader->setVec3("dl.color", dl->mColor);
+		mShader->setVec3("dl.ambient", dl->mAmbient);
 	}
 }
 
@@ -564,13 +595,13 @@ void Scene::BindPointLights()
 	{
 		auto PLights = dynamic_cast<PointLightActor*>(pointLightActors[i]);
 
-		std::string pointLightArrayIndex = "PLights[" + std::to_string(i) + "]";
+		std::string pointLightArrayIndex = "pointLights[" + std::to_string(i) + "]";
 		mShader->setVec3(pointLightArrayIndex + ".ambient", PLights->mAmbient);
 		mShader->setVec3(pointLightArrayIndex + ".color", PLights->mColor);
 		mShader->setVec3(pointLightArrayIndex + ".position", PLights->GetLightPosition());
-		mShader->setFloat(pointLightArrayIndex + ".constantVar", PLights->constantVar);
-		mShader->setFloat(pointLightArrayIndex + ".linearVar", PLights->linearVar);
-		mShader->setFloat(pointLightArrayIndex + ".quadraticVar", PLights->quadraticVar);
+		mShader->setFloat(pointLightArrayIndex + ".constant", PLights->constantVar);
+		mShader->setFloat(pointLightArrayIndex + ".linear", PLights->linearVar);
+		mShader->setFloat(pointLightArrayIndex + ".quadratic", PLights->quadraticVar);
 	}
 }
 

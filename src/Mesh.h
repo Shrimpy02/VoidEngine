@@ -59,8 +59,11 @@ public:
     // Adders
 
     // Setters
-
+    void SetMaterial(Material* material) { mMaterial = material; }
+   
     // Getters
+    const Material* GetMaterial() const { return mMaterial; }
+
     const std::string* GetName() { return &mName; }
     std::vector<Vertex>& GetVetices() { return mVertices; }
 };
@@ -83,11 +86,18 @@ private:
 public:
     // ---------- Global functions --------------
 
+
+
+
+
+
+
+
+
     MeshActor(const std::string& _name, Mesh* _mesh);
     virtual void Draw(const class Shader* _shader = nullptr) const override;
-    virtual AABB GenAABB() override;
-    virtual BoundingSphere GenBoundingSphere() override;
-    virtual CollisionProperties* GetCollisionProperties() override;
+    virtual AABB GetAABB() const override;
+    virtual CollisionProperties GetCollisionProperties() const override;
 
 private:
     // ---------- Local functions --------------
@@ -103,3 +113,4 @@ public:
     // Getters
 
 };
+

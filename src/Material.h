@@ -21,9 +21,9 @@ public:
         COUNT
     };
 
-    std::array <std::string, static_cast<size_t>(TextureType::COUNT)> TextureUniformNames = {
-    	"material.diffuseMap", "material.specularMap",
-        "material.normalMap", "material.alphaMap"
+    std::array<std::string, static_cast<size_t>(TextureType::COUNT)> TextureUniformNames = {
+     "material.diffuseMap", "material.specularMap",
+     "material.normalMap", "material.alphaMap"
     };
 
     struct MaterialProperties
@@ -39,6 +39,7 @@ private:
     std::array<Texture*, TextureType::COUNT> mTextures{};
 
     static std::unordered_map<std::string, Material*> sCache;
+
 
 
 public:

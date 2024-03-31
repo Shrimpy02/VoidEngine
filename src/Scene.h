@@ -54,7 +54,7 @@ private:
 	bool mCanControlActor = false;
     bool mIsUniformScale = false;
 
-
+    int shint = 0;
 protected:
 
     std::shared_ptr<IController> mActiveController{ nullptr };

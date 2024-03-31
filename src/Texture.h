@@ -33,6 +33,8 @@ public:
 
     // Functions:
 	static Texture* Load(const std::string& _path);
+    static Texture* LoadWhiteTexture();
+    static Texture* LoadBlackTexture();
     static void Unload(const std::string& _path);
     static void ClearCache();
 

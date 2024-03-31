@@ -14,11 +14,11 @@ Material* Material::Load(const std::string& _name)
 
 Material* Material::Load(const std::string& _name, const std::array<Texture*, TextureType::COUNT>& _textures, const MaterialProperties& _properties)
 {
-    auto it = sCache.find(_name);
-    if (it != sCache.end())
-    {
-        return sCache[_name];
-    }
+   // auto it = sCache.find(_name);
+   // if (it != sCache.end())
+   // {
+   //     return sCache[_name];
+   // }
 
     Material* material = new Material(_name);
     material->mTextures = _textures;
@@ -53,10 +53,9 @@ void Material::Bind(const Shader* _shader) const
         if (mTextures[i])
         {
             glActiveTexture(GL_TEXTURE0 + i);
-            unsigned int ID = mTextures[i]->GetTextureID();
-            glBindTexture(GL_TEXTURE_2D, ID);
+            glBindTexture(GL_TEXTURE_2D, mTextures[i]->GetTextureID());
 
-        	_shader->setInt(TextureUniformNames[i], static_cast<int>(i));
+            _shader->setInt(TextureUniformNames[i], static_cast<int>(i));
         }
     }
 

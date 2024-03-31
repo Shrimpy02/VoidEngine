@@ -22,6 +22,8 @@ private:
 
 	Actor* mParent = nullptr;
 	std::vector<Actor*> mChildren;
+	// Components
+	//std::vector<Component*> mComponents;
 
 	TagUnique mTag;
 	Transform mTransform{};
@@ -32,12 +34,30 @@ public:
 	// name can go into tag at some point
 	Actor(const std::string& _name) : mTag(_name), mParent(nullptr) {};
 
-	~Actor() = default;
+	Actor(const Actor&) = delete;
+	Actor& operator=(const Actor&) = delete;
+
+	Actor(Actor&&) = default;
+	Actor& operator=(Actor&&) = default;
+
+	~Actor();
 
 	virtual void Update(float dt);
 
+	void UpdateComponents(float dt);
+
 	void AddChild(Actor* _child);
 	void RemoveChild(Actor* _child);
+
+	template <typename T>
+	void AddComponent(const std::string& componentName)
+	{
+		/*static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component");
+
+		auto component = new T(componentName, this);
+		component->Init();
+		mComponents.emplace_back(component);*/
+	}
 
 private:
 	// ---------- Local functions --------------
@@ -51,6 +71,7 @@ public:
 	const std::string& GetTag() { return mTag.GetValue(); }
 
 	void SetParent(Actor* _parent);
+	void SetLocalTransformMatrix(const glm::mat4& transformMatrix);
 	void SetTransform(const Transform& _transform);
 	void SetPosition(const glm::vec3& _position, Actor::TransformSpace _type = Actor::TransformSpace::Local);
 	void SetRotation(const glm::quat& _rotation, Actor::TransformSpace _type = Actor::TransformSpace::Local);
@@ -81,4 +102,3 @@ public:
 	}
 
 };
-

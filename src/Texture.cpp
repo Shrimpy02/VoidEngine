@@ -4,6 +4,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "Defines.h"
+
 std::unordered_map<std::string, Texture*> Texture::sCache;
 
 Texture::Texture(const std::string& _path) : mID(0), mPath(_path)
@@ -31,6 +33,16 @@ Texture* Texture::Load(const std::string& _path)
 	}
 }
 
+Texture* Texture::LoadWhiteTexture()
+{
+	return Load(SOURCE_DIRECTORY("assets/Textures/DefaultTextures/WhiteTexture.jpg"));
+}
+
+Texture* Texture::LoadBlackTexture()
+{
+	return Load(SOURCE_DIRECTORY("assets/Textures/DefaultTextures/BlackTexture.jpg"));
+}
+
 void Texture::LoadTexture()
 {
 	glGenTextures(1, &mID);
@@ -52,6 +64,7 @@ void Texture::LoadTexture()
 	} else
 	{
 		std::cout << "Texture Load Failed\n";
+		std::cout << mPath.c_str();
 	}
 	stbi_image_free(data);
 }

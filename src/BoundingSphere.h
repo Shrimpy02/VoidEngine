@@ -20,14 +20,14 @@ public:
     // ----------- Functions ---------------
     BoundingSphere(const glm::vec3& center, const glm::vec3& extent) : center(center), extent(extent) {}
 
-    bool IsIntersecting(const AABB& other, glm::vec3* mtv) const
+  /*  bool IsIntersecting(const AABB& other, glm::vec3* mtv) const
     {
         
     }
     bool IsIntersecting(const BoundingSphere& other, glm::vec3* mtv) const
     {
 
-    }
+    }*/
 
     // Adders ---------------
 

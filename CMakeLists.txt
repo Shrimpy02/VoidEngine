@@ -60,7 +60,7 @@ set (HEADER_FILES
   src/Lights/Lights.h 
   src/Lights/DirectionalLight.h 
   src/Lights/PointLight.h  
-  src/Defines.h)
+  src/Defines.h "src/ModelLoader/AssimpLoader.h" "src/ModelLoader/AssimpUtility.h" "src/ModelLoader/Shared.h")
 
 set (SRC_FILES
   3DProgEngine.cpp
@@ -79,7 +79,7 @@ set (SRC_FILES
   src/Collision.cpp
   src/CameraController.cpp
   src/ActorController.cpp
-)
+ "src/ModelLoader/AssimpLoader.cpp" "src/AABB.cpp")
 
 add_subdirectory(libs/glfw-3.3.9)
 

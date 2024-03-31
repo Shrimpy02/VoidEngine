@@ -2,8 +2,24 @@
 
 #include <iostream>
 
+Actor::~Actor()
+{
+	/*for (auto component : mComponents)
+	{
+		delete component;
+	}*/
+}
+
 void Actor::Update(float dt)
 {
+}
+
+void Actor::UpdateComponents(float dt)
+{
+	/*for (auto component : mComponents)
+	{
+		component->Update(dt);
+	};*/
 }
 
 void Actor::AddChild(Actor* _child)
@@ -44,6 +60,11 @@ void Actor::SetParent(Actor* _parent)
 	// Adds this actor to new parents children array
 	if(mParent)
 		mParent->AddChild(this);
+}
+
+void Actor::SetLocalTransformMatrix(const glm::mat4& transformMatrix)
+{
+	mTransform.SetTransformMatrix(transformMatrix);
 }
 
 void Actor::SetTransform(const Transform& _transform)
