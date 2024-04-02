@@ -36,8 +36,10 @@ public:
         for(int i = 0; i < 3; i++)
         {
             // if the difference in length is larger then the sum extent
-            // in each axis there is no intersection. 
-	        if(abs(diff[i]) >= sumExtent[i])
+            // in each axis there is no intersection.
+            glm::vec3 newdif = abs(diff);
+
+	        if(newdif[i] >= sumExtent[i])
 	        {
                 return false; // no intersection
 	        }
@@ -100,6 +102,8 @@ public:
     // ---------- Global Variables --------------
 
     CollisionProperties mCollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK };
+    AABB mAABB{ {0.f, 0.f, 0.f}, {0.5f, 0.5f, 0.5f} };
+
 
 private:
     // ---------- Local Variables --------------
@@ -112,8 +116,8 @@ private:
 
 public:
     // ---------- Global functions --------------
-    AABBActor(const std::string& name, class Mesh* _collisionMesh, glm::vec3& _minExtent, glm::vec3& _maxExtent)
-        :Actor(name), mCollisionMesh(_collisionMesh), mMinExtent(_minExtent), mMaxExtent(_maxExtent)  {}
+    AABBActor(const std::string& name,class Mesh* _mesh /*,AABB _aabb*/,glm::vec3 _maxExtent,glm::vec3 _minExtent, glm::vec3 _center)
+        :Actor(name), mCollisionMesh(_mesh), /*mAABB(_aabb),*/ mMaxExtent(_maxExtent), mMinExtent(_minExtent), mCenter(_center) {}
 
 
     void Draw(const Shader* _shader) const override;

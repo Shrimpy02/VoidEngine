@@ -91,6 +91,8 @@ void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, Actor* pare
 
 		if (HasCollisionPrefix(mesh->mName.C_Str(), collisionPrefix))
 		{
+			//AABB aabb = ProcessCollisionAABB(mesh, actorName);
+			//actor = new AABBActor(actorName, ProcessMesh(mesh), aabb);
 			actor = ProcessCollisionAABB(mesh, actorName);
 		}
 		else if (HasLightPrefix(mesh->mName.C_Str(), lightPrefix))
@@ -249,6 +251,59 @@ AABBActor* AssimpLoader::ProcessCollisionAABB(aiMesh* _mesh, std::string _name)
 {
 	glm::vec3 maxExtent(0);
 	glm::vec3 minExtent(0);
+	glm::vec3 center(0);
+
+	//for (auto j = 0; j < _mesh->mNumVertices; j++)
+	//{
+	//	// X
+	//	if (_mesh->mVertices[j].x > maxExtent.x)
+	//		maxExtent.x = _mesh->mVertices[j].x;
+
+	//	else if (_mesh->mVertices[j].x < minExtent.x)
+	//		minExtent.x = _mesh->mVertices[j].x;
+
+	//	// Y
+	//	if (_mesh->mVertices[j].y > maxExtent.y)
+	//		maxExtent.y = _mesh->mVertices[j].y;
+
+	//	else if (_mesh->mVertices[j].y < minExtent.y)
+	//		minExtent.y = _mesh->mVertices[j].y;
+
+	//	// Z
+	//	if (_mesh->mVertices[j].z > maxExtent.z)
+	//		maxExtent.z = _mesh->mVertices[j].z;
+
+	//	else if (_mesh->mVertices[j].z < minExtent.z)
+	//		minExtent.z = _mesh->mVertices[j].z;
+
+	//	glm::vec3 pos = glm::vec3(_mesh->mVertices[j].x, _mesh->mVertices[j].y, _mesh->mVertices[j].z);
+	//	center += pos;
+	//}
+	//AABB aabb{ {},{} };
+	//for (auto i = 0; i < _mesh->mNumVertices; i++)
+	//{
+	//	glm::vec3 pos{ 0.f };
+	//	pos.x = _mesh->mVertices[i].x;
+	//	pos.y = _mesh->mVertices[i].y;
+	//	pos.z = _mesh->mVertices[i].z;
+
+	//	aabb.center += pos;
+	//}
+	//aabb.center /= _mesh->mNumVertices;
+
+	//for (auto i = 0; i < _mesh->mNumVertices; i++)
+	//{
+	//	glm::vec3 pos{ 0.f };
+	//	pos.x = _mesh->mVertices[i].x;
+	//	pos.y = _mesh->mVertices[i].y;
+	//	pos.z = _mesh->mVertices[i].z;
+
+	//	//LOG_INFO("aabb pos: (%f, %f, %f)", pos.x, pos.y, pos.z);
+	//	// Expands the AABB to fit the vertices
+	//	aabb.Expand(pos);
+	//}
+
+	//return aabb;
 
 	for (auto j = 0; j < _mesh->mNumVertices; j++)
 	{
@@ -259,20 +314,26 @@ AABBActor* AssimpLoader::ProcessCollisionAABB(aiMesh* _mesh, std::string _name)
 		else if (_mesh->mVertices[j].x < minExtent.x)
 			minExtent.x = _mesh->mVertices[j].x;
 
+		// Swap Z and Y for import from blender
 		// Y
-		if (_mesh->mVertices[j].y > maxExtent.y)
-			maxExtent.y = _mesh->mVertices[j].y;
+		if (_mesh->mVertices[j].y > maxExtent.z)
+			maxExtent.z = _mesh->mVertices[j].y;
 
-		else if (_mesh->mVertices[j].y < minExtent.y)
-			minExtent.y = _mesh->mVertices[j].y;
+		else if (_mesh->mVertices[j].y < minExtent.z)
+			minExtent.z = _mesh->mVertices[j].y;
 
 		// Z
-		if (_mesh->mVertices[j].z > maxExtent.z)
-			maxExtent.z = _mesh->mVertices[j].z;
+		if (_mesh->mVertices[j].z > maxExtent.y)
+			maxExtent.y = _mesh->mVertices[j].z;
 
-		else if (_mesh->mVertices[j].z < minExtent.z)
-			minExtent.z = _mesh->mVertices[j].z;
+		else if (_mesh->mVertices[j].z < minExtent.y)
+			minExtent.y = _mesh->mVertices[j].z;
+
+		glm::vec3 pos = glm::vec3(_mesh->mVertices[j].x, _mesh->mVertices[j].z, _mesh->mVertices[j].y);
+		center += pos;
 	}
 
-	return new AABBActor(_name, ProcessMesh(_mesh),minExtent,maxExtent);
+	center /= static_cast<float>(_mesh->mNumVertices);
+
+	return new AABBActor(_name, ProcessMesh(_mesh), maxExtent, minExtent, center);
 }

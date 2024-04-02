@@ -26,7 +26,7 @@ private:
     static void ProcessNode(const struct aiScene* _scene, struct aiNode* _node, class Actor* parentActor);
     static class Mesh* ProcessMesh(struct aiMesh* _mesh);
     static class Material* ProcessMaterial(struct aiMaterial* _material);
-    static class AABBActor* ProcessCollisionAABB(struct aiMesh* _mesh, std::string _name);
+    static struct AABBActor* ProcessCollisionAABB(struct aiMesh* _mesh, std::string _name);
 
 public:
     // ---------- Getters / setters / Adders --------------

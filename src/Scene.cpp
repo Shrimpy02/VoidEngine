@@ -29,10 +29,8 @@ void Scene::LoadContent()
 	mCube0 = new MeshActor("Cube0", Mesh::CreateCube(mat));
 
 	Actor* meshTest = new Actor("test");
-	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Sponza/Sponza.fbx"), meshTest);
+	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Sponza/Sponzaf.fbx"), meshTest);
 
-
-	
 	//mCube1 = new MeshActor("Cube1", Mesh::CreateCube(mat));
 	//mCube2 = new MeshActor("Cube2", Mesh::CreateCube(mat));
 
@@ -467,6 +465,9 @@ void Scene::HandleCollision()
 
 			// for imgui
 			//iA->SetIsColliding(false);
+
+
+
 			//iB->SetIsColliding(false);
 
 			// if both are static, skip collision check
@@ -499,6 +500,11 @@ void Scene::HandleCollision()
 			{
 				//iA->SetIsColliding(true);
 				//iB->SetIsColliding(true);
+
+				if (a.IsIntersecting(b, &mtv))
+				{
+					std::cout << "Shint reached";
+				}
 
 				bool isADynamic = iA->GetCollisionProperties().IsDynamic();
 				bool isBDynamic = iB->GetCollisionProperties().IsDynamic();
