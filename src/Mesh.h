@@ -59,6 +59,7 @@ public:
     // Adders
 
     // Setters
+
     void SetMaterial(Material* material) { mMaterial = material; }
    
     // Getters

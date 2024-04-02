@@ -10,11 +10,11 @@
 #include <ActorController.h>
 #include <Renderer.h>
 #include <memory>
+#include <Logger.h>
 
 #include <GLFW/glfw3.h>
 
 #include "ModelLoader/AssimpLoader.h"
-
 
 Scene::Scene(const std::string& _name, Window* _window)
 	:mSceneGraph(_name), mWindow(_window) {}
@@ -30,6 +30,12 @@ void Scene::LoadContent()
 
 	Actor* meshTest = new Actor("test");
 	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Sponza/Sponzaf.fbx"), meshTest);
+
+	LOG("finished Loading sponza");
+	LOG_WARNING("wartning string finished Loading sponza");
+	LOG_ERROR("Somethingwhent wrong!");
+	LOG_INFO("Have some infor will ya");
+	LOG("finished testing");
 
 	//mCube1 = new MeshActor("Cube1", Mesh::CreateCube(mat));
 	//mCube2 = new MeshActor("Cube2", Mesh::CreateCube(mat));
@@ -464,8 +470,8 @@ void Scene::HandleCollision()
 			shint++;
 
 			// for imgui
-			//iA->SetIsColliding(false);
-
+			//iA->SetIsColliding(true);
+			//iB->SetIsColliding(true);
 
 
 			//iB->SetIsColliding(false);
@@ -483,11 +489,6 @@ void Scene::HandleCollision()
 				iB->GetCollisionProperties().IsStatic())
 			{
 				continue;
-			}
-
-			if (shint > 375)
-			{
-				std::cout << "Shint reached";
 			}
 
 			auto a = iA->GetAABB();

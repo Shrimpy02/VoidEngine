@@ -34,7 +34,7 @@ set( IMGUI_SOURCE
     includes/imgui/imgui_impl_opengl3.cpp
     includes/imgui/imgui_impl_glfw.cpp
     includes/imgui/imgui_tables.cpp
- "src/Logger.cpp")
+ )
 
 set (HEADER_FILES
   includes/stb_image.h

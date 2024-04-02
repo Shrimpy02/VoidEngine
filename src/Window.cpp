@@ -1,15 +1,18 @@
+
+// Classes
 #include "Window.h"
 #include "Scene.h"
+#include "Logger.h"
 
+// Additional libraries
+// Glad + glfw
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+// ImGui
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include <iostream>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include <windows.h>
 
 Window::Window(std::string name, int width, int height)
     :mName(name), mWidth(width), mHeight(height)
@@ -17,29 +20,39 @@ Window::Window(std::string name, int width, int height)
 
 Window::~Window()
 {
+    // Destroys viewport window
     glfwDestroyWindow(mGLFWWindow);
 
     // ImGui shutdown
 	ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
+    // Delete references
+    delete mScene;
 }
 
 void Window::Init()
 {
+    // Init GLFW-window ------------
     mGLFWWindow = glfwCreateWindow(mWidth, mHeight, mName.c_str(), NULL, NULL);
     if (mGLFWWindow == NULL)
     {
         glfwTerminate();
-        std::cout << "Failed to create GLFW window\n";
+        LOG_ERROR("GLFW Window did not initalize");
     }
     glfwMakeContextCurrent(mGLFWWindow);
+    LOG("Window Init Success");
 
+    // Init Glad ------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Faild to initialize GLAD\n";
+        LOG_ERROR("GLAD did not initalize");
     }
+    LOG("GLAD Init Success");
 
+    // Init ImGui ------------
 	IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -94,19 +107,23 @@ bool Window::LoadContent(Scene* _scene)
 {
     mScene = _scene;
     mScene->LoadContent();
+    LOG("Scene loading complete");
     return true;
 }
 
 void Window::StartFrame()
 {
-    glfwPollEvents();
+	glfwPollEvents();
 
+    // Tell`s ImGui this is the first frame of the render loop
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-  
+
+    // Keeps the scenes window pointer up to date
     mScene->SetWindow(this);
 
+    // Clears color and depth buffer for OpenGL rendering
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -125,8 +142,11 @@ void Window::Render(float dt)
 
 void Window::EndFrame()
 {
+    // Tell`s ImGui this is the last frame of the render loop
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    // Swaps buffers to next image frame & polls events again
     glfwSwapBuffers(mGLFWWindow);
     glfwPollEvents();
 }
@@ -138,11 +158,13 @@ bool Window::IsClosed()
 
 void Window::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
+    // Callback to re-size the window dynamically
     glViewport(0, 0, width, height);
 }
 
 void Window::MouseMoveCallback(GLFWwindow* window, double xpos, double ypos)
 {
+    // Stops glfw from capturing the mouse when ImGui wants it
     if (ImGui::GetIO().WantCaptureMouse) return;
 
     if (mScene)
@@ -151,6 +173,7 @@ void Window::MouseMoveCallback(GLFWwindow* window, double xpos, double ypos)
 
 void Window::MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    // Passes all scroll callbacks to ImGui and stops glfw from using them
     ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
 	if (ImGui::GetIO().WantCaptureMouse) return;
 
@@ -160,6 +183,7 @@ void Window::MouseScrollCallback(GLFWwindow* window, double xoffset, double yoff
 
 void Window::CharCallback(GLFWwindow* window, unsigned int codepoint)
 {
+    // Passes all character keyboard callbacks to ImGui and stops glfw from using them (a,b,c so on)
     ImGui_ImplGlfw_CharCallback(window, codepoint);
     if (ImGui::GetIO().WantCaptureKeyboard) return;
 
@@ -169,6 +193,7 @@ void Window::CharCallback(GLFWwindow* window, unsigned int codepoint)
 
 void Window::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    // Passes all key-keyboard callbacks to ImGui and stops glfw from using them (backspace, enter so on)
 	ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
     if (ImGui::GetIO().WantCaptureKeyboard) return;
 
@@ -178,6 +203,7 @@ void Window::KeyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 void Window::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
+    // Passes all mouse button callbacks to ImGui and stops glfw from using them
    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
    if (ImGui::GetIO().WantCaptureMouse) return;
 
