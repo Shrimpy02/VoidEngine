@@ -14,8 +14,8 @@
 #include "imgui_impl_opengl3.h"
 
 
-Window::Window(std::string name, int width, int height)
-    :mName(name), mWidth(width), mHeight(height)
+Window::Window(std::string _name, int _width, int _height)
+    :mName(_name), mWidth(_width), mHeight(_height)
 {}
 
 Window::~Window()
@@ -65,38 +65,38 @@ void Window::Init()
 
 void Window::RegisterWindowCallbacks()
 {
-    glfwSetFramebufferSizeCallback(mGLFWWindow, [](GLFWwindow* window, int width, int height) {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+    glfwSetFramebufferSizeCallback(mGLFWWindow, [](GLFWwindow* _window, int _width, int _height) {
+        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(_window));
         if (app)
         {
-            app->FramebufferSizeCallback(window, width, height);
-            app->SetWidth(width);
-            app->SetHeight(height);
+            app->FramebufferSizeCallback(_window, _width, _height);
+            app->SetWidth(_width);
+            app->SetHeight(_height);
         }
         });
 
-    glfwSetCursorPosCallback(mGLFWWindow, [](GLFWwindow* window, double xpos, double ypos) {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        if (app) app->MouseMoveCallback(window, xpos, ypos);
+    glfwSetCursorPosCallback(mGLFWWindow, [](GLFWwindow* _window, double _xpos, double _ypos) {
+        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(_window));
+        if (app) app->MouseMoveCallback(_window, _xpos, _ypos);
         });
-    glfwSetMouseButtonCallback(mGLFWWindow, [](GLFWwindow* window, int button, int action, int mods) {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        if (app) app->MouseButtonCallback(window, button, action, mods);
-        });
-
-    glfwSetScrollCallback(mGLFWWindow, [](GLFWwindow* window, double xoffset, double yoffset) {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        if (app) app->MouseScrollCallback(window, xoffset, yoffset);
+    glfwSetMouseButtonCallback(mGLFWWindow, [](GLFWwindow* _window, int _button, int _action, int _mods) {
+        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(_window));
+        if (app) app->MouseButtonCallback(_window, _button, _action, _mods);
         });
 
-    glfwSetCharCallback(mGLFWWindow, [](GLFWwindow* window, unsigned int codepoint) {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        if (app) app->CharCallback(window, codepoint);
+    glfwSetScrollCallback(mGLFWWindow, [](GLFWwindow* _window, double _xoffset, double _yoffset) {
+        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(_window));
+        if (app) app->MouseScrollCallback(_window, _xoffset, _yoffset);
         });
 
-	glfwSetKeyCallback(mGLFWWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        if (app) app->KeyCallback(window, key, scancode, action, mods);
+    glfwSetCharCallback(mGLFWWindow, [](GLFWwindow* _window, unsigned int _codepoint) {
+        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(_window));
+        if (app) app->CharCallback(_window, _codepoint);
+        });
+
+	glfwSetKeyCallback(mGLFWWindow, [](GLFWwindow* _window, int _key, int _scancode, int _action, int _mods) {
+        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(_window));
+        if (app) app->KeyCallback(_window, _key, _scancode, _action, _mods);
         });
 
     // Store pointer so it can be accessed in callbacks
@@ -128,16 +128,16 @@ void Window::StartFrame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Window::Update(float dt)
+void Window::Update(float _dt)
 {
     if (mScene)
-        mScene->Update(dt);
+        mScene->Update(_dt);
 }
 
-void Window::Render(float dt)
+void Window::Render(float _dt)
 {
     if (mScene)
-        mScene->Render(dt);
+        mScene->Render(_dt);
 }
 
 void Window::EndFrame()
@@ -156,57 +156,57 @@ bool Window::IsClosed()
     return glfwWindowShouldClose(mGLFWWindow);
 }
 
-void Window::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
+void Window::FramebufferSizeCallback(GLFWwindow* _window, int _width, int _height)
 {
     // Callback to re-size the window dynamically
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, _width, _height);
 }
 
-void Window::MouseMoveCallback(GLFWwindow* window, double xpos, double ypos)
+void Window::MouseMoveCallback(GLFWwindow* _window, double _xpos, double _ypos)
 {
     // Stops glfw from capturing the mouse when ImGui wants it
     if (ImGui::GetIO().WantCaptureMouse) return;
 
     if (mScene)
-        mScene->MouseMoveCallback(this, xpos, ypos);
+        mScene->MouseMoveCallback(this, _xpos, _ypos);
 }
 
-void Window::MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+void Window::MouseScrollCallback(GLFWwindow* _window, double _xoffset, double _yoffset)
 {
     // Passes all scroll callbacks to ImGui and stops glfw from using them
-    ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+    ImGui_ImplGlfw_ScrollCallback(_window, _xoffset, _yoffset);
 	if (ImGui::GetIO().WantCaptureMouse) return;
 
 	if (mScene)
-        mScene->MouseScrollCallback(this, xoffset, yoffset);
+        mScene->MouseScrollCallback(this, _xoffset, _yoffset);
 }
 
-void Window::CharCallback(GLFWwindow* window, unsigned int codepoint)
+void Window::CharCallback(GLFWwindow* _window, unsigned int _codepoint)
 {
     // Passes all character keyboard callbacks to ImGui and stops glfw from using them (a,b,c so on)
-    ImGui_ImplGlfw_CharCallback(window, codepoint);
+    ImGui_ImplGlfw_CharCallback(_window, _codepoint);
     if (ImGui::GetIO().WantCaptureKeyboard) return;
 
     if (mScene)
-        mScene->CharCallback(this, codepoint);
+        mScene->CharCallback(this, _codepoint);
 }
 
-void Window::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void Window::KeyCallback(GLFWwindow* _window, int _key, int _scancode, int _action, int _mods)
 {
     // Passes all key-keyboard callbacks to ImGui and stops glfw from using them (backspace, enter so on)
-	ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+	ImGui_ImplGlfw_KeyCallback(_window, _key, _scancode, _action, _mods);
     if (ImGui::GetIO().WantCaptureKeyboard) return;
 
     if (mScene)
-        mScene->KeyCallback(this, key, scancode, action, mods);
+        mScene->KeyCallback(this, _key, _scancode, _action, _mods);
 }
 
-void Window::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+void Window::MouseButtonCallback(GLFWwindow* _window, int _button, int _action, int _mods)
 {
     // Passes all mouse button callbacks to ImGui and stops glfw from using them
-   ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+   ImGui_ImplGlfw_MouseButtonCallback(_window, _button, _action, _mods);
    if (ImGui::GetIO().WantCaptureMouse) return;
 
     if (mScene)
-        mScene->MouseButtonCallback(this, button, action, mods);
+        mScene->MouseButtonCallback(this, _button, _action, _mods);
 }

@@ -1,91 +1,125 @@
+
+// Class Includes
 #include <Scene.h>
 #include <Mesh.h>
 #include <Material.h>
 #include <Shader.h>
-#include <Camera.h>
 #include <Actor.h>
-#include <ImGUi/imgui.h>
 #include <Defines.h>
+#include <Camera.h>
+#include <Controller.h>
 #include <CameraController.h>
 #include <ActorController.h>
 #include <Renderer.h>
-#include <memory>
 #include <Logger.h>
+#include <Lights/DirectionalLight.h>
+#include <Lights/PointLight.h>
+#include <ModelLoader/AssimpLoader.h>
+#include <PhysicsComponent.h>
 
-#include <GLFW/glfw3.h>
-
-#include "ModelLoader/AssimpLoader.h"
+// Additional Includes
+#include <ImGUi/imgui.h>
 
 Scene::Scene(const std::string& _name, Window* _window)
 	:mSceneGraph(_name), mWindow(_window) {}
 
 void Scene::LoadContent()
 {
-	//auto diffuseTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/ConstainerDiffuse.jpg"));
-	auto diffuseTex = Texture::Load(SOURCE_DIRECTORY("assets/Models/StoneScene/Textures/wgprbiq_2K_Albedo.jpg"));
+
+	// Texture Loading
+	// --------------------------------------------
+	auto diffuseTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/ConstainerDiffuse.jpg"));
 	auto specTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/container2Specular.jpg"));
-	auto mat = Material::Load("Default", { diffuseTex, specTex }, {});
+	auto crateMat = Material::Load("Crate", { diffuseTex, specTex }, {});
 
-	mCube0 = new MeshActor("Cube0", Mesh::CreateCube(mat));
+	// Shader Loading
+	mShader = new Shader(SOURCE_DIRECTORY("shaderSrc/shader.vs"), SOURCE_DIRECTORY("shaderSrc/shader.fs"));
 
-	Actor* meshTest = new Actor("test");
-	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Sponza/Sponzaf.fbx"), meshTest);
+	// Mesh Actor Loading
+	// --------------------------------------------
+	// Default
+	mCube0 = new MeshActor("Cube0", Mesh::CreateCube(crateMat));
+	mCube1 = new MeshActor("Cube1", Mesh::CreatePlane(crateMat));
+	mCube2 = new MeshActor("Cube2", Mesh::CreatePyramid(crateMat));
+	mCube3 = new MeshActor("Cube3", Mesh::CreateCube(crateMat));
 
-	LOG("finished Loading sponza");
-	LOG_WARNING("wartning string finished Loading sponza");
-	LOG_ERROR("Somethingwhent wrong!");
-	LOG_INFO("Have some infor will ya");
-	LOG("finished testing");
-
-	//mCube1 = new MeshActor("Cube1", Mesh::CreateCube(mat));
-	//mCube2 = new MeshActor("Cube2", Mesh::CreateCube(mat));
-
-	//mPointLightActor0 = new PointLightActor("PointLight0");
-	//mPointLightActor1 = new PointLightActor("PointLight1");
+	// Lights
+	mPointLightActor0 = new PointLightActor("PointLight0");
+	mPointLightActor1 = new PointLightActor("PointLight1");
 	mDirectionalLightActor = new DirectionalLightActor("DirectionalLight0");
 
-	mShader = new Shader(SOURCE_DIRECTORY("shaderSrc/shader.vs"),SOURCE_DIRECTORY("shaderSrc/shader.fs"));
-	
-	mSceneGraph.AddChild(mCube0);
+	// Assimp Import
+	//Actor* meshTest = new Actor("test");
+	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Sponza/Sponzaf.fbx"), meshTest);
+
+
+	// Adding objects to SceneGraph
+	// --------------------------------------------
+	// Objects
 	mSceneGraph.AddChild(&mSceneCamera);
-	//mSceneGraph.AddChild(mCube1);
-	//mSceneGraph.AddChild(mCube2);
-	mSceneGraph.AddChild(meshTest);
+	mSceneGraph.AddChild(mCube0);
+	mSceneGraph.AddChild(mCube1);
+	mSceneGraph.AddChild(mCube2);
+	mSceneGraph.AddChild(mCube3);
+	//mSceneGraph.AddChild(meshTest);
 
-	mCube0->mCollisionProperties.mType = CollisionType::DYNAMIC;
-	//mCube1->mCollisionProperties.mType = CollisionType::DYNAMIC;
-
-	//mSceneGraph.AddChild(mPointLightActor0);
-	//mSceneGraph.AddChild(mPointLightActor1);
+	// Lights
+	mSceneGraph.AddChild(mPointLightActor0);
+	mSceneGraph.AddChild(mPointLightActor1);
 	mSceneGraph.AddChild(mDirectionalLightActor);
 
-	mDirectionalLightActor->SetRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)),Actor::TransformSpace::Global);
-
-	mCube0->SetPosition({ 0.f, 15.f, 0.f }, Actor::TransformSpace::Global);
-	//mCube1->SetPosition({ 2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
-	//mPointLightActor0->SetPosition({0.0f,-1.0f,0.0f}, Actor::TransformSpace::Global);
-	//mPointLightActor1->SetPosition({ 0.0f,1.0f,0.0f }, Actor::TransformSpace::Global);
+	// Setting object location
+	// --------------------------------------------
+	// Objects
 	mSceneCamera.SetPosition({ 0.f, 0.f, 3.f });
+	mCube0->SetPosition({ 0.f, 0.f, 0.f }, Actor::TransformSpace::Global);
+	mCube1->SetPosition({ 2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
+	mCube2->SetPosition({ -2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
+	mCube3->SetPosition({ 0.f, 2.f, 0.f }, Actor::TransformSpace::Global);
 
+	// Lights
+	mDirectionalLightActor->SetRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), Actor::TransformSpace::Global);
+	mPointLightActor0->SetPosition({0.0f,-1.0f,0.0f}, Actor::TransformSpace::Global);
+	mPointLightActor1->SetPosition({ 0.0f,1.0f,0.0f }, Actor::TransformSpace::Global);
+
+	// Setting Properties & Components
+	// --------------------------------------------
+	// Objects
+	mCube3->mCollisionProperties.mType = CollisionType::DYNAMIC;
+	mCube3->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
+
+
+	// Lights
+
+
+	// Controller
 	mActorController = std::shared_ptr<ActorController>(new ActorController(mCube0, mWindow));
 	mCameraController = std::shared_ptr<CameraController>(new CameraController(&mSceneCamera, mWindow));
-
 	mActiveController = mCameraController;
+
+	// Testing:
 }
 
 void Scene::UnloadContent()
 {
+	// Scene objects
 	delete mShader;
 	delete mCube0;
 	delete mCube1;
 	delete mCube2;
+	delete mCube3;
+
+	// Scene Lights
 	delete mDirectionalLightActor;
 	delete mPointLightActor0;
 	delete mPointLightActor1;
 
+	// Other
 	Mesh::ClearCache();
 	Material::ClearCache();
 	Texture::ClearCache();
+	TagUnique::ClearCache();
+	LOG("Caches Cleard");
 }
 
 void Scene::UpdateInputController(float _dt)
@@ -96,31 +130,40 @@ void Scene::UpdateInputController(float _dt)
 
 void Scene::UpdateSceneGraph(Actor* _actor, float _dt, Transform _globalTransform)
 {
+	// if there is no actor reference end function
 	if (!_actor) return;
 
+	// Set transform matrix
 	_globalTransform.SetTransformMatrix(_globalTransform.GetTransformMatrix() * _actor->GetTransformMatrix(Actor::TransformSpace::Local));
 
+	// call update for this actor and its components
 	_actor->Update(_dt);
+	_actor->UpdateComponents(_dt);
 
+	// for each child recursively run through this function
 	const auto& children = _actor->GetChildren();
 	for (Actor* child : children)
-	{
 		UpdateSceneGraph(child, _dt, _globalTransform);
-	}
+	
 }
 
 void Scene::RenderSceneGraph(Actor* _actor, float _dt, Transform _globalTransform)
 {
+	// if there is no actor reference end function
 	if (!_actor) return;
 
+	// Set transform matrix
 	_globalTransform.SetTransformMatrix(_globalTransform.GetTransformMatrix() * _actor->GetTransformMatrix(Actor::TransformSpace::Local));
 
+	// Cast to actor to se if they inherit from IRender,
+	// if they do call their inherited draw function and bind the model matrix
 	if (auto iRender = dynamic_cast<IRender*>(_actor))
 	{
 		mShader->setMat4("model", _globalTransform.GetTransformMatrix());
 		iRender->Draw(mShader);
 	}
 
+	// for each child recursively run through this function
 	const auto& children = _actor->GetChildren();
 	for (Actor* child : children)
 	{
@@ -133,31 +176,124 @@ void Scene::Update(float _dt)
 	// Update input first
 	UpdateInputController(_dt);
 
-	// Update the scene
+	// Update the scene graph -> all objects in scene
 	UpdateSceneGraph(&mSceneGraph, _dt);
 
-	// Then handle collision
+	// Then handle collision for all objects in scene
 	HandleCollision();
 }
 
 void Scene::Render(float _dt)
 {
+	// Enable depth testing
 	glEnable(GL_DEPTH_TEST);
 
+	// Define what shader to use, then bind light and camera
 	mShader->use();
 	BindDirectionalLights();
 	BindPointLights();
 	BindCamera();
+
+	// Render the scene graph -> all objects in scene
 	RenderSceneGraph(&mSceneGraph, _dt);
+	// Render UI over top
 	RenderUI();
 
 	glDepthFunc(GL_LEQUAL);
 }
 
+void Scene::HandleCollision()
+{
+	// Get all IBounded Actors of the scene
+	std::vector<Actor*> collisionActors;
+	mSceneGraph.Query<IBounded>(collisionActors);
+
+	// for each actor that can bound check it against all others
+	for (auto i = 0; i < collisionActors.size(); i++)
+	{
+		for (auto j = i + 1; j < collisionActors.size(); j++)
+		{
+			// Get the two collision actors
+			IBounded* iA = dynamic_cast<IBounded*>(collisionActors[i]);
+			IBounded* iB = dynamic_cast<IBounded*>(collisionActors[j]);
+
+
+			// For ImGui visualization of collision
+			//iA->SetIsColliding(true);
+			//iB->SetIsColliding(true);
+
+
+			// if both are static, skip collision check
+			// Skip intersection if a object ignores collision
+			if (iA->GetCollisionProperties().IsIgnoreResponse() ||
+				iB->GetCollisionProperties().IsIgnoreResponse())
+			{
+				continue;
+			}
+
+			// Skip intersection checks for two static objects
+			if (iA->GetCollisionProperties().IsStatic() &&
+				iB->GetCollisionProperties().IsStatic())
+			{
+				continue;
+			}
+
+			// Get AABB objects to handle collision
+			auto a = iA->GetAABB();
+			auto b = iB->GetAABB();
+
+			// Init an vector to determine offset position based on intersection location
+			// and check if they are intersecting at all
+			glm::vec3 mtv(0.f);
+			if (a.IsIntersecting(b, &mtv))
+			{
+				// For ImGui visualization of collision
+				//iA->SetIsColliding(true);
+				//iB->SetIsColliding(true);
+
+				// Temp bool to se if either object are dynamic
+				bool isADynamic = iA->GetCollisionProperties().IsDynamic();
+				bool isBDynamic = iB->GetCollisionProperties().IsDynamic();
+
+				// mtv vectors for each object
+				glm::vec3 mtvA(0.f), mtvB(0.f);
+
+				// If both actors are dynamic, split the MTV between them
+				if (isADynamic && isBDynamic) {
+					mtvA = -mtv * 0.5f;
+					mtvB = mtv * 0.5f;
+				}
+
+				// If only actor A is dynamic, apply the full MTV to A
+				else if (isADynamic)
+					mtvA = -mtv;
+
+				// If only actor B is dynamic, apply the full MTV to B
+				else if (isBDynamic)
+					mtvB = mtv;
+
+				// No adjustment for static objects
+				// Apply MTV adjustments to objects it has effected
+				if (isADynamic)
+				{
+					collisionActors[i]->SetPosition(collisionActors[i]->GetPosition(Actor::TransformSpace::Global) + mtvA, Actor::TransformSpace::Global);
+				}
+				if (isBDynamic)
+				{
+					collisionActors[j]->SetPosition(collisionActors[j]->GetPosition(Actor::TransformSpace::Global) + mtvB, Actor::TransformSpace::Global);
+				}
+			}
+		}
+	}
+}
+
 void Scene::RenderUI()
 {
+	// World object settings window logic 
 	imgui_WorldObjectSettings();
+	// Debug logger window logic
 	imgui_Logger();
+
 	//ImGui::ShowDemoWindow();
 }
 
@@ -250,9 +386,9 @@ void Scene::imguiSub_WorldDetails(Actor* _aptr)
 	ImGui::Separator();
 
 	// Resets Actor control back to camera when changing selected item
-	if (mOldSelectionIndex != mCurrentSelectionIndex)
+	if (mOldSelectionIndex != mMainSelectionIndex)
 		mCanControlActor = false;
-	mOldSelectionIndex = mCurrentSelectionIndex;
+	mOldSelectionIndex = mMainSelectionIndex;
 
 	// Decides if user can control the selected actor
 	// ----------------------------------------------
@@ -454,94 +590,6 @@ void Scene::imgui_Logger()
 	// All errors post here in adddition to termial?
 }
 
-void Scene::HandleCollision()
-{
-	std::vector<Actor*> collisionActors;
-	mSceneGraph.Query<IBounded>(collisionActors);
-
-	for (auto i = 0; i < collisionActors.size(); i++)
-	{
-		for(auto j = i+1; j < collisionActors.size(); j++)
-		{
-			// Get the two collision actors
-			IBounded* iA = dynamic_cast<IBounded*>(collisionActors[i]);
-			IBounded* iB = dynamic_cast<IBounded*>(collisionActors[j]);
-
-			shint++;
-
-			// for imgui
-			//iA->SetIsColliding(true);
-			//iB->SetIsColliding(true);
-
-
-			//iB->SetIsColliding(false);
-
-			// if both are static, skip collision check
-			// Skip intersection if a object ignores collision
-			if (iA->GetCollisionProperties().IsIgnoreResponse() ||
-				iB->GetCollisionProperties().IsIgnoreResponse())
-			{
-				continue;
-			}
-
-			// Skip intersection checks for two static objects
-			if (iA->GetCollisionProperties().IsStatic() &&
-				iB->GetCollisionProperties().IsStatic())
-			{
-				continue;
-			}
-
-			auto a = iA->GetAABB();
-			auto b = iB->GetAABB();
-
-		
-			
-			glm::vec3 mtv(0.f);
-			if(a.IsIntersecting(b,&mtv))
-			{
-				//iA->SetIsColliding(true);
-				//iB->SetIsColliding(true);
-
-				if (a.IsIntersecting(b, &mtv))
-				{
-					std::cout << "Shint reached";
-				}
-
-				bool isADynamic = iA->GetCollisionProperties().IsDynamic();
-				bool isBDynamic = iB->GetCollisionProperties().IsDynamic();
-
-				glm::vec3 mtvA(0.f), mtvB(0.f);
-
-				if(isADynamic && isBDynamic)
-				{
-					// If both actors are dynamic, split the MTV between them
-					mtvA = -mtv * 0.5f;
-					mtvB = mtv * 0.5f;
-				}
-				else if (isADynamic)
-				{
-					// If only actor A is dynamic, apply the full MTV to A
-					mtvA = -mtv;
-				}
-				else if (isBDynamic)
-				{
-					// If only actor B is dynamic, apply the full MTV to B
-					mtvB = mtv;
-				}
-				// No adjustment for static objects
-				// Apply MTV adjustments
-				if (isADynamic)
-				{
-					collisionActors[i]->SetPosition(collisionActors[i]->GetPosition(Actor::TransformSpace::Global) + mtvA, Actor::TransformSpace::Global);
-				}
-				if (isBDynamic)
-				{
-					collisionActors[j]->SetPosition(collisionActors[j]->GetPosition(Actor::TransformSpace::Global) + mtvB, Actor::TransformSpace::Global);
-				}
-			}
-		}
-	}
-}
 
 void Scene::FramebufferSizeCallback(Window* _window, int _width, int _height)
 {
@@ -566,7 +614,7 @@ void Scene::MouseScrollCallback(Window* _window, double _xoffset, double _yoffse
 		mActiveController->HandleMouseScroll(_window, _xoffset, _yoffset);
 }
 
-void Scene::CharCallback(Window* _window, unsigned int codepoint)
+void Scene::CharCallback(Window* _window, unsigned int _codepoint)
 {
 	// Mostly for imgui logic. has no glfw oriented function as of yet. 
 }
@@ -579,10 +627,11 @@ void Scene::KeyCallback(Window* _window, int _key, int _scancode, int _action, i
 
 void Scene::BindDirectionalLights()
 {
-	// light
+	// Gets all directional light actors of the scene
 	std::vector<Actor*> directionalLights;
 	mSceneGraph.Query<DirectionalLightActor>(directionalLights);
 
+	// Since there should only be one sun, pas its direction, color and ambient to the general shader.
 	if (!directionalLights.empty())
 	{
 		auto dl = dynamic_cast<DirectionalLightActor*>(directionalLights[0]);
@@ -590,19 +639,28 @@ void Scene::BindDirectionalLights()
 		mShader->setVec3("dl.color", dl->mColor);
 		mShader->setVec3("dl.ambient", dl->mAmbient);
 	}
+
+	if(directionalLights.size() > 1)
+		LOG_WARNING("More than one directional lights are not bound");
 }
 
 void Scene::BindPointLights()
 {
+	// Gets all point light actors in the scene
 	std::vector<Actor*> pointLightActors;
 	mSceneGraph.Query<PointLightActor>(pointLightActors);
 
+	// Passes the num point lights total to shader + light specific for each point light
 	mShader->setInt("numPointLights", static_cast<int>(pointLightActors.size()));
 	for (int i = 0; i < pointLightActors.size(); i++)
 	{
 		auto PLights = dynamic_cast<PointLightActor*>(pointLightActors[i]);
 
+		if (i > MAX_POINT_LIGHTS) { LOG_WARNING("Max point lights reached, no more being processed"); continue; }
+
+		// Creates the correct array index reference based on the num elements of lights 
 		std::string pointLightArrayIndex = "pointLights[" + std::to_string(i) + "]";
+		// Passes all point light variables to the shader.
 		mShader->setVec3(pointLightArrayIndex + ".ambient", PLights->mAmbient);
 		mShader->setVec3(pointLightArrayIndex + ".color", PLights->mColor);
 		mShader->setVec3(pointLightArrayIndex + ".position", PLights->GetLightPosition());
@@ -614,6 +672,7 @@ void Scene::BindPointLights()
 
 void Scene::BindCamera()
 {
+	// Passes the cameras matrix`s to the shader for positional computation 
 	mShader->setMat4("view", mSceneCamera.GetViewMatrix());
 	mShader->setMat4("projection", mSceneCamera.GetProjectionMatrix());
 	mShader->setVec3("viewPos", mSceneCamera.GetPosition(Actor::TransformSpace::Global));

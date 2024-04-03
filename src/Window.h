@@ -23,7 +23,7 @@ public:
 	// ---------- Global functions --------------
 
 	// Constructor
-	Window(std::string name, int width, int height);
+	Window(std::string _name, int _width, int _height);
 
 	// Disable copying and deleting of this class
 	Window(const Window&) = delete;
@@ -46,9 +46,9 @@ public:
 	// First frame of the render loop
 	void StartFrame();
 	// Update logic per frame
-	void Update(float dt);
+	void Update(float _dt);
 	// Render logic per frame
-	void Render(float dt);
+	void Render(float _dt);
 	// Last frame of the render loop
 	void EndFrame();
 
@@ -56,12 +56,12 @@ public:
 	bool IsClosed();
 
 	// Callbacks
-	void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
-	void MouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
-	void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-	void MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-	void CharCallback(GLFWwindow* window, unsigned int codepoint);
-	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	void FramebufferSizeCallback(GLFWwindow* _window, int _width, int _height);
+	void MouseMoveCallback(GLFWwindow* _window, double _xpos, double _ypos);
+	void MouseButtonCallback(GLFWwindow* _window, int _button, int _action, int _mods);
+	void MouseScrollCallback(GLFWwindow* _window, double _xoffset, double _yoffset);
+	void CharCallback(GLFWwindow* _window, unsigned int _codepoint);
+	void KeyCallback(GLFWwindow* _window, int _key, int _scancode, int _action, int _mods);
 
 private:
 	// ---------- Local functions --------------

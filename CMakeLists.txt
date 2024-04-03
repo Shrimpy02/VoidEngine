@@ -34,7 +34,7 @@ set( IMGUI_SOURCE
     includes/imgui/imgui_impl_opengl3.cpp
     includes/imgui/imgui_impl_glfw.cpp
     includes/imgui/imgui_tables.cpp
- )
+  "src/PhysicsComponent.cpp")
 
 set (HEADER_FILES
   includes/stb_image.h
@@ -60,7 +60,7 @@ set (HEADER_FILES
   src/Lights/Lights.h 
   src/Lights/DirectionalLight.h 
   src/Lights/PointLight.h  
-  src/Defines.h "src/ModelLoader/AssimpLoader.h" "src/ModelLoader/AssimpUtility.h" "src/ModelLoader/Shared.h" "src/Logger.h")
+  src/Defines.h "src/ModelLoader/AssimpLoader.h" "src/ModelLoader/AssimpUtility.h" "src/ModelLoader/Shared.h" "src/Logger.h" "src/PhysicsComponent.h" "src/Component.h")
 
 set (SRC_FILES
   3DProgEngine.cpp

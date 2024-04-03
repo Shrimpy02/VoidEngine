@@ -1,18 +1,24 @@
 #pragma once
-#include <string>
-#include <vector>
-#include <glm/fwd.hpp>
-#include <glm/vec3.hpp>
-#include "Transform.h"
-#include "Tag.h"
+// Includes 
+#include <Component.h>
+#include <Transform.h>
+#include <Tag.h>
 
+// Additional includes
+#include <vector>
+
+/**
+ * @class Actor
+ * @brief The actor acts as an object in the world. It contains parent/child link,
+ * components and world/local location. All requirements to exist in a scene.
+ */
 class Actor
 {
 public:
 	// ---------- Global Variables --------------
 
-	enum class TransformSpace
-	{
+	// Enum for what space to transform in.
+	enum class TransformSpace{
 		Local,
 		Global
 	};
@@ -20,85 +26,99 @@ public:
 private:
 	// ---------- Local Variables --------------
 
+	 // Scene graph
 	Actor* mParent = nullptr;
 	std::vector<Actor*> mChildren;
-	// Components
-	//std::vector<Component*> mComponents;
 
+	// Components
+	std::vector<Component*> mComponents;
+
+	// Other
 	TagUnique mTag;
 	Transform mTransform{};
 
 public:
 	// ---------- Global functions --------------
 
-	// name can go into tag at some point
-	Actor(const std::string& _name) : mTag(_name), mParent(nullptr) {};
+	// Constructor
+	Actor(const std::string& _name) : mTag(_name), mParent(nullptr) {}
 
+	// Disable moveing and copying
 	Actor(const Actor&) = delete;
 	Actor& operator=(const Actor&) = delete;
-
 	Actor(Actor&&) = default;
 	Actor& operator=(Actor&&) = default;
 
-	~Actor();
+	// Deconstructs children and components, virtual passes deconstructing to inherited first.
+	virtual ~Actor();
 
-	virtual void Update(float dt);
+	// Updates per tick, virtual for inherited functions
+	virtual void Update(float _dt);
 
-	void UpdateComponents(float dt);
+	// updates all components per tick
+	void UpdateComponents(float _dt);
 
+	// Adds a child to this actor, also sets the child`s parent to this actor
 	void AddChild(Actor* _child);
+
+	// Removes a specific child from from this actor, also removes child`s parent reference if this actor is its parent.
 	void RemoveChild(Actor* _child);
 
+	// Template function that takes in a class and name, if that class has component as a base it creates
+	// that object as a component and adds it to the components vector of this actor.
 	template <typename T>
-	void AddComponent(const std::string& componentName)
+	void AddComponent(const std::string& _componentName)
 	{
-		/*static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component");
+		static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component");
 
-		auto component = new T(componentName, this);
+		auto component = new T(_componentName, this);
 		component->Init();
-		mComponents.emplace_back(component);*/
+		mComponents.emplace_back(component);
+	}
+
+	// Template function that recursively checks itself and its children if they are actors.
+	// If true they are added to the input vector address.
+	template <typename T>
+	void Query(std::vector<Actor*>& _actors)
+	{
+		if (dynamic_cast<T*>(this))
+			_actors.emplace_back(this);
+
+		for (auto child : this->mChildren)
+			child->Query<T>(_actors);
 	}
 
 private:
 	// ---------- Local functions --------------
 
-
-
 public:
-	// ---------- Getters and setters --------------
+	// ---------- Getters / setters / adders --------------
 
-	// Getters
+	// Getters ---------
+	// transform getters
+
+	const glm::vec3& GetPosition(Actor::TransformSpace _type) const;
+	const glm::quat& GetRotation(Actor::TransformSpace _type) const;
+	const glm::vec3& GetScale(Actor::TransformSpace _type) const;
+	const Transform& GetTransform() const;
+	const glm::mat4 GetTransformMatrix(Actor::TransformSpace _type) const;
+	Transform* GetTransform() { return &mTransform; }
+	glm::vec3 GetRight() const;
+
+	// other getters
+
 	const std::string& GetTag() { return mTag.GetValue(); }
+	std::vector<Actor*>& GetChildren();
 
-	void SetParent(Actor* _parent);
-	void SetLocalTransformMatrix(const glm::mat4& transformMatrix);
+	// Setters ---------
+	// transform setters
+
+	void SetLocalTransformMatrix(const glm::mat4& _transformMatrix);
 	void SetTransform(const Transform& _transform);
 	void SetPosition(const glm::vec3& _position, Actor::TransformSpace _type = Actor::TransformSpace::Local);
 	void SetRotation(const glm::quat& _rotation, Actor::TransformSpace _type = Actor::TransformSpace::Local);
 	void SetScale(const glm::vec3& _scale, Actor::TransformSpace _type = Actor::TransformSpace::Local);
 
-	const glm::vec3& GetPosition(Actor::TransformSpace _type) const;
-
-	const glm::quat& GetRotation(Actor::TransformSpace _type) const;
-
-	const glm::vec3& GetScale(Actor::TransformSpace _type) const;
-
-	const Transform& GetTransform() const;
-	const glm::mat4 GetTransformMatrix(Actor::TransformSpace _type) const;
-
-	Transform* GetTransform() { return &mTransform; }
-
-	std::vector<Actor*>& GetChildren();
-	glm::vec3 GetRight() const;
-
-	template <typename T>
-	void Query(std::vector<Actor*>& actors)
-	{
-		if (dynamic_cast<T*>(this))
-			actors.emplace_back(this);
-
-		for (auto child : this->mChildren)
-			child->Query<T>(actors);
-	}
-
+	// other setters
+	void SetParent(Actor* _parent);
 };
