@@ -41,7 +41,7 @@ void Scene::LoadContent()
 	mCube0 = new MeshActor("Cube0", Mesh::CreateCube(crateMat));
 	mCube1 = new MeshActor("Cube1", Mesh::CreatePlane(crateMat));
 	mCube2 = new MeshActor("Cube2", Mesh::CreatePyramid(crateMat));
-	mCube3 = new MeshActor("Cube3", Mesh::CreateCube(crateMat));
+	mCube3 = new MeshActor("Cube3", Mesh::CreateSphere(crateMat,4));
 
 	// Lights
 	mPointLightActor0 = new PointLightActor("PointLight0");
@@ -85,8 +85,8 @@ void Scene::LoadContent()
 	// Setting Properties & Components
 	// --------------------------------------------
 	// Objects
-	mCube3->mCollisionProperties.mType = CollisionType::DYNAMIC;
-	mCube3->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
+	//mCube3->mCollisionProperties.mType = CollisionType::DYNAMIC;
+	//mCube3->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
 
 
 	// Lights

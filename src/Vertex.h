@@ -29,9 +29,5 @@ struct Vertex
         glEnableVertexAttribArray(2);
     }
 
-    // Setters ---------------
-
-
-    // Getters ---------------
     
 };
