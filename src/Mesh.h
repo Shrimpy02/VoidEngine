@@ -1,13 +1,9 @@
 #pragma once
-// Includes 
-#include <Renderer.h>
-#include <Collision.h>
-#include <Actor.h>
 
+// Includes 
 #include <Vertex.h>
 #include <Material.h>
 #include <Types.h>
-#include <AABB.h>
 
 // Other includes
 #include <vector>
@@ -113,45 +109,6 @@ public:
     std::vector<Vertex>& GetVetices() { return mVertices; }
 };
 
-// ---------------------------------------------------------------
-// --------------------- Mesh Actor ------------------------------
-// ---------------------------------------------------------------
-
-class MeshActor : public Actor, public IRender, public IBounded
-{
-public:
-    // ---------- Global Variables --------------
-
-    Mesh* mMesh{ nullptr };
-    Mesh* mCollisionMeshVisualization{ nullptr };
-    //MeshActor* mCollisionMeshVisualization{ nullptr };
-	CollisionProperties mCollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK };
-
-    bool mShouldDrawCollisionDebugMesh = false;
-
-private:
-    // ---------- Local Variables --------------
-
-public:
-    // ---------- Global functions --------------
-
-    MeshActor(const std::string& _name, Mesh* _mesh);
-    virtual void Draw(const class Shader* _shader = nullptr) const override;
-    virtual AABB GetAABB() const override;
-    virtual CollisionProperties GetCollisionProperties() const override;
-
-private:
-    // ---------- Local functions --------------
 
 
-public:
-    // ---------- Getters / setters / Adders --------------
-
-    // Adders
-
-    // Setters
-    void SetDrawDebugCollisionMesh(bool _state) { mShouldDrawCollisionDebugMesh = _state; }
-    // Getters
-
-};
 

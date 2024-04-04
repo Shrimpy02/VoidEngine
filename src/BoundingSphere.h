@@ -7,35 +7,16 @@
 
 struct BoundingSphere
 {
-private:
     // ----------- Variables ---------------
 
-     // ----------- Functions ---------------
+    glm::vec3 mCenter{ 0.0f,0.0f,0.0f };
 
-public:
-    // ----------- Variables ---------------
-    glm::vec3 center{ 0.0f,0.0f,0.0f };
-    glm::vec3 extent{ 0.5f,0.5f,0.5f };
+    float mRadius = 1.f;
 
     // ----------- Functions ---------------
-    BoundingSphere(const glm::vec3& center, const glm::vec3& extent) : center(center), extent(extent) {}
 
-  /*  bool IsIntersecting(const AABB& other, glm::vec3* mtv) const
-    {
-        
-    }
-    bool IsIntersecting(const BoundingSphere& other, glm::vec3* mtv) const
-    {
-
-    }*/
-
-    // Adders ---------------
+	BoundingSphere(const glm::vec3& _center, const float _radius) : mCenter(_center), mRadius(_radius) {}
 
 
-    // Setters ---------------
-
-
-
-    // Getters ---------------
 
 };

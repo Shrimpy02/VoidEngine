@@ -40,7 +40,7 @@ Texture* Texture::Load(const std::string& _path)
 	// otherwise create new texture and assign it to the cache
 	Texture* texture = new Texture(_path);
 	sCache[_path] = texture;
-	LOG("Texture Init Complete: %s", endOfPath.c_str());
+	LOG("Texture Load Complete: %s", endOfPath.c_str());
 	return texture;
 }
 

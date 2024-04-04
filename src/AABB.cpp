@@ -1,44 +1,66 @@
+
+// Includes 
 #include "AABB.h"
+#include <glm/glm.hpp>
 
-void AABBActor::Draw(const Shader* _shader) const
+bool AABB::IsIntersecting(const AABB& other, glm::vec3* mtv) const
 {
-   if (mDrawCollisionMesh)
-   {
-       if (mCollisionMesh)
-       {
-           glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-           mCollisionMesh->Draw(_shader);
-           glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-       }
-   }
-}
+    // calculates the difference from one center to the other
+       // and their extent sum
+    glm::vec3 diff = other.center - this->center;
+    glm::vec3 sumExtent = this->extent + other.extent;
 
-AABB AABBActor::GetAABB() const
-{
-    //auto aabb = AABB(mAABB.center, mAABB.extent);
-    //aabb.center += GetPosition(Actor::TransformSpace::Global);
-    //aabb.extent *= GetScale(Actor::TransformSpace::Global);
-    //// AABBs should not really be able to rotate, but this is okay as long as they rotate to a new aligned axis
-    //aabb.extent = abs(GetRotation(Actor::TransformSpace::Global) * aabb.extent);
-    //return aabb;
+    // Check each axis. 0 = x, 1 = y, 2 = z. 
+    for (int i = 0; i < 3; i++)
+    {
+        // if the difference in length is larger then the sum extent
+        // in each axis there is no intersection.
+        glm::vec3 newdif = abs(diff);
 
-  // Calculate scaled min and max extents
-  glm::vec3 scaledMinExtent = mMinExtent * GetScale(TransformSpace::Global);
-  glm::vec3 scaledMaxExtent = mMaxExtent * GetScale(TransformSpace::Global);
+        if (newdif[i] >= sumExtent[i])
+        {
+            return false; // no intersection
+        }
+    }
 
-  // Calculate extent of the AABB
-  glm::vec3 extent = (scaledMaxExtent - scaledMinExtent) * 0.5f;
+    // If there is an intersection (ie function has not returned yet)
+    // and the caller wants to calculate the minimum translation vector
+    if (mtv)
+    {
+        // Gets collision values from the check earlier
+        glm::vec3 mtvValues;
+        for (int i = 0; i < 3; i++)
+        {
+            mtvValues[i] = sumExtent[i] - abs(diff[i]);
+        }
 
-  glm::vec3 rotatedExtent = glm::vec3(extent.x, extent.z, extent.y);
+        // Find the minimum non-zero translation vector
+        // by iterating through each axis and selecting the smallest non zero value.
+        float minMTV = FLT_MAX;
+        int minAxis = -1;
 
-	// get center based on its position
-  glm::vec3 center = mCenter + GetPosition(TransformSpace::Global);
+        // axis
+        for (int i = 0; i < 3; i++)
+        {
+            // if an axis value is less than minMTV and greater than 0
+            if (mtvValues[i] < minMTV && mtvValues[i] > 0)
+            {
+                // set new minMTV and its axis
+                minMTV = mtvValues[i];
+                minAxis = i;
+            }
+        }
 
-  // Construct and return the AABB
-  return AABB(GetPosition(TransformSpace::Global), extent);
-}
+        // calculates the direction of the mtv based on the axis with the smallest mtv 
+        if (minAxis != -1)
+        {
+            // Calc direction
+            glm::vec3 direction = glm::vec3(0);
+            direction[minAxis] = diff[minAxis] > 0.f ? 1.f : -1.f;
+            // Assigns the calculated mtv ti the mtv pointer.
+            *mtv = direction * minMTV;
+        }
+    }
 
-CollisionProperties AABBActor::GetCollisionProperties() const
-{
-    return mCollisionProperties;
+    return true; // intersection exists
 }

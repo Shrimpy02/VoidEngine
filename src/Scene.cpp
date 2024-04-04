@@ -1,7 +1,7 @@
 
 // Class Includes
 #include <Scene.h>
-#include <Mesh.h>
+#include <SceneActors.h>
 #include <Material.h>
 #include <Shader.h>
 #include <Actor.h>
@@ -38,10 +38,13 @@ void Scene::LoadContent()
 	// Mesh Actor Loading
 	// --------------------------------------------
 	// Default
-	mCube0 = new MeshActor("Cube0", Mesh::CreateCube(crateMat));
-	mCube1 = new MeshActor("Cube1", Mesh::CreatePlane(crateMat));
-	mCube2 = new MeshActor("Cube2", Mesh::CreatePyramid(crateMat));
-	mCube3 = new MeshActor("Cube3", Mesh::CreateSphere(crateMat,4));
+	mMACube0 = new BaseActor("MACube0", Mesh::CreateCube(crateMat));
+	mMAPlane0 = new BaseActor("MAPlane0", Mesh::CreatePlane(crateMat));
+	mMAPyramid0 = new BaseActor("MAPyramid0", Mesh::CreatePyramid(crateMat));
+	mMASphere0 = new BaseActor("MASphere0", Mesh::CreateSphere(crateMat,3));
+
+	mVAPyramid0 = new VisualActor("VAPyramid0", Mesh::CreatePyramid(crateMat));
+	mAACube0 = new AABBActor("AACube0", Mesh::CreateCube(crateMat));
 
 	// Lights
 	mPointLightActor0 = new PointLightActor("PointLight0");
@@ -49,19 +52,23 @@ void Scene::LoadContent()
 	mDirectionalLightActor = new DirectionalLightActor("DirectionalLight0");
 
 	// Assimp Import
-	//Actor* meshTest = new Actor("test");
-	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Sponza/Sponzaf.fbx"), meshTest);
+	//Actor* Asponza = new Actor("Asponza");
+	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Sponza/Sponzaf.fbx"), Asponza);
 
 
 	// Adding objects to SceneGraph
 	// --------------------------------------------
 	// Objects
 	mSceneGraph.AddChild(&mSceneCamera);
-	mSceneGraph.AddChild(mCube0);
-	mSceneGraph.AddChild(mCube1);
-	mSceneGraph.AddChild(mCube2);
-	mSceneGraph.AddChild(mCube3);
-	//mSceneGraph.AddChild(meshTest);
+	mSceneGraph.AddChild(mMACube0);
+	mSceneGraph.AddChild(mMAPlane0);
+	mSceneGraph.AddChild(mMAPyramid0);
+	mSceneGraph.AddChild(mMASphere0);
+	//mSceneGraph.AddChild(Asponza);
+
+	mSceneGraph.AddChild(mVAPyramid0);
+	mSceneGraph.AddChild(mAACube0);
+
 
 	// Lights
 	mSceneGraph.AddChild(mPointLightActor0);
@@ -72,10 +79,13 @@ void Scene::LoadContent()
 	// --------------------------------------------
 	// Objects
 	mSceneCamera.SetPosition({ 0.f, 0.f, 3.f });
-	mCube0->SetPosition({ 0.f, 0.f, 0.f }, Actor::TransformSpace::Global);
-	mCube1->SetPosition({ 2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
-	mCube2->SetPosition({ -2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
-	mCube3->SetPosition({ 0.f, 2.f, 0.f }, Actor::TransformSpace::Global);
+	mMACube0->SetPosition({ 0.f, 0.f, 0.f }, Actor::TransformSpace::Global);
+	mMAPlane0->SetPosition({ 2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
+	mMAPyramid0->SetPosition({ -2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
+	mMASphere0->SetPosition({ 0.f, 2.f, 0.f }, Actor::TransformSpace::Global);
+
+	mVAPyramid0->SetPosition({ -2.f, -2.f, 0.f }, Actor::TransformSpace::Global);
+	mAACube0->SetPosition({ 0.f, -2.f, 0.f }, Actor::TransformSpace::Global);
 
 	// Lights
 	mDirectionalLightActor->SetRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), Actor::TransformSpace::Global);
@@ -85,7 +95,7 @@ void Scene::LoadContent()
 	// Setting Properties & Components
 	// --------------------------------------------
 	// Objects
-	//mCube3->mCollisionProperties.mType = CollisionType::DYNAMIC;
+	mMACube0->mCollisionProperties.mType = CollisionType::DYNAMIC;
 	//mCube3->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
 
 
@@ -93,7 +103,7 @@ void Scene::LoadContent()
 
 
 	// Controller
-	mActorController = std::shared_ptr<ActorController>(new ActorController(mCube0, mWindow));
+	mActorController = std::shared_ptr<ActorController>(new ActorController(mMACube0, mWindow));
 	mCameraController = std::shared_ptr<CameraController>(new CameraController(&mSceneCamera, mWindow));
 	mActiveController = mCameraController;
 
@@ -104,10 +114,13 @@ void Scene::UnloadContent()
 {
 	// Scene objects
 	delete mShader;
-	delete mCube0;
-	delete mCube1;
-	delete mCube2;
-	delete mCube3;
+	delete mMACube0;
+	delete mMAPlane0;
+	delete mMAPyramid0;
+	delete mMASphere0;
+
+	delete mVAPyramid0;
+	delete mAACube0;
 
 	// Scene Lights
 	delete mDirectionalLightActor;
@@ -119,7 +132,7 @@ void Scene::UnloadContent()
 	Material::ClearCache();
 	Texture::ClearCache();
 	TagUnique::ClearCache();
-	LOG("Caches Cleard");
+	LOG("Cache Cleard");
 }
 
 void Scene::UpdateInputController(float _dt)
@@ -251,6 +264,12 @@ void Scene::HandleCollision()
 				//iA->SetIsColliding(true);
 				//iB->SetIsColliding(true);
 
+				if (a.IsIntersecting(b, &mtv))
+				{
+					LOG("pis");
+				}
+
+
 				// Temp bool to se if either object are dynamic
 				bool isADynamic = iA->GetCollisionProperties().IsDynamic();
 				bool isBDynamic = iB->GetCollisionProperties().IsDynamic();
@@ -360,11 +379,11 @@ void Scene::imgui_WorldObjectSettings()
 			// ------------------------------------------
 			ImGui::Checkbox("Show Collision debug mesh", &mShouldDrawCollisionDebugMesh);
 			std::vector<Actor*> tempActors;
-			mSceneGraph.Query<MeshActor>(tempActors);
+			mSceneGraph.Query<BaseActor>(tempActors);
 
 			for (auto* actor : tempActors)
 			{
-				MeshActor* mA = dynamic_cast<MeshActor*>(actor);
+				BaseActor* mA = dynamic_cast<BaseActor*>(actor);
 				if(mA)
 				{
 					if (mShouldDrawCollisionDebugMesh)

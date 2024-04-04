@@ -2,7 +2,7 @@
 // Includes
 #include <Camera.h>
 #include <SceneGraph.h>
-#include <Mesh.h>
+#include "SceneActors.h"
 
 // Additional Includes
 #include <memory>
@@ -25,14 +25,20 @@ private:
     // ---------- Local Variables --------------
 
 	// Shader`s ----------------- 
-    class Shader* mShader{ nullptr };
+    Shader* mShader{ nullptr };
 
     // Scene Items -------------------------
-     MeshActor* mCube0{ nullptr };
-     MeshActor* mCube1{ nullptr };
-     MeshActor* mCube2{ nullptr };
-     MeshActor* mCube3{ nullptr };
+    // MeshActors
+    BaseActor* mMACube0{ nullptr };
+    BaseActor* mMAPlane0{ nullptr };
+    BaseActor* mMAPyramid0{ nullptr };
+    BaseActor* mMASphere0{ nullptr };
 
+    // Other actors
+     VisualActor* mVAPyramid0{ nullptr };
+     AABBActor* mAACube0{ nullptr };
+
+	// lights
     class PointLightActor* mPointLightActor0{ nullptr };
     class PointLightActor* mPointLightActor1{ nullptr };
     class DirectionalLightActor* mDirectionalLightActor{ nullptr };

@@ -3,7 +3,7 @@
 #include <ModelLoader/Shared.h>
 #include <ModelLoader/AssimpUtility.h>
 #include <Vertex.h>
-#include <Mesh.h>
+#include <SceneActors.h>
 #include <Material.h>
 #include <Texture.h>
 #include <exception>
@@ -113,7 +113,7 @@ void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, Actor* pare
 				internalMesh->SetMaterial(internalMaterial);
 			}
 
-			MeshActor* meshActor = new MeshActor(actorName, internalMesh);
+			BaseActor* meshActor = new BaseActor(actorName, internalMesh);
 			// Set the collision properties for the actor to ignore. This should be set to BLOCK when culling the scene in a different collision channel.
 			meshActor->mCollisionProperties.mResponse = CollisionResponse::IGNORE;
 			actor = meshActor;
@@ -335,5 +335,7 @@ AABBActor* AssimpLoader::ProcessCollisionAABB(aiMesh* _mesh, std::string _name)
 
 	center /= static_cast<float>(_mesh->mNumVertices);
 
-	return new AABBActor(_name, ProcessMesh(_mesh), maxExtent, minExtent, center);
+	return nullptr;
+
+	//return new AABBActor(_name, ProcessMesh(_mesh), maxExtent, minExtent, center);
 }

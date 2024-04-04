@@ -2,6 +2,7 @@
 #include <corecrt_math_defines.h>
 #include <Mesh.h>
 #include <Logger.h>
+#include <Defines.h>
 
 // static cache of meshes
 std::unordered_map<std::string, Mesh*> Mesh::mCache;
@@ -354,77 +355,3 @@ glm::vec2 Mesh::CalculateTexCoord(const glm::vec3& _vec)
     return glm::vec2(u, v);
 }
 
-// ---------------------------------------------------------------
-// --------------------- Mesh Actor ------------------------------
-// ---------------------------------------------------------------
-
-MeshActor::MeshActor(const std::string& _name, Mesh* _mesh)
-    :Actor(_name), mMesh(_mesh)
-{
-    //// Add debug mesh to show collision
-	//auto Tex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/white.jpg"));
-	//auto mat = Material::Load("Collision-Debug", { Tex }, {});
-	//mCollisionMeshVisualization = IBounded::CreateCollisionCube(mat, mMesh->GetVetices(), "CollisionCube");
-}
-
-void MeshActor::Draw(const Shader* _shader) const
-{
-	if (!mMesh) return; 
-
-	mMesh->Draw(_shader);
-
-    if (mCollisionMeshVisualization && mShouldDrawCollisionDebugMesh){
-        // draws debug collision mesh if exists and has permission
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        mCollisionMeshVisualization->Draw(_shader);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
-}
-
-AABB MeshActor::GetAABB() const
-{
-    return AABB(GetPosition(TransformSpace::Global), GetScale(TransformSpace::Global) * 0.5f);
-}
-
-CollisionProperties MeshActor::GetCollisionProperties() const
-{
-    return mCollisionProperties;
-}
-
-//AABB MeshActor::GenAABB() 
-//{
-//    if (mCollisionMeshVisualization)
-//    {
-//        glm::vec3 minExtent = GetMinExtent();
-//        glm::vec3 maxExtent = GetMaxExtent();
-//
-//        // Calculate scaled min and max extents
-//        glm::vec3 scaledMinExtent = minExtent * GetScale(TransformSpace::Global);
-//        glm::vec3 scaledMaxExtent = maxExtent * GetScale(TransformSpace::Global);
-//
-//        // Apply object's position
-//        glm::vec3 position = GetPosition(TransformSpace::Global);
-//
-//        // Calculate center of the AABB
-//        glm::vec3 center = (scaledMinExtent + scaledMaxExtent) * 0.5f + position;
-//
-//        // Calculate extent of the AABB
-//        glm::vec3 extent = (scaledMaxExtent - scaledMinExtent) * 0.5f;
-//
-//        // Construct and return the AABB
-//        return AABB(center, extent);
-//    } else {
-//        return AABB(GetPosition(TransformSpace::Global), GetScale(TransformSpace::Global) * 0.5f);
-//    }
-//	
-//}
-
-//BoundingSphere MeshActor::GenBoundingSphere()
-//{
-//    return BoundingSphere(GetPosition(TransformSpace::Global), GetScale(TransformSpace::Global) * 0.5f);
-//}
-//
-//CollisionProperties* MeshActor::GetCollisionProperties()
-//{
-//    return &mCollisionProperties; 
-//}
