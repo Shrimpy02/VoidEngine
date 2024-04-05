@@ -93,7 +93,7 @@ void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, Actor* pare
 		{
 			//AABB aabb = ProcessCollisionAABB(mesh, actorName);
 			//actor = new AABBActor(actorName, ProcessMesh(mesh), aabb);
-			actor = ProcessCollisionAABB(mesh, actorName);
+			//actor = ProcessCollisionAABB(mesh, actorName);
 		}
 		else if (HasLightPrefix(mesh->mName.C_Str(), lightPrefix))
 		{

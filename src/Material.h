@@ -86,6 +86,8 @@ public:
 	// Gets the texture based on type from this material. 
     Texture* GetTexture(TextureType _type) const;
 
+    static Material* GetMaterialFromCache(std::string& _name);
+
     // Set the input texture of input type to the assigned place in the texrure array.
     void SetTexture(TextureType _type, Texture* _texture);
 

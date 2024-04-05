@@ -6,7 +6,7 @@
 #include <Collision.h>
 
 #include <AABB.h>
-
+#include <BoundingSphere.h>
 
 // ---------------------------------------------------------------
 // --------------------- BaseActor ------------------------------
@@ -24,11 +24,10 @@ public:
 
     // The visual mesh
     Mesh* mMesh{ nullptr };
-    // The Hitbox mesh
-    Mesh* mCollisionMesh{ nullptr };
 
-    // decides if mCollisionMesh should be rendered.
-    bool mShouldDrawCollisionMesh = true;
+    // The collision mesh
+    Mesh* mCollisionCube{ nullptr };
+	Mesh* mCollisionSphere{ nullptr };
 
 private:
     // ---------- Local Variables --------------
@@ -44,6 +43,8 @@ public:
 
     // Generates an AABB object to process collisions and returns it. 
     virtual AABB GetAABB() const override;
+
+    virtual BoundingSphere GetBoundingSphere() const override;
 
 private:
     // ---------- Local functions --------------
@@ -116,16 +117,17 @@ public:
 // ---------------------------------------------------------------
 
 /**
-* @struct AABBActor
+* @class CollisionActor
 * @brief Represents a collision actor in a scene, it inherits from actor for world location and
 * IBounded for collision processing. It also inherits from IRender for optional visualization of collision mesh.
 */
-class AABBActor : public Actor, public IBounded, public IRender
+class CollisionActor : public Actor, public IBounded, public IRender
 {
 public:
     // ---------- Global Variables --------------
 
-    CollisionProperties mCollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK };
+       // Collision properties inherited from IBounded
+    CollisionProperties mCollisionProperties;
 
 private:
     // ---------- Local Variables --------------
@@ -133,21 +135,21 @@ private:
     // Collision mesh
     class Mesh* mCollisionMesh = nullptr;
 
-    // Decides if collision mesh should be drawn or not
-    bool mShouldDrawCollisionMesh = true;
+ 
 
 public:
     // ---------- Global functions --------------
 
     // Constructor
-    AABBActor(const std::string& name, class Mesh* _mesh);
-
-
+    CollisionActor(const std::string& name, class Mesh* _mesh, const CollisionProperties _inCollisionProps = {});
+    
     // Draw override inherited from IRender, only for collision visualization
     void Draw(const Shader* _shader) const override;
 
     // Overrides IBounded function, Returns an AABB object for collision processing.
     AABB GetAABB() const override;
+
+    BoundingSphere GetBoundingSphere() const override;
 
     // Overrides IBounded function, Returns the collision properties for this object
     CollisionProperties GetCollisionProperties() const override;

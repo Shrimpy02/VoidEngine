@@ -22,6 +22,13 @@ enum class CollisionResponse
 	IGNORE
 };
 
+// Enum for all collision responses
+enum class CollisionBase
+{
+    AABB,
+    BoundingSphere
+};
+
 /**
  * @struct CollisionProperties
  * @brief A struct holding information on collision type and response.
@@ -31,6 +38,7 @@ struct CollisionProperties
 {
 	CollisionType mType{ CollisionType::STATIC };
 	CollisionResponse mResponse{ CollisionResponse::BLOCK };
+    CollisionBase mBase{ CollisionBase::AABB };
 
 	// ----------- Functions ---------------
 
@@ -53,6 +61,12 @@ struct CollisionProperties
 
 	// Returns true if collision response is IGNORE.
 	bool IsIgnoreResponse() const { return mResponse == CollisionResponse::IGNORE; }
+
+    // Returns true if collision response is BLOCK.
+    bool IsAABB() const { return mBase == CollisionBase::AABB; }
+
+    // Returns true if collision response is OVERLAP.
+    bool IsBoundingSphere() const { return mBase == CollisionBase::BoundingSphere; }
 
 	// Setters ---------------
 
@@ -77,22 +91,30 @@ class IBounded
 public:
 
 	// AABB variables
+    // mCenter is not used currently, better to calc center when calling aabb for correct scaling
 	glm::vec3 mCenter{ 0.f,0.f,0.f };
 	glm::vec3 mMaxExtent{ 0.f,0.f,0.f };
 	glm::vec3 mMinExtent{ 0.f,0.f,0.f };
+    float mRadius{ 0.5f };
 
     // objects collision properties
-    CollisionProperties mCollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK };
+    CollisionProperties mCollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK,CollisionBase::AABB };
+
+    // decides if mCollisionMesh (if there is one) should be rendered.
+    bool mShouldDrawCollisionMesh = true;
 
 	// ---------- Global functions --------------
 
 	// Gets an AABB object for collision handling, function = 0 as since it is a base. 
 	virtual struct AABB GetAABB() const = 0;
 
+    // Gets an AABB object for collision handling, function = 0 as since it is a base. 
+    virtual struct BoundingSphere GetBoundingSphere() const = 0;
+
 	// Gets CollisionProperties object for collision handling, = 0 as base function. 
 	virtual struct CollisionProperties GetCollisionProperties() const = 0;
 
-	class Mesh* CreateCollisionCube(class Material* _material, std::vector<struct Vertex>& _existingMesh)
+	class Mesh* CreateCollisionCubeFromMesh(class Material* _material, std::vector<struct Vertex>& _existingMesh)
 	{
         // Calculate the bounding box (min and max extents) of the existing mesh
         glm::vec3 maxExtent = _existingMesh[0].mPosition;
@@ -110,7 +132,6 @@ public:
         // set the class values to the calculated values
         mMaxExtent = maxExtent;
         mMinExtent = minExtent;
-        mCenter = center;
 
         // Then create the collision mesh using these extents (Mesh as cube for AABB object)
         // generate a cube using extents
@@ -163,7 +184,55 @@ public:
             20, 21, 22, 20, 22, 23
         };
 
-        return new Mesh("CollisionMesh", std::move(vertices), std::move(indices), _material);
+        return new Mesh("CollisionCube", std::move(vertices), std::move(indices), _material);
     }
+
+    class Mesh* CreateCollisionSphereFromMesh(class Material* _material, std::vector<struct Vertex>& _existingMesh)
+    {
+        // default extent init
+        glm::vec3 maxExtent(0);
+        glm::vec3 minExtent(0);
+        glm::vec3 center(0);
+        float largetsDiff(0.f);
+
+        // For each
+        for (int i = 0; i < 3; i++)
+        {
+            glm::vec3 pos(0);
+
+            // check all vertices looking for the longest vertex away.  
+            for (int j = 0; j < _existingMesh.size(); j++)
+            {
+                // Gets max extent for axis
+                if (_existingMesh[j].mPosition[i] > maxExtent[i])
+                    maxExtent[i] = _existingMesh[j].mPosition[i];
+
+                // Gets min extent for axis
+                else if (_existingMesh[j].mPosition[i] < minExtent[i])
+                    minExtent[i] = _existingMesh[j].mPosition[i];
+
+                // Gets center location for axis 
+                pos[i] = _existingMesh[j].mPosition[i];
+
+                // Finds the vertex that is the furthest from the center
+                if (largetsDiff < abs(_existingMesh[j].mPosition[i]))
+                    largetsDiff = abs(_existingMesh[j].mPosition[i]);
+            }
+            center += pos;
+        }
+
+        // Divide by num vertices for average location of center
+        center /= static_cast<float>(_existingMesh.size());
+
+        // set the class values to the calculated values
+        mRadius = largetsDiff*1.5;
+
+        std::vector<Vertex> vertices;
+        std::vector<Index> indices;
+        Mesh::GenSphere(vertices,indices,2,mRadius);
+
+        return new Mesh("CollisionSphere", std::move(vertices), std::move(indices), _material);
+    }
+
 
 };

@@ -18,6 +18,7 @@
 #include <PhysicsComponent.h>
 
 // Additional Includes
+#include <variant>
 #include <ImGUi/imgui.h>
 
 Scene::Scene(const std::string& _name, Window* _window)
@@ -32,19 +33,23 @@ void Scene::LoadContent()
 	auto specTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/container2Specular.jpg"));
 	auto crateMat = Material::Load("Crate", { diffuseTex, specTex }, {});
 
+	auto whiteTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/white.jpg"));
+	auto debugMat = Material::Load("Debug", { whiteTex }, {{glm::vec3(1.0f,0.0f,0.0f)}, {64} });
+
 	// Shader Loading
 	mShader = new Shader(SOURCE_DIRECTORY("shaderSrc/shader.vs"), SOURCE_DIRECTORY("shaderSrc/shader.fs"));
 
 	// Mesh Actor Loading
 	// --------------------------------------------
 	// Default
-	mMACube0 = new BaseActor("MACube0", Mesh::CreateCube(crateMat));
-	mMAPlane0 = new BaseActor("MAPlane0", Mesh::CreatePlane(crateMat));
-	mMAPyramid0 = new BaseActor("MAPyramid0", Mesh::CreatePyramid(crateMat));
-	mMASphere0 = new BaseActor("MASphere0", Mesh::CreateSphere(crateMat,3));
+	mMACube0 = new BaseActor("BACube0", Mesh::CreateCube(crateMat));
+	mMAPlane0 = new BaseActor("BAPlane0", Mesh::CreatePlane(crateMat));
+	mMAPyramid0 = new BaseActor("BAPyramid0", Mesh::CreatePyramid(crateMat));
+	mMASphere0 = new BaseActor("BASphere0", Mesh::CreateSphere(crateMat,3));
 
 	mVAPyramid0 = new VisualActor("VAPyramid0", Mesh::CreatePyramid(crateMat));
-	mAACube0 = new AABBActor("AACube0", Mesh::CreateCube(crateMat));
+	mCA0 = new CollisionActor("CA0", Mesh::CreateSphere(nullptr,2, "CollisionSphere"), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::BoundingSphere });
+	mCA1 = new CollisionActor("CA1", Mesh::CreateSphere(nullptr, 2, "CollisionSphere"), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::BoundingSphere });
 
 	// Lights
 	mPointLightActor0 = new PointLightActor("PointLight0");
@@ -67,8 +72,8 @@ void Scene::LoadContent()
 	//mSceneGraph.AddChild(Asponza);
 
 	mSceneGraph.AddChild(mVAPyramid0);
-	mSceneGraph.AddChild(mAACube0);
-
+	mSceneGraph.AddChild(mCA0);
+	mSceneGraph.AddChild(mCA1);
 
 	// Lights
 	mSceneGraph.AddChild(mPointLightActor0);
@@ -85,7 +90,8 @@ void Scene::LoadContent()
 	mMASphere0->SetPosition({ 0.f, 2.f, 0.f }, Actor::TransformSpace::Global);
 
 	mVAPyramid0->SetPosition({ -2.f, -2.f, 0.f }, Actor::TransformSpace::Global);
-	mAACube0->SetPosition({ 0.f, -2.f, 0.f }, Actor::TransformSpace::Global);
+	mCA0->SetPosition({ 0.f, -2.f, 0.f }, Actor::TransformSpace::Global);
+	mCA1->SetPosition({ 2.f, -2.f, 0.f }, Actor::TransformSpace::Global);
 
 	// Lights
 	mDirectionalLightActor->SetRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), Actor::TransformSpace::Global);
@@ -97,7 +103,9 @@ void Scene::LoadContent()
 	// Objects
 	mMACube0->mCollisionProperties.mType = CollisionType::DYNAMIC;
 	//mCube3->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
+	mCA0->mCollisionProperties.mType = CollisionType::DYNAMIC;
 
+	mMACube0->mCollisionProperties.mBase = CollisionBase::BoundingSphere;
 
 	// Lights
 
@@ -120,7 +128,8 @@ void Scene::UnloadContent()
 	delete mMASphere0;
 
 	delete mVAPyramid0;
-	delete mAACube0;
+	delete mCA0;
+	delete mCA1;
 
 	// Scene Lights
 	delete mDirectionalLightActor;
@@ -251,60 +260,78 @@ void Scene::HandleCollision()
 				continue;
 			}
 
-			// Get AABB objects to handle collision
-			auto a = iA->GetAABB();
-			auto b = iB->GetAABB();
-
-			// Init an vector to determine offset position based on intersection location
-			// and check if they are intersecting at all
-			glm::vec3 mtv(0.f);
-			if (a.IsIntersecting(b, &mtv))
+			// the monstrosity:
+			// Processes the appropriate collision between AABB and BoundingSphere based on what the current objects are
+			if(iA->GetCollisionProperties().IsAABB() && iB->GetCollisionProperties().IsAABB())
 			{
-				// For ImGui visualization of collision
-				//iA->SetIsColliding(true);
-				//iB->SetIsColliding(true);
+				auto a = iA->GetAABB();
+				auto b = iB->GetAABB();
+				ProcessCollision(a,b,iA,iB, collisionActors[i], collisionActors[j]);
+			} else if (iA->GetCollisionProperties().IsAABB() && iB->GetCollisionProperties().IsBoundingSphere()){
 
-				if (a.IsIntersecting(b, &mtv))
-				{
-					LOG("pis");
-				}
+				auto a = iA->GetAABB();
+				auto b = iB->GetBoundingSphere();
+				ProcessCollision(a, b, iA, iB, collisionActors[i], collisionActors[j]);
+			} else if (iA->GetCollisionProperties().IsBoundingSphere() && iB->GetCollisionProperties().IsAABB()) {
 
+				auto a = iA->GetBoundingSphere();
+				auto b = iB->GetAABB();
+				ProcessCollision(a, b, iA, iB, collisionActors[i], collisionActors[j]);
+			} else if (iA->GetCollisionProperties().IsBoundingSphere() && iB->GetCollisionProperties().IsBoundingSphere()) {
 
-				// Temp bool to se if either object are dynamic
-				bool isADynamic = iA->GetCollisionProperties().IsDynamic();
-				bool isBDynamic = iB->GetCollisionProperties().IsDynamic();
+				auto a = iA->GetBoundingSphere();
+				auto b = iB->GetBoundingSphere();
+				ProcessCollision(a, b, iA, iB, collisionActors[i], collisionActors[j]);
+			} else{
 
-				// mtv vectors for each object
-				glm::vec3 mtvA(0.f), mtvB(0.f);
-
-				// If both actors are dynamic, split the MTV between them
-				if (isADynamic && isBDynamic) {
-					mtvA = -mtv * 0.5f;
-					mtvB = mtv * 0.5f;
-				}
-
-				// If only actor A is dynamic, apply the full MTV to A
-				else if (isADynamic)
-					mtvA = -mtv;
-
-				// If only actor B is dynamic, apply the full MTV to B
-				else if (isBDynamic)
-					mtvB = mtv;
-
-				// No adjustment for static objects
-				// Apply MTV adjustments to objects it has effected
-				if (isADynamic)
-				{
-					collisionActors[i]->SetPosition(collisionActors[i]->GetPosition(Actor::TransformSpace::Global) + mtvA, Actor::TransformSpace::Global);
-				}
-				if (isBDynamic)
-				{
-					collisionActors[j]->SetPosition(collisionActors[j]->GetPosition(Actor::TransformSpace::Global) + mtvB, Actor::TransformSpace::Global);
-				}
+				LOG_ERROR("ERROR IN THE MONSTROSITY");
 			}
 		}
 	}
 }
+
+template <typename T, typename U>
+void Scene::ProcessCollision(T _a, U _b, IBounded* _iA, IBounded* _iB, Actor* _AA, Actor* _AB)
+{
+	glm::vec3 mtv(0.f);
+	if (_a.IsIntersecting(_b, &mtv))
+	{
+		// For ImGui visualization of collision
+		//iA->SetIsColliding(true);
+		//iB->SetIsColliding(true);
+
+		// Temp bool to se if either object are dynamic
+		bool isADynamic = _iA->GetCollisionProperties().IsDynamic();
+		bool isBDynamic = _iB->GetCollisionProperties().IsDynamic();
+
+		// mtv vectors for each object
+		glm::vec3 mtvA(0.f), mtvB(0.f);
+
+		// If both actors are dynamic, split the MTV between them
+		if (isADynamic && isBDynamic) {
+			mtvA = -mtv * 0.5f;
+			mtvB = mtv * 0.5f;
+		}
+
+		// If only actor A is dynamic, apply the full MTV to A
+		else if (isADynamic)
+			mtvA = -mtv;
+
+		// If only actor B is dynamic, apply the full MTV to B
+		else if (isBDynamic)
+			mtvB = mtv;
+
+		// No adjustment for static objects
+		// Apply MTV adjustments to objects it has effected
+		if (isADynamic)
+			_AA->SetPosition(_AA->GetPosition(Actor::TransformSpace::Global) + mtvA, Actor::TransformSpace::Global);
+		
+		if (isBDynamic)
+			_AB->SetPosition(_AB->GetPosition(Actor::TransformSpace::Global) + mtvB, Actor::TransformSpace::Global);
+	}
+}
+
+
 
 void Scene::RenderUI()
 {
@@ -349,7 +376,7 @@ void Scene::imgui_WorldObjectSettings()
 				tempSceneActorNames.push_back(actor->GetTag().c_str());
 			}
 
-			ImGui::ListBox("##LB", &mMainSelectionIndex, tempSceneActorNames.data(), tempSceneActorNames.size());
+			ImGui::ListBox("##LB", &mMainSelectionIndex, tempSceneActorNames.data(), (int)tempSceneActorNames.size());
 			
 			Actor* currentActor = tempSceneActors[mMainSelectionIndex];
 			// Handles all local Sub UI for Actor world settings
@@ -461,7 +488,7 @@ void Scene::imguiSub_WorldDetails(Actor* _aptr)
 	float yaw = actorRotationInEulerAngles.y;
 	float roll = actorRotationInEulerAngles.z;
 
-	const float maxPitch = 89.9; // Maximum pitch angle to avoid gimbal lock
+	const float maxPitch = (float) 89.9; // Maximum pitch angle to avoid gimbal lock
 	pitch = glm::clamp(pitch, -maxPitch, maxPitch);
 
 	ImGui::Text("World Rotation: ");

@@ -99,3 +99,16 @@ Texture* Material::GetTexture(TextureType _type) const
     LOG_WARNING("Incorrect texture type passed for get function");
     return nullptr;
 }
+
+Material* Material::GetMaterialFromCache(std::string& _name)
+{
+
+    auto it = sCache.find(_name);
+    if (it != sCache.end())
+        return it->second;
+     else{
+        LOG_ERROR("Material %s, not found in cache", _name);
+     	return nullptr;
+    }
+ 
+}

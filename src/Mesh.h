@@ -51,16 +51,16 @@ public:
     void Draw(const Shader* _shader) const;
 
     // Creates a default cube using a cube key
-    static Mesh* CreateCube(Material* _material);
+    static Mesh* CreateCube(Material* _material, std::string _customName = std::string());
 
     // Creates a default plane using a plane key
-    static Mesh* CreatePlane(Material* _material);
+    static Mesh* CreatePlane(Material* _material, std::string _customName = std::string());
 
     // Creates a default pyramid using a pyramid key
-    static Mesh* CreatePyramid(Material* _material);
+    static Mesh* CreatePyramid(Material* _material, std::string _customName = std::string());
 
     // Creates a default sphere using a sphere key
-    static Mesh* CreateSphere(Material* _material, const int _subdivides = 2);
+    static Mesh* CreateSphere(Material* _material, const int _subdivides = 2, std::string _customName = std::string());
 
     // Loads mesh from cache by key
     static Mesh* Load(const std::string& _key);
@@ -71,19 +71,19 @@ public:
     // erases all elements of cache
     static void ClearCache();
 
+    // Takes in vector addresses for vertices and indices and populates them with generated
+	// geometry information based on the number of subdivides the sphere should have.
+    static void GenSphere(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const int _numSubdivides = 2, float _radius = 0.5f );
+
 private:
     // ---------- Local functions --------------
 
     // gl generation of buffers and attributes
     void SetupMesh();
 
-    // Takes in vector addresses for vertices and indices and populates them with generated
-    // geometry information based on the number of subdivides the sphere should have.
-    static void GenSphere(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const int _numSubdivides);
-
     // Subdivides existing base geometry recursively by number subdivides
     // Passes vector address to Make Triangle function
-    static void SubDivide(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC, const int _numSubdivides);
+    static void SubDivide(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC, const int _numSubdivides, float _radius);
 
     // Takes the 3 positions at a time and populates each vector with appropriate geometry.
     static void MakeTriangle(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC);

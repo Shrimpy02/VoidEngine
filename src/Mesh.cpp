@@ -34,10 +34,15 @@ void Mesh::Draw(const Shader* _shader) const
     glBindVertexArray(0);
 }
 
-Mesh* Mesh::CreateCube(Material * _material)
+Mesh* Mesh::CreateCube(Material * _material, std::string _customName)
 {
-    // Create default plane key
+    // Create default cube key
     std::string cubeKey = "DefaultCube";
+
+    if(!_customName.empty()){
+        // Overwrites default key if custom name is added.
+        cubeKey = _customName;
+    }
 
     // Checks if default cube exists in cache,if it does use that
     // rather than calculating an entire new cube to save loading time.
@@ -105,10 +110,15 @@ Mesh* Mesh::CreateCube(Material * _material)
 	return mCache[cubeKey];
 }
 
-Mesh* Mesh::CreatePlane(Material* _material)
+Mesh* Mesh::CreatePlane(Material* _material, std::string _customName)
 {
     // Create default plane key
     std::string planeKey = "DefaultPlane";
+
+    if (!_customName.empty()) {
+        // Overwrites default key if custom name is added.
+        planeKey = _customName;
+    }
 
     // Checks if default plane exists in cache,if it does use that
 	// rather than calculating an entire new cube to save loading time.
@@ -140,12 +150,17 @@ Mesh* Mesh::CreatePlane(Material* _material)
     return mCache[planeKey];
 }
 
-Mesh* Mesh::CreatePyramid(Material* _material)
+Mesh* Mesh::CreatePyramid(Material* _material, std::string _customName)
 {
     // Create default pyramid key
     std::string pyramidKey = "DefaultPyramid";
 
-    // Checks if default pyramid exists in cache,if it does use that
+    if (!_customName.empty()) {
+        // Overwrites default key if custom name is added.
+        pyramidKey = _customName;
+    }
+
+    // Checks if default pyramid existin cache,if it does use that
 	// rather than calculating an entire new cube to save loading time.
     auto it = mCache.find(pyramidKey);
     if (it != mCache.end())
@@ -186,10 +201,15 @@ Mesh* Mesh::CreatePyramid(Material* _material)
     return mCache[pyramidKey];
 }
 
-Mesh* Mesh::CreateSphere(Material* _material, const int _subdivides)
+Mesh* Mesh::CreateSphere(Material* _material, const int _subdivides, std::string _customName)
 {
     // Create default sphere key based on num subdivides
     std::string sphereKey = "DefaultSphere" + std::to_string(_subdivides);
+
+    if (!_customName.empty()) {
+        // Overwrites default key if custom name is added.
+        sphereKey = _customName;
+    }
 
     // Checks if default sphere exists in cache,if it does use that
      // rather than calculating an entire new cube to save loading time.
@@ -272,48 +292,47 @@ void Mesh::SetupMesh()
     glBindVertexArray(0);
 }
 
-void Mesh::GenSphere(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const int _numSubdivides)
+void Mesh::GenSphere(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const int _numSubdivides, float _radius)
 {
     // initial vertex position to create a base mesh
-    glm::vec3 v0 = glm::vec3(0, 0, 1);
-    glm::vec3 v1 = glm::vec3(1, 0, 0);
-    glm::vec3 v2 = glm::vec3(0, 1, 0);
-    glm::vec3 v3 = glm::vec3(-1, 0, 0);
-    glm::vec3 v4 = glm::vec3(0, -1, 0);
-    glm::vec3 v5 = glm::vec3(0, 0, -1);
+    glm::vec3 v0 = glm::vec3(0, 0, _radius);
+    glm::vec3 v1 = glm::vec3(_radius, 0, 0);
+    glm::vec3 v2 = glm::vec3(0, _radius, 0);
+    glm::vec3 v3 = glm::vec3(-_radius, 0, 0);
+    glm::vec3 v4 = glm::vec3(0, -_radius, 0);
+    glm::vec3 v5 = glm::vec3(0, 0, -_radius);
 
     // SubDivide positions by num subdivides input
-    SubDivide(_vertices, _indices, v0, v1, v2, _numSubdivides);
-    SubDivide(_vertices, _indices, v0, v2, v3, _numSubdivides);
-    SubDivide(_vertices, _indices, v0, v3, v4, _numSubdivides);
-    SubDivide(_vertices, _indices, v0, v4, v1, _numSubdivides);
+    SubDivide(_vertices, _indices, v0, v1, v2, _numSubdivides, _radius);
+    SubDivide(_vertices, _indices, v0, v2, v3, _numSubdivides, _radius);
+    SubDivide(_vertices, _indices, v0, v3, v4, _numSubdivides, _radius);
+    SubDivide(_vertices, _indices, v0, v4, v1, _numSubdivides, _radius);
 
-    SubDivide(_vertices, _indices, v5, v2, v1, _numSubdivides);
-    SubDivide(_vertices, _indices, v5, v3, v2, _numSubdivides);
-    SubDivide(_vertices, _indices, v5, v4, v3, _numSubdivides);
-    SubDivide(_vertices, _indices, v5, v1, v4, _numSubdivides);
-
+    SubDivide(_vertices, _indices, v5, v2, v1, _numSubdivides,_radius);
+    SubDivide(_vertices, _indices, v5, v3, v2, _numSubdivides,_radius);
+    SubDivide(_vertices, _indices, v5, v4, v3, _numSubdivides,_radius);
+    SubDivide(_vertices, _indices, v5, v1, v4, _numSubdivides,_radius);
 }
 
-void Mesh::SubDivide(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC, const int _numSubdivides)
+void Mesh::SubDivide(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC, const int _numSubdivides, float _radius)
 {
     // if num subdivide min is reached pass positional values into make triangle
     // otherwise process, normalize and subdivide further.
     if (_numSubdivides > 0)
     {
         glm::vec3 v1 = _vecA + _vecB;
-        v1 = normalize(v1);
+        v1 = normalize(v1) * _radius;
 
         glm::vec3 v2 = _vecA + _vecC;
-        v2 = normalize(v2);
+        v2 = normalize(v2) * _radius;
 
         glm::vec3 v3 = _vecC + _vecB;
-        v3 = normalize(v3);
+        v3 = normalize(v3) * _radius;
 
-        SubDivide(_vertices, _indices, _vecA, v1, v2, _numSubdivides - 1);
-        SubDivide(_vertices, _indices, v1, _vecB, v3, _numSubdivides - 1);
-        SubDivide(_vertices, _indices, v2, v3, _vecC, _numSubdivides - 1);
-        SubDivide(_vertices, _indices, v1, v3, v2, _numSubdivides - 1);
+        SubDivide(_vertices, _indices, _vecA, v1, v2, _numSubdivides - 1, _radius);
+        SubDivide(_vertices, _indices, v1, _vecB, v3, _numSubdivides - 1, _radius);
+        SubDivide(_vertices, _indices, v2, v3, _vecC, _numSubdivides - 1, _radius);
+        SubDivide(_vertices, _indices, v1, v3, v2, _numSubdivides - 1, _radius);
     }
     else
     	MakeTriangle(_vertices, _indices, _vecA, _vecB, _vecC);
@@ -322,23 +341,18 @@ void Mesh::SubDivide(std::vector<Vertex>& _vertices, std::vector<Index>& _indice
 
 void Mesh::MakeTriangle(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC)
 {
-    // Scale down the vertex positions by 0.5
-    glm::vec3 scaledVecA = _vecA * 0.5f;
-    glm::vec3 scaledVecB = _vecB * 0.5f;
-    glm::vec3 scaledVecC = _vecC * 0.5f;
-
     // Calculate normal for the triangle (assuming clockwise vertex order)
-    glm::vec3 normal = glm::normalize(glm::cross(scaledVecB - scaledVecA, scaledVecC - scaledVecA));
+    glm::vec3 normal = glm::normalize(glm::cross(_vecB - _vecA, _vecC - _vecA));
 
     // Calculate texture coordinates based on vertex positions
-    glm::vec2 texCoordA = CalculateTexCoord(scaledVecA);
-    glm::vec2 texCoordB = CalculateTexCoord(scaledVecB);
-    glm::vec2 texCoordC = CalculateTexCoord(scaledVecC);
+    glm::vec2 texCoordA = CalculateTexCoord(_vecA);
+    glm::vec2 texCoordB = CalculateTexCoord(_vecB);
+    glm::vec2 texCoordC = CalculateTexCoord(_vecC);
 
     // Add vertices with calculated normal and texture coordinates
-    _vertices.emplace_back(Vertex{ scaledVecA, normal, texCoordA });
-    _vertices.emplace_back(Vertex{ scaledVecB, normal, texCoordB });
-    _vertices.emplace_back(Vertex{ scaledVecC, normal, texCoordC });
+    _vertices.emplace_back(Vertex{ _vecA, normal, texCoordA });
+    _vertices.emplace_back(Vertex{ _vecB, normal, texCoordB });
+    _vertices.emplace_back(Vertex{ _vecC, normal, texCoordC });
 
     // Calculate indices for the newly added vertices
     unsigned int baseIndex = static_cast<unsigned int>(_vertices.size()) - 3;

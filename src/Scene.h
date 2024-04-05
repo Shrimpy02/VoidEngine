@@ -36,7 +36,8 @@ private:
 
     // Other actors
      VisualActor* mVAPyramid0{ nullptr };
-     AABBActor* mAACube0{ nullptr };
+     CollisionActor* mCA0{ nullptr };
+     CollisionActor* mCA1{ nullptr };
 
 	// lights
     class PointLightActor* mPointLightActor0{ nullptr };
@@ -99,6 +100,9 @@ public:
     void Render(float _dt);
     // Scene collision handler function for all scene objects that inherit from "IBounded" (called each frame) 
     void HandleCollision();
+
+    template <typename T, typename U>
+    void ProcessCollision(T _a,U _b,IBounded* _iA, IBounded* _iB, Actor* _AA, Actor* _AB);
 
 	// Local scene UIRender function for distribution (called each frame) 
     void RenderUI();
