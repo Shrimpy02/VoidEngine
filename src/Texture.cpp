@@ -31,7 +31,11 @@ Texture* Texture::Load(const std::string& _path)
 	// returns the texture cache
 	auto it = sCache.find(_path);
 	if (it != sCache.end())
+	{
+		//LOG("Texture Load Complete: %s", _path.c_str());
 		return it->second;
+	}
+		
 
 	// Extracting the end of the path after the last '/'
 	size_t lastSlashIndex = _path.find_last_of('/');
@@ -40,20 +44,26 @@ Texture* Texture::Load(const std::string& _path)
 	// otherwise create new texture and assign it to the cache
 	Texture* texture = new Texture(_path);
 	sCache[_path] = texture;
-	LOG("Texture Load Complete: %s", endOfPath.c_str());
+	sCache[_path] = texture;
+
+	LOG("Texture Creation Complete: %s", _path.c_str());
 	return texture;
 }
 
 Texture* Texture::LoadWhiteTexture()
 {
 	// loads white texture from file
-	return Load(SOURCE_DIRECTORY("assets/Textures/DefaultTextures/WhiteTexture.jpg"));
+	std::string path = SOURCE_DIRECTORY("assets/Textures/DefaultTextures/WhiteTexture.jpg");
+	//LOG("Texture Load Complete: %s", path.c_str());
+	return Load(path);
 }
 
 Texture* Texture::LoadBlackTexture()
 {
 	// loads black texture from file
-	return Load(SOURCE_DIRECTORY("assets/Textures/DefaultTextures/BlackTexture.jpg"));
+	std::string path = SOURCE_DIRECTORY("assets/Textures/DefaultTextures/BlackTexture.jpg");
+	//LOG("Texture Load Complete: %s", path.c_str());
+	return Load(path);
 }
 
 void Texture::LoadTexture()
@@ -95,7 +105,6 @@ void Texture::Unload(const std::string& _path)
 	}
 	else
 		LOG_ERROR("Incorrect file path for unloading of texture");
-	
 }
 
 void Texture::ClearCache()

@@ -13,6 +13,7 @@ BaseActor::BaseActor(const std::string& _name, Mesh* _mesh)
     // Add debug mesh to show collision
     mCollisionCube = CreateCollisionCubeFromMesh(Material::Load("Debug"), mMesh->GetVetices());
     mCollisionSphere = CreateCollisionSphereFromMesh(Material::Load("Debug"), mMesh->GetVetices());
+    LOG("BaseActor Created: %s", _name.c_str());
 }
 
 void BaseActor::Draw(const Shader* _shader) const
@@ -103,7 +104,7 @@ CollisionProperties BaseActor::GetCollisionProperties() const
 VisualActor::VisualActor(const std::string& _name, Mesh* _mesh)
     : Actor(_name), mMesh(_mesh)
 {
-
+    LOG("VisualActor Created: %s", _name.c_str());
 
 }
 
@@ -118,10 +119,12 @@ void VisualActor::Draw(const Shader* _shader) const
 // --------------------- CollisionActor ------------------------------
 // ---------------------------------------------------------------
 
-CollisionActor::CollisionActor(const std::string& name, Mesh* _mesh, CollisionProperties _inCollisionProps)
-    : Actor(name), mCollisionMesh(_mesh), mCollisionProperties(_inCollisionProps)
+CollisionActor::CollisionActor(const std::string& _name, Mesh* _mesh, CollisionProperties _inCollisionProps)
+    : Actor(_name), mCollisionMesh(_mesh), mCollisionProperties(_inCollisionProps)
 {
-    // default extent init
+    // TODO : kind of does`nt work with un-even scale or with object rotation. That needs to be figured out
+
+	// default extent init
     glm::vec3 maxExtent(0);
     glm::vec3 minExtent(0);
     glm::vec3 center(0);
@@ -164,6 +167,12 @@ CollisionActor::CollisionActor(const std::string& name, Mesh* _mesh, CollisionPr
 
     std::string debugString = "Debug";
     mCollisionMesh->SetMaterial(Material::GetMaterialFromCache(debugString));
+
+    // Crude log for assimp import test
+    if(mCollisionProperties.IsAABB())
+        LOG("CollisionActor(AABB) Created: %s", _name.c_str());
+    else
+        LOG("CollisionActor(BoundingSphere) Created: %s", _name.c_str());
 }
 
 void CollisionActor::Draw(const Shader* _shader) const

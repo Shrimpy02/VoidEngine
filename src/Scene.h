@@ -58,6 +58,9 @@ private:
 	bool mCanControlActor = false;
     bool mIsUniformScale = false;
 
+    double mOldTime = 0;
+    int numFrames = 0;
+
     // Other
     std::shared_ptr<class ActorController> mActorController;
     std::shared_ptr<class CameraController> mCameraController;
@@ -116,6 +119,10 @@ public:
         void imguiSub_Light(class Light* _lptr);
 	// Contains all custom logic for the DebugLogger ImGui window
 	void imgui_Logger();
+		 // Contains custom ImGui logic for FPS sub section
+		void imguiSub_FPS();
+
+
 
     // Callbacks for camera or active controller to process movement or other locally. 
     void FramebufferSizeCallback(class Window* _window, int _width, int _height);

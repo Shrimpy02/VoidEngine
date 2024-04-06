@@ -49,7 +49,7 @@ Mesh* Mesh::CreateCube(Material * _material, std::string _customName)
     auto it = mCache.find(cubeKey);
     if (it != mCache.end())
     {
-        LOG("%s Loaded", cubeKey.c_str());
+       // LOG("%s Loaded", cubeKey.c_str());
         return it->second;
     }
 
@@ -106,7 +106,7 @@ Mesh* Mesh::CreateCube(Material * _material, std::string _customName)
     mCache[cubeKey] = new Mesh(cubeKey, std::move(vertices), std::move(indices), _material);
 
     // return new default cube
-    LOG("%s created", cubeKey.c_str());
+    //LOG("%s created", cubeKey.c_str());
 	return mCache[cubeKey];
 }
 
@@ -125,7 +125,7 @@ Mesh* Mesh::CreatePlane(Material* _material, std::string _customName)
     auto it = mCache.find(planeKey);
     if (it != mCache.end())
     {
-        LOG("%s Loaded", planeKey.c_str());
+        //LOG("%s Loaded", planeKey.c_str());
         return it->second;
     }
 
@@ -146,7 +146,7 @@ Mesh* Mesh::CreatePlane(Material* _material, std::string _customName)
     mCache[planeKey] = new Mesh(planeKey, std::move(vertices), std::move(indices), _material);
 
     // return new default plane
-    LOG("%s Created", planeKey.c_str());
+   // LOG("%s Created", planeKey.c_str());
     return mCache[planeKey];
 }
 
@@ -165,7 +165,7 @@ Mesh* Mesh::CreatePyramid(Material* _material, std::string _customName)
     auto it = mCache.find(pyramidKey);
     if (it != mCache.end())
     {
-        LOG("%s Loaded", pyramidKey.c_str());
+       // LOG("%s Loaded", pyramidKey.c_str());
         return it->second;
     }
 
@@ -197,7 +197,7 @@ Mesh* Mesh::CreatePyramid(Material* _material, std::string _customName)
     mCache[pyramidKey] = new Mesh(pyramidKey, std::move(vertices), std::move(indices), _material);
 
     // return new default pyramid
-    LOG("%s Created", pyramidKey.c_str());
+    //LOG("%s Created", pyramidKey.c_str());
     return mCache[pyramidKey];
 }
 
@@ -216,7 +216,7 @@ Mesh* Mesh::CreateSphere(Material* _material, const int _subdivides, std::string
     auto it = mCache.find(sphereKey);
     if (it != mCache.end())
     {
-        LOG("%s Loaded", sphereKey.c_str());
+       // LOG("%s Loaded", sphereKey.c_str());
         return it->second;
     }
 
@@ -233,7 +233,7 @@ Mesh* Mesh::CreateSphere(Material* _material, const int _subdivides, std::string
     mCache[sphereKey] = new Mesh(sphereKey, std::move(vertices), std::move(indices), _material);
 
     // return new default sphere
-    LOG("%s created", sphereKey.c_str());
+    //LOG("%s created", sphereKey.c_str());
     return mCache[sphereKey];
 }
 

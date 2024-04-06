@@ -21,6 +21,7 @@ Material* Material::Load(const std::string& _name, const std::array<Texture*, Te
     if (it != sCache.end())
     {
         // saves processing time by limiting unnecessary material creation.
+        LOG("Material Loaded: %s", _name.c_str());
         return sCache[_name];
     }
 

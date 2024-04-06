@@ -1,4 +1,5 @@
 
+// Includes
 #include <ModelLoader/AssimpLoader.h>
 #include <ModelLoader/Shared.h>
 #include <ModelLoader/AssimpUtility.h>
@@ -6,81 +7,86 @@
 #include <SceneActors.h>
 #include <Material.h>
 #include <Texture.h>
-#include <exception>
 #include <Lights/PointLight.h>
 
-#include <iostream>
-
+// Static Variables
 std::string AssimpLoader::msBasePath = "";
 long long AssimpLoader::msNameIndex = 0;
 long long AssimpLoader::msFlags = 0;
 
 void AssimpLoader::Load(const std::string& _path, Actor* _staticMeshActor, unsigned _flags)
 {
+	LOG_INFO("--------------- Assimp Import Started ---------------\n");
+
+	// uses the assimp importer object to import fbx scene with given flags
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(_path, _flags);
 
+	// throws error if no file at file path or no item in scene or flags are unreadable
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		//LOG_INFO("AssimpLoader::Load::Failed: %s", importer.GetErrorString());
+		LOG_INFO("AssimpLoader::Load::Failed: %s", importer.GetErrorString());
 		throw std::runtime_error("AssimpLoader::Load::Failed");
 	}
 
+	// sets the base path and the flags from import
 	msBasePath = _path;
 	msFlags = _flags;
+
+	// Deals with al scene lights  
 	ProcessLights(scene, _staticMeshActor);
+	// Then deals with all scene objects
 	ProcessNode(scene, scene->mRootNode, _staticMeshActor);
+
+	LOG_INFO("--------------- Assimp Import Finished ---------------\n");
 }
 
 void AssimpLoader::ProcessLights(const aiScene* _scene, Actor* _parentActor)
 {
-	//LOG_INFO("AssimpLoader::ProcessLights::NumLights: %i", scene->mNumLights);
+	LOG_INFO("AssimpLoader::ProcessingLights::NumLights: %i", _scene->mNumLights);
+
 	for (size_t i = 0; i < _scene->mNumLights; i++)
 	{
-		// Skip lights that aren't pointlights
+		// Skip lights that aren't pointlights for now
 		if (_scene->mLights[i]->mType != aiLightSource_POINT)
-		{
 			continue;
-		}
 
+		// Create a seb point light actor
 		PointLightActor* pointLightActor = new PointLightActor(_scene->mLights[i]->mName.C_Str());
 
-		// Transform the pointlight to its world position
+		// Get the point lights world position
 		aiNode* lightNode = _scene->mRootNode->FindNode(_scene->mLights[i]->mName);
 		aiMatrix4x4 lightTransform = GetTransformationMatrix(lightNode);
 		aiVector3D worldPosition = TransformPosition(lightTransform, _scene->mLights[i]->mPosition);
 
-		glm::vec3 pos =
-		{
-			worldPosition.x,
-			worldPosition.y,
-			worldPosition.z
-		};
-		pointLightActor->mAmbient =
-		{
-			_scene->mLights[i]->mColorAmbient.r,
-			_scene->mLights[i]->mColorAmbient.g,
-			_scene->mLights[i]->mColorAmbient.b
-		};
-		pointLightActor->mColor =
-		{
-			_scene->mLights[i]->mColorDiffuse.r,
-			_scene->mLights[i]->mColorDiffuse.g,
-			_scene->mLights[i]->mColorDiffuse.b
-		};
-
+		// Position
+		glm::vec3 pos = { worldPosition.x, worldPosition.y, worldPosition.z };
+		// Light Ambiance
+		pointLightActor->mAmbient = {_scene->mLights[i]->mColorAmbient.r,
+										_scene->mLights[i]->mColorAmbient.g,
+										_scene->mLights[i]->mColorAmbient.b};
+		// Light color
+		pointLightActor->mColor = { _scene->mLights[i]->mColorDiffuse.r,
+										_scene->mLights[i]->mColorDiffuse.g,
+										_scene->mLights[i]->mColorDiffuse.b};
+		// Clamp color values for opengl
 		pointLightActor->mColor = glm::clamp(pointLightActor->mColor, 0.f, 1.f);
+		// Set the position 
 		pointLightActor->SetPosition(pos,Actor::TransformSpace::Global);
+		// Add this light as a child to scene actor object
 		_parentActor->AddChild(pointLightActor);
 	}
 }
 
 void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, Actor* parentActor)
 {
+	// Init actor object
 	Actor* actor = nullptr;
 
+	// for each mesh in scene
 	for (auto i = 0; i < _node->mNumMeshes; ++i)
 	{
+		// Get the mesh
 		aiMesh* mesh = _scene->mMeshes[_node->mMeshes[i]];
 		std::string collisionPrefix, lightPrefix;
 
@@ -89,34 +95,37 @@ void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, Actor* pare
 		std::string meshName = mesh->mName.C_Str();
 		std::string actorName = modelName + "_" + meshName + std::to_string(msNameIndex++);
 
-		if (HasCollisionPrefix(mesh->mName.C_Str(), collisionPrefix))
-		{
-			//AABB aabb = ProcessCollisionAABB(mesh, actorName);
-			//actor = new AABBActor(actorName, ProcessMesh(mesh), aabb);
-			//actor = ProcessCollisionAABB(mesh, actorName);
-		}
-		else if (HasLightPrefix(mesh->mName.C_Str(), lightPrefix))
-		{
-			//LOG_INFO("AssimpLoader::ProcessNode::LightPrefix: %s", lightPrefix.c_str());
-		}
-		else
-		{
-			//LOG_INFO("AssimpLoader::ProcessMesh::Name: %s", mesh->mName.C_Str());
+		// If the object has the "_AABBCollision_" prefrix in its name, actor is created as an AABB collision actor
+		if (HasCollisionAABBPrefix(mesh->mName.C_Str(), collisionPrefix)){
+
+			actor = new CollisionActor(actorName, ProcessMesh(mesh), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::AABB });
+
+			// otherwise if the object has the "_BoundingSphereCollision_" prefrix in its name, actor is created as a BoundingSphere collision actor
+		} else if (HasCollisionBoundignSphererePrefix(mesh->mName.C_Str(), collisionPrefix)) {
+
+			actor = new CollisionActor(actorName, ProcessMesh(mesh), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::BoundingSphere });
+
+			// otherwise if the object has the "_Light_" prefrix in its name, actor is handled elsewhere and therefore ignored
+		} else if (HasLightPrefix(mesh->mName.C_Str(), lightPrefix)){
+
+			LOG("AssimpLoader::ProcessNode::LightPrefix: %s", lightPrefix.c_str());
+
+			// otherwise the object is considered a visual only actor and is initiated as one
+		} else {
+
+			// Creates the seb mesh from the aiMesh
 			Mesh* internalMesh = ProcessMesh(mesh);
 
+			// if mesh has a material, get it and set it to the created seb mesh
 			aiMaterial* material = _scene->mMaterials[mesh->mMaterialIndex];
-
-			//LOG_INFO("AssimpLoader::ProcessMaterial::Name: %s", material->GetName().C_Str());
 			if (material)
 			{
 				Material* internalMaterial = ProcessMaterial(material);
 				internalMesh->SetMaterial(internalMaterial);
 			}
 
-			BaseActor* meshActor = new BaseActor(actorName, internalMesh);
-			// Set the collision properties for the actor to ignore. This should be set to BLOCK when culling the scene in a different collision channel.
-			meshActor->mCollisionProperties.mResponse = CollisionResponse::IGNORE;
-			actor = meshActor;
+			// Sets the actor object to a visual actor with no collision
+			actor = new VisualActor(actorName, internalMesh);
 		}
 	}
 
@@ -129,22 +138,21 @@ void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, Actor* pare
 	// Apply node transform
 	actor->SetLocalTransformMatrix(AiMatrix4x4ToGlm(_node->mTransformation));
 
-	// Add node as a child
+	// Add node as a child to current parent
 	parentActor->AddChild(actor);
 
+	// for each of the children do this function again recursively 
 	for (auto i = 0; i < _node->mNumChildren; ++i)
-	{
 		ProcessNode(_scene, _node->mChildren[i], actor);
-	}
-
-	//LOG_INFO("----------------------------------------------------\n");
 }
 
 Mesh* AssimpLoader::ProcessMesh(aiMesh* _mesh)
 {
+	// Init vectors for vertices and indices
 	std::vector<Vertex> vertices;
 	std::vector<Index> indices;
 
+	// convert aiMesh vertices to seb mesh vertices
 	for (auto i = 0; i < _mesh->mNumVertices; i++)
 	{
 		glm::vec3 pos{ 0.f };
@@ -170,6 +178,7 @@ Mesh* AssimpLoader::ProcessMesh(aiMesh* _mesh)
 		vertices.push_back({ pos, normal, texCoords });
 	}
 
+	// convert aiMesh indices to seb mesh indices
 	for (auto i = 0; i < _mesh->mNumFaces; i++)
 	{
 		aiFace face = _mesh->mFaces[i];
@@ -179,6 +188,7 @@ Mesh* AssimpLoader::ProcessMesh(aiMesh* _mesh)
 		}
 	}
 
+	// Create a new mesh and return it.
 	return new Mesh(std::string(_mesh->mName.C_Str()), std::move(vertices), std::move(indices), nullptr);
 }
 
@@ -196,7 +206,6 @@ Material* AssimpLoader::ProcessMaterial(aiMaterial* _material)
 		_material->GetTexture(aiTextureType_DIFFUSE, 0, &str);
 		std::string texturePath = GetDirectoryPath(msBasePath) + std::string(str.C_Str());
 		internalMaterial->SetTexture(Material::DIFFUSE, Texture::Load(texturePath));
-		//LOG_INFO("AssimpLoader::ProcessMaterial::Texture::Diffuse::Path: %s", texturePath.c_str());
 	}
 	// Specular
 	if (0 < _material->GetTextureCount(aiTextureType_SPECULAR))
@@ -205,7 +214,6 @@ Material* AssimpLoader::ProcessMaterial(aiMaterial* _material)
 		_material->GetTexture(aiTextureType_SPECULAR, 0, &str);
 		std::string texturePath = GetDirectoryPath(msBasePath) +  std::string(str.C_Str());
 		internalMaterial->SetTexture(Material::SPECULAR, Texture::Load(texturePath));
-		//LOG_INFO("AssimpLoader::ProcessMaterial::Texture::Specular::Path: %s", texturePath.c_str());
 	}
 	// Normal
 	if (0 < _material->GetTextureCount(aiTextureType_NORMALS))
@@ -214,7 +222,6 @@ Material* AssimpLoader::ProcessMaterial(aiMaterial* _material)
 		_material->GetTexture(aiTextureType_NORMALS, 0, &str);
 		std::string texturePath = GetDirectoryPath(msBasePath) +  std::string(str.C_Str());
 		internalMaterial->SetTexture(Material::NORMAL, Texture::Load(texturePath));
-		//LOG_INFO("AssimpLoader::ProcessMaterial::Texture::Normal::Path: %s", texturePath.c_str());
 	}
 	// Opacity
 	if (0 < _material->GetTextureCount(aiTextureType_OPACITY))
@@ -223,119 +230,23 @@ Material* AssimpLoader::ProcessMaterial(aiMaterial* _material)
 		_material->GetTexture(aiTextureType_OPACITY, 0, &str);
 		std::string texturePath = GetDirectoryPath(msBasePath) +  std::string(str.C_Str());
 		internalMaterial->SetTexture(Material::ALPHA, Texture::Load(texturePath));
-		//LOG_INFO("AssimpLoader::ProcessMaterial::Texture::Opacity::Path: %s", texturePath.c_str());
 	}
 
-
+	// Create material properties
 	Material::MaterialProperties materialProperties;
 	aiColor3D color(0.f, 0.f, 0.f);
 
 	// To get a material property. Inspect the AI_MATKEY_COLOR_DIFFUSE define to see other properties
 	if (AI_SUCCESS == _material->Get(AI_MATKEY_COLOR_DIFFUSE, color))
-	{
 		materialProperties.mColor = { color.r, color.g, color.b };
-	}
 
 	float shininess = 64.f;
 	if (_material->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS)
-	{
 		materialProperties.mShininess = shininess;
-	}
-
+	
+	// Sets the properties, replacing default with import values
 	internalMaterial->SetProperties(materialProperties);
 
+	// returns the seb material now with textures and properties correctly configured
 	return internalMaterial;
-}
-
-AABBActor* AssimpLoader::ProcessCollisionAABB(aiMesh* _mesh, std::string _name)
-{
-	glm::vec3 maxExtent(0);
-	glm::vec3 minExtent(0);
-	glm::vec3 center(0);
-
-	//for (auto j = 0; j < _mesh->mNumVertices; j++)
-	//{
-	//	// X
-	//	if (_mesh->mVertices[j].x > maxExtent.x)
-	//		maxExtent.x = _mesh->mVertices[j].x;
-
-	//	else if (_mesh->mVertices[j].x < minExtent.x)
-	//		minExtent.x = _mesh->mVertices[j].x;
-
-	//	// Y
-	//	if (_mesh->mVertices[j].y > maxExtent.y)
-	//		maxExtent.y = _mesh->mVertices[j].y;
-
-	//	else if (_mesh->mVertices[j].y < minExtent.y)
-	//		minExtent.y = _mesh->mVertices[j].y;
-
-	//	// Z
-	//	if (_mesh->mVertices[j].z > maxExtent.z)
-	//		maxExtent.z = _mesh->mVertices[j].z;
-
-	//	else if (_mesh->mVertices[j].z < minExtent.z)
-	//		minExtent.z = _mesh->mVertices[j].z;
-
-	//	glm::vec3 pos = glm::vec3(_mesh->mVertices[j].x, _mesh->mVertices[j].y, _mesh->mVertices[j].z);
-	//	center += pos;
-	//}
-	//AABB aabb{ {},{} };
-	//for (auto i = 0; i < _mesh->mNumVertices; i++)
-	//{
-	//	glm::vec3 pos{ 0.f };
-	//	pos.x = _mesh->mVertices[i].x;
-	//	pos.y = _mesh->mVertices[i].y;
-	//	pos.z = _mesh->mVertices[i].z;
-
-	//	aabb.center += pos;
-	//}
-	//aabb.center /= _mesh->mNumVertices;
-
-	//for (auto i = 0; i < _mesh->mNumVertices; i++)
-	//{
-	//	glm::vec3 pos{ 0.f };
-	//	pos.x = _mesh->mVertices[i].x;
-	//	pos.y = _mesh->mVertices[i].y;
-	//	pos.z = _mesh->mVertices[i].z;
-
-	//	//LOG_INFO("aabb pos: (%f, %f, %f)", pos.x, pos.y, pos.z);
-	//	// Expands the AABB to fit the vertices
-	//	aabb.Expand(pos);
-	//}
-
-	//return aabb;
-
-	for (auto j = 0; j < _mesh->mNumVertices; j++)
-	{
-		// X
-		if (_mesh->mVertices[j].x > maxExtent.x)
-			maxExtent.x = _mesh->mVertices[j].x;
-
-		else if (_mesh->mVertices[j].x < minExtent.x)
-			minExtent.x = _mesh->mVertices[j].x;
-
-		// Swap Z and Y for import from blender
-		// Y
-		if (_mesh->mVertices[j].y > maxExtent.z)
-			maxExtent.z = _mesh->mVertices[j].y;
-
-		else if (_mesh->mVertices[j].y < minExtent.z)
-			minExtent.z = _mesh->mVertices[j].y;
-
-		// Z
-		if (_mesh->mVertices[j].z > maxExtent.y)
-			maxExtent.y = _mesh->mVertices[j].z;
-
-		else if (_mesh->mVertices[j].z < minExtent.y)
-			minExtent.y = _mesh->mVertices[j].z;
-
-		glm::vec3 pos = glm::vec3(_mesh->mVertices[j].x, _mesh->mVertices[j].z, _mesh->mVertices[j].y);
-		center += pos;
-	}
-
-	center /= static_cast<float>(_mesh->mNumVertices);
-
-	return nullptr;
-
-	//return new AABBActor(_name, ProcessMesh(_mesh), maxExtent, minExtent, center);
 }

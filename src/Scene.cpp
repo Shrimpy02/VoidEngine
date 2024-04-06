@@ -26,7 +26,7 @@ Scene::Scene(const std::string& _name, Window* _window)
 
 void Scene::LoadContent()
 {
-
+	
 	// Texture Loading
 	// --------------------------------------------
 	auto diffuseTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/ConstainerDiffuse.jpg"));
@@ -57,9 +57,11 @@ void Scene::LoadContent()
 	mDirectionalLightActor = new DirectionalLightActor("DirectionalLight0");
 
 	// Assimp Import
-	//Actor* Asponza = new Actor("Asponza");
-	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Sponza/Sponzaf.fbx"), Asponza);
-
+	// Sponza is weird right now, disable collision meshes when loading it for now
+	//Actor* Sponza = new Actor("Sponza");
+	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Sponza/Sponza.fbx"), Sponza);
+	Actor* Monke = new Actor("Monke");
+	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Monkey/Monke.fbx"), Monke);
 
 	// Adding objects to SceneGraph
 	// --------------------------------------------
@@ -69,7 +71,8 @@ void Scene::LoadContent()
 	mSceneGraph.AddChild(mMAPlane0);
 	mSceneGraph.AddChild(mMAPyramid0);
 	mSceneGraph.AddChild(mMASphere0);
-	//mSceneGraph.AddChild(Asponza);
+	//mSceneGraph.AddChild(Sponza);
+	mSceneGraph.AddChild(Monke);
 
 	mSceneGraph.AddChild(mVAPyramid0);
 	mSceneGraph.AddChild(mCA0);
@@ -93,6 +96,9 @@ void Scene::LoadContent()
 	mCA0->SetPosition({ 0.f, -2.f, 0.f }, Actor::TransformSpace::Global);
 	mCA1->SetPosition({ 2.f, -2.f, 0.f }, Actor::TransformSpace::Global);
 
+	//Sponza->SetPosition({ 0.f, -4.f, 0.f }, Actor::TransformSpace::Global);
+	Monke->SetPosition({ 0.f, -6.f, 0.f }, Actor::TransformSpace::Global);
+
 	// Lights
 	mDirectionalLightActor->SetRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), Actor::TransformSpace::Global);
 	mPointLightActor0->SetPosition({0.0f,-1.0f,0.0f}, Actor::TransformSpace::Global);
@@ -114,6 +120,9 @@ void Scene::LoadContent()
 	mActorController = std::shared_ptr<ActorController>(new ActorController(mMACube0, mWindow));
 	mCameraController = std::shared_ptr<CameraController>(new CameraController(&mSceneCamera, mWindow));
 	mActiveController = mCameraController;
+
+	// ImGui
+	mOldTime = ImGui::GetTime();
 
 	// Testing:
 }
@@ -633,7 +642,84 @@ void Scene::imguiSub_Light(Light* _lptr)
 
 void Scene::imgui_Logger()
 {
-	// All errors post here in adddition to termial?
+	if(ImGui::Begin("System Display"))
+	{
+		// Handles FPS calculating and displaying
+		// ---------------------------------------
+		imguiSub_FPS();
+
+
+	}
+	ImGui::End();
+}
+
+void Scene::imguiSub_FPS()
+{
+	// Static init
+	// in array values the array nums (10) is the x axis, while its content is the y axis.
+	// So it remembers and gets the average from the last 10 seconds in this case. 
+	static float values[10] = {};
+	static int index = 0;
+
+	// counts the amount of frames processed this round
+	numFrames++;
+
+	// Gets the current time
+	double currentTime = ImGui::GetTime();
+	// Calculates the elapsed time 
+	double elapsedTime = currentTime - mOldTime;
+	// Each second this if function should tick. (0.004 inaccuracy).
+	if (elapsedTime >= 1.0)
+	{
+		// assigns 
+		values[index] = numFrames;
+		// once max array size is reached offset is reset to 0
+		index = (index + 1) % IM_ARRAYSIZE(values);
+		// resets frames and mOldTime to continue the loop
+		numFrames = 0;
+		mOldTime = currentTime;
+	}
+
+	// Find the average FPS value over the 10 seconds of sample fps numbers
+	float average = 0.0f;
+	int divNum = 1;
+	for (int n = 0; n < IM_ARRAYSIZE(values); n++)
+	{
+		// Does not include 0 or high values since they may inflate average before values are filled in.
+		if (values[n] > 0 && values[n] < 10000)
+		{
+			average += values[n];
+			divNum++;
+		}
+	}
+
+	// Calc the average
+	average /= (float)divNum;
+
+	// Write average into char array for dynamic text rendering
+	char overlay[32];
+	sprintf(overlay, "Avg fps %f", average);
+
+	// Sets text pos 50 right and draw
+	ImGui::SetCursorPosX(50);
+	ImGui::Text(overlay);
+
+	// Draws the graph
+	ImGui::PlotLines("##FPSPlot", values, IM_ARRAYSIZE(values), (int)mOldTime, "", -1.0f, 1.0f, ImVec2(200, 80.0f));
+
+	// Section to create descriptive lines on graph
+	ImGui::Text(" | "); ImGui::SameLine();
+	ImGui::SetCursorPosX(100);
+	ImGui::Text(" | "); ImGui::SameLine();
+	ImGui::SetCursorPosX(200);
+	ImGui::Text(" | ");
+
+	ImGui::Text("10 sec"); ImGui::SameLine();
+	ImGui::SetCursorPosX(90);
+	ImGui::Text("5 sec"); ImGui::SameLine();
+	ImGui::SetCursorPosX(190);
+	ImGui::Text("now");
+
 }
 
 

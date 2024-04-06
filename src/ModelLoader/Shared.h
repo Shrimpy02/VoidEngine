@@ -50,7 +50,7 @@ inline std::string RemoveFileExtension(const std::string& filePath)
     return filePath;
 }
 
-inline bool HasCollisionPrefix(const std::string& filePath, std::string& outPrefix)
+inline bool HasCollisionAABBPrefix(const std::string& filePath, std::string& outPrefix)
 {
     if (filePath[0] != '_')
         return false;
@@ -59,13 +59,31 @@ inline bool HasCollisionPrefix(const std::string& filePath, std::string& outPref
     if (pos == std::string::npos)
         return false;
 
-    if (std::string(filePath.begin(), filePath.begin() + pos + 2) != "_Collision_")
+    if (std::string(filePath.begin(), filePath.begin() + pos + 2) != "_AABBCollision_")
         return false;
 
     outPrefix = std::string(filePath.begin() + pos + 2, filePath.end());
 
     return true;
 }
+
+inline bool HasCollisionBoundignSphererePrefix(const std::string& filePath, std::string& outPrefix)
+{
+    if (filePath[0] != '_')
+        return false;
+
+    size_t pos = std::string(filePath.begin() + 1, filePath.end()).find_first_of('_');
+    if (pos == std::string::npos)
+        return false;
+
+    if (std::string(filePath.begin(), filePath.begin() + pos + 2) != "_BoundingSphereCollision_")
+        return false;
+
+    outPrefix = std::string(filePath.begin() + pos + 2, filePath.end());
+
+    return true;
+}
+
 
 inline bool HasLightPrefix(const std::string& filePath, std::string& outPrefix)
 {
