@@ -1,0 +1,115 @@
+\doxysection{Actor Class Reference}
+\hypertarget{class_actor}{}\label{class_actor}\index{Actor@{Actor}}
+
+
+The actor acts as an object in the world. It contains parent/child link, components and world/local location. All things needed for existence in a scene.  
+
+
+
+
+{\ttfamily \#include $<$Actor.\+h$>$}
+
+Inheritance diagram for Actor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.151079cm]{class_actor}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_actor_a3c153709d0bc28c652f10218ca6de712}\label{class_actor_a3c153709d0bc28c652f10218ca6de712} 
+enum class {\bfseries Transform\+Space} \{ {\bfseries Local}
+, {\bfseries Global}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_actor_aacd59795bcd638f1c5320eaeb3e73db1}\label{class_actor_aacd59795bcd638f1c5320eaeb3e73db1} 
+{\bfseries Actor} (const std\+::string \&\+\_\+name)
+\item 
+\Hypertarget{class_actor_a22f32e3ce430a9f5c6dc9eab2ed7224c}\label{class_actor_a22f32e3ce430a9f5c6dc9eab2ed7224c} 
+{\bfseries Actor} (const \mbox{\hyperlink{class_actor}{Actor}} \&)=delete
+\item 
+\Hypertarget{class_actor_a2694d37daf78fdd5c472bbced3f411b5}\label{class_actor_a2694d37daf78fdd5c472bbced3f411b5} 
+\mbox{\hyperlink{class_actor}{Actor}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_actor}{Actor}} \&)=delete
+\item 
+\Hypertarget{class_actor_aa3a169246ab4b9293e238732700fba4d}\label{class_actor_aa3a169246ab4b9293e238732700fba4d} 
+{\bfseries Actor} (\mbox{\hyperlink{class_actor}{Actor}} \&\&)=default
+\item 
+\Hypertarget{class_actor_a9be3746bee0b124b6ca67bbaa838288f}\label{class_actor_a9be3746bee0b124b6ca67bbaa838288f} 
+\mbox{\hyperlink{class_actor}{Actor}} \& {\bfseries operator=} (\mbox{\hyperlink{class_actor}{Actor}} \&\&)=default
+\item 
+\Hypertarget{class_actor_a793c8bba6a2a346b295c237188e52258}\label{class_actor_a793c8bba6a2a346b295c237188e52258} 
+virtual void {\bfseries Update} (float \+\_\+dt)
+\item 
+\Hypertarget{class_actor_a2db4783d776deb49e00872dd545614ae}\label{class_actor_a2db4783d776deb49e00872dd545614ae} 
+void {\bfseries Update\+Components} (float \+\_\+dt)
+\item 
+\Hypertarget{class_actor_a487ac22d948408abc4574683053f37a3}\label{class_actor_a487ac22d948408abc4574683053f37a3} 
+void {\bfseries Add\+Child} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+child)
+\item 
+\Hypertarget{class_actor_a400e67381f6cb9947b2cf3cba89dc206}\label{class_actor_a400e67381f6cb9947b2cf3cba89dc206} 
+void {\bfseries Remove\+Child} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+child)
+\item 
+\Hypertarget{class_actor_ae66ba590d1ea9a90a9290a7a63621438}\label{class_actor_ae66ba590d1ea9a90a9290a7a63621438} 
+{\footnotesize template$<$typename T $>$ }\\void {\bfseries Add\+Component} (const std\+::string \&\+\_\+component\+Name)
+\item 
+\Hypertarget{class_actor_a6f5534b3132681c80d9340d40ba9ac70}\label{class_actor_a6f5534b3132681c80d9340d40ba9ac70} 
+{\footnotesize template$<$typename T $>$ }\\void {\bfseries Query} (std\+::vector$<$ \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*} $>$ \&\+\_\+actors)
+\item 
+\Hypertarget{class_actor_a9566205266ac1cd51eabb636c8cd6a4f}\label{class_actor_a9566205266ac1cd51eabb636c8cd6a4f} 
+const glm\+::vec3 \& {\bfseries Get\+Position} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+\Hypertarget{class_actor_a9b1d9082f8b15bbbbccd5fca44a3853c}\label{class_actor_a9b1d9082f8b15bbbbccd5fca44a3853c} 
+const glm\+::quat \& {\bfseries Get\+Rotation} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+\Hypertarget{class_actor_a2e1e5494fdddb26119b189c4355371b8}\label{class_actor_a2e1e5494fdddb26119b189c4355371b8} 
+const glm\+::vec3 \& {\bfseries Get\+Scale} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+\Hypertarget{class_actor_aa14c40bea560b0ca4de10a1cd30434f9}\label{class_actor_aa14c40bea560b0ca4de10a1cd30434f9} 
+const \mbox{\hyperlink{struct_transform}{Transform}} \& {\bfseries Get\+Transform} () const
+\item 
+\Hypertarget{class_actor_a289377518da8ca66de196c817d991bfd}\label{class_actor_a289377518da8ca66de196c817d991bfd} 
+const glm\+::mat4 {\bfseries Get\+Transform\+Matrix} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+\Hypertarget{class_actor_a089ee2fb2c1f43ddb4382846b8be644f}\label{class_actor_a089ee2fb2c1f43ddb4382846b8be644f} 
+\mbox{\hyperlink{struct_transform}{Transform}} \texorpdfstring{$\ast$}{*} {\bfseries Get\+Transform} ()
+\item 
+\Hypertarget{class_actor_ac00f6f9e954f08653c5506eaf8d860b0}\label{class_actor_ac00f6f9e954f08653c5506eaf8d860b0} 
+glm\+::vec3 {\bfseries Get\+Right} () const
+\item 
+\Hypertarget{class_actor_a639fd7c12fee384cf3ab35e906939ecc}\label{class_actor_a639fd7c12fee384cf3ab35e906939ecc} 
+const std\+::string \& {\bfseries Get\+Tag} ()
+\item 
+\Hypertarget{class_actor_a067c9709390f5185e5a8535785dc2ff8}\label{class_actor_a067c9709390f5185e5a8535785dc2ff8} 
+std\+::vector$<$ \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*} $>$ \& {\bfseries Get\+Children} ()
+\item 
+\Hypertarget{class_actor_a502cd22275c73e98b936a3ff65150776}\label{class_actor_a502cd22275c73e98b936a3ff65150776} 
+void {\bfseries Set\+Local\+Transform\+Matrix} (const glm\+::mat4 \&\+\_\+transform\+Matrix)
+\item 
+\Hypertarget{class_actor_a0f78c58e72a0bcaeab9efa7752358fc5}\label{class_actor_a0f78c58e72a0bcaeab9efa7752358fc5} 
+void {\bfseries Set\+Transform} (const \mbox{\hyperlink{struct_transform}{Transform}} \&\+\_\+transform)
+\item 
+\Hypertarget{class_actor_aeec82d26fc1d96dfc798e3ce5e7cbdc6}\label{class_actor_aeec82d26fc1d96dfc798e3ce5e7cbdc6} 
+void {\bfseries Set\+Position} (const glm\+::vec3 \&\+\_\+position, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+\Hypertarget{class_actor_ae56b0e9ed82300f0a07e6e008252324c}\label{class_actor_ae56b0e9ed82300f0a07e6e008252324c} 
+void {\bfseries Set\+Rotation} (const glm\+::quat \&\+\_\+rotation, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+\Hypertarget{class_actor_a013d92d5736d35b1513ba2bd19125284}\label{class_actor_a013d92d5736d35b1513ba2bd19125284} 
+void {\bfseries Set\+Scale} (const glm\+::vec3 \&\+\_\+scale, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+\Hypertarget{class_actor_ae0b6073ed8ddf33126143ba2689dc5e4}\label{class_actor_ae0b6073ed8ddf33126143ba2689dc5e4} 
+void {\bfseries Set\+Parent} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+parent)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The actor acts as an object in the world. It contains parent/child link, components and world/local location. All things needed for existence in a scene. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Actor.\+h\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Actor.\+cpp\end{DoxyCompactItemize}

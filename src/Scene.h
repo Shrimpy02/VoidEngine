@@ -1,14 +1,16 @@
 #pragma once
+// Includes
 #include <Camera.h>
-#include <SceneGraph.h>
-#include <memory>
-#include <Controller.h>
-#include <Mesh.h>
-#include <ActorController.h>
-#include <CameraController.h>
-#include "Lights/DirectionalLight.h"
-#include "Lights/PointLight.h"
+#include <SceneActors.h>
 
+// Additional Includes
+#include <memory> // smart pointers 
+
+/**
+ * @class Scene
+ * @brief This class is in effect a world, it loads all content in a scene and initialize`s the objects that use them.
+ * It indirectly manages all scene objects by using a SceneGraph as a root node, all updates and render calls are passed down through it to it`s children.
+ */
 class Scene
 {
 public:
@@ -16,95 +18,128 @@ public:
 
     SceneGraph mSceneGraph;
     CameraActor mSceneCamera{ "SceneCamera" };
-    Window* mWindow = nullptr;
-
-
+    class Window* mWindow = nullptr;
 
 private:
     // ---------- Local Variables --------------
 
-    MeshActor* mCube0{ nullptr };
-    MeshActor* mCube1{ nullptr };
-    MeshActor* mCube2{ nullptr };
-    class Shader* mShader{ nullptr };
+	// Shader`s ----------------- 
+    Shader* mShader{ nullptr };
 
-    PointLightActor* mPointLightActor0{ nullptr };
-    PointLightActor* mPointLightActor1{ nullptr };
-    DirectionalLightActor* mDirectionalLightActor{ nullptr };
+    // Scene Items -------------------------
+    // MeshActors
+    BaseActor* mMACube0{ nullptr };
+    BaseActor* mMAPlane0{ nullptr };
+    BaseActor* mMAPyramid0{ nullptr };
+    BaseActor* mMASphere0{ nullptr };
 
-    std::shared_ptr<ActorController> mActorController;
-    std::shared_ptr<CameraController> mCameraController;
+    // Other actors
+     VisualActor* mVAPyramid0{ nullptr };
+     CollisionActor* mCA0{ nullptr };
+     CollisionActor* mCA1{ nullptr };
 
-    glm::vec3 down{ 0,-1,0 };
+	// lights
+    class PointLightActor* mPointLightActor0{ nullptr };
+    class PointLightActor* mPointLightActor1{ nullptr };
+    class DirectionalLightActor* mDirectionalLightActor{ nullptr };
 
     // ImGui UI Variables
-    // ------------------------------------
-
     int mMainSelectionIndex = 0;
     int mOldSelectionIndex;
-    int mCurrentSelectionIndex;
-    float mCurrentUniformScale = 1;
-    float mOldUniformScale = 1;
-
-    glm::vec3 mActorOriginalScale;
     const float mItemWidth = 80.0f;
 
+    float mCurrentUniformScale = 1;
+    float mOldUniformScale = 1;
+    glm::vec3 mActorOriginalScale;
+   
 	bool mShouldShowWireFrame = false;
     bool mShouldDrawCollisionDebugMesh = false;
 	bool mCanControlActor = false;
     bool mIsUniformScale = false;
 
+    double mOldTime = 0;
+    int numFrames = 0;
+
+    // Other
+    std::shared_ptr<class ActorController> mActorController;
+    std::shared_ptr<class CameraController> mCameraController;
 
 protected:
 
-    std::shared_ptr<IController> mActiveController{ nullptr };
+    // the active controller
+    std::shared_ptr<class IController> mActiveController{ nullptr };
 
 public:
     // ---------- Global functions --------------
-
     explicit Scene(const std::string& _name, Window* _window);
-    virtual ~Scene() = default;
 
-    // Removes the ability to:
-    // copy
-    Scene(const Scene&) = delete;
-    // copy ref
-    Scene& operator=(const Scene&) = delete;
-    // move
-    Scene(Scene&&) = delete;
-    // move ref
-    Scene& operator=(Scene&&) = delete;
+    // Removes the ability to:    
+    Scene(const Scene&) = delete;           // Copy
+    Scene& operator=(const Scene&) = delete;// Copy ref
+    Scene(Scene&&) = delete;                // Move
+    Scene& operator=(Scene&&) = delete;     // Move ref
     // Because this class is explicit.
 
+    // default de-constructor
+    virtual ~Scene() = default;
+
+    // Function`s
+    // ------------------------------------------------------------
+    
+    // Loads all objects, their materials and meshes and assigns them as a child of mSceneGraph so they
+    // receive update and render calls if they inherit from the correct classes.
     virtual void LoadContent();
+    // Deletes pointers and clears all caches for texture, mesh and material.  
     virtual void UnloadContent();
 
+    // Updates Input for the active controller
     void UpdateInputController(float _dt);
+    // Updates the scene graph and all children if they inherit from "Actor" (called each frame) 
     void UpdateSceneGraph(Actor* _actor, float _dt, Transform _globalTransform = Transform{});
+    // Renders the scene grapg and all chidlren if they inherit from "IRender" (called each frame) 
     void RenderSceneGraph(Actor* _actor, float _dt, Transform _globalTransform = Transform{});
-    void Update(float _dt);
+    // Local scene update function for distribution (called each frame) 
+	void Update(float _dt);
+    // Local scene render function for distribution (called each frame) 
     void Render(float _dt);
-    void RenderUI();
-	void imgui_WorldObjectSettings();
-    void imguiSub_WorldDetails(Actor* _aptr);
-    void imguiSub_Collision(IBounded* _cptr);
-    void imguiSub_Light(Light* _lptr);
-	void imgui_Logger();
-
+    // Scene collision handler function for all scene objects that inherit from "IBounded" (called each frame) 
     void HandleCollision();
+        // Template helper function for HandleCollision, takes two template arguments for either aabb
+        // or BoundingSphere in addition to who it belongs and executes the appropriate logic for them.
+        // Returns true if there was a collision and false otherwise.
+        template <typename T, typename U>
+        bool ProcessCollision(T _a,U _b,IBounded* _iA, IBounded* _iB, Actor* _AA, Actor* _AB);
 
+	// Local scene UIRender function for distribution (called each frame) 
+    void RenderUI();
+    // Contains all custom logic for the world ImGui window
+	void imgui_WorldObjectSettings();
+		// Contains custom ImGui logic for details sub section
+        void imguiSub_WorldDetails(Actor* _aptr);
+        // Contains custom ImGui logic for collision sub section
+        void imguiSub_Collision(class IBounded* _cptr);
+        // Contains custom ImGui logic for light sub section
+        void imguiSub_Light(class Light* _lptr);
+	// Contains all custom logic for the DebugLogger ImGui window
+	void imgui_Logger();
+		 // Contains custom ImGui logic for FPS sub section
+		void imguiSub_FPS();
+
+    // Callbacks for camera or active controller to process movement or other locally. 
     void FramebufferSizeCallback(class Window* _window, int _width, int _height);
     void MouseMoveCallback(class Window* _window, double _xpos, double _ypos);
     void MouseButtonCallback(class Window* _window, int _button, int _action, int _mods);
     void MouseScrollCallback(class Window* _window, double _xoffset, double _yoffset);
-    void CharCallback(class Window* _window, unsigned int codepoint);
+    void CharCallback(class Window* _window, unsigned int _codepoint);
 	void KeyCallback(class Window* _window, int _key, int _scancode, int _action, int _mods);
 
 private:
     // ---------- Local functions --------------
-
+    // Binds all directional light objects to the shader for light processing
     void BindDirectionalLights();
+    // Binds all point light objects to the shader for light processing
     void BindPointLights();
+    // Binds the camera objects to the shader for light processing
     void BindCamera();
 
 public:
@@ -113,11 +148,17 @@ public:
     // Adders
    
     // Setters
+
+	// Set`s a new controller to the active controller
     void SetController(const std::shared_ptr<IController>& _controller) { mActiveController = _controller; }
-    void SetWindow(class Window* _window) { mWindow = _window;  }
+
+    // Setts a new window 
+	void SetWindow(class Window* _window) { mWindow = _window;  }
 
     // Getters
-    std::shared_ptr<IController> GetController() const { return mActiveController; }
+
+    // Get`s the current active controller
+	std::shared_ptr<IController> GetController() const { return mActiveController; }
 
 };
 

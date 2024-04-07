@@ -1,0 +1,131 @@
+\doxysection{Scene Class Reference}
+\hypertarget{class_scene}{}\label{class_scene}\index{Scene@{Scene}}
+
+
+This class is in effect a world, it loads all content in a scene and initialize{\ttfamily s the objects that use them. It indirectly manages all scene objects by using a \doxylink{class_scene_graph}{Scene\+Graph} as a root node, all updates and render calls are passed down through it to it}s children.  
+
+
+
+
+{\ttfamily \#include $<$Scene.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_scene_a8550ae7c1827803180f39d61d9a7de8e}\label{class_scene_a8550ae7c1827803180f39d61d9a7de8e} 
+{\bfseries Scene} (const std\+::string \&\+\_\+name, \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}\+\_\+window)
+\item 
+\Hypertarget{class_scene_a817e38149ed312f00941b7fbb28a4fcb}\label{class_scene_a817e38149ed312f00941b7fbb28a4fcb} 
+{\bfseries Scene} (const \mbox{\hyperlink{class_scene}{Scene}} \&)=delete
+\item 
+\Hypertarget{class_scene_abe04ae93a28174a72f0066fc32cd2eb0}\label{class_scene_abe04ae93a28174a72f0066fc32cd2eb0} 
+\mbox{\hyperlink{class_scene}{Scene}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_scene}{Scene}} \&)=delete
+\item 
+\Hypertarget{class_scene_ac8da64e4c17db10489db6112c584532c}\label{class_scene_ac8da64e4c17db10489db6112c584532c} 
+{\bfseries Scene} (\mbox{\hyperlink{class_scene}{Scene}} \&\&)=delete
+\item 
+\Hypertarget{class_scene_aae8fe193a2eea4a1b868377d59023b4a}\label{class_scene_aae8fe193a2eea4a1b868377d59023b4a} 
+\mbox{\hyperlink{class_scene}{Scene}} \& {\bfseries operator=} (\mbox{\hyperlink{class_scene}{Scene}} \&\&)=delete
+\item 
+\Hypertarget{class_scene_a73837497f01ae040fa96428ee4dd7c76}\label{class_scene_a73837497f01ae040fa96428ee4dd7c76} 
+virtual void {\bfseries Load\+Content} ()
+\item 
+\Hypertarget{class_scene_a8a38bb48e079d56fed4949564dcf1d20}\label{class_scene_a8a38bb48e079d56fed4949564dcf1d20} 
+virtual void {\bfseries Unload\+Content} ()
+\item 
+\Hypertarget{class_scene_a22dfc9ee2aae20c237c04f4ffa47923a}\label{class_scene_a22dfc9ee2aae20c237c04f4ffa47923a} 
+void {\bfseries Update\+Input\+Controller} (float \+\_\+dt)
+\item 
+\Hypertarget{class_scene_ad9f6c28fb6200e9302dd519c096443c6}\label{class_scene_ad9f6c28fb6200e9302dd519c096443c6} 
+void {\bfseries Update\+Scene\+Graph} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+actor, float \+\_\+dt, \mbox{\hyperlink{struct_transform}{Transform}} \+\_\+global\+Transform=\mbox{\hyperlink{struct_transform}{Transform}}\{\})
+\item 
+\Hypertarget{class_scene_a8a4ecce63efb2a0256c86ee0506270c6}\label{class_scene_a8a4ecce63efb2a0256c86ee0506270c6} 
+void {\bfseries Render\+Scene\+Graph} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+actor, float \+\_\+dt, \mbox{\hyperlink{struct_transform}{Transform}} \+\_\+global\+Transform=\mbox{\hyperlink{struct_transform}{Transform}}\{\})
+\item 
+\Hypertarget{class_scene_a8848ae52b01317f6cd740f827ad46f8f}\label{class_scene_a8848ae52b01317f6cd740f827ad46f8f} 
+void {\bfseries Update} (float \+\_\+dt)
+\item 
+\Hypertarget{class_scene_ae33e16c2b6eb8eac082a327f8958181f}\label{class_scene_ae33e16c2b6eb8eac082a327f8958181f} 
+void {\bfseries Render} (float \+\_\+dt)
+\item 
+\Hypertarget{class_scene_aeaec806a935fc388b921fc803f1caa4d}\label{class_scene_aeaec806a935fc388b921fc803f1caa4d} 
+void {\bfseries Handle\+Collision} ()
+\item 
+\Hypertarget{class_scene_a04a3d97479fa78092e7ff2a40577d591}\label{class_scene_a04a3d97479fa78092e7ff2a40577d591} 
+{\footnotesize template$<$typename T , typename U $>$ }\\bool {\bfseries Process\+Collision} (T \+\_\+a, U \+\_\+b, \mbox{\hyperlink{class_i_bounded}{IBounded}} \texorpdfstring{$\ast$}{*}\+\_\+iA, \mbox{\hyperlink{class_i_bounded}{IBounded}} \texorpdfstring{$\ast$}{*}\+\_\+iB, \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+\+AA, \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+\+AB)
+\item 
+\Hypertarget{class_scene_a6631f5cb9b269f0f0acd01a7996e790a}\label{class_scene_a6631f5cb9b269f0f0acd01a7996e790a} 
+void {\bfseries Render\+UI} ()
+\item 
+\Hypertarget{class_scene_ae5eea22b73a3d30cea1218ec65fa91e9}\label{class_scene_ae5eea22b73a3d30cea1218ec65fa91e9} 
+void {\bfseries imgui\+\_\+\+World\+Object\+Settings} ()
+\item 
+\Hypertarget{class_scene_ae15500f28af330b9aa231d7cafd3d8d3}\label{class_scene_ae15500f28af330b9aa231d7cafd3d8d3} 
+void {\bfseries imgui\+Sub\+\_\+\+World\+Details} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+aptr)
+\item 
+\Hypertarget{class_scene_afda3e00346ee5747304095f12f8836ea}\label{class_scene_afda3e00346ee5747304095f12f8836ea} 
+void {\bfseries imgui\+Sub\+\_\+\+Collision} (class \mbox{\hyperlink{class_i_bounded}{IBounded}} \texorpdfstring{$\ast$}{*}\+\_\+cptr)
+\item 
+\Hypertarget{class_scene_a82426e9ce3ddac8891b5bde3c8b15766}\label{class_scene_a82426e9ce3ddac8891b5bde3c8b15766} 
+void {\bfseries imgui\+Sub\+\_\+\+Light} (class \mbox{\hyperlink{class_light}{Light}} \texorpdfstring{$\ast$}{*}\+\_\+lptr)
+\item 
+\Hypertarget{class_scene_ae69990c6afae6e158edd259da37a9876}\label{class_scene_ae69990c6afae6e158edd259da37a9876} 
+void {\bfseries imgui\+\_\+\+Logger} ()
+\item 
+\Hypertarget{class_scene_a5c3f913d12dc90e9188600b3a81e857c}\label{class_scene_a5c3f913d12dc90e9188600b3a81e857c} 
+void {\bfseries imgui\+Sub\+\_\+\+FPS} ()
+\item 
+\Hypertarget{class_scene_a8be11341c153efc041479b4b506837fb}\label{class_scene_a8be11341c153efc041479b4b506837fb} 
+void {\bfseries Framebuffer\+Size\+Callback} (class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}\+\_\+window, int \+\_\+width, int \+\_\+height)
+\item 
+\Hypertarget{class_scene_a7ac23cc16213ac8589c3832e716da701}\label{class_scene_a7ac23cc16213ac8589c3832e716da701} 
+void {\bfseries Mouse\+Move\+Callback} (class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}\+\_\+window, double \+\_\+xpos, double \+\_\+ypos)
+\item 
+\Hypertarget{class_scene_a00448a1f0ca4c5c69853ef7021b47bfd}\label{class_scene_a00448a1f0ca4c5c69853ef7021b47bfd} 
+void {\bfseries Mouse\+Button\+Callback} (class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}\+\_\+window, int \+\_\+button, int \+\_\+action, int \+\_\+mods)
+\item 
+\Hypertarget{class_scene_ad4f64c8871b944183ce24db3c95228b1}\label{class_scene_ad4f64c8871b944183ce24db3c95228b1} 
+void {\bfseries Mouse\+Scroll\+Callback} (class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}\+\_\+window, double \+\_\+xoffset, double \+\_\+yoffset)
+\item 
+\Hypertarget{class_scene_aeacfa295fbfa6db30e68c5acdb8bb3fa}\label{class_scene_aeacfa295fbfa6db30e68c5acdb8bb3fa} 
+void {\bfseries Char\+Callback} (class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}\+\_\+window, unsigned int \+\_\+codepoint)
+\item 
+\Hypertarget{class_scene_ac1772a4ec3bb5ae1de716c1015d3b3f2}\label{class_scene_ac1772a4ec3bb5ae1de716c1015d3b3f2} 
+void {\bfseries Key\+Callback} (class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}\+\_\+window, int \+\_\+key, int \+\_\+scancode, int \+\_\+action, int \+\_\+mods)
+\item 
+\Hypertarget{class_scene_aec5755ff6ed198f99749ebf5fee5e0ee}\label{class_scene_aec5755ff6ed198f99749ebf5fee5e0ee} 
+void {\bfseries Set\+Controller} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_i_controller}{IController}} $>$ \&\+\_\+controller)
+\item 
+\Hypertarget{class_scene_a78a590676b8a17263f49fd17ad3aebc4}\label{class_scene_a78a590676b8a17263f49fd17ad3aebc4} 
+void {\bfseries Set\+Window} (class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}\+\_\+window)
+\item 
+\Hypertarget{class_scene_a43cfe1be2a653b2c70ec711d6a75ebd3}\label{class_scene_a43cfe1be2a653b2c70ec711d6a75ebd3} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_i_controller}{IController}} $>$ {\bfseries Get\+Controller} () const
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_scene_ac0844f31d54cad2a8c4cdc25202ed21c}\label{class_scene_ac0844f31d54cad2a8c4cdc25202ed21c} 
+\mbox{\hyperlink{class_scene_graph}{Scene\+Graph}} {\bfseries m\+Scene\+Graph}
+\item 
+\Hypertarget{class_scene_af9cbdc85720f3fa313d38745bd75a719}\label{class_scene_af9cbdc85720f3fa313d38745bd75a719} 
+\mbox{\hyperlink{class_camera_actor}{Camera\+Actor}} {\bfseries m\+Scene\+Camera} \{ "{}Scene\+Camera"{} \}
+\item 
+\Hypertarget{class_scene_a40b2518c4f7614a3aab9fd4f5d98e7f7}\label{class_scene_a40b2518c4f7614a3aab9fd4f5d98e7f7} 
+class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*} {\bfseries m\+Window} = nullptr
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_scene_a4cb6f2b221d10bd650a9ddd5898021cb}\label{class_scene_a4cb6f2b221d10bd650a9ddd5898021cb} 
+std\+::shared\+\_\+ptr$<$ class \mbox{\hyperlink{class_i_controller}{IController}} $>$ {\bfseries m\+Active\+Controller} \{ nullptr \}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This class is in effect a world, it loads all content in a scene and initialize{\ttfamily s the objects that use them. It indirectly manages all scene objects by using a \doxylink{class_scene_graph}{Scene\+Graph} as a root node, all updates and render calls are passed down through it to it}s children. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Scene.\+h\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Scene.\+cpp\end{DoxyCompactItemize}

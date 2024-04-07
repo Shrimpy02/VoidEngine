@@ -1,0 +1,98 @@
+\doxysection{Logger.\+h}
+\hypertarget{_logger_8h_source}{}\label{_logger_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Utilities/Logger.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Utilities/Logger.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Includes}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <iostream>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <sstream>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <cstdarg>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{comment}{//\ defines\ debug\ mode\ witch\ enables\ debug\ logs\ to\ be\ printed.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Comment\ out\ for\ final\ build.\ }}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#define\ DEBUG\_MODE}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{namespace\ }Logger}
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//\ enum\ for\ log\ level}}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{enum\ class}\ LogLevel}
+\DoxyCodeLine{00016\ \ \ \ \ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \_DEFAULT\_,}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \_DEBUG\_,}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \_INFO\_,}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \_WARNING\_,}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \_ERROR\_}
+\DoxyCodeLine{00022\ \ \ \ \ \};}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ levelToStr(LogLevel\ level)}
+\DoxyCodeLine{00025\ \ \ \ \ \{}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Gets\ const\ char\ of\ enum\ by\ unput\ case}}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (level)}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ LogLevel::\_DEBUG\_:}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}[DEBUG]\ "{}};}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ LogLevel::\_INFO\_:}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}[INFO]\ "{}};}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ LogLevel::\_WARNING\_:}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}[WARNING]\ "{}};}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ LogLevel::\_ERROR\_:}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}[ERROR]\ "{}};}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ LogLevel::\_DEFAULT\_:}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}UNKNOWN"{}};}
+\DoxyCodeLine{00041\ \ \ \ \ \}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keyword}{template}\ <LogLevel\ level>}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keywordtype}{void}\ log(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ format,\ ...)}
+\DoxyCodeLine{00045\ \ \ \ \ \{}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ std::ostringstream\ oss;}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Set\ color\ based\ on\ log\ level}}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ color\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (level)\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ LogLevel::\_DEBUG\_:}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ color\ =\ \textcolor{stringliteral}{"{}\(\backslash\)033[33m"{}};\ \textcolor{comment}{//\ Yellow}}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ LogLevel::\_INFO\_:}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ color\ =\ \textcolor{stringliteral}{"{}\(\backslash\)033[32m"{}};\ \textcolor{comment}{//\ Green}}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ LogLevel::\_WARNING\_:}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ color\ =\ \textcolor{stringliteral}{"{}\(\backslash\)033[33m"{}};\ \textcolor{comment}{//\ Yellow}}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ LogLevel::\_ERROR\_:}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ color\ =\ \textcolor{stringliteral}{"{}\(\backslash\)033[31m"{}};\ \textcolor{comment}{//\ Red}}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Gets\ level\ and\ prints\ it\ first}}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ oss\ <<\ levelToStr(level);}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ buffer\ shinnanigens}}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ va\_list\ args;}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ va\_start(args,\ format);}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ buffer[256];}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ vsnprintf(buffer,\ \textcolor{keyword}{sizeof}(buffer),\ format,\ args);}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ va\_end(args);}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sets\ text\ to\ white\ when\ finished\ and\ prints\ the\ message.}}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ oss\ <<\ color\ <<\ buffer\ <<\ \textcolor{stringliteral}{"{}\(\backslash\)033[37m"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ std::cout\ <<\ oss.str();}
+\DoxyCodeLine{00078\ \ \ \ \ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{comment}{//\ macro\ definitions\ of\ each\ log\ case.}}
+\DoxyCodeLine{00083\ \textcolor{preprocessor}{\#ifdef\ DEBUG\_MODE}}
+\DoxyCodeLine{00084\ \textcolor{preprocessor}{\#define\ LOG\_DEBUG(...)\ Logger::log<Logger::LogLevel::\_DEBUG\_>(\_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00085\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00086\ \textcolor{preprocessor}{\#define\ LOG\_DEBUG(...)\ do\ \{\}\ while\ (0)}}
+\DoxyCodeLine{00087\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \textcolor{preprocessor}{\#define\ LOG(...)\ Logger::log<Logger::LogLevel::\_DEFAULT\_>(\_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00090\ \textcolor{preprocessor}{\#define\ LOG\_INFO(...)\ Logger::log<Logger::LogLevel::\_INFO\_>(\_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00091\ \textcolor{preprocessor}{\#define\ LOG\_WARNING(...)\ Logger::log<Logger::LogLevel::\_WARNING\_>(\_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00092\ \textcolor{preprocessor}{\#define\ LOG\_ERROR(...)\ Logger::log<Logger::LogLevel::\_ERROR\_>(\_\_VA\_ARGS\_\_)}}
+
+\end{DoxyCode}

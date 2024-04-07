@@ -1,0 +1,145 @@
+\doxysection{Actor.\+h}
+\hypertarget{_actor_8h_source}{}\label{_actor_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Actor.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Actor.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Includes\ }}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <Components/Component.h>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <Transform.h>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <Tag.h>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ Additional\ includes}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00015\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_actor}{Actor}}}
+\DoxyCodeLine{00016\ \{}
+\DoxyCodeLine{00017\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ Enum\ for\ what\ space\ to\ transform\ in.}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{enum\ class}\ TransformSpace\{}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ Local,}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ Global}
+\DoxyCodeLine{00024\ \ \ \ \ \};}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \ \textcolor{comment}{//\ Scene\ graph}}
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{class_actor}{Actor}}*\ mParent\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00031\ \ \ \ \ std::vector<Actor*>\ mChildren;}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//\ Components}}
+\DoxyCodeLine{00034\ \ \ \ \ std::vector<Component*>\ mComponents;}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//\ Other}}
+\DoxyCodeLine{00037\ \ \ \ \ \mbox{\hyperlink{struct_tag_unique}{TagUnique}}\ mTag;}
+\DoxyCodeLine{00038\ \ \ \ \ \mbox{\hyperlink{struct_transform}{Transform}}\ mTransform\{\};}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{comment}{//\ Constructor}}
+\DoxyCodeLine{00044\ \ \ \ \ \mbox{\hyperlink{class_actor}{Actor}}(\textcolor{keyword}{const}\ std::string\&\ \_name)\ :\ mTag(\_name),\ mParent(\textcolor{keyword}{nullptr})\ \{\}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//\ Disable\ moveing\ and\ copying\ of\ class}}
+\DoxyCodeLine{00047\ \ \ \ \ \mbox{\hyperlink{class_actor}{Actor}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_actor}{Actor}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00048\ \ \ \ \ \mbox{\hyperlink{class_actor}{Actor}}\&\ operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_actor}{Actor}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00049\ \ \ \ \ \mbox{\hyperlink{class_actor}{Actor}}(\mbox{\hyperlink{class_actor}{Actor}}\&\&)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00050\ \ \ \ \ \mbox{\hyperlink{class_actor}{Actor}}\&\ operator=(\mbox{\hyperlink{class_actor}{Actor}}\&\&)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{comment}{//\ Deconstructs\ children\ and\ components,\ virtual\ passes\ deconstructing\ to\ inherited\ first.}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_actor}{\string~Actor}}();}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{comment}{//\ Updates\ per\ tick,\ virtual\ for\ inherited\ functions}}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ Update(\textcolor{keywordtype}{float}\ \_dt);}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//\ updates\ all\ components\ per\ tick}}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordtype}{void}\ UpdateComponents(\textcolor{keywordtype}{float}\ \_dt);}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{comment}{//\ Adds\ a\ child\ to\ this\ actor,\ also\ sets\ the\ child`s\ parent\ to\ this\ actor}}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordtype}{void}\ AddChild(\mbox{\hyperlink{class_actor}{Actor}}*\ \_child);}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{comment}{//\ Removes\ a\ specific\ child\ from\ from\ this\ actor,\ also\ removes\ child`s\ parent\ reference\ if\ this\ actor\ is\ its\ parent.}}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keywordtype}{void}\ RemoveChild(\mbox{\hyperlink{class_actor}{Actor}}*\ \_child);}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{comment}{//\ Template\ function\ that\ takes\ in\ a\ class\ and\ name,\ if\ that\ class\ has\ component\ as\ a\ base\ it\ creates}}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{comment}{//\ that\ object\ as\ a\ component\ and\ adds\ it\ to\ the\ components\ vector\ of\ this\ actor.}}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keywordtype}{void}\ AddComponent(\textcolor{keyword}{const}\ std::string\&\ \_componentName)}
+\DoxyCodeLine{00071\ \ \ \ \ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ check\ if\ this\ component\ derives\ from\ component\ class}}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_assert}(std::is\_base\_of<Component,\ T>::value,\ \textcolor{stringliteral}{"{}T\ must\ be\ derived\ from\ Component"{}});}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ if\ it\ does\ create\ a\ new\ one\ and\ add\ it\ to\ this\ actors\ component\ vector\ and\ run\ init}}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ component\ =\ \textcolor{keyword}{new}\ T(\_componentName,\ \textcolor{keyword}{this});}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ component-\/>Init();}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ mComponents.emplace\_back(component);}
+\DoxyCodeLine{00079\ \ \ \ \ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{comment}{//\ Template\ function\ that\ recursively\ checks\ itself\ and\ its\ children\ if\ they\ are\ actors.}}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{comment}{//\ If\ true\ they\ are\ added\ to\ the\ input\ vector\ address.}}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordtype}{void}\ Query(std::vector<Actor*>\&\ \_actors)}
+\DoxyCodeLine{00085\ \ \ \ \ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ if\ this\ derives\ from\ actor,\ add\ to\ vector}}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{dynamic\_cast<}T*\textcolor{keyword}{>}(\textcolor{keyword}{this}))}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \ \ \ \ \_actors.emplace\_back(\textcolor{keyword}{this});}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ recursively\ check\ each\ of\ this\ actors\ children}}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ child\ :\ this-\/>mChildren)}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>Query<T>(\_actors);}
+\DoxyCodeLine{00093\ \ \ \ \ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ /\ setters\ /\ adders\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{comment}{//\ Getters\ -\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{comment}{//\ transform\ getters}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{comment}{//\ Returns\ actors\ current\ position\ as\ vec3}}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keyword}{const}\ glm::vec3\&\ GetPosition(Actor::TransformSpace\ \_type)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{comment}{//\ Returns\ actors\ current\ rotation\ as\ quaternion}}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keyword}{const}\ glm::quat\&\ GetRotation(Actor::TransformSpace\ \_type)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{comment}{//\ Returns\ the\ actors\ current\ scale\ as\ a\ vec3}}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keyword}{const}\ glm::vec3\&\ GetScale(Actor::TransformSpace\ \_type)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{comment}{//\ Returns\ the\ transform\ object\ of\ this\ actor\ as\ reference}}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_transform}{Transform}}\&\ GetTransform()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{comment}{//\ Returns\ the\ Transformation\ matrix\ of\ this\ actor\ as\ a\ mat4}}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keyword}{const}\ glm::mat4\ GetTransformMatrix(Actor::TransformSpace\ \_type)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{comment}{//\ Returns\ the\ transform\ of\ this\ actor\ as\ a\ Transform\ pointer}}
+\DoxyCodeLine{00115\ \ \ \ \ \mbox{\hyperlink{struct_transform}{Transform}}*\ GetTransform()\ \{\ \textcolor{keywordflow}{return}\ \&mTransform;\ \}}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{comment}{//\ Returns\ the\ right\ vector\ of\ this\ actor\ as\ a\ vec3}}
+\DoxyCodeLine{00117\ \ \ \ \ glm::vec3\ GetRight()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{comment}{//\ other\ getters}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{comment}{//\ Returns\ the\ name\ of\ this\ actor}}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keyword}{const}\ std::string\&\ GetTag()\ \{\ \textcolor{keywordflow}{return}\ mTag.GetValue();\ \}}
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{comment}{//\ Returns\ a\ vector\ of\ actor\ pointers\ containing\ all\ of\ this\ actors\ children}}
+\DoxyCodeLine{00124\ \ \ \ \ std::vector<Actor*>\&\ GetChildren();}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{comment}{//\ Setters\ -\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{comment}{//\ transform\ setters}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{comment}{//\ Sets\ the\ local\ transformation\ matrix\ for\ this\ actor\ by\ in\ mat4}}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordtype}{void}\ SetLocalTransformMatrix(\textcolor{keyword}{const}\ glm::mat4\&\ \_transformMatrix);}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{comment}{//\ Sets\ the\ transform\ object\ of\ this\ actor\ by\ in\ transform\ reference}}
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{keywordtype}{void}\ SetTransform(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_transform}{Transform}}\&\ \_transform);}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{comment}{//\ Sets\ the\ position\ of\ this\ actor\ by\ in\ vec3\ and\ in\ TransformSpace\ type}}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordtype}{void}\ SetPosition(\textcolor{keyword}{const}\ glm::vec3\&\ \_position,\ Actor::TransformSpace\ \_type\ =\ Actor::TransformSpace::Local);}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{comment}{//\ Sets\ the\ rotation\ of\ this\ actor\ by\ in\ quaternion\ and\ in\ TransformSpace\ type}}
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{keywordtype}{void}\ SetRotation(\textcolor{keyword}{const}\ glm::quat\&\ \_rotation,\ Actor::TransformSpace\ \_type\ =\ Actor::TransformSpace::Local);}
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{comment}{//\ Sets\ the\ scale\ of\ this\ actor\ by\ in\ vec3\ and\ in\ TransformSpace\ type}}
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{keywordtype}{void}\ SetScale(\textcolor{keyword}{const}\ glm::vec3\&\ \_scale,\ Actor::TransformSpace\ \_type\ =\ Actor::TransformSpace::Local);}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{comment}{//\ other\ setters}}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{comment}{//\ Sets\ teh\ parent\ of\ this\ actor\ to\ in\ Actor\ pointer}}
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{keywordtype}{void}\ SetParent(\mbox{\hyperlink{class_actor}{Actor}}*\ \_parent);}
+\DoxyCodeLine{00144\ \};}
+
+\end{DoxyCode}

@@ -1,0 +1,41 @@
+\doxysection{AABB Struct Reference}
+\hypertarget{struct_a_a_b_b}{}\label{struct_a_a_b_b}\index{AABB@{AABB}}
+
+
+A class used for handling collision interactions, it checks intersection between other collision using center and extent. Is good for heap memory as it is small and has a small life span.  
+
+
+
+
+{\ttfamily \#include $<$AABB.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{struct_a_a_b_b_ac7375faa994c14984512e6c10bee4366}\label{struct_a_a_b_b_ac7375faa994c14984512e6c10bee4366} 
+{\bfseries AABB} (const glm\+::vec3 \&\+\_\+center, const glm\+::vec3 \&\+\_\+extent)
+\item 
+\Hypertarget{struct_a_a_b_b_af240f1837f7b02921d5951c49ca78c04}\label{struct_a_a_b_b_af240f1837f7b02921d5951c49ca78c04} 
+bool {\bfseries Is\+Intersecting} (const \mbox{\hyperlink{struct_a_a_b_b}{AABB}} \&\+\_\+other, glm\+::vec3 \texorpdfstring{$\ast$}{*}\+\_\+mtv) const
+\item 
+\Hypertarget{struct_a_a_b_b_ae745e7d4644e4e8a7f4552e33a582294}\label{struct_a_a_b_b_ae745e7d4644e4e8a7f4552e33a582294} 
+bool {\bfseries Is\+Intersecting} (const \mbox{\hyperlink{struct_bounding_sphere}{Bounding\+Sphere}} \&\+\_\+other, glm\+::vec3 \texorpdfstring{$\ast$}{*}\+\_\+mtv) const
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{struct_a_a_b_b_ada02445e1b19490086502e13f42ff26f}\label{struct_a_a_b_b_ada02445e1b19490086502e13f42ff26f} 
+glm\+::vec3 {\bfseries m\+Center} \{ 0.\+0f,0.\+0f,0.\+0f \}
+\item 
+\Hypertarget{struct_a_a_b_b_a1dea7c15b2652204c8d431c7f07aa1ad}\label{struct_a_a_b_b_a1dea7c15b2652204c8d431c7f07aa1ad} 
+glm\+::vec3 {\bfseries m\+Extent} \{ 0.\+5f,0.\+5f,0.\+5f \}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+A class used for handling collision interactions, it checks intersection between other collision using center and extent. Is good for heap memory as it is small and has a small life span. 
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Collision/AABB.\+h\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Collision/AABB.\+cpp\end{DoxyCompactItemize}
