@@ -77,22 +77,25 @@ public:
 
 private:
     // ---------- Local functions --------------
-  
-
 
 public:
     // ---------- Getters / setters / Adders --------------
 
+    // Getters
+
 	// Gets the texture based on type from this material. 
     Texture* GetTexture(TextureType _type) const;
 
+    // Finds a material in the cache by name and returns it.
     static Material* GetMaterialFromCache(std::string& _name);
-
-    // Set the input texture of input type to the assigned place in the texrure array.
-    void SetTexture(TextureType _type, Texture* _texture);
 
     // Gets the material properties for this material. 
     const MaterialProperties& GetProperties() const { return mProperties; }
+
+    // Setters
+
+    // Set the input texture of input type to the assigned place in the texture array.
+    void SetTexture(TextureType _type, Texture* _texture);
 
     // Sets the material properties from input.
     void SetProperties(const MaterialProperties& _properties) { mProperties = _properties; }

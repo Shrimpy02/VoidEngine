@@ -1,10 +1,14 @@
+
+// Includes
 #include "Material.h"
 #include "Logger.h"
 
+// static cache of materials
 std::unordered_map<std::string, Material*> Material::sCache;
 
 Material::Material(const std::string& _name)
 {
+    // Fill mTextures with nullptrs for defualt init
     mTextures.fill(nullptr);
 }
 
@@ -25,7 +29,7 @@ Material* Material::Load(const std::string& _name, const std::array<Texture*, Te
         return sCache[_name];
     }
 
-    // otherwise create new material and add it to cache. 
+    // Otherwise create new material and add it to cache. 
     Material* material = new Material(_name);
     material->mTextures = _textures;
     material->mProperties = _properties;
@@ -103,13 +107,12 @@ Texture* Material::GetTexture(TextureType _type) const
 
 Material* Material::GetMaterialFromCache(std::string& _name)
 {
-
+    // finds material in cache by name and returns it. 
     auto it = sCache.find(_name);
     if (it != sCache.end())
         return it->second;
-     else{
-        LOG_ERROR("Material %s, not found in cache", _name);
-     	return nullptr;
-    }
- 
+
+    // if incorrect name or its not in the cache print error and return nullptr
+	LOG_ERROR("Material %s, not found in cache", _name);
+    return nullptr;
 }

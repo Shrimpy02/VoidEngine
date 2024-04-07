@@ -1,7 +1,16 @@
 
 // Classes
-#include "PhysicsComponent.h"
-#include "Actor.h"
+#include <PhysicsComponent.h>
+#include <Actor.h>
+
+// Overriden function
+void PhysicsComponent::Update(float _dt)
+{
+	UpdateForces();
+	UpdateVelocity(_dt);
+	UpdatePosition(_dt);
+	ResetValues();
+}
 
 void PhysicsComponent::UpdateForces()
 {
@@ -32,10 +41,3 @@ void PhysicsComponent::ResetValues()
 	mAcceleration = glm::vec3(0.f);
 }
 
-void PhysicsComponent::Update(float _dt)
-{
-	UpdateForces();
-	UpdateVelocity(_dt);
-	UpdatePosition(_dt);
-	ResetValues();
-}

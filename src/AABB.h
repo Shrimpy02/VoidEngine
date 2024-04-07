@@ -1,15 +1,13 @@
 #pragma once
 
 // Includes
-#include <glm/vec3.hpp>
-#include <Logger.h>
-
-#include "BoundingSphere.h"
+#include <Collision.h>
 
 /**
  * @struct AABB
- * @brief A class used for handling collision interactions, it checks intersection when used by extent and centre.
- * Is good for heap memory as it is small and has a small life span. 
+ * @brief A class used for handling collision interactions,
+ * it checks intersection between other collision using center and extent.
+ * Is good for heap memory as it is small and has a small life span.
  */
  struct AABB
 {
@@ -25,12 +23,16 @@
     // Constructor
     AABB(const glm::vec3& _center, const glm::vec3& _extent) : mCenter(_center), mExtent(_extent) {}
 
-    // Returns true if this and an AABB are colliding
+    // NOTE :: For Handle collision template function it indiscriminately calls intersect regardless of what object it is.
+	// So AABB and Bounding sphere intersect functions must be identical in coding technicality. 
+	// Definitely a bad way of coding it but i could not think of a different way to call the functions dynamically during runtime. 
+
+    // Returns true if this and an AABB object are colliding
 	// Additionally updates the minimum translation vector input with the updated intersection data for collision handling.
     bool IsIntersecting(const AABB& _other, glm::vec3* _mtv) const;
  
 
-    // Overloaded function returns true if this and a BoundingSphere are colliding
+    // Overloaded function returns true if this and a BoundingSphere object are colliding
  	// Additionally updates the minimum translation vector input with the updated intersection data for collision handling.
     bool IsIntersecting(const BoundingSphere& _other, glm::vec3* _mtv) const;
 

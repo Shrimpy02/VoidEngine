@@ -1,4 +1,7 @@
-#include "AABB.h"
+
+// Includes
+#include <AABB.h>
+#include <BoundingSphere.h>
 
 bool AABB::IsIntersecting(const AABB& _other, glm::vec3* _mtv) const
 {

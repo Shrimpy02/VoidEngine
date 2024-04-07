@@ -26,7 +26,6 @@ Scene::Scene(const std::string& _name, Window* _window)
 
 void Scene::LoadContent()
 {
-	
 	// Texture Loading
 	// --------------------------------------------
 	auto diffuseTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/ConstainerDiffuse.jpg"));
@@ -37,9 +36,10 @@ void Scene::LoadContent()
 	auto debugMat = Material::Load("Debug", { whiteTex }, {{glm::vec3(1.0f,0.0f,0.0f)}, {64} });
 
 	// Shader Loading
+	// --------------------------------------------
 	mShader = new Shader(SOURCE_DIRECTORY("shaderSrc/shader.vs"), SOURCE_DIRECTORY("shaderSrc/shader.fs"));
 
-	// Mesh Actor Loading
+	// Actor Loading
 	// --------------------------------------------
 	// Default
 	mMACube0 = new BaseActor("BACube0", Mesh::CreateCube(crateMat));
@@ -63,7 +63,7 @@ void Scene::LoadContent()
 	Actor* Monke = new Actor("Monke");
 	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Monkey/Monke.fbx"), Monke);
 
-	// Adding objects to SceneGraph
+	// Adding Actors to SceneGraph
 	// --------------------------------------------
 	// Objects
 	mSceneGraph.AddChild(&mSceneCamera);
@@ -122,6 +122,8 @@ void Scene::LoadContent()
 	mActiveController = mCameraController;
 
 	// ImGui
+
+	// Sets first frame time, could init to 0. but this is safer
 	mOldTime = ImGui::GetTime();
 
 	// Testing:
@@ -227,7 +229,7 @@ void Scene::Render(float _dt)
 
 	// Render the scene graph -> all objects in scene
 	RenderSceneGraph(&mSceneGraph, _dt);
-	// Render UI over top
+	// Render UI over top, should be called last so it displays updated rather than outdated information
 	RenderUI();
 
 	glDepthFunc(GL_LEQUAL);
@@ -242,78 +244,91 @@ void Scene::HandleCollision()
 	// for each actor that can bound check it against all others
 	for (auto i = 0; i < collisionActors.size(); i++)
 	{
+		// Get the bounding object and set its collision to false
+		IBounded* iA = dynamic_cast<IBounded*>(collisionActors[i]);
+		iA->SetIsColliding(false);
+
 		for (auto j = i + 1; j < collisionActors.size(); j++)
 		{
-			// Get the two collision actors
-			IBounded* iA = dynamic_cast<IBounded*>(collisionActors[i]);
+			// Get the other bounding object and set its collision to false
 			IBounded* iB = dynamic_cast<IBounded*>(collisionActors[j]);
-
-
-			// For ImGui visualization of collision
-			//iA->SetIsColliding(true);
-			//iB->SetIsColliding(true);
-
+			iB->SetIsColliding(false);
 
 			// if both are static, skip collision check
 			// Skip intersection if a object ignores collision
-			if (iA->GetCollisionProperties().IsIgnoreResponse() ||
-				iB->GetCollisionProperties().IsIgnoreResponse())
+			if (iA->GetCollisionProperties()->IsIgnoreResponse() ||
+				iB->GetCollisionProperties()->IsIgnoreResponse())
 			{
 				continue;
 			}
 
 			// Skip intersection checks for two static objects
-			if (iA->GetCollisionProperties().IsStatic() &&
-				iB->GetCollisionProperties().IsStatic())
+			if (iA->GetCollisionProperties()->IsStatic() &&
+				iB->GetCollisionProperties()->IsStatic())
 			{
 				continue;
 			}
 
+			// To determine if there was a collision 
+			bool wasCollision = false;
 			// the monstrosity:
 			// Processes the appropriate collision between AABB and BoundingSphere based on what the current objects are
-			if(iA->GetCollisionProperties().IsAABB() && iB->GetCollisionProperties().IsAABB())
+			if(iA->GetCollisionProperties()->IsAABB() && iB->GetCollisionProperties()->IsAABB())
 			{
 				auto a = iA->GetAABB();
 				auto b = iB->GetAABB();
-				ProcessCollision(a,b,iA,iB, collisionActors[i], collisionActors[j]);
-			} else if (iA->GetCollisionProperties().IsAABB() && iB->GetCollisionProperties().IsBoundingSphere()){
+				if(ProcessCollision(a,b,iA,iB, collisionActors[i], collisionActors[j]))
+					wasCollision = true;
+				
+			} else if (iA->GetCollisionProperties()->IsAABB() && iB->GetCollisionProperties()->IsBoundingSphere()){
 
 				auto a = iA->GetAABB();
 				auto b = iB->GetBoundingSphere();
-				ProcessCollision(a, b, iA, iB, collisionActors[i], collisionActors[j]);
-			} else if (iA->GetCollisionProperties().IsBoundingSphere() && iB->GetCollisionProperties().IsAABB()) {
+				if(ProcessCollision(a, b, iA, iB, collisionActors[i], collisionActors[j]))
+					wasCollision = true;
+
+			} else if (iA->GetCollisionProperties()->IsBoundingSphere() && iB->GetCollisionProperties()->IsAABB()) {
 
 				auto a = iA->GetBoundingSphere();
 				auto b = iB->GetAABB();
-				ProcessCollision(a, b, iA, iB, collisionActors[i], collisionActors[j]);
-			} else if (iA->GetCollisionProperties().IsBoundingSphere() && iB->GetCollisionProperties().IsBoundingSphere()) {
+				if(ProcessCollision(a, b, iA, iB, collisionActors[i], collisionActors[j]))
+					wasCollision = true;
+
+			} else if (iA->GetCollisionProperties()->IsBoundingSphere() && iB->GetCollisionProperties()->IsBoundingSphere()) {
 
 				auto a = iA->GetBoundingSphere();
 				auto b = iB->GetBoundingSphere();
-				ProcessCollision(a, b, iA, iB, collisionActors[i], collisionActors[j]);
+				if(ProcessCollision(a, b, iA, iB, collisionActors[i], collisionActors[j]))
+					wasCollision = true;
+
 			} else{
 
 				LOG_ERROR("ERROR IN THE MONSTROSITY");
+			}
+
+			if (wasCollision == true)
+			{
+				// Sets both objects collision bool to true since there was a collision.
+				iA->SetIsColliding(true);
+				iB->SetIsColliding(true);
 			}
 		}
 	}
 }
 
 template <typename T, typename U>
-void Scene::ProcessCollision(T _a, U _b, IBounded* _iA, IBounded* _iB, Actor* _AA, Actor* _AB)
+bool Scene::ProcessCollision(T _a, U _b, IBounded* _iA, IBounded* _iB, Actor* _AA, Actor* _AB)
 {
+	// Init minimum translation vector and check if there is an intersection.
+	// If there is mtv will be updated by intersect logic.
 	glm::vec3 mtv(0.f);
 	if (_a.IsIntersecting(_b, &mtv))
 	{
-		// For ImGui visualization of collision
-		//iA->SetIsColliding(true);
-		//iB->SetIsColliding(true);
-
 		// Temp bool to se if either object are dynamic
-		bool isADynamic = _iA->GetCollisionProperties().IsDynamic();
-		bool isBDynamic = _iB->GetCollisionProperties().IsDynamic();
+		bool isADynamic = _iA->GetCollisionProperties()->IsDynamic();
+		bool isBDynamic = _iB->GetCollisionProperties()->IsDynamic();
 
-		// mtv vectors for each object
+		// mtv vector init for each object
 		glm::vec3 mtvA(0.f), mtvB(0.f);
 
 		// If both actors are dynamic, split the MTV between them
@@ -337,23 +352,27 @@ void Scene::ProcessCollision(T _a, U _b, IBounded* _iA, IBounded* _iB, Actor* _A
 		
 		if (isBDynamic)
 			_AB->SetPosition(_AB->GetPosition(Actor::TransformSpace::Global) + mtvB, Actor::TransformSpace::Global);
+
+		return true;
 	}
+	return false;
 }
-
-
 
 void Scene::RenderUI()
 {
 	// World object settings window logic 
 	imgui_WorldObjectSettings();
-	// Debug logger window logic
+	// Logger window logic
 	imgui_Logger();
 
+	// Demo window for inspiration and explanation
 	//ImGui::ShowDemoWindow();
 }
 
 void Scene::imgui_WorldObjectSettings()
 {
+	// Starts window, set to true.
+	// If window is closed this becomes false and code inside is not run. 
 	if(ImGui::Begin("WorldSettings"))
 	{
 		if(ImGui::CollapsingHeader("Dev Options"))
@@ -378,7 +397,7 @@ void Scene::imgui_WorldObjectSettings()
 			// Shows all actors in scene, based on selection can take control
 			// Note only shows the parent actors so to speak as you cannot control children
 			// ----------------------------------------------------------------------------
-			std::vector<Actor*>& tempSceneActors = mSceneGraph.GetChildren();
+			std::vector<Actor*> tempSceneActors = mSceneGraph.GetChildren();
 			std::vector<const char*> tempSceneActorNames;
 
 			for (auto* actor : tempSceneActors) {
@@ -577,42 +596,44 @@ void Scene::imguiSub_WorldDetails(Actor* _aptr)
 
 void Scene::imguiSub_Collision(IBounded* _cptr)
 {
-	//// Handles all collision setting logic with
-	//// ImGui and shared_ptr of the object selected
+	// Handles all collision setting logic with
+	// ImGui and shared_ptr of the object selected
 
-	//ImGui::Text("Collision Details");
-	//ImGui::Separator();
-	//// Shows if actor is colliding 
-	//// ----------------------------------------------
-	//ImGui::Text("Is Colliding: "); ImGui::SameLine();
-	//if (_cptr->IsColliding())
-	//	ImGui::TextColored(ImVec4(0, 1, 0, 1), "True");
-	//else
-	//	ImGui::TextColored(ImVec4(1, 0, 0, 1), "False");
+	ImGui::Text("Collision Details");
+	ImGui::Separator();
+	// Shows if actor is colliding 
+	// ----------------------------------------------
+	ImGui::Text("Is Colliding: "); ImGui::SameLine();
+	if (_cptr->GetIsColliding())
+		ImGui::TextColored(ImVec4(0, 1, 0, 1), "True");
+	else
+		ImGui::TextColored(ImVec4(1, 0, 0, 1), "False");
 
-	//// Edit collision type
-	//// ----------------------------------------------
-	//const char* typeItems[] = { "STATIC","DYNAMIC","KINETIC" };
-	//int currentTypeItem = 0;
+	// Edit collision type
+	// ----------------------------------------------
+	const char* typeItems[] = { "STATIC","DYNAMIC","KINETIC" };
+	int currentTypeItem = 0;
 
-	//currentTypeItem = static_cast<int>(_cptr->GetCollisionProperties()->mType);
+	currentTypeItem = static_cast<int>(_cptr->GetCollisionProperties()->mType);
 
-	//ImGui::Text("Collision Type");
-	//ImGui::Combo("##TB", &currentTypeItem, typeItems, IM_ARRAYSIZE(typeItems));
+	ImGui::Text("Collision Type");
+	ImGui::Combo("##TB", &currentTypeItem, typeItems, IM_ARRAYSIZE(typeItems));
 
-	//_cptr->GetCollisionProperties()->SetCollisionType(static_cast<CollisionType>(currentTypeItem));
+	_cptr->GetCollisionProperties()->SetCollisionType(static_cast<CollisionType>(currentTypeItem));
 
-	//// Edit collision response
-	//// ----------------------------------------------
-	//const char* responseItems[] = { "BLOCK","OVERLAP","IGNORE" };
-	//int currentResponseItem = 0;
+	// Edit collision response
+	// ----------------------------------------------
+	const char* responseItems[] = { "BLOCK","OVERLAP","IGNORE" };
+	int currentResponseItem = 0;
 
-	//currentResponseItem = static_cast<int>(_cptr->GetCollisionProperties()->mResponse);
+	currentResponseItem = static_cast<int>(_cptr->GetCollisionProperties()->mResponse);
 
-	//ImGui::Text("Collision Response");
-	//ImGui::Combo("##RB", &currentResponseItem, responseItems, IM_ARRAYSIZE(responseItems));
+	ImGui::Text("Collision Response");
+	ImGui::Combo("##RB", &currentResponseItem, responseItems, IM_ARRAYSIZE(responseItems));
 
-	//_cptr->GetCollisionProperties()->SetCollisionResponse(static_cast<CollisionResponse>(currentResponseItem));
+	_cptr->GetCollisionProperties()->SetCollisionResponse(static_cast<CollisionResponse>(currentResponseItem));
+
+	// TODO : Add section here for base collision type for baseActors. Either aabb collision or Bounding sphere collision.
 }
 
 void Scene::imguiSub_Light(Light* _lptr)
@@ -672,7 +693,7 @@ void Scene::imguiSub_FPS()
 	if (elapsedTime >= 1.0)
 	{
 		// assigns 
-		values[index] = numFrames;
+		values[index] = (float) numFrames;
 		// once max array size is reached offset is reset to 0
 		index = (index + 1) % IM_ARRAYSIZE(values);
 		// resets frames and mOldTime to continue the loop
@@ -698,7 +719,7 @@ void Scene::imguiSub_FPS()
 
 	// Write average into char array for dynamic text rendering
 	char overlay[32];
-	sprintf(overlay, "Avg fps %f", average);
+	sprintf_s(overlay, "Avg fps %f", average);
 
 	// Sets text pos 50 right and draw
 	ImGui::SetCursorPosX(50);
@@ -721,7 +742,6 @@ void Scene::imguiSub_FPS()
 	ImGui::Text("now");
 
 }
-
 
 void Scene::FramebufferSizeCallback(Window* _window, int _width, int _height)
 {

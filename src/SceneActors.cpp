@@ -1,7 +1,7 @@
 
 // Includes
 #include <SceneActors.h>
-
+#include <Logger.h>
 
 // ---------------------------------------------------------------
 // --------------------- Mesh Actor ------------------------------
@@ -10,7 +10,7 @@
 BaseActor::BaseActor(const std::string& _name, Mesh* _mesh)
     :Actor(_name), mMesh(_mesh)
 {
-    // Add debug mesh to show collision
+    // Creates and remembers both collision meshes for viualization and custom changing of collision base at run time. Is unoptomized.
     mCollisionCube = CreateCollisionCubeFromMesh(Material::Load("Debug"), mMesh->GetVetices());
     mCollisionSphere = CreateCollisionSphereFromMesh(Material::Load("Debug"), mMesh->GetVetices());
     LOG("BaseActor Created: %s", _name.c_str());
@@ -22,7 +22,7 @@ void BaseActor::Draw(const Shader* _shader) const
     if (!mMesh) return;
     mMesh->Draw(_shader);
 
-    // Draw collision mesh after
+    // Draw collision mesh after depending on collision base, draw as wire frame
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     if (mShouldDrawCollisionMesh) {
         if (mCollisionCube && mCollisionProperties.IsAABB())
@@ -45,17 +45,18 @@ AABB BaseActor::GetAABB() const
         // Apply object's position
         glm::vec3 position = GetPosition(TransformSpace::Global);
 
-        // Gets the center position after transform. Witch is good. 
-        // Calculate local center of the AABB
+        // Calculate local center of the AABB, there is a center variable but is calculated at setup and there fore is not dynamic
         glm::vec3 center = (scaledMinExtent + scaledMaxExtent) * 0.5f + position;
 
-        // Calculate extent of the AABB
+        // calculated total extent of the AABB from centre 
         glm::vec3 extent = (scaledMaxExtent - scaledMinExtent) * 0.5f;
 
         // Construct and return the AABB
         return AABB(center, extent);
     }
     else {
+        // Return default AABB
+        LOG_WARNING("Default AABB Returned");
         return AABB(GetPosition(TransformSpace::Global), GetScale(TransformSpace::Global) * 0.5f);
     }
 }
@@ -64,6 +65,7 @@ BoundingSphere BaseActor::GetBoundingSphere() const
 {
     if (mCollisionSphere)
     {
+        // getes the average scale so that the sphere is kind of scaled with mesh scaleing. Temp fix
         float averageScale(0);
         for (int i = 0; i < 3; i++)
         {
@@ -77,7 +79,6 @@ BoundingSphere BaseActor::GetBoundingSphere() const
         // Apply object's position
         glm::vec3 position = GetPosition(TransformSpace::Global);
 
-        // Gets the center position after transform. Witch is good. 
         // Calculate local center of the AABB
         glm::vec3 center = glm::vec3(0.f) + position;
 
@@ -88,13 +89,16 @@ BoundingSphere BaseActor::GetBoundingSphere() const
         return BoundingSphere(center, radius);
     }
     else {
+        // Return default Bounding sphere
+        LOG_WARNING("Default BoundignSphere Returned");
         return BoundingSphere(GetPosition(TransformSpace::Global), 0.5f);
     }
 }
 
-CollisionProperties BaseActor::GetCollisionProperties() const
+CollisionProperties* BaseActor::GetCollisionProperties()
 {
-    return mCollisionProperties;
+    // Returns pointer to class object
+    return &mCollisionProperties;
 }
 
 // ---------------------------------------------------------------
@@ -105,7 +109,6 @@ VisualActor::VisualActor(const std::string& _name, Mesh* _mesh)
     : Actor(_name), mMesh(_mesh)
 {
     LOG("VisualActor Created: %s", _name.c_str());
-
 }
 
 void VisualActor::Draw(const Shader* _shader) const
@@ -122,6 +125,7 @@ void VisualActor::Draw(const Shader* _shader) const
 CollisionActor::CollisionActor(const std::string& _name, Mesh* _mesh, CollisionProperties _inCollisionProps)
     : Actor(_name), mCollisionMesh(_mesh), mCollisionProperties(_inCollisionProps)
 {
+    // System to calculates extent and centre conforming to init collision mesh. 
     // TODO : kind of does`nt work with un-even scale or with object rotation. That needs to be figured out
 
 	// default extent init
@@ -165,6 +169,7 @@ CollisionActor::CollisionActor(const std::string& _name, Mesh* _mesh, CollisionP
     mCenter = center;
     mRadius = largetsDiff;
 
+    // Gets the debug material from material cache
     std::string debugString = "Debug";
     mCollisionMesh->SetMaterial(Material::GetMaterialFromCache(debugString));
 
@@ -209,6 +214,9 @@ AABB CollisionActor::GetAABB() const
         return AABB(center, extent);
     }
     else {
+
+        // Return default AABB
+        LOG_WARNING("Default AABB Returned");
         return AABB(GetPosition(TransformSpace::Global), GetScale(TransformSpace::Global) * 0.5f);
     }
 }
@@ -217,6 +225,7 @@ BoundingSphere CollisionActor::GetBoundingSphere() const
 {
     if (mCollisionMesh)
     {
+        // getes the average scale so that the sphere is kind of scaled with mesh scaleing. Temp fix
         float averageScale(0);
         for(int i = 0; i < 3; i++)
         {
@@ -241,12 +250,14 @@ BoundingSphere CollisionActor::GetBoundingSphere() const
         return BoundingSphere(center, radius);
     }
     else {
+        // Return default Bounding sphere
+        LOG_WARNING("Default BoundignSphere Returned");
         return BoundingSphere(GetPosition(TransformSpace::Global), 0.5f);
     }
 
 }
 
-CollisionProperties CollisionActor::GetCollisionProperties() const
+CollisionProperties* CollisionActor::GetCollisionProperties() 
 {
-    return mCollisionProperties;
+    return &mCollisionProperties;
 }

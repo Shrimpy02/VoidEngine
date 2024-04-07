@@ -1,16 +1,15 @@
 #pragma once
 // Includes
 #include <Camera.h>
-#include <SceneGraph.h>
 #include "SceneActors.h"
 
 // Additional Includes
-#include <memory>
+#include <memory> // smart pointers 
 
 /**
  * @class Scene
  * @brief This class is in effect a world, it loads all content in a scene and initialize`s the objects that use them.
- * It indirectly manages all scene objects by useing a SceneGraph as a root node, all updates and render calls are passed down through it to it`s children.
+ * It indirectly manages all scene objects by using a SceneGraph as a root node, all updates and render calls are passed down through it to it`s children.
  */
 class Scene
 {
@@ -67,6 +66,7 @@ private:
 
 protected:
 
+    // the active controller
     std::shared_ptr<class IController> mActiveController{ nullptr };
 
 public:
@@ -80,13 +80,14 @@ public:
     Scene& operator=(Scene&&) = delete;     // Move ref
     // Because this class is explicit.
 
+    // default de-constructor
     virtual ~Scene() = default;
 
     // Function`s
     // ------------------------------------------------------------
     
     // Loads all objects, their materials and meshes and assigns them as a child of mSceneGraph so they
-    //          receive update and render calls if they inherit from the correct classes.
+    // receive update and render calls if they inherit from the correct classes.
     virtual void LoadContent();
     // Deletes pointers and clears all caches for texture, mesh and material.  
     virtual void UnloadContent();
@@ -103,9 +104,11 @@ public:
     void Render(float _dt);
     // Scene collision handler function for all scene objects that inherit from "IBounded" (called each frame) 
     void HandleCollision();
-
-    template <typename T, typename U>
-    void ProcessCollision(T _a,U _b,IBounded* _iA, IBounded* _iB, Actor* _AA, Actor* _AB);
+        // Template helper function for HandleCollision, takes two template arguments for either aabb
+        // or BoundingSphere in addition to who it belongs and executes the appropriate logic for them.
+        // Returns true if there was a collision and false otherwise.
+        template <typename T, typename U>
+        bool ProcessCollision(T _a,U _b,IBounded* _iA, IBounded* _iB, Actor* _AA, Actor* _AB);
 
 	// Local scene UIRender function for distribution (called each frame) 
     void RenderUI();
@@ -121,8 +124,6 @@ public:
 	void imgui_Logger();
 		 // Contains custom ImGui logic for FPS sub section
 		void imguiSub_FPS();
-
-
 
     // Callbacks for camera or active controller to process movement or other locally. 
     void FramebufferSizeCallback(class Window* _window, int _width, int _height);

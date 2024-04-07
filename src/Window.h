@@ -31,9 +31,8 @@ public:
 	Window(Window&&) = default;
 	Window& operator=(Window&&) = default;
 
-	// De-constructor
+	// De-constructor for glfw and imgui shutdown
 	~Window();
-
 
 	// Initialize`s GLFW-Window, GLAD & ImGui
 	void Init();
@@ -42,7 +41,8 @@ public:
 	// Loads the given scene
 	bool LoadContent(Scene* _scene);
 
-	// Update
+	// Update ---
+
 	// First frame of the render loop
 	void StartFrame();
 	// Update logic per frame
@@ -71,21 +71,22 @@ private:
 public:
 	// ---------- Getters / setters / Adders --------------
 
+	// Getters -----------
+
+	// Get`s the window height
+	int GetHeight() const { return mHeight; }
+	// Get`s the window width
+	int GetWidth() const { return mWidth; }
+	// Get`s the GLFWWindow reference for the viewport window
+	GLFWwindow* GetGLFWWindow() { return mGLFWWindow; }
+
 	// Setters -----------
+
 	// Sets active scene
 	void SetScene(Scene* _scene) { mScene = _scene; }
 	// Sets height of the window
 	void SetWidth(int _width) { mWidth = _width; }
 	// Sets width of the window
 	void SetHeight(int _height) { mHeight = _height; }
-
-	// Getters
-	// Get`s the window height
-	int GetHeight() const { return mHeight; }
-	// Get`s the window width
-	int GetWidth() const { return mWidth; }
-
-	// Get`s the GLFWWindow reference for the viewport window
-	GLFWwindow* GetGLFWWindow() { return mGLFWWindow; }
 };
 

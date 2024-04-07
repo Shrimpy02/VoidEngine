@@ -30,7 +30,7 @@ private:
 public:
     // ---------- Global functions --------------
 
-    // Default constructor/de-constructor as the class only holds static functions 
+    // Default constructor/de-constructor as the class only holds static functionality  
 
     // This is the only global function as it loads the FBX the file path refers to as a child of input static mesh with the given flags(default)
 	static void Load(const std::string& _path, class Actor* _staticMeshActor, unsigned _flags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_GenUVCoords);

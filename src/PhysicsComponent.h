@@ -30,6 +30,9 @@ public:
 	PhysicsComponent(const std::string& _name, class Actor* _owner)
 		: Component(_name, _owner) {};
 
+	// Overidden Update for the component, distribution to all tick functions from here. (Called each frame)
+	void Update(float _dt) override;
+
 	// Updates all forces affecting the component.
 	void UpdateForces();
 
@@ -42,8 +45,7 @@ public:
 	// Resets all physics values, typically called on collisions. (Simple solution)
 	void ResetValues();
 
-	// Overidden Update for the component, distribution to all tick functions from here. (Called each frame)
-	virtual void Update(float _dt) override;
+
 
 private:
 	// ---------- Local functions --------------

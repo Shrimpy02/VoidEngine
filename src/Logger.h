@@ -1,15 +1,17 @@
 #pragma once
 
+// Includes
 #include <iostream>
 #include <sstream>
 #include <cstdarg>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_access.hpp>
 
+// defines debug mode witch enables debug logs to be printed.
+// Comment out for final build. 
 #define DEBUG_MODE
 
 namespace Logger
 {
+	// enum for log level
 	enum class LogLevel
 	{
 		_DEFAULT_,
@@ -21,6 +23,7 @@ namespace Logger
 
 	constexpr const char* levelToStr(LogLevel level)
 	{
+		// Gets const char of enum by unput case
 		switch (level)
 		{
 		case LogLevel::_DEBUG_:
@@ -59,20 +62,24 @@ namespace Logger
 			break;
 		}
 
+		// Gets level and prints it first
 		oss << levelToStr(level);
 
+		// buffer shinnanigens
 		va_list args;
 		va_start(args, format);
 		char buffer[256];
 		vsnprintf(buffer, sizeof(buffer), format, args);
 		va_end(args);
-		
-		oss << color << buffer << "\033[37m" << std::endl; // Reset color after log message
+
+		// Sets text to white when finished and prints the message.
+		oss << color << buffer << "\033[37m" << std::endl;
 		std::cout << oss.str();
 	}
 
 }
 
+// macro definitions of each log case.
 #ifdef DEBUG_MODE
 #define LOG_DEBUG(...) Logger::log<Logger::LogLevel::_DEBUG_>(__VA_ARGS__)
 #else

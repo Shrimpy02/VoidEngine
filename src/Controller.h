@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @class IController,
+ * @brief Interface for the controller object.
+ * Contains base functions for handling mouse movement, scroll, click and keyboard action.
+ */
 class IController
 {
 public:

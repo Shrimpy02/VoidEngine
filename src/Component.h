@@ -22,6 +22,7 @@ protected:
 
 private:
 	// ---------- Local Variables --------------
+
 	// Components name
 	TagUnique mTag;
 
@@ -45,7 +46,7 @@ protected:
 
 	// Init runs when the component is created and added to an actor
 	virtual void Init() {}
-	// is called each frame
+	// Update is called each frame
 	virtual void Update(float _dt) {}
 
 private:

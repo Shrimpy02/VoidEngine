@@ -8,6 +8,7 @@
 #include <Material.h>
 #include <Texture.h>
 #include <Lights/PointLight.h>
+#include <Logger.h>
 
 // Static Variables
 std::string AssimpLoader::msBasePath = "";

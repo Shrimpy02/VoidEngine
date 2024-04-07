@@ -78,7 +78,7 @@ public:
 private:
     // ---------- Local functions --------------
 
-    // gl generation of buffers and attributes
+    // gl generation of buffers and attributes, called when class is constructed
     void SetupMesh();
 
     // Subdivides existing base geometry recursively by number subdivides
@@ -94,10 +94,7 @@ private:
 public:
     // ---------- Getters / setters / Adders --------------
 
-    // Sets the material this mesh should use
-    void SetMaterial(Material* _material) { mMaterial = _material; }
-   
-    // Getters
+      // Getters
 
     // Gets the material this mesh is currently using
     const Material* GetMaterial() const { return mMaterial; }
@@ -105,8 +102,16 @@ public:
     // gets the name of this mesh
     const std::string* GetName() { return &mName; }
 
-	// Gets this meshes vertices as address to vector
+    // Gets this meshes vertices as address to vector
     std::vector<Vertex>& GetVetices() { return mVertices; }
+
+
+    // Setters
+
+    // Sets the material this mesh should use
+    void SetMaterial(Material* _material) { mMaterial = _material; }
+   
+  
 };
 
 

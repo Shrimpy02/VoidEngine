@@ -22,7 +22,7 @@ enum class CollisionResponse
 	IGNORE
 };
 
-// Enum for all collision responses
+// Enum for all collision bases
 enum class CollisionBase
 {
     AABB,
@@ -31,11 +31,12 @@ enum class CollisionBase
 
 /**
  * @struct CollisionProperties
- * @brief A struct holding information on collision type and response.
- * Additionally holds checker and setter functions for types and responses.
+ * @brief A struct holding information on collision type, response and base.
+ * Additionally holds checker and setter functions for each.
  */
 struct CollisionProperties
 {
+
 	CollisionType mType{ CollisionType::STATIC };
 	CollisionResponse mResponse{ CollisionResponse::BLOCK };
     CollisionBase mBase{ CollisionBase::AABB };
@@ -84,26 +85,38 @@ struct CollisionProperties
 /**
  * @class IBounded
  * @brief IBounded class is the base class for all objects that can collide in a scene.
- * It Holds the GetCollisionTypes and GetCollisionProperties functions.  
+ * It holds variables and functions objects use for collision.
  */
 class IBounded
 {
 public:
+    // ---------- Global Variables --------------
 
-	// AABB variables
-    // mCenter is not used currently, better to calc center when calling aabb for correct scaling
+	// AABB / boundingSphere variables
+    // mCenter is not used currently, better to calc center when calling aabb/boundingsphere for correct scaling
 	glm::vec3 mCenter{ 0.f,0.f,0.f };
 	glm::vec3 mMaxExtent{ 0.f,0.f,0.f };
 	glm::vec3 mMinExtent{ 0.f,0.f,0.f };
     float mRadius{ 0.5f };
 
     // objects collision properties
-    CollisionProperties mCollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK,CollisionBase::AABB };
+    CollisionProperties mCollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::AABB };
 
-    // decides if mCollisionMesh (if there is one) should be rendered.
+    // Decides if mCollisionMesh (if there is one) should be rendered.
     bool mShouldDrawCollisionMesh = true;
+    // Is true if object is colliding with something else
+    bool mIsColliding = false;
 
-	// ---------- Global functions --------------
+private:
+    // ---------- Local Variables --------------
+
+public:
+    // ---------- Global functions --------------
+
+    // TODO : Get AABB and BoundingSphere should contain logic rather than them (currently) being repeated in each scene actor. 
+
+    // De-constructor
+    virtual ~IBounded() = default;
 
 	// Gets an AABB object for collision handling, function = 0 as since it is a base. 
 	virtual struct AABB GetAABB() const = 0;
@@ -112,8 +125,9 @@ public:
     virtual struct BoundingSphere GetBoundingSphere() const = 0;
 
 	// Gets CollisionProperties object for collision handling, = 0 as base function. 
-	virtual struct CollisionProperties GetCollisionProperties() const = 0;
+	virtual struct CollisionProperties* GetCollisionProperties() = 0;
 
+    // Helper functions to create default cube meshe based on existing mesh vertex geometry.
 	class Mesh* CreateCollisionCubeFromMesh(class Material* _material, std::vector<struct Vertex>& _existingMesh)
 	{
         // Calculate the bounding box (min and max extents) of the existing mesh
@@ -187,6 +201,7 @@ public:
         return new Mesh("CollisionCube", std::move(vertices), std::move(indices), _material);
     }
 
+    // Helper functions to create default cube meshe based on existing mesh vertex geometry.
     class Mesh* CreateCollisionSphereFromMesh(class Material* _material, std::vector<struct Vertex>& _existingMesh)
     {
         // default extent init
@@ -225,7 +240,7 @@ public:
         center /= static_cast<float>(_existingMesh.size());
 
         // set the class values to the calculated values
-        mRadius = largetsDiff*1.5;
+        mRadius = (float)largetsDiff * 1.5;
 
         std::vector<Vertex> vertices;
         std::vector<Index> indices;
@@ -234,5 +249,26 @@ public:
         return new Mesh("CollisionSphere", std::move(vertices), std::move(indices), _material);
     }
 
+    // Returns true if this object is colliding with anything else. 
+    bool GetIsColliding() { return mIsColliding; }
+
+    // Sets the value of mIsColliding
+    void SetIsColliding(bool _inBool) { mIsColliding = _inBool; }
+
+    // Sets the collision type for this object
+    void SetCollisionType(CollisionType _inType) { mCollisionProperties.mType = _inType; }
+
+    // Sets the collision response for this object
+    void SetCollisionResponse(CollisionResponse _inResponse) { mCollisionProperties.mResponse = _inResponse; }
+
+private:
+        // ---------- Local functions --------------
+
+public:
+        // ---------- Getters / setters / Adders --------------
+
+        // Getters -----------
+
+        // Setters -----------
 
 };

@@ -1,6 +1,12 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
+
+
+// OLD GEOMETRY FILE; is not being used by will stay for for later code refrenceing.
+// like importing geometry form custom file templates.
+
+
 // GL Components
 #include <algorithm>
 #include <vector>

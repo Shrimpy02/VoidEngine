@@ -1,5 +1,10 @@
 
-#include "Shader.h"
+// Includes
+#include <Shader.h>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <Logger.h>
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 {
@@ -29,7 +34,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     }
     catch (std::ifstream::failure e)
     {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+        LOG_ERROR("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ");
     }
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
@@ -49,7 +54,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     {
         glGetShaderInfoLog(vertex, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    };
+    }
 
     // fragment Shader
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -61,7 +66,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     {
         glGetShaderInfoLog(fragment, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    };
+    }
 
     // shader Program
     ID = glCreateProgram();
@@ -83,5 +88,6 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 
 void Shader::use() const
 {
+    // Set this shader as active in gl context
     glUseProgram(ID);
 }

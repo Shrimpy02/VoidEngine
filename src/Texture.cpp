@@ -35,7 +35,6 @@ Texture* Texture::Load(const std::string& _path)
 		//LOG("Texture Load Complete: %s", _path.c_str());
 		return it->second;
 	}
-		
 
 	// Extracting the end of the path after the last '/'
 	size_t lastSlashIndex = _path.find_last_of('/');
@@ -46,6 +45,7 @@ Texture* Texture::Load(const std::string& _path)
 	sCache[_path] = texture;
 	sCache[_path] = texture;
 
+	// Log when new texture is created
 	LOG("Texture Creation Complete: %s", _path.c_str());
 	return texture;
 }

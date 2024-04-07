@@ -23,6 +23,7 @@ void Actor::Update(float _dt)
 
 void Actor::UpdateComponents(float _dt)
 {
+	// calls update for all components 
 	for (auto component : mComponents)
 		component->Update(_dt);
 }

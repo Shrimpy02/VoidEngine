@@ -1,9 +1,12 @@
 #pragma once
-#include <filesystem>
-#include <iostream>
 
+// Includes
+#include <filesystem>
+
+// namespace declaration
 namespace fs = std::filesystem;
 
+// Inline function returns the relative path from in base path and in absolute path as std::string
 inline std::string ToRelativePath(const std::string& basePath, const std::string& absolutePath) {
     fs::path base(basePath);
     fs::path absolute(absolutePath);
@@ -11,6 +14,7 @@ inline std::string ToRelativePath(const std::string& basePath, const std::string
     return relative.string();
 }
 
+// Inline function returns the name from in filepath as an std::string
 inline std::string GetFileNameFromPath(const std::string& filePath)
 {
     size_t pos = filePath.find_last_of("\\/");
@@ -21,6 +25,7 @@ inline std::string GetFileNameFromPath(const std::string& filePath)
     return filePath;
 }
 
+// Inline function returns the directory path from in filepath as an std::string
 inline std::string GetDirectoryPath(const std::string& filePath)
 {
     size_t pos = filePath.find_last_of("\\/");
@@ -31,6 +36,7 @@ inline std::string GetDirectoryPath(const std::string& filePath)
     return "";
 }
 
+// Inline function returns the file extension from in filepath as an std::string
 inline std::string GetFileExtension(const std::string& filePath) {
     size_t pos = filePath.find_last_of('.');
     if (pos != std::string::npos)
@@ -40,6 +46,7 @@ inline std::string GetFileExtension(const std::string& filePath) {
     return "";
 }
 
+// Inline function returns the in file path without the ending file extension
 inline std::string RemoveFileExtension(const std::string& filePath)
 {
     size_t pos = filePath.find_last_of('.');
@@ -50,6 +57,7 @@ inline std::string RemoveFileExtension(const std::string& filePath)
     return filePath;
 }
 
+// Inline function returns true if in file path contains "_AABBCollision_" and assign that string value to the in prefix pointer
 inline bool HasCollisionAABBPrefix(const std::string& filePath, std::string& outPrefix)
 {
     if (filePath[0] != '_')
@@ -67,6 +75,8 @@ inline bool HasCollisionAABBPrefix(const std::string& filePath, std::string& out
     return true;
 }
 
+
+// Inline function returns true if in file path contains "_BoundingSphereCollision_" and assign that string value to the in prefix pointer
 inline bool HasCollisionBoundignSphererePrefix(const std::string& filePath, std::string& outPrefix)
 {
     if (filePath[0] != '_')
@@ -84,7 +94,7 @@ inline bool HasCollisionBoundignSphererePrefix(const std::string& filePath, std:
     return true;
 }
 
-
+// Inline function returns true if in file path contains "_Light_" and assign that string value to the in prefix pointer
 inline bool HasLightPrefix(const std::string& filePath, std::string& outPrefix)
 {
     if (filePath[0] != '_')

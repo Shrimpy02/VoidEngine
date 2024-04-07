@@ -51,7 +51,7 @@ set (HEADER_FILES
   src/Transform.h
   src/Tag.h
   src/Vertex.h
-  src/SceneGraph.h
+  
   src/Controller.h 
   src/CameraController.h 
   src/Collision.h 
@@ -66,7 +66,7 @@ set (SRC_FILES
   3DProgEngine.cpp
   includes/glad.c
   src/Shader.cpp
-  src/Transform.cpp
+  
   src/Camera.cpp
   src/Window.cpp
   src/Application.cpp
@@ -74,7 +74,7 @@ set (SRC_FILES
   src/Material.cpp     
   src/Mesh.cpp
   src/Scene.cpp
-  src/SceneGraph.cpp
+  
   src/Actor.cpp
   
   src/CameraController.cpp

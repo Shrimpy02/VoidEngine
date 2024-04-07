@@ -1,21 +1,25 @@
 #pragma once
+
+// Includes 
 #include <assimp/scene.h>
 #include <glm/glm.hpp>
-#include <iostream>
 
-template <typename T>
-inline T GetProperty(const std::string& key, aiMaterial* material)
-{
-	T value;
-	material->Get(key.c_str(), 0, 0, value);
+// Unused and disabled --
+// Inline template function for getting the seb material properties from an ai-material? 
+//template <typename T>
+//inline T GetProperty(const std::string& key, aiMaterial* material)
+//{
+//	T value;
+//	material->Get(key.c_str(), 0, 0, value);
+//
+//	return value;
+//}
 
-	return value;
-}
-
+// Inline function returns transformation matrix of an in aiNode* as an aiMatrix4x4
 inline aiMatrix4x4 GetTransformationMatrix(const aiNode* node)
 {
-	if (node->mParent == nullptr)
-	{ // Root node
+	if (node->mParent == nullptr) // Root node
+	{ 
 		return node->mTransformation;
 	}
 	else
@@ -24,6 +28,7 @@ inline aiMatrix4x4 GetTransformationMatrix(const aiNode* node)
 	}
 }
 
+// Inline function returns transformed positions from an in transfor matrix and in position as an ai-Vector3D
 inline aiVector3D TransformPosition(const aiMatrix4x4& transform, const aiVector3D& position)
 {
 	aiVector3D result;
@@ -33,18 +38,7 @@ inline aiVector3D TransformPosition(const aiMatrix4x4& transform, const aiVector
 	return result;
 }
 
-inline void PrintMatrix(const aiMatrix4x4& mat) {
-	std::cout << mat.a1 << " " << mat.a2 << " " << mat.a3 << " " << mat.a4 << std::endl;
-	std::cout << mat.b1 << " " << mat.b2 << " " << mat.b3 << " " << mat.b4 << std::endl;
-	std::cout << mat.c1 << " " << mat.c2 << " " << mat.c3 << " " << mat.c4 << std::endl;
-	std::cout << mat.d1 << " " << mat.d2 << " " << mat.d3 << " " << mat.d4 << std::endl;
-}
-
-inline void PrintVector3D(const aiVector3D& vec)
-{
-	std::cout << vec.x << " " << vec.y << " " << vec.z << std::endl;
-}
-
+// Inline function returns a glm matrix from an in aiMatrix4x4 as a glm::mat4
 inline glm::mat4 AiMatrix4x4ToGlm(const aiMatrix4x4& from)
 {
 	glm::mat4 to;

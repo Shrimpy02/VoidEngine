@@ -1,12 +1,34 @@
 #pragma once
 
 // includes
+// Inherit`ers
 #include <Renderer.h>
 #include <Actor.h>
 #include <Collision.h>
-
+// others
 #include <AABB.h>
 #include <BoundingSphere.h>
+
+// CODE DECLARATION --------------
+// Get AABB and BoundingSphere are basically the same function and could be converted to IBounded class for simplicity
+// its collision base is what decides what one to use at collision time. Unoptomised and should be fixed. 
+
+// ---------------------------------------------------------------
+// --------------------- SceneGraph ------------------------------
+// ---------------------------------------------------------------
+
+/**
+ * @class SceneGraph
+ * @brief Represents a minimal actor in world context, is the top object in scene for render and update reference.
+ * Has no functionality other han containing all scene objects as children.
+ */
+class SceneGraph : public Actor
+{
+
+public:
+    // basic constructor
+    SceneGraph(const std::string& _name) : Actor(_name) { };
+};
 
 // ---------------------------------------------------------------
 // --------------------- BaseActor ------------------------------
@@ -25,7 +47,7 @@ public:
     // The visual mesh
     Mesh* mMesh{ nullptr };
 
-    // The collision mesh
+    // The collision mesh if vis is enabled
     Mesh* mCollisionCube{ nullptr };
 	Mesh* mCollisionSphere{ nullptr };
 
@@ -39,12 +61,13 @@ public:
     BaseActor(const std::string& _name, Mesh* _mesh);
 
     // Overriden from IRender passes draw call to mesh. 
-    virtual void Draw(const class Shader* _shader = nullptr) const override;
+    void Draw(const Shader* _shader = nullptr) const override;
 
-    // Generates an AABB object to process collisions and returns it. 
-    virtual AABB GetAABB() const override;
+    // Overrides IBounded function, Returns an AABB object for collision processing.
+    AABB GetAABB() const override;
 
-    virtual BoundingSphere GetBoundingSphere() const override;
+    // Overrides IBounded function, Returns a BoundingSphere object for collision processing.
+    BoundingSphere GetBoundingSphere() const override;
 
 private:
     // ---------- Local functions --------------
@@ -63,10 +86,9 @@ public:
     // Getters
 
     // Gets this classes collision properties.
-    virtual CollisionProperties GetCollisionProperties() const override;
+    CollisionProperties* GetCollisionProperties() override;
 
 };
-
 
 // ---------------------------------------------------------------
 // --------------------- Visual Actor ------------------------------
@@ -113,7 +135,7 @@ public:
 };
 
 // ---------------------------------------------------------------
-// --------------------- AABBActor ------------------------------
+// --------------------- CollisionActor ------------------------------
 // ---------------------------------------------------------------
 
 /**
@@ -126,7 +148,7 @@ class CollisionActor : public Actor, public IBounded, public IRender
 public:
     // ---------- Global Variables --------------
 
-       // Collision properties inherited from IBounded
+    // Collision properties inherited from IBounded
     CollisionProperties mCollisionProperties;
 
 private:
@@ -134,8 +156,6 @@ private:
 
     // Collision mesh
     class Mesh* mCollisionMesh = nullptr;
-
- 
 
 public:
     // ---------- Global functions --------------
@@ -149,11 +169,11 @@ public:
     // Overrides IBounded function, Returns an AABB object for collision processing.
     AABB GetAABB() const override;
 
+    // Overrides IBounded function, Returns a BoundingSphere object for collision processing.
     BoundingSphere GetBoundingSphere() const override;
 
     // Overrides IBounded function, Returns the collision properties for this object
-    CollisionProperties GetCollisionProperties() const override;
-
+    CollisionProperties* GetCollisionProperties() override;
 
 private:
     // ---------- Local functions --------------

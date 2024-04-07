@@ -13,7 +13,6 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-
 Window::Window(std::string _name, int _width, int _height)
     :mName(_name), mWidth(_width), mHeight(_height)
 {}
@@ -105,14 +104,17 @@ void Window::RegisterWindowCallbacks()
 
 bool Window::LoadContent(Scene* _scene)
 {
+    // Loads scene and scene content
+    LOG_INFO("----- Scene loading started ----- ");
     mScene = _scene;
     mScene->LoadContent();
-    LOG("Scene loading complete");
+    LOG_INFO("----- Scene loading complete ----- ");
     return true;
 }
 
 void Window::StartFrame()
 {
+    // Gets poll evenets
 	glfwPollEvents();
 
     // Tell`s ImGui this is the first frame of the render loop
