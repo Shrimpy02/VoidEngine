@@ -1,0 +1,66 @@
+\doxysection{Tag.\+h}
+\hypertarget{_tag_8h_source}{}\label{_tag_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Tag.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Tag.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Includes}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <unordered\_set>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <stdexcept>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_tag_unique}{TagUnique}}}
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keyword}{static}\ std::unordered\_set<std::string>\ sExistingTags;}
+\DoxyCodeLine{00018\ \ \ \ \ std::string\ mValue;}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//\ Constructs\ a\ tag\ object\ with\ a\ name.\ Throws\ an\ exception\ if\ a\ tag\ name\ already\ exists\ in\ the\ application.}}
+\DoxyCodeLine{00024\ \ \ \ \ \mbox{\hyperlink{struct_tag_unique}{TagUnique}}(\textcolor{keyword}{const}\ std::string\&\ \_val)}
+\DoxyCodeLine{00025\ \ \ \ \ \{}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (sExistingTags.find(\_val)\ !=\ sExistingTags.end())}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}Tag\ already\ exists:\ "{}}\ +\ \_val);}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ mValue\ =\ \_val;}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ sExistingTags.insert(\_val);}
+\DoxyCodeLine{00031\ \ \ \ \ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//\ Removes\ ability\ to\ move\ or\ copy\ object}}
+\DoxyCodeLine{00034\ \ \ \ \ \mbox{\hyperlink{struct_tag_unique}{TagUnique}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_tag_unique}{TagUnique}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00035\ \ \ \ \ \mbox{\hyperlink{struct_tag_unique}{TagUnique}}\&\ operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_tag_unique}{TagUnique}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00036\ \ \ \ \ \mbox{\hyperlink{struct_tag_unique}{TagUnique}}(\mbox{\hyperlink{struct_tag_unique}{TagUnique}}\&\&)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00037\ \ \ \ \ \mbox{\hyperlink{struct_tag_unique}{TagUnique}}\&\ operator=(\mbox{\hyperlink{struct_tag_unique}{TagUnique}}\&\&)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{comment}{//\ deconstructs\ object\ and\ erases\ its\ tag\ from\ all\ existing\ tags}}
+\DoxyCodeLine{00040\ \ \ \ \ \mbox{\hyperlink{struct_tag_unique}{\string~TagUnique}}()}
+\DoxyCodeLine{00041\ \ \ \ \ \{}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ sExistingTags.erase(mValue);}
+\DoxyCodeLine{00043\ \ \ \ \ \}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//\ returns\ the\ name\ of\ the\ tag}}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keyword}{const}\ std::string\&\ GetValue()\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00047\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ mValue;}
+\DoxyCodeLine{00049\ \ \ \ \ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ returns\ true\ if\ tag\ exists\ in\ sExistingTags}}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ TagExists(\textcolor{keyword}{const}\ std::string\&\ tag)}
+\DoxyCodeLine{00053\ \ \ \ \ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ sExistingTags.find(tag)\ !=\ sExistingTags.end();}
+\DoxyCodeLine{00055\ \ \ \ \ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ Clears\ all\ existing\ tags\ from\ memory}}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ ClearCache()}
+\DoxyCodeLine{00059\ \ \ \ \ \{}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ sExistingTags.clear();}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00062\ \ \ \ \ \}}
+\DoxyCodeLine{00063\ \};}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \textcolor{keyword}{inline}\ std::unordered\_set<std::string>\ TagUnique::sExistingTags\{\};}
+
+\end{DoxyCode}

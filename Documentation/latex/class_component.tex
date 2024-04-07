@@ -1,0 +1,64 @@
+\doxysection{Component Class Reference}
+\hypertarget{class_component}{}\label{class_component}\index{Component@{Component}}
+
+
+A \doxylink{class_component}{Component} base that can be added to actors for additional functionality. Contains default init and update functions.  
+
+
+
+
+{\ttfamily \#include $<$Component.\+h$>$}
+
+Inheritance diagram for Component\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_component}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_component_aed2d7eb6cd97620b65456788dcdb4b4c}\label{class_component_aed2d7eb6cd97620b65456788dcdb4b4c} 
+{\bfseries Component} (const \mbox{\hyperlink{class_component}{Component}} \&)=delete
+\item 
+\Hypertarget{class_component_ae152806e92e166c5794ba9cd7a1263bd}\label{class_component_ae152806e92e166c5794ba9cd7a1263bd} 
+\mbox{\hyperlink{class_component}{Component}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_component}{Component}} \&)=delete
+\item 
+\Hypertarget{class_component_a1739e84d9766c32e06dfc163b121f0c9}\label{class_component_a1739e84d9766c32e06dfc163b121f0c9} 
+{\bfseries Component} (\mbox{\hyperlink{class_component}{Component}} \&\&)=delete
+\item 
+\Hypertarget{class_component_a84b62f108ab594697b90d228b345d9d5}\label{class_component_a84b62f108ab594697b90d228b345d9d5} 
+\mbox{\hyperlink{class_component}{Component}} \& {\bfseries operator=} (\mbox{\hyperlink{class_component}{Component}} \&\&)=delete
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_component_a073d2e302691aff87b468491d8aa72a6}\label{class_component_a073d2e302691aff87b468491d8aa72a6} 
+{\bfseries Component} (const std\+::string \&\+\_\+name, class \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+owner)
+\item 
+\Hypertarget{class_component_a5a5e595fab62ba757f03becc5b101732}\label{class_component_a5a5e595fab62ba757f03becc5b101732} 
+virtual void {\bfseries Init} ()
+\item 
+\Hypertarget{class_component_a89552edd6256d304aa890c786df57413}\label{class_component_a89552edd6256d304aa890c786df57413} 
+virtual void {\bfseries Update} (float \+\_\+dt)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_component_a9a0930978714796afcab98293daed26d}\label{class_component_a9a0930978714796afcab98293daed26d} 
+class \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*} {\bfseries m\+Owner}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_component_ae4af50bf1743d112cb2c2c784bea21c8}\label{class_component_ae4af50bf1743d112cb2c2c784bea21c8} 
+class {\bfseries Actor}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+A \doxylink{class_component}{Component} base that can be added to actors for additional functionality. Contains default init and update functions. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Components/Component.\+h\end{DoxyCompactItemize}

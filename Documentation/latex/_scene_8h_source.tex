@@ -1,0 +1,165 @@
+\doxysection{Scene.\+h}
+\hypertarget{_scene_8h_source}{}\label{_scene_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Scene.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Scene.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Includes}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <Camera.h>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <SceneActors.h>}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{comment}{//\ Additional\ Includes}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <memory>}\ \textcolor{comment}{//\ smart\ pointers\ }}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_scene}{Scene}}}
+\DoxyCodeLine{00015\ \{}
+\DoxyCodeLine{00016\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \ \ \ \ \mbox{\hyperlink{class_scene_graph}{SceneGraph}}\ mSceneGraph;}
+\DoxyCodeLine{00020\ \ \ \ \ \mbox{\hyperlink{class_camera_actor}{CameraActor}}\ mSceneCamera\{\ \textcolor{stringliteral}{"{}SceneCamera"{}}\ \};}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_window}{Window}}*\ mWindow\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//\ Shader`s\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ }}
+\DoxyCodeLine{00027\ \ \ \ \ \mbox{\hyperlink{class_shader}{Shader}}*\ mShader\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{comment}{//\ Scene\ Items\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//\ MeshActors}}
+\DoxyCodeLine{00031\ \ \ \ \ \mbox{\hyperlink{class_base_actor}{BaseActor}}*\ mMACube0\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00032\ \ \ \ \ \mbox{\hyperlink{class_base_actor}{BaseActor}}*\ mMAPlane0\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00033\ \ \ \ \ \mbox{\hyperlink{class_base_actor}{BaseActor}}*\ mMAPyramid0\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00034\ \ \ \ \ \mbox{\hyperlink{class_base_actor}{BaseActor}}*\ mMASphere0\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//\ Other\ actors}}
+\DoxyCodeLine{00037\ \ \ \ \ \ \mbox{\hyperlink{class_visual_actor}{VisualActor}}*\ mVAPyramid0\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00038\ \ \ \ \ \ \mbox{\hyperlink{class_collision_actor}{CollisionActor}}*\ mCA0\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00039\ \ \ \ \ \ \mbox{\hyperlink{class_collision_actor}{CollisionActor}}*\ mCA1\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ lights}}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_point_light_actor}{PointLightActor}}*\ mPointLightActor0\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_point_light_actor}{PointLightActor}}*\ mPointLightActor1\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_directional_light_actor}{DirectionalLightActor}}*\ mDirectionalLightActor\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//\ ImGui\ UI\ Variables}}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordtype}{int}\ mMainSelectionIndex\ =\ 0;}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordtype}{int}\ mOldSelectionIndex;}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ mItemWidth\ =\ 80.0f;}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordtype}{float}\ mCurrentUniformScale\ =\ 1;}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordtype}{float}\ mOldUniformScale\ =\ 1;}
+\DoxyCodeLine{00053\ \ \ \ \ glm::vec3\ mActorOriginalScale;}
+\DoxyCodeLine{00054\ \ \ \ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{bool}\ mShouldShowWireFrame\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordtype}{bool}\ mShouldDrawCollisionDebugMesh\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keywordtype}{bool}\ mCanControlActor\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordtype}{bool}\ mIsUniformScale\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordtype}{double}\ mOldTime\ =\ 0;}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{int}\ numFrames\ =\ 0;}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{comment}{//\ Other}}
+\DoxyCodeLine{00064\ \ \ \ \ std::shared\_ptr<class\ ActorController>\ mActorController;}
+\DoxyCodeLine{00065\ \ \ \ \ std::shared\_ptr<class\ CameraController>\ mCameraController;}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{comment}{//\ the\ active\ controller}}
+\DoxyCodeLine{00070\ \ \ \ \ std::shared\_ptr<class\ IController>\ mActiveController\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{class_scene}{Scene}}(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \mbox{\hyperlink{class_window}{Window}}*\ \_window);}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{comment}{//\ Removes\ the\ ability\ to:\ \ \ \ }}
+\DoxyCodeLine{00077\ \ \ \ \ \mbox{\hyperlink{class_scene}{Scene}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_scene}{Scene}}\&)\ =\ \textcolor{keyword}{delete};\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Copy}}
+\DoxyCodeLine{00078\ \ \ \ \ \mbox{\hyperlink{class_scene}{Scene}}\&\ operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_scene}{Scene}}\&)\ =\ \textcolor{keyword}{delete};\textcolor{comment}{//\ Copy\ ref}}
+\DoxyCodeLine{00079\ \ \ \ \ \mbox{\hyperlink{class_scene}{Scene}}(\mbox{\hyperlink{class_scene}{Scene}}\&\&)\ =\ \textcolor{keyword}{delete};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Move}}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{class_scene}{Scene}}\&\ operator=(\mbox{\hyperlink{class_scene}{Scene}}\&\&)\ =\ \textcolor{keyword}{delete};\ \ \ \ \ \textcolor{comment}{//\ Move\ ref}}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{comment}{//\ Because\ this\ class\ is\ explicit.}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{comment}{//\ default\ de-\/constructor}}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_scene}{\string~Scene}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{comment}{//\ Function`s}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00088\ \ \ \ \ }
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{comment}{//\ Loads\ all\ objects,\ their\ materials\ and\ meshes\ and\ assigns\ them\ as\ a\ child\ of\ mSceneGraph\ so\ they}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{comment}{//\ receive\ update\ and\ render\ calls\ if\ they\ inherit\ from\ the\ correct\ classes.}}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ LoadContent();}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{comment}{//\ Deletes\ pointers\ and\ clears\ all\ caches\ for\ texture,\ mesh\ and\ material.\ \ }}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ UnloadContent();}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{comment}{//\ Updates\ Input\ for\ the\ active\ controller}}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordtype}{void}\ UpdateInputController(\textcolor{keywordtype}{float}\ \_dt);}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{comment}{//\ Updates\ the\ scene\ graph\ and\ all\ children\ if\ they\ inherit\ from\ "{}Actor"{}\ (called\ each\ frame)\ }}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordtype}{void}\ UpdateSceneGraph(\mbox{\hyperlink{class_actor}{Actor}}*\ \_actor,\ \textcolor{keywordtype}{float}\ \_dt,\ \mbox{\hyperlink{struct_transform}{Transform}}\ \_globalTransform\ =\ \mbox{\hyperlink{struct_transform}{Transform}}\{\});}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{comment}{//\ Renders\ the\ scene\ grapg\ and\ all\ chidlren\ if\ they\ inherit\ from\ "{}IRender"{}\ (called\ each\ frame)\ }}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordtype}{void}\ RenderSceneGraph(\mbox{\hyperlink{class_actor}{Actor}}*\ \_actor,\ \textcolor{keywordtype}{float}\ \_dt,\ \mbox{\hyperlink{struct_transform}{Transform}}\ \_globalTransform\ =\ \mbox{\hyperlink{struct_transform}{Transform}}\{\});}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{comment}{//\ Local\ scene\ update\ function\ for\ distribution\ (called\ each\ frame)\ }}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordtype}{void}\ Update(\textcolor{keywordtype}{float}\ \_dt);}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{comment}{//\ Local\ scene\ render\ function\ for\ distribution\ (called\ each\ frame)\ }}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordtype}{void}\ Render(\textcolor{keywordtype}{float}\ \_dt);}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{comment}{//\ Scene\ collision\ handler\ function\ for\ all\ scene\ objects\ that\ inherit\ from\ "{}IBounded"{}\ (called\ each\ frame)\ }}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keywordtype}{void}\ HandleCollision();}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Template\ helper\ function\ for\ HandleCollision,\ takes\ two\ template\ arguments\ for\ either\ aabb}}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ or\ BoundingSphere\ in\ addition\ to\ who\ it\ belongs\ and\ executes\ the\ appropriate\ logic\ for\ them.}}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ there\ was\ a\ collision\ and\ false\ otherwise.}}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T,\ \textcolor{keyword}{typename}\ U>}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ ProcessCollision(T\ \_a,U\ \_b,\mbox{\hyperlink{class_i_bounded}{IBounded}}*\ \_iA,\ \mbox{\hyperlink{class_i_bounded}{IBounded}}*\ \_iB,\ \mbox{\hyperlink{class_actor}{Actor}}*\ \_AA,\ \mbox{\hyperlink{class_actor}{Actor}}*\ \_AB);}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{comment}{//\ Local\ scene\ UIRender\ function\ for\ distribution\ (called\ each\ frame)\ }}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keywordtype}{void}\ RenderUI();}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{comment}{//\ Contains\ all\ custom\ logic\ for\ the\ world\ ImGui\ window}}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordtype}{void}\ imgui\_WorldObjectSettings();}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Contains\ custom\ ImGui\ logic\ for\ details\ sub\ section}}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ imguiSub\_WorldDetails(\mbox{\hyperlink{class_actor}{Actor}}*\ \_aptr);}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Contains\ custom\ ImGui\ logic\ for\ collision\ sub\ section}}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ imguiSub\_Collision(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_i_bounded}{IBounded}}*\ \_cptr);}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Contains\ custom\ ImGui\ logic\ for\ light\ sub\ section}}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ imguiSub\_Light(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_light}{Light}}*\ \_lptr);}
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{comment}{//\ Contains\ all\ custom\ logic\ for\ the\ DebugLogger\ ImGui\ window}}
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{keywordtype}{void}\ imgui\_Logger();}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Contains\ custom\ ImGui\ logic\ for\ FPS\ sub\ section}}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ imguiSub\_FPS();}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{comment}{//\ Callbacks\ for\ camera\ or\ active\ controller\ to\ process\ movement\ or\ other\ locally.\ }}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordtype}{void}\ FramebufferSizeCallback(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{int}\ \_width,\ \textcolor{keywordtype}{int}\ \_height);}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordtype}{void}\ MouseMoveCallback(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{double}\ \_xpos,\ \textcolor{keywordtype}{double}\ \_ypos);}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordtype}{void}\ MouseButtonCallback(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{int}\ \_button,\ \textcolor{keywordtype}{int}\ \_action,\ \textcolor{keywordtype}{int}\ \_mods);}
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{keywordtype}{void}\ MouseScrollCallback(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{double}\ \_xoffset,\ \textcolor{keywordtype}{double}\ \_yoffset);}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordtype}{void}\ CharCallback(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \_codepoint);}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordtype}{void}\ KeyCallback(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{int}\ \_key,\ \textcolor{keywordtype}{int}\ \_scancode,\ \textcolor{keywordtype}{int}\ \_action,\ \textcolor{keywordtype}{int}\ \_mods);}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{comment}{//\ Binds\ all\ directional\ light\ objects\ to\ the\ shader\ for\ light\ processing}}
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keywordtype}{void}\ BindDirectionalLights();}
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{comment}{//\ Binds\ all\ point\ light\ objects\ to\ the\ shader\ for\ light\ processing}}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keywordtype}{void}\ BindPointLights();}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{comment}{//\ Binds\ the\ camera\ objects\ to\ the\ shader\ for\ light\ processing}}
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{keywordtype}{void}\ BindCamera();}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ /\ setters\ /\ Adders\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{comment}{//\ Adders}}
+\DoxyCodeLine{00149\ \ \ \ }
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{comment}{//\ Setters}}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{comment}{//\ Set`s\ a\ new\ controller\ to\ the\ active\ controller}}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordtype}{void}\ SetController(\textcolor{keyword}{const}\ std::shared\_ptr<IController>\&\ \_controller)\ \{\ mActiveController\ =\ \_controller;\ \}}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{comment}{//\ Setts\ a\ new\ window\ }}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{void}\ SetWindow(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window)\ \{\ mWindow\ =\ \_window;\ \ \}}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{comment}{//\ Getters}}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{comment}{//\ Get`s\ the\ current\ active\ controller}}
+\DoxyCodeLine{00161\ \ \ \ \ std::shared\_ptr<IController>\ GetController()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mActiveController;\ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \};}
+\DoxyCodeLine{00164\ }
+
+\end{DoxyCode}

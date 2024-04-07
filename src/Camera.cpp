@@ -1,4 +1,5 @@
 
+// Class includes
 #include <Camera.h>
 
 CameraActor::CameraActor(
@@ -21,13 +22,16 @@ CameraActor::CameraActor(
     mFarPlane(farPlane),
     mFieldOfView(fieldOfView)
 {
+    // sets teh position and rotation to constructed values 
     SetPosition(position);
     SetRotation(rotation);
+    // Updates the projection matrix with new positional and rotational values
     UpdateProjectionMatrix();
 }
 
 void CameraActor::Update(float _dt)
 {
+    // Updates all forces acting on the camera each tick
     UpdateVelocity(_dt);
     UpdatePosition(_dt);
     UpdateDamping(_dt);
@@ -38,13 +42,13 @@ void CameraActor::Update(float _dt)
 
 void CameraActor::UpdateVelocity(float _dt)
 {
+    // Adds velocity based on acceleration
     mVelocity += mAcceleration * _dt;
 
     // if velocity is faster than max movement speed, limit to max movement speed
     if (glm::length(mVelocity) > mMaxMovementSpeed)
-    {
         mVelocity = glm::normalize(mVelocity) * mMaxMovementSpeed;
-    }
+    
 }
 
 void CameraActor::UpdateDamping(float dt)
@@ -52,13 +56,13 @@ void CameraActor::UpdateDamping(float dt)
     // Reduces the acceleration based on itself * damping factor over time 
     float dampingFactor = glm::length(mVelocity) > 0 ? mDampingFactor : 0.0f;
 
+    // reduces velocity over time (drag)
     mVelocity -= mVelocity * dampingFactor * dt;
 
     // if velocity is low, Set velocity to 0.
     if (glm::length(mVelocity) < 0.001f)
-    {
         mVelocity = glm::vec3(0.0f);
-    }
+    
 }
 
 void CameraActor::UpdateAngularDamping(float dt)
@@ -85,12 +89,14 @@ void CameraActor::UpdateAngularVelocity(float dt)
 
 void CameraActor::UpdateRotation(float dt)
 {
+    // updates rotation each tick by the angular velocity
     AddYawDegrees(mAngularVelocity.x * dt);
     AddPitchDegrees(mAngularVelocity.y * dt);
 }
 
 void CameraActor::UpdatePosition(float dt)
 {
+    // updates position by velocity
     glm::vec3 front = GetFront();
     glm::vec3 right = glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f)));
     glm::vec3 up = glm::cross(right, front);
@@ -100,11 +106,13 @@ void CameraActor::UpdatePosition(float dt)
 
 void CameraActor::UpdateProjectionMatrix()
 {
+    // updates the projection matrix with new values
     mProjectionMatrix = glm::perspectiveRH(glm::radians(mFieldOfView), mAspectRatio, mNearPlane, mFarPlane);
 }
 
 void CameraActor::UpdateRotationFromYawPitch()
 {
+    // Updates rotation from yaw and pitch
     glm::quat pitchQuat = glm::angleAxis(glm::radians(mPitchDegrees), glm::vec3(1.0f, 0.0f, 0.0f));
     glm::quat yawQuat = glm::angleAxis(glm::radians(mYawDegrees), glm::vec3(0.0f, 1.0f, 0.0f));
 

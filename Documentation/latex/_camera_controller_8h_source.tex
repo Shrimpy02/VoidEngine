@@ -1,0 +1,70 @@
+\doxysection{Camera\+Controller.\+h}
+\hypertarget{_camera_controller_8h_source}{}\label{_camera_controller_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Controllers/CameraController.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Controllers/CameraController.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Includes}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <Controllers/Controller.h>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_camera_controller}{CameraController}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_i_controller}{IController}}}
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//\ Control\ settings}}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keywordtype}{float}\ mLastX\ =\ 0.0,\ mLastY\ =\ 0.0;}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordtype}{bool}\ mRightMousePressed\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{float}\ mMouseSensitivity\ =\ 0.8f;}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//\ A\ map\ of\ key\ states\ to\ keys,\ for\ manipulation\ outside\ of\ this\ class.}}
+\DoxyCodeLine{00027\ \ \ \ \ std::map<int,\ bool>\ mKeyStates;}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{comment}{//\ the\ camera\ actor\ this\ controller\ is\ controlling.\ }}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_camera_actor}{CameraActor}}*\ mCamera\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//\ A\ window\ reference}}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_window}{Window}}*\ mWindow\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//\ Constructor}}
+\DoxyCodeLine{00037\ \ \ \ \ \mbox{\hyperlink{class_camera_controller}{CameraController}}(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_camera_actor}{CameraActor}}*\ camera,\ \mbox{\hyperlink{class_window}{Window}}*\ \_window)\ :\ mCamera(camera),\ mWindow(\_window)\ \{\}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ \mbox{\hyperlink{class_camera_controller}{\string~CameraController}}()\ \{\};}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ Inherited\ from\ IController,\ Updates\ this\ controller\ each\ frame.\ }}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{void}\ Update(\textcolor{keywordtype}{float}\ \_dt)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//\ Inherited\ from\ IController,\ rotates\ the\ camera\ object\ based\ on\ mouse\ movement}}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordtype}{void}\ HandleMouseMove(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{double}\ \_xpos,\ \textcolor{keywordtype}{double}\ \_ypos)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//\ Inherited\ from\ IController,\ empty\ function}}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordtype}{void}\ HandleMouseScroll(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{double}\ \_xoffset,\ \textcolor{keywordtype}{double}\ \_yoffset)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{comment}{//\ Inherited\ from\ IController,\ makes\ glfw\ capture\ mouse\ movement}}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordtype}{void}\ HandleMouseButton(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{int}\ \_button,\ \textcolor{keywordtype}{int}\ \_action,\ \textcolor{keywordtype}{int}\ \_mods)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//\ Inherited\ from\ IController,\ asigness\ key\ states\ to\ the\ keystates\ maps}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordtype}{void}\ HandleKeyboard(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{int}\ \_key,\ \textcolor{keywordtype}{int}\ \_scancode,\ \textcolor{keywordtype}{int}\ \_action,\ \textcolor{keywordtype}{int}\ \_mods)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{comment}{//\ Updates\ the\ camera\ acceleration\ for\ smooth\ movement.}}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keywordtype}{void}\ UpdateCameraAcceleration();}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ /\ setters\ /\ Adders\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{comment}{//\ Adders}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{comment}{//\ Setters}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ Getters}}
+\DoxyCodeLine{00067\ \ }
+\DoxyCodeLine{00068\ \};}
+\DoxyCodeLine{00069\ }
+
+\end{DoxyCode}

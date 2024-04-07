@@ -1,0 +1,98 @@
+\doxysection{Window Class Reference}
+\hypertarget{class_window}{}\label{class_window}\index{Window@{Window}}
+
+
+Not to be confused with GLFWWindow that acts as the viewport of the glfw application, is the class that manages the GLFWWindow + all callbacks to it, and what scene is loaded and being rendered.  
+
+
+
+
+{\ttfamily \#include $<$Window.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_window_afd16a12cd4a8680b4223e6f082f8b99c}\label{class_window_afd16a12cd4a8680b4223e6f082f8b99c} 
+{\bfseries Window} (std\+::string \+\_\+name, int \+\_\+width, int \+\_\+height)
+\item 
+\Hypertarget{class_window_ac877b031e11ba0b517a8b1db3c315175}\label{class_window_ac877b031e11ba0b517a8b1db3c315175} 
+{\bfseries Window} (const \mbox{\hyperlink{class_window}{Window}} \&)=delete
+\item 
+\Hypertarget{class_window_a8d5dc7c6e47b4f319b54a411e79fb30c}\label{class_window_a8d5dc7c6e47b4f319b54a411e79fb30c} 
+\mbox{\hyperlink{class_window}{Window}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_window}{Window}} \&)=delete
+\item 
+\Hypertarget{class_window_a6300f84eb13de106d9a38327365be359}\label{class_window_a6300f84eb13de106d9a38327365be359} 
+{\bfseries Window} (\mbox{\hyperlink{class_window}{Window}} \&\&)=default
+\item 
+\Hypertarget{class_window_a6e0a92d4b3dc135cfdf2043f4a7f57a8}\label{class_window_a6e0a92d4b3dc135cfdf2043f4a7f57a8} 
+\mbox{\hyperlink{class_window}{Window}} \& {\bfseries operator=} (\mbox{\hyperlink{class_window}{Window}} \&\&)=default
+\item 
+\Hypertarget{class_window_afddf437cee627426a7cfdda27093803a}\label{class_window_afddf437cee627426a7cfdda27093803a} 
+void {\bfseries Init} ()
+\item 
+\Hypertarget{class_window_a8dd72d1a38b999dc64f7b3ce867c1724}\label{class_window_a8dd72d1a38b999dc64f7b3ce867c1724} 
+void {\bfseries Register\+Window\+Callbacks} ()
+\item 
+\Hypertarget{class_window_ab868233d9ee596366d66490d933c393b}\label{class_window_ab868233d9ee596366d66490d933c393b} 
+bool {\bfseries Load\+Content} (\mbox{\hyperlink{class_scene}{Scene}} \texorpdfstring{$\ast$}{*}\+\_\+scene)
+\item 
+\Hypertarget{class_window_a6e002ebf5c26635f38c52a714bdb13fa}\label{class_window_a6e002ebf5c26635f38c52a714bdb13fa} 
+void {\bfseries Start\+Frame} ()
+\item 
+\Hypertarget{class_window_adc7c66791c38aff39e497d5c905cfb4e}\label{class_window_adc7c66791c38aff39e497d5c905cfb4e} 
+void {\bfseries Update} (float \+\_\+dt)
+\item 
+\Hypertarget{class_window_a40dc50918b00eb29b302adbee062f843}\label{class_window_a40dc50918b00eb29b302adbee062f843} 
+void {\bfseries Render} (float \+\_\+dt)
+\item 
+\Hypertarget{class_window_a23bf99dc7ae51eacb31f71b1b1d01975}\label{class_window_a23bf99dc7ae51eacb31f71b1b1d01975} 
+void {\bfseries End\+Frame} ()
+\item 
+\Hypertarget{class_window_a4025633243fff688f55b55ed1778f906}\label{class_window_a4025633243fff688f55b55ed1778f906} 
+bool {\bfseries Is\+Closed} ()
+\item 
+\Hypertarget{class_window_a7861d1b5940f309cb731b9ad4df1c0ad}\label{class_window_a7861d1b5940f309cb731b9ad4df1c0ad} 
+void {\bfseries Framebuffer\+Size\+Callback} (GLFWwindow \texorpdfstring{$\ast$}{*}\+\_\+window, int \+\_\+width, int \+\_\+height)
+\item 
+\Hypertarget{class_window_a1394037cfe24e1e21bc5bc76593cea21}\label{class_window_a1394037cfe24e1e21bc5bc76593cea21} 
+void {\bfseries Mouse\+Move\+Callback} (GLFWwindow \texorpdfstring{$\ast$}{*}\+\_\+window, double \+\_\+xpos, double \+\_\+ypos)
+\item 
+\Hypertarget{class_window_a91dc9e531458417ac77bd8839519f86e}\label{class_window_a91dc9e531458417ac77bd8839519f86e} 
+void {\bfseries Mouse\+Button\+Callback} (GLFWwindow \texorpdfstring{$\ast$}{*}\+\_\+window, int \+\_\+button, int \+\_\+action, int \+\_\+mods)
+\item 
+\Hypertarget{class_window_a41415996840688ae8feec769c89c9b4a}\label{class_window_a41415996840688ae8feec769c89c9b4a} 
+void {\bfseries Mouse\+Scroll\+Callback} (GLFWwindow \texorpdfstring{$\ast$}{*}\+\_\+window, double \+\_\+xoffset, double \+\_\+yoffset)
+\item 
+\Hypertarget{class_window_af197e0868938bd326759a55fc0530528}\label{class_window_af197e0868938bd326759a55fc0530528} 
+void {\bfseries Char\+Callback} (GLFWwindow \texorpdfstring{$\ast$}{*}\+\_\+window, unsigned int \+\_\+codepoint)
+\item 
+\Hypertarget{class_window_a75be975987fae50af6e6e6f37dd9fde9}\label{class_window_a75be975987fae50af6e6e6f37dd9fde9} 
+void {\bfseries Key\+Callback} (GLFWwindow \texorpdfstring{$\ast$}{*}\+\_\+window, int \+\_\+key, int \+\_\+scancode, int \+\_\+action, int \+\_\+mods)
+\item 
+\Hypertarget{class_window_a2196b5ae099037272cc85b223e80bd6d}\label{class_window_a2196b5ae099037272cc85b223e80bd6d} 
+int {\bfseries Get\+Height} () const
+\item 
+\Hypertarget{class_window_a451bdfeab37afce97712f23f5c2492aa}\label{class_window_a451bdfeab37afce97712f23f5c2492aa} 
+int {\bfseries Get\+Width} () const
+\item 
+\Hypertarget{class_window_a8e0bcbe6f00524c98fab4e1414a4f671}\label{class_window_a8e0bcbe6f00524c98fab4e1414a4f671} 
+GLFWwindow \texorpdfstring{$\ast$}{*} {\bfseries Get\+GLFWWindow} ()
+\item 
+\Hypertarget{class_window_a1255379e11fb1ef3df547a0b0b98c9d9}\label{class_window_a1255379e11fb1ef3df547a0b0b98c9d9} 
+void {\bfseries Set\+Scene} (\mbox{\hyperlink{class_scene}{Scene}} \texorpdfstring{$\ast$}{*}\+\_\+scene)
+\item 
+\Hypertarget{class_window_a634c30623fd919e4b4182ac148a04766}\label{class_window_a634c30623fd919e4b4182ac148a04766} 
+void {\bfseries Set\+Width} (int \+\_\+width)
+\item 
+\Hypertarget{class_window_a9f2ff35f41251e75e5740ef609c4866c}\label{class_window_a9f2ff35f41251e75e5740ef609c4866c} 
+void {\bfseries Set\+Height} (int \+\_\+height)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Not to be confused with GLFWWindow that acts as the viewport of the glfw application, is the class that manages the GLFWWindow + all callbacks to it, and what scene is loaded and being rendered. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Core/Window.\+h\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Core/Window.\+cpp\end{DoxyCompactItemize}

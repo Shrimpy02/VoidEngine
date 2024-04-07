@@ -1,0 +1,120 @@
+\doxysection{Mesh.\+h}
+\hypertarget{_mesh_8h_source}{}\label{_mesh_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Mesh.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Mesh.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Includes\ }}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <Vertex.h>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <Material.h>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <Utilities/Types.h>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{comment}{//\ Other\ includes}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <unordered\_map>}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00017\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_mesh}{Mesh}}}
+\DoxyCodeLine{00018\ \{}
+\DoxyCodeLine{00019\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//\ Static\ cache\ of\ meshes}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{static}\ std::unordered\_map<std::string,\ Mesh*>\ mCache;}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{comment}{//\ Mesh\ vertexes}}
+\DoxyCodeLine{00029\ \ \ \ \ std::vector<Vertex>\ mVertices\{\};}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//\ Mesh\ indices}}
+\DoxyCodeLine{00031\ \ \ \ \ std::vector<Index>\ mIndices\{\};}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{//\ mesh\ material}}
+\DoxyCodeLine{00033\ \ \ \ \ \mbox{\hyperlink{class_material}{Material}}*\ mMaterial\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{comment}{//\ Mesh\ name}}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keyword}{const}\ std::string\ mName;}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{comment}{//\ gl\ buffer\ objects}}
+\DoxyCodeLine{00038\ \ \ \ \ VAO\ mVAO\{\ 0U\ \};}
+\DoxyCodeLine{00039\ \ \ \ \ VBO\ mVBO\{\ 0U\ \};}
+\DoxyCodeLine{00040\ \ \ \ \ EBO\ mEBO\{\ 0U\ \};}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//\ Explicit\ constructor,\ calls\ settup\ mesh}}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{class_mesh}{Mesh}}(\textcolor{keyword}{const}\ std::string\ \_name,\ std::vector<Vertex>\&\&\ \_vertices,\ std::vector<Index>\&\&\ \_indices,\ \mbox{\hyperlink{class_material}{Material}}*\ \_material);}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{comment}{//\ De-\/constructor\ removes\ class\ references\ and\ gl-\/buffer\ objects.}}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_mesh}{\string~Mesh}}();}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//\ Inherited\ from\ IRender,\ binds\ material\ and\ draws\ its\ self}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordtype}{void}\ Draw(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_shader}{Shader}}*\ \_shader)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{comment}{//\ Creates\ a\ default\ cube\ using\ a\ cube\ key}}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_mesh}{Mesh}}*\ CreateCube(\mbox{\hyperlink{class_material}{Material}}*\ \_material,\ std::string\ \_customName\ =\ std::string());}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{comment}{//\ Creates\ a\ default\ plane\ using\ a\ plane\ key}}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_mesh}{Mesh}}*\ CreatePlane(\mbox{\hyperlink{class_material}{Material}}*\ \_material,\ std::string\ \_customName\ =\ std::string());}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{comment}{//\ Creates\ a\ default\ pyramid\ using\ a\ pyramid\ key}}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_mesh}{Mesh}}*\ CreatePyramid(\mbox{\hyperlink{class_material}{Material}}*\ \_material,\ std::string\ \_customName\ =\ std::string());}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{comment}{//\ Creates\ a\ default\ sphere\ using\ a\ sphere\ key}}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_mesh}{Mesh}}*\ CreateSphere(\mbox{\hyperlink{class_material}{Material}}*\ \_material,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ \_subdivides\ =\ 2,\ std::string\ \_customName\ =\ std::string());}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{comment}{//\ Loads\ mesh\ from\ cache\ by\ key}}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_mesh}{Mesh}}*\ Load(\textcolor{keyword}{const}\ std::string\&\ \_key);}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{comment}{//\ Unloads\ item\ from\ cache\ by\ key}}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ Unload(\textcolor{keyword}{const}\ std::string\&\ \_key);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{comment}{//\ erases\ all\ elements\ of\ cache}}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ ClearCache();}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{comment}{//\ Takes\ in\ vector\ addresses\ for\ vertices\ and\ indices\ and\ populates\ them\ with\ generated}}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{comment}{//\ geometry\ information\ based\ on\ the\ number\ of\ subdivides\ the\ sphere\ should\ have.}}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ GenSphere(std::vector<Vertex>\&\ \_vertices,\ std::vector<Index>\&\ \_indices,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ \_numSubdivides\ =\ 2,\ \textcolor{keywordtype}{float}\ \_radius\ =\ 0.5f\ );}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{comment}{//\ gl\ generation\ of\ buffers\ and\ attributes,\ called\ when\ class\ is\ constructed}}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordtype}{void}\ SetupMesh();}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{comment}{//\ Subdivides\ existing\ base\ geometry\ recursively\ by\ number\ subdivides}}
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{comment}{//\ Passes\ vector\ address\ to\ Make\ Triangle\ function}}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ SubDivide(std::vector<Vertex>\&\ \_vertices,\ std::vector<Index>\&\ \_indices,\ \textcolor{keyword}{const}\ glm::vec3\&\ \_vecA,\ \textcolor{keyword}{const}\ glm::vec3\&\ \_vecB,\ \textcolor{keyword}{const}\ glm::vec3\&\ \_vecC,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ \_numSubdivides,\ \textcolor{keywordtype}{float}\ \_radius);}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//\ Takes\ the\ 3\ positions\ at\ a\ time\ and\ populates\ each\ vector\ with\ appropriate\ geometry.}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ MakeTriangle(std::vector<Vertex>\&\ \_vertices,\ std::vector<Index>\&\ \_indices,\ \textcolor{keyword}{const}\ glm::vec3\&\ \_vecA,\ \textcolor{keyword}{const}\ glm::vec3\&\ \_vecB,\ \textcolor{keyword}{const}\ glm::vec3\&\ \_vecC);}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{comment}{//\ Helper\ function\ to\ calculate\ texture\ location\ on\ a\ sphere.}}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keyword}{static}\ glm::vec2\ CalculateTexCoord(\textcolor{keyword}{const}\ glm::vec3\&\ \_vec);}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ /\ setters\ /\ Adders\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \textcolor{comment}{//\ Getters}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{comment}{//\ Gets\ the\ material\ this\ mesh\ is\ currently\ using}}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_material}{Material}}*\ GetMaterial()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mMaterial;\ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{comment}{//\ gets\ the\ name\ of\ this\ mesh}}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keyword}{const}\ std::string*\ GetName()\ \{\ \textcolor{keywordflow}{return}\ \&mName;\ \}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{comment}{//\ Gets\ this\ meshes\ vertices\ as\ address\ to\ vector}}
+\DoxyCodeLine{00106\ \ \ \ \ std::vector<Vertex>\&\ GetVetices()\ \{\ \textcolor{keywordflow}{return}\ mVertices;\ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{comment}{//\ Setters}}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{comment}{//\ Sets\ the\ material\ this\ mesh\ should\ use}}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordtype}{void}\ SetMaterial(\mbox{\hyperlink{class_material}{Material}}*\ \_material)\ \{\ mMaterial\ =\ \_material;\ \}}
+\DoxyCodeLine{00113\ \ \ \ }
+\DoxyCodeLine{00114\ \ \ }
+\DoxyCodeLine{00115\ \};}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ }
+
+\end{DoxyCode}

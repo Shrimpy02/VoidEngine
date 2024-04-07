@@ -1,0 +1,50 @@
+\doxysection{Point\+Light.\+h}
+\hypertarget{_point_light_8h_source}{}\label{_point_light_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Lights/PointLight.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Lights/PointLight.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <Lights/Lights.h>}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ Defines\ the\ max\ amount\ of\ lights\ in\ a\ scene.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ If\ this\ is\ changed\ remember\ to\ change\ in\ fragment\ shader\ as\ well!}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#define\ MAX\_POINT\_LIGHTS\ 64}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_point_light}{PointLight}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_light}{Light}}}
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//\ This\ combination\ of\ default\ variables\ gives\ a\ light\ range\ of\ 50\ units}}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keywordtype}{float}\ constantVar\ =\ 1.f;}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keywordtype}{float}\ linearVar\ =\ 0.09f;}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{float}\ quadraticVar\ =\ 0.032f;}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ Returns\ the\ position\ of\ the\ light\ source\ as\ a\ vec3}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{virtual}\ glm::vec3\ GetLightPosition()\ \textcolor{keyword}{const}\ =\ 0;}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//\ Set\ the\ AttenuationCoefficients\ from\ in\ floats,\ }}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{void}\ SetAttenuationCoefficients(\textcolor{keywordtype}{float}\ \_const,\ \textcolor{keywordtype}{float}\ \_lin,\ \textcolor{keywordtype}{float}\ \_quad)}
+\DoxyCodeLine{00025\ \ \ \ \ \{}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ constantVar\ =\ \_const;}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ linearVar\ =\ \_lin;}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ quadraticVar\ =\ \_quad;}
+\DoxyCodeLine{00029\ \ \ \ \ \}}
+\DoxyCodeLine{00030\ \};}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ PointLightActor\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00041\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_point_light_actor}{PointLightActor}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_actor}{Actor}},\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_point_light}{PointLight}}}
+\DoxyCodeLine{00042\ \{}
+\DoxyCodeLine{00043\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//\ constructs\ as\ a\ regular\ actor}}
+\DoxyCodeLine{00045\ \ \ \ \ \mbox{\hyperlink{class_point_light_actor}{PointLightActor}}(\textcolor{keyword}{const}\ std::string\&\ name)\ :\mbox{\hyperlink{class_actor}{Actor}}(name)\ \{\}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{comment}{//\ Inherited\ function\ returns\ the\ position\ of\ this\ light\ source\ as\ a\ vec3}}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keyword}{virtual}\ glm::vec3\ GetLightPosition()\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00049\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ GetPosition(Actor::TransformSpace::Global);}
+\DoxyCodeLine{00051\ \ \ \ \ \}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \};}
+
+\end{DoxyCode}

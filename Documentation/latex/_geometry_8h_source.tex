@@ -1,0 +1,490 @@
+\doxysection{Geometry.\+h}
+\hypertarget{_geometry_8h_source}{}\label{_geometry_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/OutDated/Geometry.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/OutDated/Geometry.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ GEOMETRY\_H}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ GEOMETRY\_H}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{comment}{//\ OLD\ GEOMETRY\ FILE;\ is\ not\ being\ used\ by\ will\ stay\ for\ for\ later\ code\ refrenceing.}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ like\ importing\ geometry\ form\ custom\ file\ templates.}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ GL\ Components}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ <glad/glad.h>}}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_vertex}{Vertex}}}
+\DoxyCodeLine{00016\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keywordtype}{float}\ x,\ y,\ z;\ \textcolor{comment}{//\ Position}}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{float}\ nx,\ ny,\ nz;\ \textcolor{comment}{//\ normal\ vector}}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keywordtype}{float}\ r,\ g,\ b;\ \textcolor{comment}{//\ Color}}
+\DoxyCodeLine{00020\ \};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_normal}{Normal}}}
+\DoxyCodeLine{00023\ \{}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{float}\ x,\ y,\ z;\ \textcolor{comment}{//\ Position}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordtype}{float}\ r,\ g,\ b;\ \textcolor{comment}{//\ Color}}
+\DoxyCodeLine{00026\ \};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_geometry}{Geometry}}}
+\DoxyCodeLine{00030\ \{}
+\DoxyCodeLine{00031\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Constants\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Constants\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ VAO,\ VBO,\ EBO;}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{int}\ numVertices\ =\ 0;}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keywordtype}{bool}\ doneonce\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00049\ \ \ \ \ \mbox{\hyperlink{class_geometry}{Geometry}}()}
+\DoxyCodeLine{00050\ \ \ \ \ \{}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \ \ \mbox{\hyperlink{class_geometry}{\string~Geometry}}()}
+\DoxyCodeLine{00055\ \ \ \ \ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ glDeleteVertexArrays(1,\ \&VAO);}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ glDeleteBuffers(1,\ \&VBO);}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ glDeleteBuffers(1,\ \&EBO);}
+\DoxyCodeLine{00059\ \ \ \ \ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{void}\ Initialize(vector<float>*\ cube,\textcolor{keywordtype}{int}\ \_numVariables)}
+\DoxyCodeLine{00062\ \ \ \ \ \{}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ glGenVertexArrays(1,\ \&VAO);}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ glGenBuffers(1,\ \&VBO);}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ glGenBuffers(1,\ \&EBO);}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ glBindVertexArray(VAO);}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ numVertices\ =\ cube-\/>size()\ /\ \_numVariables;}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (\_numVariables)}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 3:}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \ \ \ \ bindBufferData(cube);}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \ \ \ \ createAttributePointers(\textcolor{keyword}{true});}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 6:}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ bindBufferData(cube);}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \ createAttributePointers(\textcolor{keyword}{true},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 9:}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \ \ \ \ bindBufferData(cube);}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \ \ createAttributePointers(\textcolor{keyword}{true},\ \textcolor{keyword}{true},\textcolor{keyword}{true});}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}ERROR\ NUM\ VARIABLES\ NOT\ CORRECT\ \(\backslash\)n"{}};}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00089\ \ \ \ \ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordtype}{void}\ drawVertexGeometry(\textcolor{keywordtype}{bool}\ \_useIndices,\ \mbox{\hyperlink{class_shader}{Shader}}*\ shaderToUse)}
+\DoxyCodeLine{00092\ \ \ \ \ \{}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ glBindVertexArray(VAO);}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ shaderToUse-\/>use();}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ shaderToUse-\/>processTransformations();}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\_useIndices)}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ glDrawElements(GL\_TRIANGLES,\ numVertices,\ GL\_UNSIGNED\_INT,\ 0);}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ glDrawArrays(GL\_TRIANGLES,\ 0,\ numVertices);}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ glBindVertexArray(0);}
+\DoxyCodeLine{00103\ \ \ \ \ \}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keywordtype}{void}\ drawVertexGeometry(\textcolor{keywordtype}{bool}\ \_useIndices,\ \mbox{\hyperlink{class_shader}{Shader}}*\ shaderToUse,\ vec3\ positionOffset)}
+\DoxyCodeLine{00106\ \ \ \ \ \{}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ glBindVertexArray(VAO);}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ shaderToUse-\/>use();}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ shaderToUse-\/>processTransformations(positionOffset);}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\_useIndices)}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \ \ \ \ glDrawElements(GL\_TRIANGLES,\ numVertices,\ GL\_UNSIGNED\_INT,\ 0);}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \ \ \ \ glDrawArrays(GL\_TRIANGLES,\ 0,\ numVertices);}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ glBindVertexArray(0);}
+\DoxyCodeLine{00117\ \ \ \ \ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordtype}{void}\ drawVertexGeometry(\textcolor{keywordtype}{bool}\ \_useIndices,\ \mbox{\hyperlink{class_shader}{Shader}}*\ shaderToUse,\ vec3\ positionOffset,\ vec3\ scaleOffset)}
+\DoxyCodeLine{00120\ \ \ \ \ \{}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ glBindVertexArray(VAO);}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ shaderToUse-\/>use();}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ shaderToUse-\/>processTransformations(positionOffset,\ scaleOffset);}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\_useIndices)}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \ \ \ \ glDrawElements(GL\_TRIANGLES,\ numVertices,\ GL\_UNSIGNED\_INT,\ 0);}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \ \ \ \ glDrawArrays(GL\_TRIANGLES,\ 0,\ numVertices);}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ glBindVertexArray(0);}
+\DoxyCodeLine{00131\ \ \ \ \ \}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordtype}{void}\ drawVertexGeometry(\textcolor{keywordtype}{bool}\ \_useIndices,\ \mbox{\hyperlink{class_shader}{Shader}}*\ shaderToUse,\ vec3\ positionOffset,\ vec3\ scaleOffset,\ \textcolor{keywordtype}{float}\ rotationOffset,\ vec3\ rotationAxis)}
+\DoxyCodeLine{00134\ \ \ \ \ \{}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ glBindVertexArray(VAO);}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ shaderToUse-\/>use();}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ shaderToUse-\/>processTransformations(positionOffset,\ scaleOffset,\ rotationOffset,\ rotationAxis);}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\_useIndices)}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ glDrawElements(GL\_TRIANGLES,\ numVertices,\ GL\_UNSIGNED\_INT,\ 0);}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \ \ \ \ glDrawArrays(GL\_TRIANGLES,\ 0,\ numVertices);}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ glBindVertexArray(0);}
+\DoxyCodeLine{00145\ \ \ \ \ \}}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keywordtype}{void}\ drawNormalGeometry(\mbox{\hyperlink{class_shader}{Shader}}*\ shaderToUse,\ vec3\ positionOffset,\ vec3\ scaleOffset,\ \textcolor{keywordtype}{float}\ rotationOffset,\ vec3\ rotationAxis)}
+\DoxyCodeLine{00148\ \ \ \ \ \{}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ glBindVertexArray(VAO);}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ shaderToUse-\/>use();}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ shaderToUse-\/>processTransformations(positionOffset,\ scaleOffset,\ rotationOffset,\ rotationAxis);}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ glDrawArrays(GL\_LINES,\ 0,\ numVertices);}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ glBindVertexArray(0);}
+\DoxyCodeLine{00156\ \ \ \ \ \}}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \ \ vector<float>*\ generateVertexGeometryFromFile(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \_filePath)}
+\DoxyCodeLine{00160\ \ \ \ \ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ genVerticesFromStruct(readVerticesFromFile(\_filePath));}
+\DoxyCodeLine{00162\ \ \ \ \ \}}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \ \ vector<float>*\ generateNormalGeometryFromFile(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \_filePath)}
+\DoxyCodeLine{00165\ \ \ \ \ \{}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ genNormalsFromStruct(readNormalsFromFile(\_filePath));}
+\DoxyCodeLine{00167\ \ \ \ \ \}}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \ \ \ \ vector<float>*\ genVerticesFromStruct(vector<Vertex*>\ \_vertices)}
+\DoxyCodeLine{00174\ \ \ \ \ \{}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ vector<float>*\ temp\ =\ \textcolor{keyword}{new}\ vector<float>;}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0\ ;\ i\ <\ \_vertices.size();\ i++)}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_vertices[i]-\/>x);}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_vertices[i]-\/>y);}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_vertices[i]-\/>z);}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_vertices[i]-\/>nx);}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_vertices[i]-\/>ny);}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_vertices[i]-\/>nz);}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_vertices[i]-\/>r);}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_vertices[i]-\/>g);}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_vertices[i]-\/>b);}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ temp;}
+\DoxyCodeLine{00189\ \ \ \ \ \}}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \ \ \ \ vector<float>*\ genNormalsFromStruct(vector<Normal*>\ \_normals)}
+\DoxyCodeLine{00192\ \ \ \ \ \{}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ vector<float>*\ temp\ =\ \textcolor{keyword}{new}\ vector<float>;}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \_normals.size();\ i++)}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_normals[i]-\/>x);}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_normals[i]-\/>y);}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_normals[i]-\/>z);}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_normals[i]-\/>r);}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_normals[i]-\/>g);}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \ \ \ \ temp-\/>push\_back(\_normals[i]-\/>b);}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ temp;}
+\DoxyCodeLine{00204\ \ \ \ \ \}}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \ \ \ \ vector<unsigned\ int>\ GenerateIndices(vector<Vertex*>\ \_vertices)}
+\DoxyCodeLine{00207\ \ \ \ \ \{}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ vector<unsigned\ int>\ temp;}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \_vertices.size();\ i++)}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ temp;}
+\DoxyCodeLine{00214\ \ \ \ \ \}}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \ \ \ \ vector<Vertex*>\ readVerticesFromFile(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \_filePath)}
+\DoxyCodeLine{00217\ \ \ \ \ \{}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ ifstream\ GeometryFile;}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Open\ the\ txt\ file\ containing\ geometry\ data.}}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ GeometryFile.open(\_filePath);}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ First\ line\ defines\ how\ many\ lines\ there\ are\ total}}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Extract\ and\ convert\ to\ int}}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{string}\ numLinesStr;}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ getline(GeometryFile,\ numLinesStr);}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ numLinesInt\ =\ stoi(numLinesStr);}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{string}\ numVariablesStr;}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ getline(GeometryFile,\ numVariablesStr);}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ numVariablesInt\ =\ stoi(numVariablesStr);}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ a\ vector\ to\ contain\ all\ vertexes\ generated.\ }}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \ \ vector<Vertex*>\ temp;}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Iterates\ through\ the\ total\ number\ of\ lines.\ }}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ numLinesInt;\ i++)}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Gets\ the\ first\ line\ as\ a\ string,\ removes\ all\ spaces\ and\ parentheses}}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{string}\ tempLines,\ result1,\ result2,\ result3;}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \ \ \ \ getline(GeometryFile,\ tempLines);}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \ \ \ \ std::remove\_copy(tempLines.begin(),\ tempLines.end(),\ std::back\_inserter(result1),\ \textcolor{charliteral}{'\ '});}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \ \ \ \ std::remove\_copy(result1.begin(),\ result1.end(),\ std::back\_inserter(result2),\ \textcolor{charliteral}{'('});}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \ \ \ \ std::remove\_copy(result2.begin(),\ result2.end(),\ std::back\_inserter(result3),\ \textcolor{charliteral}{')'});}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Pre\ defines\ variables\ for\ converting\ from\ string\ to\ float.}}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ 0,\ y\ =\ 0,\ z\ =\ 0,\ nx\ =\ 0,\ ny\ =\ 0,\ nz\ =\ 0,\ r\ =\ 0,\ g\ =\ 0,\ b\ =\ 0;}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Iterates\ through\ number\ of\ variables\ in\ current\ line}}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ numVariablesInt;\ i++)}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Gets\ the\ index\ between\ start\ and\ first\ number\ end\ defined\ by\ ','.}}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ lastPosNumIndex\ =\ result3.find(\textcolor{charliteral}{','});}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Copies\ this\ value\ into\ sting}}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{string}\ \textcolor{keyword}{final}(result3.begin(),\ result3.begin()\ +\ lastPosNumIndex);}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Erases\ that\ value\ from\ complete\ string}}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ result3.erase(result3.begin(),\ result3.begin()\ +\ lastPosNumIndex\ +\ 1);}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Switch\ case\ to\ convert\ value\ to\ proper\ variable}}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (i\ +\ 1)}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 1:}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 2:}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ y\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 3:}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ z\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 4:}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ nx\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 5:}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ny\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 6:}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ nz\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 7:}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ r\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 8:}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ g\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00284\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00285\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 9:}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ b\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Error\ handling\ if\ default\ case\ triggered.\ }}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}ERROR::READING\_GEOMETRY\_FILE::NO\_MORE\_VERTEX\_ATTRIBUTE\_LINES"{}};}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00293\ }
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00295\ }
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ creates\ the\ new\ vertex\ with\ the\ given\ variables.}}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \ \ \ \ \ \ temp.push\_back(CreateNewVertex(x,\ y,\ z,\ nx,\ ny,\ nz,\ r,\ g,\ b));}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00299\ }
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ close\ file\ when\ finished\ reading\ it}}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ GeometryFile.close();}
+\DoxyCodeLine{00302\ }
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ temp;}
+\DoxyCodeLine{00304\ \ \ \ \ \}}
+\DoxyCodeLine{00305\ }
+\DoxyCodeLine{00306\ \ \ \ \ vector<Normal*>\ readNormalsFromFile(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \_filePath)}
+\DoxyCodeLine{00307\ \ \ \ \ \{}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \ \ ifstream\ GeometryFile;}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Open\ the\ txt\ file\ containing\ geometry\ data.}}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ GeometryFile.open(\_filePath);}
+\DoxyCodeLine{00311\ }
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ First\ line\ defines\ how\ many\ lines\ there\ are\ total}}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Extract\ and\ convert\ to\ int}}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{string}\ numLinesStr;}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ getline(GeometryFile,\ numLinesStr);}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ numLinesInt\ =\ stoi(numLinesStr);}
+\DoxyCodeLine{00317\ }
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{string}\ numVariablesStr;}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ getline(GeometryFile,\ numVariablesStr);}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ numVariablesInt\ =\ stoi(numVariablesStr);}
+\DoxyCodeLine{00321\ }
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ a\ vector\ to\ contain\ all\ vertexes\ generated.\ }}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \ \ vector<Normal*>\ temp;}
+\DoxyCodeLine{00324\ }
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Iterates\ through\ the\ total\ number\ of\ lines.\ }}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ numLinesInt;\ i++)}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Gets\ the\ first\ line\ as\ a\ string,\ removes\ all\ spaces\ and\ parentheses}}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{string}\ tempLines,\ result1,\ result2,\ result3;}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \ \ \ \ getline(GeometryFile,\ tempLines);}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \ \ \ \ \ \ std::remove\_copy(tempLines.begin(),\ tempLines.end(),\ std::back\_inserter(result1),\ \textcolor{charliteral}{'\ '});}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ \ \ \ \ std::remove\_copy(result1.begin(),\ result1.end(),\ std::back\_inserter(result2),\ \textcolor{charliteral}{'('});}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ \ \ \ \ std::remove\_copy(result2.begin(),\ result2.end(),\ std::back\_inserter(result3),\ \textcolor{charliteral}{')'});}
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Pre\ defines\ variables\ for\ converting\ from\ string\ to\ float.}}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ 0,\ y\ =\ 0,\ z\ =\ 0,\ r\ =\ 0,\ g\ =\ 0,\ b\ =\ 0;}
+\DoxyCodeLine{00337\ }
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Iterates\ through\ number\ of\ variables\ in\ current\ line}}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ numVariablesInt;\ i++)}
+\DoxyCodeLine{00340\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Gets\ the\ index\ between\ start\ and\ first\ number\ end\ defined\ by\ ','.}}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ lastPosNumIndex\ =\ result3.find(\textcolor{charliteral}{','});}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Copies\ this\ value\ into\ sting}}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{string}\ \textcolor{keyword}{final}(result3.begin(),\ result3.begin()\ +\ lastPosNumIndex);}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Erases\ that\ value\ from\ complete\ string}}
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ result3.erase(result3.begin(),\ result3.begin()\ +\ lastPosNumIndex\ +\ 1);}
+\DoxyCodeLine{00347\ }
+\DoxyCodeLine{00348\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Switch\ case\ to\ convert\ value\ to\ proper\ variable}}
+\DoxyCodeLine{00349\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (i\ +\ 1)}
+\DoxyCodeLine{00350\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 1:}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00353\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 2:}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ y\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 3:}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ z\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 4:}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ r\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 5:}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ g\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00365\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00366\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 6:}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ b\ =\ stof(\textcolor{keyword}{final});}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Error\ handling\ if\ default\ case\ triggered.\ }}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}ERROR::READING\_GEOMETRY\_FILE::NO\_MORE\_VERTEX\_ATTRIBUTE\_LINES"{}};}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00374\ }
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ creates\ the\ new\ vertex\ with\ the\ given\ variables.}}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \ \ \ \ \ \ temp.push\_back(CreateNormal(x,\ y,\ z,\ r,\ g,\ b));}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00380\ }
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ close\ file\ when\ finished\ reading\ it}}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ GeometryFile.close();}
+\DoxyCodeLine{00383\ }
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ temp;}
+\DoxyCodeLine{00385\ \ \ \ \ \}}
+\DoxyCodeLine{00386\ }
+\DoxyCodeLine{00387\ \ \ \ \ \textcolor{keywordtype}{void}\ bindBufferData(vector<float>*\ \_vertices)}
+\DoxyCodeLine{00388\ \ \ \ \ \{}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \ \ glBindBuffer(GL\_ARRAY\_BUFFER,\ VBO);}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \ \ glBufferData(GL\_ARRAY\_BUFFER,\ \_vertices-\/>size()\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ \_vertices-\/>data(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00391\ \ \ \ \ \}}
+\DoxyCodeLine{00392\ }
+\DoxyCodeLine{00393\ \ \ \ \ \textcolor{keywordtype}{void}\ bindBufferData(vector<float>\ \_vertices,\ vector<unsigned\ int>\ \_indices)}
+\DoxyCodeLine{00394\ \ \ \ \ \{}
+\DoxyCodeLine{00395\ }
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \ \ glBindBuffer(GL\_ARRAY\_BUFFER,\ VBO);}
+\DoxyCodeLine{00397\ \ \ \ \ \ \ \ \ glBufferData(GL\_ARRAY\_BUFFER,\ \_vertices.size()\ *\ \textcolor{keyword}{sizeof}(\_vertices.data()),\ \_vertices.data(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00398\ }
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \ \ glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ EBO);}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \ \ glBufferData(GL\_ELEMENT\_ARRAY\_BUFFER,\ \_indices.size()\ *\ \textcolor{keyword}{sizeof}(\_indices.data()),\ \_indices.data(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00401\ }
+\DoxyCodeLine{00402\ \ \ \ \ \}}
+\DoxyCodeLine{00403\ }
+\DoxyCodeLine{00404\ \ \ \ \ \textcolor{keywordtype}{void}\ createAttributePointers(\textcolor{keywordtype}{bool}\ pos)}
+\DoxyCodeLine{00405\ \ \ \ \ \{}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ position}}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \ \ glVertexAttribPointer(0,\ 3,\ GL\_FLOAT,\ GL\_FALSE,\ 3\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ (\textcolor{keywordtype}{void}*)0);}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ glEnableVertexAttribArray(0);}
+\DoxyCodeLine{00409\ \ \ \ \ }
+\DoxyCodeLine{00410\ \ \ \ \ \}}
+\DoxyCodeLine{00411\ }
+\DoxyCodeLine{00412\ \ \ \ \ \textcolor{keywordtype}{void}\ createAttributePointers(\textcolor{keywordtype}{bool}\ pos,\textcolor{keywordtype}{bool}\ color)}
+\DoxyCodeLine{00413\ \ \ \ \ \{}
+\DoxyCodeLine{00414\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ position}}
+\DoxyCodeLine{00415\ \ \ \ \ \ \ \ \ glVertexAttribPointer(0,\ 3,\ GL\_FLOAT,\ GL\_FALSE,\ 6\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ (\textcolor{keywordtype}{void}*)0);}
+\DoxyCodeLine{00416\ \ \ \ \ \ \ \ \ glEnableVertexAttribArray(0);}
+\DoxyCodeLine{00417\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ color}}
+\DoxyCodeLine{00418\ \ \ \ \ \ \ \ \ glVertexAttribPointer(1,\ 3,\ GL\_FLOAT,\ GL\_FALSE,\ 6\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ (\textcolor{keywordtype}{void}*)(3\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})));}
+\DoxyCodeLine{00419\ \ \ \ \ \ \ \ \ glEnableVertexAttribArray(1);}
+\DoxyCodeLine{00420\ \ \ \ \ \}}
+\DoxyCodeLine{00421\ }
+\DoxyCodeLine{00422\ \ \ \ \ \textcolor{keywordtype}{void}\ createAttributePointers(\textcolor{keywordtype}{bool}\ pos,\ \textcolor{keywordtype}{bool}\ normals,\ \textcolor{keywordtype}{bool}\ color)}
+\DoxyCodeLine{00423\ \ \ \ \ \{}
+\DoxyCodeLine{00424\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ position}}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \ \ glVertexAttribPointer(0,\ 3,\ GL\_FLOAT,\ GL\_FALSE,\ 9\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ (\textcolor{keywordtype}{void}*)0);}
+\DoxyCodeLine{00426\ \ \ \ \ \ \ \ \ glEnableVertexAttribArray(0);}
+\DoxyCodeLine{00427\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ normal}}
+\DoxyCodeLine{00428\ \ \ \ \ \ \ \ \ glVertexAttribPointer(1,\ 3,\ GL\_FLOAT,\ GL\_FALSE,\ 9\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ (\textcolor{keywordtype}{void}*)(3\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})));}
+\DoxyCodeLine{00429\ \ \ \ \ \ \ \ \ glEnableVertexAttribArray(1);}
+\DoxyCodeLine{00430\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ color}}
+\DoxyCodeLine{00431\ \ \ \ \ \ \ \ \ glVertexAttribPointer(2,\ 3,\ GL\_FLOAT,\ GL\_FALSE,\ 9\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ (\textcolor{keywordtype}{void}*)(6\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})));}
+\DoxyCodeLine{00432\ \ \ \ \ \ \ \ \ glEnableVertexAttribArray(2);}
+\DoxyCodeLine{00433\ \ \ \ \ \}}
+\DoxyCodeLine{00434\ }
+\DoxyCodeLine{00435\ \ \ \ \ \mbox{\hyperlink{struct_vertex}{Vertex}}*\ CreateNewVertex(\textcolor{keywordtype}{float}\ \_x,\ \textcolor{keywordtype}{float}\ \_y,\ \textcolor{keywordtype}{float}\ \_z,\ \textcolor{keywordtype}{float}\ \_nx,\ \textcolor{keywordtype}{float}\ \_ny,\ \textcolor{keywordtype}{float}\ \_nz,\ \textcolor{keywordtype}{float}\ \_r,\ \textcolor{keywordtype}{float}\ \_g,\ \textcolor{keywordtype}{float}\ \_b)}
+\DoxyCodeLine{00436\ \ \ \ \ \{}
+\DoxyCodeLine{00437\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_vertex}{Vertex}}*\ NewVertex\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{struct_vertex}{Vertex}}();}
+\DoxyCodeLine{00438\ \ \ \ \ \ \ \ \ NewVertex-\/>x\ =\ \_x;}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \ \ NewVertex-\/>y\ =\ \_y;}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \ \ NewVertex-\/>z\ =\ \_z;}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \ \ NewVertex-\/>nx\ =\ \_nx;}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \ \ NewVertex-\/>ny\ =\ \_ny;}
+\DoxyCodeLine{00443\ \ \ \ \ \ \ \ \ NewVertex-\/>nz\ =\ \_nz;}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \ \ NewVertex-\/>r\ =\ \_r;}
+\DoxyCodeLine{00445\ \ \ \ \ \ \ \ \ NewVertex-\/>g\ =\ \_g;}
+\DoxyCodeLine{00446\ \ \ \ \ \ \ \ \ NewVertex-\/>b\ =\ \_b;}
+\DoxyCodeLine{00447\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ NewVertex;}
+\DoxyCodeLine{00448\ \ \ \ \ \}}
+\DoxyCodeLine{00449\ }
+\DoxyCodeLine{00450\ \ \ \ \ \mbox{\hyperlink{struct_normal}{Normal}}*\ CreateNormal(\textcolor{keywordtype}{float}\ \_x,\ \textcolor{keywordtype}{float}\ \_y,\ \textcolor{keywordtype}{float}\ \_z,\ \textcolor{keywordtype}{float}\ \_r,\ \textcolor{keywordtype}{float}\ \_g,\ \textcolor{keywordtype}{float}\ \_b)}
+\DoxyCodeLine{00451\ \ \ \ \ \{}
+\DoxyCodeLine{00452\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_normal}{Normal}}*\ NewNormal\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{struct_normal}{Normal}}();}
+\DoxyCodeLine{00453\ \ \ \ \ \ \ \ \ NewNormal-\/>x\ =\ \_x;}
+\DoxyCodeLine{00454\ \ \ \ \ \ \ \ \ NewNormal-\/>y\ =\ \_y;}
+\DoxyCodeLine{00455\ \ \ \ \ \ \ \ \ NewNormal-\/>z\ =\ \_z;}
+\DoxyCodeLine{00456\ \ \ \ \ \ \ \ \ NewNormal-\/>r\ =\ \_r;}
+\DoxyCodeLine{00457\ \ \ \ \ \ \ \ \ NewNormal-\/>g\ =\ \_g;}
+\DoxyCodeLine{00458\ \ \ \ \ \ \ \ \ NewNormal-\/>b\ =\ \_b;}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ NewNormal;}
+\DoxyCodeLine{00460\ \ \ \ \ \}}
+\DoxyCodeLine{00461\ }
+\DoxyCodeLine{00462\ \ \ \ \ \textcolor{keywordtype}{void}\ writeVertexToConsole(vector<Vertex*>\ vectorToPrint)}
+\DoxyCodeLine{00463\ \ \ \ \ \{}
+\DoxyCodeLine{00464\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ vectorToPrint.size();\ i++)}
+\DoxyCodeLine{00465\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00466\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}x\ =\ "{}}\ <<\ vectorToPrint[i]-\/>x\ <<\ \textcolor{stringliteral}{"{},\ "{}};}
+\DoxyCodeLine{00467\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}y\ =\ "{}}\ <<\ vectorToPrint[i]-\/>y\ <<\ \textcolor{stringliteral}{"{},\ "{}};}
+\DoxyCodeLine{00468\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}z\ =\ "{}}\ <<\ vectorToPrint[i]-\/>z\ <<\ \textcolor{stringliteral}{"{},\ "{}};}
+\DoxyCodeLine{00469\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}r\ =\ "{}}\ <<\ vectorToPrint[i]-\/>r\ <<\ \textcolor{stringliteral}{"{},\ "{}};}
+\DoxyCodeLine{00470\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}g\ =\ "{}}\ <<\ vectorToPrint[i]-\/>g\ <<\ \textcolor{stringliteral}{"{},\ "{}};}
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}b\ =\ "{}}\ <<\ vectorToPrint[i]-\/>b\ <<\ \textcolor{stringliteral}{"{},\ "{}};}
+\DoxyCodeLine{00472\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ endl;}
+\DoxyCodeLine{00473\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00474\ \ \ \ \ \}}
+\DoxyCodeLine{00475\ }
+\DoxyCodeLine{00476\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ and\ setters\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00477\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00478\ }
+\DoxyCodeLine{00479\ }
+\DoxyCodeLine{00480\ \};}
+\DoxyCodeLine{00481\ }
+\DoxyCodeLine{00482\ }
+\DoxyCodeLine{00483\ }
+\DoxyCodeLine{00484\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

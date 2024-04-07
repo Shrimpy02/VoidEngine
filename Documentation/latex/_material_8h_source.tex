@@ -1,0 +1,106 @@
+\doxysection{Material.\+h}
+\hypertarget{_material_8h_source}{}\label{_material_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Material.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Material.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Includes}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <Core/Shader.h>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <array>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <Texture.h>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_material}{Material}}}
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//\ Enum\ for\ texture\ type\ definition}}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keyword}{enum}\ TextureType}
+\DoxyCodeLine{00019\ \ \ \ \ \{}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ DIFFUSE,}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ SPECULAR,}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ NORMAL,}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ ALPHA,}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ COUNT}
+\DoxyCodeLine{00025\ \ \ \ \ \};}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{comment}{//\ array\ of\ material\ map\ names\ for\ assigning\ to\ shader\ uniform}}
+\DoxyCodeLine{00028\ \ \ \ \ std::array<std::string,\ static\_cast<size\_t>(TextureType::COUNT)>\ TextureUniformNames\ =\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \ \textcolor{stringliteral}{"{}material.diffuseMap"{}},\ \textcolor{stringliteral}{"{}material.specularMap"{}},}
+\DoxyCodeLine{00030\ \ \ \ \ \ \textcolor{stringliteral}{"{}material.normalMap"{}},\ \textcolor{stringliteral}{"{}material.alphaMap"{}}}
+\DoxyCodeLine{00031\ \ \ \ \ \};}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//\ Properties\ of\ materials.\ }}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_material_1_1_material_properties}{MaterialProperties}}}
+\DoxyCodeLine{00035\ \ \ \ \ \{}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ glm::vec3\ mColor\{\ 1.f,\ 1.f,\ 1.f\ \};}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ mShininess\{\ 64.f\ \};}
+\DoxyCodeLine{00038\ \ \ \ \ \};}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ \mbox{\hyperlink{struct_material_1_1_material_properties}{MaterialProperties}}\ mProperties\{\};}
+\DoxyCodeLine{00044\ \ \ \ \ std::array<Texture*,\ TextureType::COUNT>\ mTextures\{\};}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//\ Static\ Cache\ of\ materials}}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keyword}{static}\ std::unordered\_map<std::string,\ Material*>\ sCache;}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ Constructor,\ initializes\ mTextures\ to\ all\ nullptr`s}}
+\DoxyCodeLine{00052\ \ \ \ \ \mbox{\hyperlink{class_material}{Material}}(\textcolor{keyword}{const}\ std::string\&\ \_name);}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//\ Remove\ copy\ and\ move\ functionality}}
+\DoxyCodeLine{00055\ \ \ \ \ \mbox{\hyperlink{class_material}{Material}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_material}{Material}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00056\ \ \ \ \ \mbox{\hyperlink{class_material}{Material}}\&\ operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_material}{Material}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00057\ \ \ \ \ \mbox{\hyperlink{class_material}{Material}}(\mbox{\hyperlink{class_material}{Material}}\&\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00058\ \ \ \ \ \mbox{\hyperlink{class_material}{Material}}\&\ operator=(\mbox{\hyperlink{class_material}{Material}}\&\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{comment}{//\ Functions}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{comment}{//\ Calls\ the\ overloaded\ Load\ function\ with\ default\ values}}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_material}{Material}}*\ Load(\textcolor{keyword}{const}\ std::string\&\ \_name);}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{comment}{//\ Overload\ of\ load\ function,\ checks\ cache\ if\ material\ exists\ already,\ if\ not\ create\ new\ material,\ return\ it\ and\ add\ it\ to\ cache.}}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_material}{Material}}*\ Load(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keyword}{const}\ std::array<Texture*,\ TextureType::COUNT>\&\ \_textures,\ \textcolor{keyword}{const}\ MaterialProperties\&\ \_properties);}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{comment}{//\ Removes\ material\ from\ cache\ by\ name}}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ Unload(\textcolor{keyword}{const}\ std::string\&\ \_name);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{comment}{//\ Removes\ all\ materials\ from\ cache}}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ ClearCache();}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{comment}{//\ Assuming\ shader\ is\ bound,\ set`s\ the\ array\ of\ texture\ names\ as\ shader\ uniforms}}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{comment}{//\ with\ accompanying\ texture\ maps.\ Also\ assigns\ material\ properties\ through\ uniform\ to\ shader.\ }}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordtype}{void}\ Bind(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_shader}{Shader}}*\ \_shader)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ /\ setters\ /\ Adders\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{comment}{//\ Getters}}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{comment}{//\ Gets\ the\ texture\ based\ on\ type\ from\ this\ material.\ }}
+\DoxyCodeLine{00087\ \ \ \ \ \mbox{\hyperlink{class_texture}{Texture}}*\ GetTexture(TextureType\ \_type)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{comment}{//\ Finds\ a\ material\ in\ the\ cache\ by\ name\ and\ returns\ it.}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_material}{Material}}*\ GetMaterialFromCache(std::string\&\ \_name);}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{comment}{//\ Gets\ the\ material\ properties\ for\ this\ material.\ }}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keyword}{const}\ MaterialProperties\&\ GetProperties()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mProperties;\ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{comment}{//\ Setters}}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{comment}{//\ Set\ the\ input\ texture\ of\ input\ type\ to\ the\ assigned\ place\ in\ the\ texture\ array.}}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordtype}{void}\ SetTexture(TextureType\ \_type,\ \mbox{\hyperlink{class_texture}{Texture}}*\ \_texture);}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{comment}{//\ Sets\ the\ material\ properties\ from\ input.}}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordtype}{void}\ SetProperties(\textcolor{keyword}{const}\ MaterialProperties\&\ \_properties)\ \{\ mProperties\ =\ \_properties;\ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \};}
+\DoxyCodeLine{00105\ }
+
+\end{DoxyCode}

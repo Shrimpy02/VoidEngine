@@ -1,0 +1,199 @@
+\doxysection{Camera\+Actor Class Reference}
+\hypertarget{class_camera_actor}{}\label{class_camera_actor}\index{CameraActor@{CameraActor}}
+
+
+Camera actor class inherits from actor for world location. It controls how the player sees the world and flying camera movement.  
+
+
+
+
+{\ttfamily \#include $<$Camera.\+h$>$}
+
+Inheritance diagram for Camera\+Actor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_camera_actor}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_camera_actor_affaacc7b84ef8e4d986d6cc813246a13}\label{class_camera_actor_affaacc7b84ef8e4d986d6cc813246a13} 
+{\bfseries Camera\+Actor} (const std\+::string \&\+\_\+name, glm\+::vec3 position=glm\+::vec3(0.\+0f, 0.\+0f, 0.\+0f), glm\+::quat rotation=glm\+::quat(glm\+::identity$<$ glm\+::quat $>$()), float aspect\+Ratio=1280.f/720.f, float near\+Plane=0.\+1f, float far\+Plane=100.\+0f, float field\+Of\+View=45.\+0f, float max\+Movement\+Seed=100.f, float acceleration\+Speed=50.\+0f, float damping\+Factor=5.\+0f)
+\item 
+void \mbox{\hyperlink{class_camera_actor_a5dacbfc7b58ab1f2a56f3d61b619b8a4}{Update}} (float \+\_\+dt) override
+\item 
+\Hypertarget{class_camera_actor_ade3eaf42013850d48ad8dc2820ce1c50}\label{class_camera_actor_ade3eaf42013850d48ad8dc2820ce1c50} 
+const glm\+::vec2 \& {\bfseries Get\+Angular\+Velocity} () const
+\item 
+\Hypertarget{class_camera_actor_accf2454ef59435649982d31090b6409a}\label{class_camera_actor_accf2454ef59435649982d31090b6409a} 
+const glm\+::vec2 \& {\bfseries Get\+Angular\+Acceleration} () const
+\item 
+\Hypertarget{class_camera_actor_a11e3218bb8bfa189e9b15455f0c4aafa}\label{class_camera_actor_a11e3218bb8bfa189e9b15455f0c4aafa} 
+float {\bfseries Get\+Angular\+Damping\+Factor} () const
+\item 
+\Hypertarget{class_camera_actor_a620c8d337f7b8c3ef5651d45dee492a4}\label{class_camera_actor_a620c8d337f7b8c3ef5651d45dee492a4} 
+float {\bfseries Get\+Angular\+Acceleration\+Speed} () const
+\item 
+\Hypertarget{class_camera_actor_a6f172d291430872fe83dd8c6180962f9}\label{class_camera_actor_a6f172d291430872fe83dd8c6180962f9} 
+float {\bfseries Get\+Max\+Movement\+Speed} () const
+\item 
+\Hypertarget{class_camera_actor_afe697e4908a970bea94edfea1143c460}\label{class_camera_actor_afe697e4908a970bea94edfea1143c460} 
+float {\bfseries Get\+Aspect\+Ratio} () const
+\item 
+\Hypertarget{class_camera_actor_a725748058bf6184ee57d6167fe6797a6}\label{class_camera_actor_a725748058bf6184ee57d6167fe6797a6} 
+float {\bfseries Get\+Near\+Plane} () const
+\item 
+\Hypertarget{class_camera_actor_a15b153c8340173028fc3ea3504a0ae4d}\label{class_camera_actor_a15b153c8340173028fc3ea3504a0ae4d} 
+float {\bfseries Get\+Far\+Plane} () const
+\item 
+\Hypertarget{class_camera_actor_ab7d5d74ffbb018303284608933d03647}\label{class_camera_actor_ab7d5d74ffbb018303284608933d03647} 
+float {\bfseries Get\+Field\+Of\+View} () const
+\item 
+\Hypertarget{class_camera_actor_a7d464b99a99ba15ad0b72dcd141ffc27}\label{class_camera_actor_a7d464b99a99ba15ad0b72dcd141ffc27} 
+float {\bfseries Get\+Acceleration\+Speed} () const
+\item 
+\Hypertarget{class_camera_actor_a84ab4c9130d3daa5579e1ff2f1a6b070}\label{class_camera_actor_a84ab4c9130d3daa5579e1ff2f1a6b070} 
+const glm\+::vec3 \& {\bfseries Get\+Acceleration} () const
+\item 
+\Hypertarget{class_camera_actor_aa70312a59975bc8e54387cc9ef04adb7}\label{class_camera_actor_aa70312a59975bc8e54387cc9ef04adb7} 
+glm\+::vec3 {\bfseries Get\+Front} () const
+\item 
+\Hypertarget{class_camera_actor_a05b3828cf88c2990f6d42ec3d94b2d7e}\label{class_camera_actor_a05b3828cf88c2990f6d42ec3d94b2d7e} 
+glm\+::vec3 {\bfseries Get\+Up} () const
+\item 
+\Hypertarget{class_camera_actor_a438150f3cd51a0b6369b8c4bd9a85834}\label{class_camera_actor_a438150f3cd51a0b6369b8c4bd9a85834} 
+const glm\+::vec3 \& {\bfseries Get\+Velocity} () const
+\item 
+\Hypertarget{class_camera_actor_a880648cf74fd35e76050d9197b9f2201}\label{class_camera_actor_a880648cf74fd35e76050d9197b9f2201} 
+glm\+::mat4 {\bfseries Get\+View\+Matrix} () const
+\item 
+\Hypertarget{class_camera_actor_abafb11260bb1e6fa9a9b67d263f3b94e}\label{class_camera_actor_abafb11260bb1e6fa9a9b67d263f3b94e} 
+const glm\+::mat4 \& {\bfseries Get\+Projection\+Matrix} () const
+\item 
+\Hypertarget{class_camera_actor_a85a6a142812ec0518484e78f75ec1f2d}\label{class_camera_actor_a85a6a142812ec0518484e78f75ec1f2d} 
+glm\+::mat4 {\bfseries Get\+VPMatrix} () const
+\item 
+\Hypertarget{class_camera_actor_ab27184ef649d8575648fac40f275d6ff}\label{class_camera_actor_ab27184ef649d8575648fac40f275d6ff} 
+void {\bfseries Add\+Velocity} (const glm\+::vec3 \&\+\_\+velocity)
+\item 
+\Hypertarget{class_camera_actor_a5562edb98a6b6e9402102e63adb13502}\label{class_camera_actor_a5562edb98a6b6e9402102e63adb13502} 
+void {\bfseries Add\+Yaw\+Degrees} (float \+\_\+angle\+Degrees)
+\item 
+\Hypertarget{class_camera_actor_a64839f18194cc9b430ac0f9b247eb88f}\label{class_camera_actor_a64839f18194cc9b430ac0f9b247eb88f} 
+void {\bfseries Add\+Pitch\+Degrees} (float \+\_\+angle\+Degrees)
+\item 
+\Hypertarget{class_camera_actor_afd37cdffbc10c85c2b5bf18d51444427}\label{class_camera_actor_afd37cdffbc10c85c2b5bf18d51444427} 
+void {\bfseries Add\+Angular\+Velocity} (const glm\+::vec2 \&\+\_\+angular\+Velocity\+Delta)
+\item 
+\Hypertarget{class_camera_actor_a00b89cc93c462eb045e37ef54d2b57d1}\label{class_camera_actor_a00b89cc93c462eb045e37ef54d2b57d1} 
+void {\bfseries Add\+Angular\+Acceleration} (const glm\+::vec2 \&\+\_\+angular\+Acceleration\+Delta)
+\item 
+\Hypertarget{class_camera_actor_a6668515eacae919561d3cc001d42a5a7}\label{class_camera_actor_a6668515eacae919561d3cc001d42a5a7} 
+void {\bfseries Set\+Aspect\+Ratio} (float \+\_\+aspect\+Ratio)
+\item 
+\Hypertarget{class_camera_actor_a36ebd3af0e8f32ec39782288a5be4c2a}\label{class_camera_actor_a36ebd3af0e8f32ec39782288a5be4c2a} 
+void {\bfseries Set\+Velocity} (const glm\+::vec3 \&\+\_\+velocity)
+\item 
+\Hypertarget{class_camera_actor_af4178e3f6512a7c6215f8c4ef3d5860f}\label{class_camera_actor_af4178e3f6512a7c6215f8c4ef3d5860f} 
+void {\bfseries Set\+Acceleration\+Speed} (float \+\_\+acceleration\+Speed)
+\item 
+\Hypertarget{class_camera_actor_ab28bc0c038c38507cbd16ba7702e7fdb}\label{class_camera_actor_ab28bc0c038c38507cbd16ba7702e7fdb} 
+void {\bfseries Set\+Acceleration} (const glm\+::vec3 \&\+\_\+acceleration)
+\item 
+\Hypertarget{class_camera_actor_ac764fbda156d808b64c753f838e8f280}\label{class_camera_actor_ac764fbda156d808b64c753f838e8f280} 
+void {\bfseries Set\+Max\+Movement\+Speed} (float \+\_\+movement\+Speed)
+\item 
+\Hypertarget{class_camera_actor_a4ed582b88e9513de74fe751937721b39}\label{class_camera_actor_a4ed582b88e9513de74fe751937721b39} 
+void {\bfseries Set\+Angular\+Velocity} (const glm\+::vec2 \&\+\_\+angular\+Velocity)
+\item 
+\Hypertarget{class_camera_actor_a0acb941073eae48de709bae2ef10eda5}\label{class_camera_actor_a0acb941073eae48de709bae2ef10eda5} 
+void {\bfseries Set\+Angular\+Acceleration} (const glm\+::vec2 \&\+\_\+angular\+Acceleration)
+\item 
+\Hypertarget{class_camera_actor_a1add2db521d2e5a5ab872c6a90cc7911}\label{class_camera_actor_a1add2db521d2e5a5ab872c6a90cc7911} 
+void {\bfseries Set\+Angular\+Damping\+Factor} (float \+\_\+damping\+Factor)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{class_actor}{Actor}}}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Actor} (const std\+::string \&\+\_\+name)
+\item 
+{\bfseries Actor} (const \mbox{\hyperlink{class_actor}{Actor}} \&)=delete
+\item 
+\mbox{\hyperlink{class_actor}{Actor}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_actor}{Actor}} \&)=delete
+\item 
+{\bfseries Actor} (\mbox{\hyperlink{class_actor}{Actor}} \&\&)=default
+\item 
+\mbox{\hyperlink{class_actor}{Actor}} \& {\bfseries operator=} (\mbox{\hyperlink{class_actor}{Actor}} \&\&)=default
+\item 
+void {\bfseries Update\+Components} (float \+\_\+dt)
+\item 
+void {\bfseries Add\+Child} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+child)
+\item 
+void {\bfseries Remove\+Child} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+child)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void {\bfseries Add\+Component} (const std\+::string \&\+\_\+component\+Name)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void {\bfseries Query} (std\+::vector$<$ \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*} $>$ \&\+\_\+actors)
+\item 
+const glm\+::vec3 \& {\bfseries Get\+Position} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+const glm\+::quat \& {\bfseries Get\+Rotation} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+const glm\+::vec3 \& {\bfseries Get\+Scale} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+const \mbox{\hyperlink{struct_transform}{Transform}} \& {\bfseries Get\+Transform} () const
+\item 
+const glm\+::mat4 {\bfseries Get\+Transform\+Matrix} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+\mbox{\hyperlink{struct_transform}{Transform}} \texorpdfstring{$\ast$}{*} {\bfseries Get\+Transform} ()
+\item 
+glm\+::vec3 {\bfseries Get\+Right} () const
+\item 
+const std\+::string \& {\bfseries Get\+Tag} ()
+\item 
+std\+::vector$<$ \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*} $>$ \& {\bfseries Get\+Children} ()
+\item 
+void {\bfseries Set\+Local\+Transform\+Matrix} (const glm\+::mat4 \&\+\_\+transform\+Matrix)
+\item 
+void {\bfseries Set\+Transform} (const \mbox{\hyperlink{struct_transform}{Transform}} \&\+\_\+transform)
+\item 
+void {\bfseries Set\+Position} (const glm\+::vec3 \&\+\_\+position, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+void {\bfseries Set\+Rotation} (const glm\+::quat \&\+\_\+rotation, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+void {\bfseries Set\+Scale} (const glm\+::vec3 \&\+\_\+scale, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+void {\bfseries Set\+Parent} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+parent)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Additional Inherited Members}
+\doxysubsection*{Public Types inherited from \mbox{\hyperlink{class_actor}{Actor}}}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_actor_a3c153709d0bc28c652f10218ca6de712}\label{class_actor_a3c153709d0bc28c652f10218ca6de712} 
+enum class {\bfseries Transform\+Space} \{ {\bfseries Local}
+, {\bfseries Global}
+ \}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Camera actor class inherits from actor for world location. It controls how the player sees the world and flying camera movement. 
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_camera_actor_a5dacbfc7b58ab1f2a56f3d61b619b8a4}\label{class_camera_actor_a5dacbfc7b58ab1f2a56f3d61b619b8a4} 
+\index{CameraActor@{CameraActor}!Update@{Update}}
+\index{Update@{Update}!CameraActor@{CameraActor}}
+\doxysubsubsection{\texorpdfstring{Update()}{Update()}}
+{\footnotesize\ttfamily void Camera\+Actor\+::\+Update (\begin{DoxyParamCaption}\item[{float}]{\+\_\+dt }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_actor}{Actor}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Camera.\+h\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Camera.\+cpp\end{DoxyCompactItemize}

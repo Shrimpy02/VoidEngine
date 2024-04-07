@@ -1,0 +1,190 @@
+\doxysection{Base\+Actor Class Reference}
+\hypertarget{class_base_actor}{}\label{class_base_actor}\index{BaseActor@{BaseActor}}
+
+
+Represents a complete object in a scene, it inherits from actor for world location, \doxylink{class_i_render}{IRender} for mesh rendering and \doxylink{class_i_bounded}{IBounded} for collision detection and processing.  
+
+
+
+
+{\ttfamily \#include $<$Scene\+Actors.\+h$>$}
+
+Inheritance diagram for Base\+Actor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_base_actor}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_base_actor_a1a7d6b1c8411b1e351c52cb1034da382}\label{class_base_actor_a1a7d6b1c8411b1e351c52cb1034da382} 
+{\bfseries Base\+Actor} (const std\+::string \&\+\_\+name, \mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*}\+\_\+mesh)
+\item 
+\Hypertarget{class_base_actor_a8bcf2615497146ec471fd0959b2eb53a}\label{class_base_actor_a8bcf2615497146ec471fd0959b2eb53a} 
+void {\bfseries Draw} (const \mbox{\hyperlink{class_shader}{Shader}} \texorpdfstring{$\ast$}{*}\+\_\+shader=nullptr) const override
+\item 
+\mbox{\hyperlink{struct_a_a_b_b}{AABB}} \mbox{\hyperlink{class_base_actor_a6166d4f869fe3b4aee9bb917b5b6774a}{Get\+AABB}} () const override
+\item 
+\mbox{\hyperlink{struct_bounding_sphere}{Bounding\+Sphere}} \mbox{\hyperlink{class_base_actor_a300bc6d49d19850336059e80586f6349}{Get\+Bounding\+Sphere}} () const override
+\item 
+\Hypertarget{class_base_actor_ad31667acb5d74aae51ef264d8bdad9cd}\label{class_base_actor_ad31667acb5d74aae51ef264d8bdad9cd} 
+void {\bfseries Set\+Draw\+Debug\+Collision\+Mesh} (bool \+\_\+state)
+\item 
+\mbox{\hyperlink{struct_collision_properties}{Collision\+Properties}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_base_actor_a2051451a6385e36aff645c2ba3097d67}{Get\+Collision\+Properties}} () override
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{class_actor}{Actor}}}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Actor} (const std\+::string \&\+\_\+name)
+\item 
+{\bfseries Actor} (const \mbox{\hyperlink{class_actor}{Actor}} \&)=delete
+\item 
+\mbox{\hyperlink{class_actor}{Actor}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_actor}{Actor}} \&)=delete
+\item 
+{\bfseries Actor} (\mbox{\hyperlink{class_actor}{Actor}} \&\&)=default
+\item 
+\mbox{\hyperlink{class_actor}{Actor}} \& {\bfseries operator=} (\mbox{\hyperlink{class_actor}{Actor}} \&\&)=default
+\item 
+virtual void {\bfseries Update} (float \+\_\+dt)
+\item 
+void {\bfseries Update\+Components} (float \+\_\+dt)
+\item 
+void {\bfseries Add\+Child} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+child)
+\item 
+void {\bfseries Remove\+Child} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+child)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void {\bfseries Add\+Component} (const std\+::string \&\+\_\+component\+Name)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void {\bfseries Query} (std\+::vector$<$ \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*} $>$ \&\+\_\+actors)
+\item 
+const glm\+::vec3 \& {\bfseries Get\+Position} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+const glm\+::quat \& {\bfseries Get\+Rotation} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+const glm\+::vec3 \& {\bfseries Get\+Scale} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+const \mbox{\hyperlink{struct_transform}{Transform}} \& {\bfseries Get\+Transform} () const
+\item 
+const glm\+::mat4 {\bfseries Get\+Transform\+Matrix} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+\mbox{\hyperlink{struct_transform}{Transform}} \texorpdfstring{$\ast$}{*} {\bfseries Get\+Transform} ()
+\item 
+glm\+::vec3 {\bfseries Get\+Right} () const
+\item 
+const std\+::string \& {\bfseries Get\+Tag} ()
+\item 
+std\+::vector$<$ \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*} $>$ \& {\bfseries Get\+Children} ()
+\item 
+void {\bfseries Set\+Local\+Transform\+Matrix} (const glm\+::mat4 \&\+\_\+transform\+Matrix)
+\item 
+void {\bfseries Set\+Transform} (const \mbox{\hyperlink{struct_transform}{Transform}} \&\+\_\+transform)
+\item 
+void {\bfseries Set\+Position} (const glm\+::vec3 \&\+\_\+position, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+void {\bfseries Set\+Rotation} (const glm\+::quat \&\+\_\+rotation, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+void {\bfseries Set\+Scale} (const glm\+::vec3 \&\+\_\+scale, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+void {\bfseries Set\+Parent} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+parent)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{class_i_render}{IRender}}}
+\begin{DoxyCompactItemize}
+\item 
+virtual void {\bfseries Draw} (const class \mbox{\hyperlink{class_shader}{Shader}} \texorpdfstring{$\ast$}{*}\+\_\+shader=nullptr) const =0
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{class_i_bounded}{IBounded}}}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries Create\+Collision\+Cube\+From\+Mesh} (class \mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*}\+\_\+material, std\+::vector$<$ struct \mbox{\hyperlink{struct_vertex}{Vertex}} $>$ \&\+\_\+existing\+Mesh)
+\item 
+class \mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries Create\+Collision\+Sphere\+From\+Mesh} (class \mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*}\+\_\+material, std\+::vector$<$ struct \mbox{\hyperlink{struct_vertex}{Vertex}} $>$ \&\+\_\+existing\+Mesh)
+\item 
+bool {\bfseries Get\+Is\+Colliding} ()
+\item 
+void {\bfseries Set\+Is\+Colliding} (bool \+\_\+in\+Bool)
+\item 
+void {\bfseries Set\+Collision\+Type} (Collision\+Type \+\_\+in\+Type)
+\item 
+void {\bfseries Set\+Collision\+Response} (Collision\+Response \+\_\+in\+Response)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_base_actor_abe9fc0ed93670b00bbf4dea129cd080d}\label{class_base_actor_abe9fc0ed93670b00bbf4dea129cd080d} 
+\mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries m\+Mesh} \{ nullptr \}
+\item 
+\Hypertarget{class_base_actor_ab8986373deb985ef7ce0b7b92058de42}\label{class_base_actor_ab8986373deb985ef7ce0b7b92058de42} 
+\mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries m\+Collision\+Cube} \{ nullptr \}
+\item 
+\Hypertarget{class_base_actor_affac4d7ac91e849c15eeed385584b20c}\label{class_base_actor_affac4d7ac91e849c15eeed385584b20c} 
+\mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries m\+Collision\+Sphere} \{ nullptr \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes inherited from \mbox{\hyperlink{class_i_bounded}{IBounded}}}
+\begin{DoxyCompactItemize}
+\item 
+glm\+::vec3 {\bfseries m\+Center} \{ 0.f,0.f,0.f \}
+\item 
+glm\+::vec3 {\bfseries m\+Max\+Extent} \{ 0.f,0.f,0.f \}
+\item 
+glm\+::vec3 {\bfseries m\+Min\+Extent} \{ 0.f,0.f,0.f \}
+\item 
+float {\bfseries m\+Radius} \{ 0.\+5f \}
+\item 
+\mbox{\hyperlink{struct_collision_properties}{Collision\+Properties}} {\bfseries m\+Collision\+Properties} \{ Collision\+Type\+::\+STATIC, Collision\+Response\+::\+BLOCK, Collision\+Base\+::\+AABB \}
+\item 
+bool {\bfseries m\+Should\+Draw\+Collision\+Mesh} = true
+\item 
+bool {\bfseries m\+Is\+Colliding} = false
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Additional Inherited Members}
+\doxysubsection*{Public Types inherited from \mbox{\hyperlink{class_actor}{Actor}}}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_actor_a3c153709d0bc28c652f10218ca6de712}\label{class_actor_a3c153709d0bc28c652f10218ca6de712} 
+enum class {\bfseries Transform\+Space} \{ {\bfseries Local}
+, {\bfseries Global}
+ \}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Represents a complete object in a scene, it inherits from actor for world location, \doxylink{class_i_render}{IRender} for mesh rendering and \doxylink{class_i_bounded}{IBounded} for collision detection and processing. 
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_base_actor_a6166d4f869fe3b4aee9bb917b5b6774a}\label{class_base_actor_a6166d4f869fe3b4aee9bb917b5b6774a} 
+\index{BaseActor@{BaseActor}!GetAABB@{GetAABB}}
+\index{GetAABB@{GetAABB}!BaseActor@{BaseActor}}
+\doxysubsubsection{\texorpdfstring{GetAABB()}{GetAABB()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_a_a_b_b}{AABB}} Base\+Actor\+::\+Get\+AABB (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{class_i_bounded}{IBounded}}.
+
+\Hypertarget{class_base_actor_a300bc6d49d19850336059e80586f6349}\label{class_base_actor_a300bc6d49d19850336059e80586f6349} 
+\index{BaseActor@{BaseActor}!GetBoundingSphere@{GetBoundingSphere}}
+\index{GetBoundingSphere@{GetBoundingSphere}!BaseActor@{BaseActor}}
+\doxysubsubsection{\texorpdfstring{GetBoundingSphere()}{GetBoundingSphere()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_bounding_sphere}{Bounding\+Sphere}} Base\+Actor\+::\+Get\+Bounding\+Sphere (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{class_i_bounded}{IBounded}}.
+
+\Hypertarget{class_base_actor_a2051451a6385e36aff645c2ba3097d67}\label{class_base_actor_a2051451a6385e36aff645c2ba3097d67} 
+\index{BaseActor@{BaseActor}!GetCollisionProperties@{GetCollisionProperties}}
+\index{GetCollisionProperties@{GetCollisionProperties}!BaseActor@{BaseActor}}
+\doxysubsubsection{\texorpdfstring{GetCollisionProperties()}{GetCollisionProperties()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_collision_properties}{Collision\+Properties}} \texorpdfstring{$\ast$}{*} Base\+Actor\+::\+Get\+Collision\+Properties (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{class_i_bounded}{IBounded}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Scene\+Actors.\+h\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Scene\+Actors.\+cpp\end{DoxyCompactItemize}

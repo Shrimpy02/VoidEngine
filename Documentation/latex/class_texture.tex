@@ -1,0 +1,77 @@
+\doxysection{Texture Class Reference}
+\hypertarget{class_texture}{}\label{class_texture}\index{Texture@{Texture}}
+
+
+Manages all textures through the texture cache and creation of new textures using additional helper functions.  
+
+
+
+
+{\ttfamily \#include $<$Texture.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_texture_ac64d5c5ea75155f7258cefd4f6d88125}\label{class_texture_ac64d5c5ea75155f7258cefd4f6d88125} 
+{\bfseries Texture} (const std\+::string \&\+\_\+path)
+\item 
+\Hypertarget{class_texture_a6f37ee9dc7bb5e960660df07200de426}\label{class_texture_a6f37ee9dc7bb5e960660df07200de426} 
+{\bfseries Texture} (const \mbox{\hyperlink{class_texture}{Texture}} \&)=delete
+\item 
+\Hypertarget{class_texture_a52c7fa68d67170b18a290ae18792240a}\label{class_texture_a52c7fa68d67170b18a290ae18792240a} 
+\mbox{\hyperlink{class_texture}{Texture}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_texture}{Texture}} \&)=delete
+\item 
+\Hypertarget{class_texture_ae53157700b1bc1ade39009c4cc4e2380}\label{class_texture_ae53157700b1bc1ade39009c4cc4e2380} 
+{\bfseries Texture} (\mbox{\hyperlink{class_texture}{Texture}} \&\&)=delete
+\item 
+\Hypertarget{class_texture_af9d1465e67124fbf36834705799eadbf}\label{class_texture_af9d1465e67124fbf36834705799eadbf} 
+\mbox{\hyperlink{class_texture}{Texture}} \& {\bfseries operator=} (\mbox{\hyperlink{class_texture}{Texture}} \&\&)=delete
+\item 
+\Hypertarget{class_texture_a9ce2ebd76a71e91f329c5ed041370422}\label{class_texture_a9ce2ebd76a71e91f329c5ed041370422} 
+bool {\bfseries Is\+Valid} () const
+\item 
+\Hypertarget{class_texture_a0730c6fe2f07bd8e1eca1255a8ac168a}\label{class_texture_a0730c6fe2f07bd8e1eca1255a8ac168a} 
+Texture\+ID {\bfseries Get\+Texture\+ID} () const
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_texture_a374482c2ceeb89867fead47c4ed599f7}\label{class_texture_a374482c2ceeb89867fead47c4ed599f7} 
+static \mbox{\hyperlink{class_texture}{Texture}} \texorpdfstring{$\ast$}{*} {\bfseries Load} (const std\+::string \&\+\_\+path)
+\item 
+\Hypertarget{class_texture_abfdcd32b397a0be2d9c17ea08cb98665}\label{class_texture_abfdcd32b397a0be2d9c17ea08cb98665} 
+static \mbox{\hyperlink{class_texture}{Texture}} \texorpdfstring{$\ast$}{*} {\bfseries Load\+White\+Texture} ()
+\item 
+\Hypertarget{class_texture_a131fbea0d105bd82b1ba96e3867d9f8c}\label{class_texture_a131fbea0d105bd82b1ba96e3867d9f8c} 
+static \mbox{\hyperlink{class_texture}{Texture}} \texorpdfstring{$\ast$}{*} {\bfseries Load\+Black\+Texture} ()
+\item 
+\Hypertarget{class_texture_a83e4682fdfa80161f241b591fe8f2ddf}\label{class_texture_a83e4682fdfa80161f241b591fe8f2ddf} 
+static void {\bfseries Unload} (const std\+::string \&\+\_\+path)
+\item 
+\Hypertarget{class_texture_a1e6feccba5f845114d80fff7dfa8463e}\label{class_texture_a1e6feccba5f845114d80fff7dfa8463e} 
+static void {\bfseries Clear\+Cache} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_texture_a9deaa2db59eeed1f2e3ef30271507708}\label{class_texture_a9deaa2db59eeed1f2e3ef30271507708} 
+Texture\+ID {\bfseries m\+ID} = \{ 0U \}
+\item 
+\Hypertarget{class_texture_a7c75ca74217b3bc60f490738af323027}\label{class_texture_a7c75ca74217b3bc60f490738af323027} 
+std\+::string {\bfseries m\+Path}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_texture_a0810f09bc0fc51530bffe2479ca9325f}\label{class_texture_a0810f09bc0fc51530bffe2479ca9325f} 
+static std\+::unordered\+\_\+map$<$ std\+::string, \mbox{\hyperlink{class_texture}{Texture}} \texorpdfstring{$\ast$}{*} $>$ {\bfseries s\+Cache}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Manages all textures through the texture cache and creation of new textures using additional helper functions. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Texture.\+h\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Texture.\+cpp\end{DoxyCompactItemize}

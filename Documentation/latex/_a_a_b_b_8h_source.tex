@@ -1,0 +1,40 @@
+\doxysection{AABB.\+h}
+\hypertarget{_a_a_b_b_8h_source}{}\label{_a_a_b_b_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Collision/AABB.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Collision/AABB.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Includes}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <Collision/Collision.h>}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00012\ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_a_a_b_b}{AABB}}}
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//\ Center\ of\ collision\ object\ }}
+\DoxyCodeLine{00017\ \ \ \ \ glm::vec3\ mCenter\{\ 0.0f,0.0f,0.0f\ \};}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//\ Extent\ of\ collision\ object}}
+\DoxyCodeLine{00019\ \ \ \ \ glm::vec3\ mExtent\{\ 0.5f,0.5f,0.5f\ \};}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//\ Constructor}}
+\DoxyCodeLine{00024\ \ \ \ \ \mbox{\hyperlink{struct_a_a_b_b}{AABB}}(\textcolor{keyword}{const}\ glm::vec3\&\ \_center,\ \textcolor{keyword}{const}\ glm::vec3\&\ \_extent)\ :\ mCenter(\_center),\ mExtent(\_extent)\ \{\}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//\ NOTE\ ::\ For\ Handle\ collision\ template\ function\ it\ indiscriminately\ calls\ intersect\ regardless\ of\ what\ object\ it\ is.}}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{comment}{//\ So\ AABB\ and\ Bounding\ sphere\ intersect\ functions\ must\ be\ identical\ in\ coding\ technicality.\ }}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{comment}{//\ Definitely\ a\ bad\ way\ of\ coding\ it\ but\ i\ could\ not\ think\ of\ a\ different\ way\ to\ call\ the\ functions\ dynamically\ during\ runtime.\ }}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ this\ and\ an\ AABB\ object\ are\ colliding}}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{comment}{//\ Additionally\ updates\ the\ minimum\ translation\ vector\ input\ with\ the\ updated\ intersection\ data\ for\ collision\ handling.}}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsIntersecting(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_a_a_b_b}{AABB}}\&\ \_other,\ glm::vec3*\ \_mtv)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00033\ \ }
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{comment}{//\ Overloaded\ function\ returns\ true\ if\ this\ and\ a\ BoundingSphere\ object\ are\ colliding}}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//\ Additionally\ updates\ the\ minimum\ translation\ vector\ input\ with\ the\ updated\ intersection\ data\ for\ collision\ handling.}}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsIntersecting(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_bounding_sphere}{BoundingSphere}}\&\ \_other,\ glm::vec3*\ \_mtv)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \};}
+\DoxyCodeLine{00040\ }
+
+\end{DoxyCode}

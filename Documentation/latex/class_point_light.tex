@@ -1,0 +1,53 @@
+\doxysection{Point\+Light Class Reference}
+\hypertarget{class_point_light}{}\label{class_point_light}\index{PointLight@{PointLight}}
+
+
+Inherits from light class, properties and logic for light falloff over distance.  
+
+
+
+
+{\ttfamily \#include $<$Point\+Light.\+h$>$}
+
+Inheritance diagram for Point\+Light\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_point_light}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_point_light_a3c174e09860817ee12c50ab6f47372da}\label{class_point_light_a3c174e09860817ee12c50ab6f47372da} 
+virtual glm\+::vec3 {\bfseries Get\+Light\+Position} () const =0
+\item 
+\Hypertarget{class_point_light_aceef2b759cfad8054429081ad1a411f2}\label{class_point_light_aceef2b759cfad8054429081ad1a411f2} 
+void {\bfseries Set\+Attenuation\+Coefficients} (float \+\_\+const, float \+\_\+lin, float \+\_\+quad)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_point_light_acc3b21d4abb6cb2d6d30fc51eb4d58ce}\label{class_point_light_acc3b21d4abb6cb2d6d30fc51eb4d58ce} 
+float {\bfseries constant\+Var} = 1.f
+\item 
+\Hypertarget{class_point_light_a420324c6ea863c0ce3ddc975d871ad91}\label{class_point_light_a420324c6ea863c0ce3ddc975d871ad91} 
+float {\bfseries linear\+Var} = 0.\+09f
+\item 
+\Hypertarget{class_point_light_a4798bd793f1946f68a0e4d26a74aa713}\label{class_point_light_a4798bd793f1946f68a0e4d26a74aa713} 
+float {\bfseries quadratic\+Var} = 0.\+032f
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes inherited from \mbox{\hyperlink{class_light}{Light}}}
+\begin{DoxyCompactItemize}
+\item 
+glm\+::vec3 {\bfseries m\+Ambient} \{ 0.\+5f,0.\+5f,0.\+5f \}
+\item 
+glm\+::vec3 {\bfseries m\+Color} \{ 1.\+0f,1.\+0f,1.\+0f \}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Inherits from light class, properties and logic for light falloff over distance. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Lights/Point\+Light.\+h\end{DoxyCompactItemize}

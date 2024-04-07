@@ -1,0 +1,45 @@
+\doxysection{Vertex.\+h}
+\hypertarget{_vertex_8h_source}{}\label{_vertex_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Vertex.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Vertex.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Includes\ }}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <glad/glad.h>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <glm/glm.hpp>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00013\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_vertex}{Vertex}}}
+\DoxyCodeLine{00014\ \{}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \ \ glm::vec3\ mPosition;}
+\DoxyCodeLine{00018\ \ \ \ \ glm::vec3\ mNormal;}
+\DoxyCodeLine{00019\ \ \ \ \ glm::vec2\ mTexCoords;}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//\ Constructor}}
+\DoxyCodeLine{00024\ \ \ \ \ \mbox{\hyperlink{struct_vertex}{Vertex}}(\textcolor{keyword}{const}\ glm::vec3\&\ \_position,\ \textcolor{keyword}{const}\ glm::vec3\&\ \_normal,\ \textcolor{keyword}{const}\ glm::vec2\&\ \_texCoords)}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ :\ mPosition(\_position),\ mNormal(\_normal),\ mTexCoords(\_texCoords)\ \{\}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{comment}{//\ Custom\ setup\ of\ attributes\ for\ this\ vertex\ type\ that\ contains\ position,\ normals\ and\ texture\ coordinates}}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ SetupAttributes()}
+\DoxyCodeLine{00029\ \ \ \ \ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ position}}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ glVertexAttribPointer(0,\ 3,\ GL\_FLOAT,\ GL\_FALSE,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{struct_vertex}{Vertex}}),\ (\textcolor{keywordtype}{void}*)offsetof(\mbox{\hyperlink{struct_vertex}{Vertex}},\ mPosition));}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ glEnableVertexAttribArray(0);}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ normal}}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ glVertexAttribPointer(1,\ 3,\ GL\_FLOAT,\ GL\_FALSE,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{struct_vertex}{Vertex}}),\ (\textcolor{keywordtype}{void}*)offsetof(\mbox{\hyperlink{struct_vertex}{Vertex}},\ mNormal));}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ glEnableVertexAttribArray(1);}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ texture\ coordinates}}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ glVertexAttribPointer(2,\ 2,\ GL\_FLOAT,\ GL\_FALSE,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{struct_vertex}{Vertex}}),\ (\textcolor{keywordtype}{void}*)offsetof(\mbox{\hyperlink{struct_vertex}{Vertex}},\ mTexCoords));}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ glEnableVertexAttribArray(2);}
+\DoxyCodeLine{00041\ \ \ \ \ \}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ }
+\DoxyCodeLine{00044\ \};}
+
+\end{DoxyCode}

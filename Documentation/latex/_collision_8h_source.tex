@@ -1,0 +1,270 @@
+\doxysection{Collision.\+h}
+\hypertarget{_collision_8h_source}{}\label{_collision_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Collision/Collision.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Collision/Collision.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Includes}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <glm/vec3.hpp>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <Utilities/Types.h>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <Mesh.h>}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Enum\ for\ all\ types\ of\ collision}}
+\DoxyCodeLine{00010\ \textcolor{keyword}{enum\ class}\ CollisionType}
+\DoxyCodeLine{00011\ \{}
+\DoxyCodeLine{00012\ \ \ \ \ STATIC,}
+\DoxyCodeLine{00013\ \ \ \ \ DYNAMIC,}
+\DoxyCodeLine{00014\ \ \ \ \ KINETIC}
+\DoxyCodeLine{00015\ \};}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \textcolor{comment}{//\ Enum\ for\ all\ collision\ responses}}
+\DoxyCodeLine{00018\ \textcolor{keyword}{enum\ class}\ CollisionResponse}
+\DoxyCodeLine{00019\ \{}
+\DoxyCodeLine{00020\ \ \ \ \ BLOCK,}
+\DoxyCodeLine{00021\ \ \ \ \ OVERLAP,}
+\DoxyCodeLine{00022\ \ \ \ \ IGNORE}
+\DoxyCodeLine{00023\ \};}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ Enum\ for\ all\ collision\ bases}}
+\DoxyCodeLine{00026\ \textcolor{keyword}{enum\ class}\ CollisionBase}
+\DoxyCodeLine{00027\ \{}
+\DoxyCodeLine{00028\ \ \ \ \ \mbox{\hyperlink{struct_a_a_b_b}{AABB}},}
+\DoxyCodeLine{00029\ \ \ \ \ \mbox{\hyperlink{struct_bounding_sphere}{BoundingSphere}}}
+\DoxyCodeLine{00030\ \};}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00037\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_collision_properties}{CollisionProperties}}}
+\DoxyCodeLine{00038\ \{}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ CollisionType\ mType\{\ CollisionType::STATIC\ \};}
+\DoxyCodeLine{00041\ \ \ \ \ CollisionResponse\ mResponse\{\ CollisionResponse::BLOCK\ \};}
+\DoxyCodeLine{00042\ \ \ \ \ CollisionBase\ mBase\{\ CollisionBase::AABB\ \};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//TypeChecks}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ collision\ type\ is\ STATIC.}}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsStatic()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mType\ ==\ CollisionType::STATIC;\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ collision\ type\ is\ DYNAMIC.}}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsDynamic()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mType\ ==\ CollisionType::DYNAMIC;\ \}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ collision\ type\ is\ KINETIC.}}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsKinetic()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mType\ ==\ CollisionType::KINETIC;\ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ collision\ response\ is\ BLOCK.}}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsBlockResponse()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mResponse\ ==\ CollisionResponse::BLOCK;\ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ collision\ response\ is\ OVERLAP.}}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsOverlapResponse()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mResponse\ ==\ CollisionResponse::OVERLAP;\ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ collision\ response\ is\ IGNORE.}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsIgnoreResponse()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mResponse\ ==\ CollisionResponse::IGNORE;\ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ collision\ response\ is\ BLOCK.}}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsAABB()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mBase\ ==\ CollisionBase::AABB;\ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ collision\ response\ is\ OVERLAP.}}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsBoundingSphere()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mBase\ ==\ CollisionBase::BoundingSphere;\ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{comment}{//\ Setters\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{comment}{//\ Sets\ current\ collision\ type}}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordtype}{void}\ SetCollisionType(CollisionType\ \_inType)\ \{\ mType\ =\ \_inType;\ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{comment}{//\ Sets\ current\ collision\ response}}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordtype}{void}\ SetCollisionResponse(CollisionResponse\ \_inType)\ \{\ mResponse\ =\ \_inType;\ \}}
+\DoxyCodeLine{00079\ \};}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00082\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ IBounded\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00083\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00090\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_i_bounded}{IBounded}}}
+\DoxyCodeLine{00091\ \{}
+\DoxyCodeLine{00092\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{comment}{//\ AABB\ /\ boundingSphere\ variables}}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{comment}{//\ mCenter\ is\ not\ used\ currently,\ better\ to\ calc\ center\ when\ calling\ aabb/boundingsphere\ for\ correct\ scaling}}
+\DoxyCodeLine{00097\ \ \ \ \ glm::vec3\ mCenter\{\ 0.f,0.f,0.f\ \};}
+\DoxyCodeLine{00098\ \ \ \ \ glm::vec3\ mMaxExtent\{\ 0.f,0.f,0.f\ \};}
+\DoxyCodeLine{00099\ \ \ \ \ glm::vec3\ mMinExtent\{\ 0.f,0.f,0.f\ \};}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordtype}{float}\ mRadius\{\ 0.5f\ \};}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{comment}{//\ objects\ collision\ properties}}
+\DoxyCodeLine{00103\ \ \ \ \ \mbox{\hyperlink{struct_collision_properties}{CollisionProperties}}\ mCollisionProperties\{\ CollisionType::STATIC,\ CollisionResponse::BLOCK,\ CollisionBase::AABB\ \};}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{comment}{//\ Decides\ if\ mCollisionMesh\ (if\ there\ is\ one)\ should\ be\ rendered.}}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keywordtype}{bool}\ mShouldDrawCollisionMesh\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{comment}{//\ Is\ true\ if\ object\ is\ colliding\ with\ something\ else}}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordtype}{bool}\ mIsColliding\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{comment}{//\ TODO\ :\ Get\ AABB\ and\ BoundingSphere\ should\ contain\ logic\ rather\ than\ them\ (currently)\ being\ repeated\ in\ each\ scene\ actor.\ }}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{comment}{//\ De-\/constructor}}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_i_bounded}{\string~IBounded}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{comment}{//\ Gets\ an\ AABB\ object\ for\ collision\ handling,\ function\ =\ 0\ as\ since\ it\ is\ a\ base.\ }}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_a_a_b_b}{AABB}}\ GetAABB()\ const\ =\ 0;}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{comment}{//\ Gets\ an\ AABB\ object\ for\ collision\ handling,\ function\ =\ 0\ as\ since\ it\ is\ a\ base.\ }}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_bounding_sphere}{BoundingSphere}}\ GetBoundingSphere()\ const\ =\ 0;}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{comment}{//\ Gets\ CollisionProperties\ object\ for\ collision\ handling,\ =\ 0\ as\ base\ function.\ }}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_collision_properties}{CollisionProperties}}*\ GetCollisionProperties()\ =\ 0;}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{comment}{//\ Helper\ functions\ to\ create\ default\ cube\ meshe\ based\ on\ existing\ mesh\ vertex\ geometry.}}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_mesh}{Mesh}}*\ CreateCollisionCubeFromMesh(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_material}{Material}}*\ \_material,\ std::vector<struct\ Vertex>\&\ \_existingMesh)}
+\DoxyCodeLine{00132\ \ \ \ \ \{}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Calculate\ the\ bounding\ box\ (min\ and\ max\ extents)\ of\ the\ existing\ mesh}}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ glm::vec3\ maxExtent\ =\ \_existingMesh[0].mPosition;}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ glm::vec3\ minExtent\ =\ \_existingMesh[0].mPosition;}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ vertex\ :\ \_existingMesh)}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \ \ minExtent\ =\ glm::min(minExtent,\ vertex.mPosition);}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ maxExtent\ =\ glm::max(maxExtent,\ vertex.mPosition);}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Calculate\ the\ center\ of\ the\ bounding\ box}}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ glm::vec3\ center\ =\ (minExtent\ +\ maxExtent)\ *\ 0.5f;}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ set\ the\ class\ values\ to\ the\ calculated\ values}}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ mMaxExtent\ =\ maxExtent;}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ mMinExtent\ =\ minExtent;}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Then\ create\ the\ collision\ mesh\ using\ these\ extents\ (Mesh\ as\ cube\ for\ AABB\ object)}}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ generate\ a\ cube\ using\ extents}}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ std::vector<Vertex>\ vertices\ =\ \{}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Front\ face}}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ minExtent.y,\ \ maxExtent.z\},\ \{0.0f,\ \ 0.0f,\ \ 1.0f\},\ \{0.0f,\ 0.0f\}\},\ \textcolor{comment}{//\ Bottom-\/left}}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ minExtent.y,\ \ maxExtent.z\},\ \{0.0f,\ \ 0.0f,\ \ 1.0f\},\ \{1.0f,\ 0.0f\}\},\ \textcolor{comment}{//\ Bottom-\/right}}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ \ maxExtent.y,\ \ maxExtent.z\},\ \{0.0f,\ \ 0.0f,\ \ 1.0f\},\ \{1.0f,\ 1.0f\}\},\ \textcolor{comment}{//\ Top-\/right}}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ \ maxExtent.y,\ \ maxExtent.z\},\ \{0.0f,\ \ 0.0f,\ \ 1.0f\},\ \{0.0f,\ 1.0f\}\},\ \textcolor{comment}{//\ Top-\/left}}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Back\ face}}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ minExtent.y,\ minExtent.z\},\ \{0.0f,\ \ 0.0f,\ -\/1.0f\},\ \{1.0f,\ 0.0f\}\},}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ minExtent.y,\ minExtent.z\},\ \{0.0f,\ \ 0.0f,\ -\/1.0f\},\ \{0.0f,\ 0.0f\}\},}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ \ maxExtent.y,\ minExtent.z\},\ \{0.0f,\ \ 0.0f,\ -\/1.0f\},\ \{0.0f,\ 1.0f\}\},}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ \ maxExtent.y,\ minExtent.z\},\ \{0.0f,\ \ 0.0f,\ -\/1.0f\},\ \{1.0f,\ 1.0f\}\},}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Left\ face}}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ minExtent.y,\ minExtent.z\},\ \{-\/1.0f,\ \ 0.0f,\ \ 0.0f\},\ \{0.0f,\ 0.0f\}\},}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ minExtent.y,\ \ maxExtent.z\},\ \{-\/1.0f,\ \ 0.0f,\ \ 0.0f\},\ \{1.0f,\ 0.0f\}\},}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ \ maxExtent.y,\ \ maxExtent.z\},\ \{-\/1.0f,\ \ 0.0f,\ \ 0.0f\},\ \{1.0f,\ 1.0f\}\},}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ \ maxExtent.y,\ minExtent.z\},\ \{-\/1.0f,\ \ 0.0f,\ \ 0.0f\},\ \{0.0f,\ 1.0f\}\},}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Right\ face}}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ minExtent.y,\ minExtent.z\},\ \{1.0f,\ \ 0.0f,\ \ 0.0f\},\ \{1.0f,\ 0.0f\}\},}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ minExtent.y,\ \ maxExtent.z\},\ \{1.0f,\ \ 0.0f,\ \ 0.0f\},\ \{0.0f,\ 0.0f\}\},}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ \ maxExtent.y,\ \ maxExtent.z\},\ \{1.0f,\ \ 0.0f,\ \ 0.0f\},\ \{0.0f,\ 1.0f\}\},}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ \ maxExtent.y,\ minExtent.z\},\ \{1.0f,\ \ 0.0f,\ \ 0.0f\},\ \{1.0f,\ 1.0f\}\},}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Top\ face}}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ \ maxExtent.y,\ minExtent.z\},\ \{0.0f,\ \ 1.0f,\ \ 0.0f\},\ \{0.0f,\ 1.0f\}\},}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ \ maxExtent.y,\ \ maxExtent.z\},\ \{0.0f,\ \ 1.0f,\ \ 0.0f\},\ \{0.0f,\ 0.0f\}\},}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ \ maxExtent.y,\ \ maxExtent.z\},\ \{0.0f,\ \ 1.0f,\ \ 0.0f\},\ \{1.0f,\ 0.0f\}\},}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ \ maxExtent.y,\ minExtent.z\},\ \{0.0f,\ \ 1.0f,\ \ 0.0f\},\ \{1.0f,\ 1.0f\}\},}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Bottom\ face}}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ minExtent.y,\ minExtent.z\},\ \{0.0f,\ -\/1.0f,\ \ 0.0f\},\ \{1.0f,\ 1.0f\}\},}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{minExtent.x,\ minExtent.y,\ \ maxExtent.z\},\ \{0.0f,\ -\/1.0f,\ \ 0.0f\},\ \{0.0f,\ 1.0f\}\},}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ minExtent.y,\ \ maxExtent.z\},\ \{0.0f,\ -\/1.0f,\ \ 0.0f\},\ \{0.0f,\ 0.0f\}\},}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \ \ \ \ \{\{\ maxExtent.x,\ minExtent.y,\ minExtent.z\},\ \{0.0f,\ -\/1.0f,\ \ 0.0f\},\ \{1.0f,\ 0.0f\}\}}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Generate\ cube\ indices}}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ std::vector<Index>\ indices\ =\ \{}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Front\ face}}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \ \ \ \ 0,\ 1,\ 2,\ 0,\ 2,\ 3,}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Back\ face}}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \ \ \ \ 4,\ 5,\ 6,\ 4,\ 6,\ 7,}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Left\ face}}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \ \ \ \ 8,\ 9,\ 10,\ 8,\ 10,\ 11,}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Right\ face}}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \ \ \ \ 12,\ 13,\ 14,\ 12,\ 14,\ 15,}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Top\ face}}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ \ \ \ \ 16,\ 17,\ 18,\ 16,\ 18,\ 19,}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Bottom\ face}}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \ \ \ \ 20,\ 21,\ 22,\ 20,\ 22,\ 23}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_mesh}{Mesh}}(\textcolor{stringliteral}{"{}CollisionCube"{}},\ std::move(vertices),\ std::move(indices),\ \_material);}
+\DoxyCodeLine{00202\ \ \ \ \ \}}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{comment}{//\ Helper\ functions\ to\ create\ default\ cube\ meshe\ based\ on\ existing\ mesh\ vertex\ geometry.}}
+\DoxyCodeLine{00205\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_mesh}{Mesh}}*\ CreateCollisionSphereFromMesh(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_material}{Material}}*\ \_material,\ std::vector<struct\ Vertex>\&\ \_existingMesh)}
+\DoxyCodeLine{00206\ \ \ \ \ \{}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ default\ extent\ init}}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ glm::vec3\ maxExtent(0);}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ glm::vec3\ minExtent(0);}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ glm::vec3\ center(0);}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ largetsDiff(0.f);}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ For\ each}}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 3;\ i++)}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \ \ \ \ glm::vec3\ pos(0);}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ check\ all\ vertices\ looking\ for\ the\ longest\ vertex\ away.\ \ }}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ j\ =\ 0;\ j\ <\ \_existingMesh.size();\ j++)}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Gets\ max\ extent\ for\ axis}}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\_existingMesh[j].mPosition[i]\ >\ maxExtent[i])}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ maxExtent[i]\ =\ \_existingMesh[j].mPosition[i];}
+\DoxyCodeLine{00224\ }
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Gets\ min\ extent\ for\ axis}}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\_existingMesh[j].mPosition[i]\ <\ minExtent[i])}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ minExtent[i]\ =\ \_existingMesh[j].mPosition[i];}
+\DoxyCodeLine{00228\ }
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Gets\ center\ location\ for\ axis\ }}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pos[i]\ =\ \_existingMesh[j].mPosition[i];}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Finds\ the\ vertex\ that\ is\ the\ furthest\ from\ the\ center}}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (largetsDiff\ <\ abs(\_existingMesh[j].mPosition[i]))}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ largetsDiff\ =\ abs(\_existingMesh[j].mPosition[i]);}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \ \ \ \ \ \ center\ +=\ pos;}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Divide\ by\ num\ vertices\ for\ average\ location\ of\ center}}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ center\ /=\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(\_existingMesh.size());}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ set\ the\ class\ values\ to\ the\ calculated\ values}}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ mRadius\ =\ (float)largetsDiff\ *\ 1.5;}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ std::vector<Vertex>\ vertices;}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ std::vector<Index>\ indices;}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ Mesh::GenSphere(vertices,indices,2,mRadius);}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_mesh}{Mesh}}(\textcolor{stringliteral}{"{}CollisionSphere"{}},\ std::move(vertices),\ std::move(indices),\ \_material);}
+\DoxyCodeLine{00250\ \ \ \ \ \}}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00252\ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ this\ object\ is\ colliding\ with\ anything\ else.\ }}
+\DoxyCodeLine{00253\ \ \ \ \ \textcolor{keywordtype}{bool}\ GetIsColliding()\ \{\ \textcolor{keywordflow}{return}\ mIsColliding;\ \}}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00255\ \ \ \ \ \textcolor{comment}{//\ Sets\ the\ value\ of\ mIsColliding}}
+\DoxyCodeLine{00256\ \ \ \ \ \textcolor{keywordtype}{void}\ SetIsColliding(\textcolor{keywordtype}{bool}\ \_inBool)\ \{\ mIsColliding\ =\ \_inBool;\ \}}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \ \ \ \ \textcolor{comment}{//\ Sets\ the\ collision\ type\ for\ this\ object}}
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{keywordtype}{void}\ SetCollisionType(CollisionType\ \_inType)\ \{\ mCollisionProperties.mType\ =\ \_inType;\ \}}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00261\ \ \ \ \ \textcolor{comment}{//\ Sets\ the\ collision\ response\ for\ this\ object}}
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keywordtype}{void}\ SetCollisionResponse(CollisionResponse\ \_inResponse)\ \{\ mCollisionProperties.mResponse\ =\ \_inResponse;\ \}}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00264\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ /\ setters\ /\ Adders\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Getters\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Setters\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00274\ \};}
+
+\end{DoxyCode}

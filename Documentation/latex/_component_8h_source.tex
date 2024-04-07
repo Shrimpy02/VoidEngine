@@ -1,0 +1,64 @@
+\doxysection{Component.\+h}
+\hypertarget{_component_8h_source}{}\label{_component_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Components/Component.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Components/Component.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Includes}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <Tag.h>}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_component}{Component}}}
+\DoxyCodeLine{00011\ \{}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{comment}{//\ Friend\ classes\ should\ technically\ be\ avoided\ because\ they\ break\ encapsulation}}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{comment}{//\ But\ will\ be\ used\ in\ this\ case\ cause\ we\ only\ want\ an\ actor\ to\ create,\ init\ and\ update\ components}}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//\ For\ all\ derived\ classes\ add\ actor\ as\ a\ friend}}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_actor}{Actor}};}
+\DoxyCodeLine{00016\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ The\ component\ owner}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_actor}{Actor}}*\ mOwner;}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//\ Components\ name}}
+\DoxyCodeLine{00027\ \ \ \ \ \mbox{\hyperlink{struct_tag_unique}{TagUnique}}\ mTag;}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{//\ Remove\ copy\ and\ move\ functionality}}
+\DoxyCodeLine{00033\ \ \ \ \ \mbox{\hyperlink{class_component}{Component}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_component}{Component}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00034\ \ \ \ \ \mbox{\hyperlink{class_component}{Component}}\&\ operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_component}{Component}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00035\ \ \ \ \ \mbox{\hyperlink{class_component}{Component}}(\mbox{\hyperlink{class_component}{Component}}\&\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00036\ \ \ \ \ \mbox{\hyperlink{class_component}{Component}}\&\ operator=(\mbox{\hyperlink{class_component}{Component}}\&\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{comment}{//\ De-\/constructor}}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_component}{\string~Component}}()\ \{\ \}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{comment}{//\ Constructor}}
+\DoxyCodeLine{00043\ \ \ \ \ \mbox{\hyperlink{class_component}{Component}}(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keyword}{class}\ \mbox{\hyperlink{class_actor}{Actor}}*\ \_owner)}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ :mTag(\_name),\ mOwner(\_owner)}
+\DoxyCodeLine{00045\ \ \ \ \ \{\}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{comment}{//\ Init\ runs\ when\ the\ component\ is\ created\ and\ added\ to\ an\ actor}}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ Init()\ \{\}}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{comment}{//\ Update\ is\ called\ each\ frame}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ Update(\textcolor{keywordtype}{float}\ \_dt)\ \{\}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ and\ setters\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{comment}{//\ Getters}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \};}
+
+\end{DoxyCode}

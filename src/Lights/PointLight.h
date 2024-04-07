@@ -1,82 +1,53 @@
 #pragma once
 #include <Lights/Lights.h>
-#include <Actor.h>
 
-// Change this variable in the shader too
+// Defines the max amount of lights in a scene.
+// If this is changed remember to change in fragment shader as well!
 #define MAX_POINT_LIGHTS 64
 
+/**
+ * @class PointLight,
+ * @brief Inherits from light class, properties and logic for light falloff over distance.
+ */
 class PointLight : public Light
 {
 public:
-    // ---------- Global Variables --------------
-    virtual glm::vec3 GetLightPosition() const = 0;
-
-    // gives a light range of 50 units
+    // This combination of default variables gives a light range of 50 units
     float constantVar = 1.f;
     float linearVar = 0.09f;
     float quadraticVar = 0.032f;
 
-private:
-    // ---------- Local Variables --------------
+    // Returns the position of the light source as a vec3
+    virtual glm::vec3 GetLightPosition() const = 0;
 
-
-public:
-    // ---------- Global functions --------------
-
-
-private:
-    // ---------- Local functions --------------
-
-
-
-public:
-    // ---------- Getters / setters / Adders --------------
-
-    // Adders
-
-    // Setters
-
+    // Set the AttenuationCoefficients from in floats, 
     void SetAttenuationCoefficients(float _const, float _lin, float _quad)
     {
         constantVar = _const;
         linearVar = _lin;
         quadraticVar = _quad;
     }
-
-    // Getters
-
 };
 
+// ---------------------------------------------------------------
+// ----------------- PointLightActor -----------------------------
+// ---------------------------------------------------------------
+
+/**
+ * @class PointLightActor,
+ * @brief The PointLightActor inherits from PointLight class
+ * for light properties and Actor class for scene inclusion.
+ */
 class PointLightActor : public Actor, public PointLight
 {
 public:
-    // ---------- Global Variables --------------
+    // constructs as a regular actor
+    PointLightActor(const std::string& name) :Actor(name) {}
 
-private:
-    // ---------- Local Variables --------------
-
-
-public:
-    // ---------- Global functions --------------
-    PointLightActor(const std::string& name) :Actor(name) {};
-
+    // Inherited function returns the position of this light source as a vec3
     virtual glm::vec3 GetLightPosition() const
     {
         return GetPosition(Actor::TransformSpace::Global);
     }
-
-
-private:
-    // ---------- Local functions --------------
-
-
-public:
-    // ---------- Getters / setters / Adders --------------
-
-    // Adders
-
-    // Setters
-
-    // Getters
 
 };

@@ -1,0 +1,71 @@
+\doxysection{Actor\+Controller.\+h}
+\hypertarget{_actor_controller_8h_source}{}\label{_actor_controller_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Controllers/ActorController.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Controllers/ActorController.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Includes}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <Controllers/Controller.h>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_actor_controller}{ActorController}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_i_controller}{IController}}}
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ Key\ map\ for\ input\ handeling}}
+\DoxyCodeLine{00021\ \ \ \ \ std::map<int,\ bool>\ mKeyStates;}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//\ actor\ movement\ speed}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordtype}{float}\ mMovementSpeed\ =\ 1;}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//\ assigned\ actor}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_actor}{Actor}}*\ mActor;}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//\ Window\ reference}}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_window}{Window}}*\ mWindow;\ }
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{//\ Constructor}}
+\DoxyCodeLine{00033\ \ \ \ \ \mbox{\hyperlink{class_actor_controller}{ActorController}}(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_actor}{Actor}}*\ \_actor,\ \textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window)\ :\ mActor(\_actor),\ mWindow(\_window)\ \{\}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{comment}{//\ Inherited\ update\ from\ IController,\ updates\ all\ local\ function\ each\ tick.\ }}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keywordtype}{void}\ Update(\textcolor{keywordtype}{float}\ \_dt)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{comment}{//\ Inherited\ from\ IController,\ empty\ function}}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordtype}{void}\ HandleMouseMove(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{double}\ \_xpos,\ \textcolor{keywordtype}{double}\ \_ypos)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//\ Inherited\ from\ IController,\ empty\ function}}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keywordtype}{void}\ HandleMouseScroll(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{double}\ \_xoffset,\ \textcolor{keywordtype}{double}\ \_yoffset)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{comment}{//\ Inherited\ from\ IController,\ empty\ function}}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keywordtype}{void}\ HandleMouseButton(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{int}\ \_button,\ \textcolor{keywordtype}{int}\ \_action,\ \textcolor{keywordtype}{int}\ \_mods)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//\ Inherited\ from\ IController,\ asigness\ key\ states\ to\ the\ keystates\ maps}}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordtype}{void}\ HandleKeyboard(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_window}{Window}}*\ \_window,\ \textcolor{keywordtype}{int}\ \_key,\ \textcolor{keywordtype}{int}\ \_scancode,\ \textcolor{keywordtype}{int}\ \_action,\ \textcolor{keywordtype}{int}\ \_mods)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//\ Updates\ the\ assigned\ actor\ by\ what\ key\ has\ been\ pressed}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordtype}{void}\ UpdateActor(\textcolor{keywordtype}{float}\ \_dt);}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ /\ setters\ /\ Adders\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{comment}{//\ Adders}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//\ Setters}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{comment}{//\ Sets\ a\ new\ actor\ to\ control}}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{void}\ SetNewActorToControll(\textcolor{keyword}{class}\ \mbox{\hyperlink{class_actor}{Actor}}*\ \_newActor)\ \{\ mActor\ =\ \_newActor;\ \}}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{comment}{//\ sets\ the\ actor\ movement\ speed}}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordtype}{void}\ SetMovementSpeed(\textcolor{keywordtype}{float}\ \_inMovementSpeed)\ \{\ mMovementSpeed\ =\ \_inMovementSpeed;\ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{comment}{//\ Getters}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{comment}{//\ gets\ the\ current\ movement\ speed}}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordtype}{float}\ GetMovementSpeed()\ \{\ \textcolor{keywordflow}{return}\ mMovementSpeed;\ \}}
+\DoxyCodeLine{00069\ \};}
+\DoxyCodeLine{00070\ }
+
+\end{DoxyCode}
