@@ -1,0 +1,60 @@
+\doxysection{Physics\+Component.\+h}
+\hypertarget{_physics_component_8h_source}{}\label{_physics_component_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Components/PhysicsComponent.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Components/PhysicsComponent.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Includes}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <Components/Component.h>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <glm/glm.hpp>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_physics_component}{PhysicsComponent}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_component}{Component}}}
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//\ Re-\/iterate\ that\ Actor\ classes\ are\ friends,\ even\ though\ its\ called\ in\ the\ base\ component.}}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_actor}{Actor}};}
+\DoxyCodeLine{00016\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ glm::vec3\ mVelocity\{\ 0.f\ \};}
+\DoxyCodeLine{00023\ \ \ \ \ glm::vec3\ mAcceleration\{\ 0.f\ \};}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{float}\ mMaxSpeed\ =\ 4.f;}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{comment}{//\ Constructs\ a\ physics\ components\ \ and\ attaches\ it\ to\ input\ actor}}
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{class_physics_component}{PhysicsComponent}}(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keyword}{class}\ \mbox{\hyperlink{class_actor}{Actor}}*\ \_owner)}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{class_component}{Component}}(\_name,\ \_owner)\ \{\};}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//\ Overidden\ Update\ for\ the\ component,\ distribution\ to\ all\ tick\ functions\ from\ here.\ (Called\ each\ frame)}}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keywordtype}{void}\ Update(\textcolor{keywordtype}{float}\ \_dt)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//\ Updates\ all\ forces\ affecting\ the\ component.}}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{keywordtype}{void}\ UpdateForces();}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{comment}{//\ Updates\ the\ volicty\ of\ the\ component\ based\ on\ acceleration\ and\ deltatime.}}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordtype}{void}\ UpdateVelocity(\textcolor{keywordtype}{float}\ \_dt);}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{comment}{//\ Updates\ the\ position\ of\ the\ component\ based\ on\ acceleration}}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keywordtype}{void}\ UpdatePosition(\textcolor{keywordtype}{float}\ \_dt);}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//\ Resets\ all\ physics\ values,\ typically\ called\ on\ collisions.\ (Simple\ solution)}}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordtype}{void}\ ResetValues();}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ and\ setters\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \};}
+
+\end{DoxyCode}

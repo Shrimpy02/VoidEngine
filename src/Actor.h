@@ -1,6 +1,6 @@
 #pragma once
 // Includes 
-#include <Component.h>
+#include <Components/Component.h>
 #include <Transform.h>
 #include <Tag.h>
 

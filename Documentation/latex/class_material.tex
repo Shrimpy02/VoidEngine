@@ -1,0 +1,111 @@
+\doxysection{Material Class Reference}
+\hypertarget{class_material}{}\label{class_material}\index{Material@{Material}}
+
+
+Contains textures and properties for mesh objects to use. Has helper functions for managing and uses a static cache for managing all materials in application.  
+
+
+
+
+{\ttfamily \#include $<$Material.\+h$>$}
+
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{struct_material_1_1_material_properties}{Material\+Properties}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_material_ad8d759af2ca304921c68ef56e9aaccae}\label{class_material_ad8d759af2ca304921c68ef56e9aaccae} 
+enum {\bfseries Texture\+Type} \{ \newline
+{\bfseries DIFFUSE}
+, {\bfseries SPECULAR}
+, {\bfseries NORMAL}
+, {\bfseries ALPHA}
+, \newline
+{\bfseries COUNT}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_material_a856f24583dd049a4734130474aacc589}\label{class_material_a856f24583dd049a4734130474aacc589} 
+{\bfseries Material} (const std\+::string \&\+\_\+name)
+\item 
+\Hypertarget{class_material_a25b550b11c2b1c2154b3a79fc38c3938}\label{class_material_a25b550b11c2b1c2154b3a79fc38c3938} 
+{\bfseries Material} (const \mbox{\hyperlink{class_material}{Material}} \&)=delete
+\item 
+\Hypertarget{class_material_aa114078f437ae09781af21ed23dfce45}\label{class_material_aa114078f437ae09781af21ed23dfce45} 
+\mbox{\hyperlink{class_material}{Material}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_material}{Material}} \&)=delete
+\item 
+\Hypertarget{class_material_a883f8dac6125f3c0266efe2b28f65882}\label{class_material_a883f8dac6125f3c0266efe2b28f65882} 
+{\bfseries Material} (\mbox{\hyperlink{class_material}{Material}} \&\&)=delete
+\item 
+\Hypertarget{class_material_accc191780784fdeecaeb654264531556}\label{class_material_accc191780784fdeecaeb654264531556} 
+\mbox{\hyperlink{class_material}{Material}} \& {\bfseries operator=} (\mbox{\hyperlink{class_material}{Material}} \&\&)=delete
+\item 
+\Hypertarget{class_material_ae475aeec7819cbfd26a6f1543d598f7e}\label{class_material_ae475aeec7819cbfd26a6f1543d598f7e} 
+void {\bfseries Bind} (const \mbox{\hyperlink{class_shader}{Shader}} \texorpdfstring{$\ast$}{*}\+\_\+shader) const
+\item 
+\Hypertarget{class_material_a4803e93b037f0df323be7c2c2c73c8ef}\label{class_material_a4803e93b037f0df323be7c2c2c73c8ef} 
+\mbox{\hyperlink{class_texture}{Texture}} \texorpdfstring{$\ast$}{*} {\bfseries Get\+Texture} (Texture\+Type \+\_\+type) const
+\item 
+\Hypertarget{class_material_afacb197925feb1de9ed46daa9f20c82f}\label{class_material_afacb197925feb1de9ed46daa9f20c82f} 
+const \mbox{\hyperlink{struct_material_1_1_material_properties}{Material\+Properties}} \& {\bfseries Get\+Properties} () const
+\item 
+\Hypertarget{class_material_a91fc65d088281b80553b22a7b52f089c}\label{class_material_a91fc65d088281b80553b22a7b52f089c} 
+void {\bfseries Set\+Texture} (Texture\+Type \+\_\+type, \mbox{\hyperlink{class_texture}{Texture}} \texorpdfstring{$\ast$}{*}\+\_\+texture)
+\item 
+\Hypertarget{class_material_a6c83712795be68e9f6fbd54d4fa11ca7}\label{class_material_a6c83712795be68e9f6fbd54d4fa11ca7} 
+void {\bfseries Set\+Properties} (const \mbox{\hyperlink{struct_material_1_1_material_properties}{Material\+Properties}} \&\+\_\+properties)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_material_ad9030d6897a4c6ed50e80d0c71c36aad}\label{class_material_ad9030d6897a4c6ed50e80d0c71c36aad} 
+static \mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*} {\bfseries Load} (const std\+::string \&\+\_\+name)
+\item 
+\Hypertarget{class_material_a2ee914839f93f38a49d4f702cb8404a8}\label{class_material_a2ee914839f93f38a49d4f702cb8404a8} 
+static \mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*} {\bfseries Load} (const std\+::string \&\+\_\+name, const std\+::array$<$ \mbox{\hyperlink{class_texture}{Texture}} \texorpdfstring{$\ast$}{*}, Texture\+Type\+::\+COUNT $>$ \&\+\_\+textures, const \mbox{\hyperlink{struct_material_1_1_material_properties}{Material\+Properties}} \&\+\_\+properties)
+\item 
+\Hypertarget{class_material_a1afab50af0974527eac767069e58e4cf}\label{class_material_a1afab50af0974527eac767069e58e4cf} 
+static void {\bfseries Unload} (const std\+::string \&\+\_\+name)
+\item 
+\Hypertarget{class_material_a37dc4da5ace3870332275ace66d55454}\label{class_material_a37dc4da5ace3870332275ace66d55454} 
+static void {\bfseries Clear\+Cache} ()
+\item 
+\Hypertarget{class_material_a507a5ea6f57b6731885ccdddf4656577}\label{class_material_a507a5ea6f57b6731885ccdddf4656577} 
+static \mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*} {\bfseries Get\+Material\+From\+Cache} (std\+::string \&\+\_\+name)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::array$<$ std\+::string, static\+\_\+cast$<$ size\+\_\+t $>$(Texture\+Type\+::\+COUNT)$>$ \mbox{\hyperlink{class_material_a1b9d85660a7b834980be198a1127168e}{Texture\+Uniform\+Names}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contains textures and properties for mesh objects to use. Has helper functions for managing and uses a static cache for managing all materials in application. 
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{class_material_a1b9d85660a7b834980be198a1127168e}\label{class_material_a1b9d85660a7b834980be198a1127168e} 
+\index{Material@{Material}!TextureUniformNames@{TextureUniformNames}}
+\index{TextureUniformNames@{TextureUniformNames}!Material@{Material}}
+\doxysubsubsection{\texorpdfstring{TextureUniformNames}{TextureUniformNames}}
+{\footnotesize\ttfamily std\+::array$<$std\+::string, static\+\_\+cast$<$size\+\_\+t$>$(Texture\+Type\+::\+COUNT)$>$ Material\+::\+Texture\+Uniform\+Names}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ \ \textcolor{stringliteral}{"{}material.diffuseMap"{}},\ \textcolor{stringliteral}{"{}material.specularMap"{}},}
+\DoxyCodeLine{\ \ \ \ \ \textcolor{stringliteral}{"{}material.normalMap"{}},\ \textcolor{stringliteral}{"{}material.alphaMap"{}}}
+\DoxyCodeLine{\ \ \ \ \}}
+
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Material.\+h\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Material.\+cpp\end{DoxyCompactItemize}

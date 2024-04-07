@@ -1,0 +1,79 @@
+\doxysection{Texture.\+h}
+\hypertarget{_texture_8h_source}{}\label{_texture_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Texture.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Texture.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ includes}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <unordered\_map>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <Utilities/Types.h>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00013\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_texture}{Texture}}}
+\DoxyCodeLine{00014\ \{}
+\DoxyCodeLine{00015\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//\ texture\ id\ used\ by\ glfw}}
+\DoxyCodeLine{00019\ \ \ \ \ TextureID\ mID\ =\ \{\ 0U\ \};}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ project\ path\ to\ texture\ location}}
+\DoxyCodeLine{00021\ \ \ \ \ std::string\ mPath;\ }
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//\ Static\ cache\ of\ all\ textures}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{static}\ std::unordered\_map<std::string,\ Texture*>\ sCache;}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{comment}{//\ Constructor\ calls\ load\ for\ init.}}
+\DoxyCodeLine{00032\ \ \ \ \ \mbox{\hyperlink{class_texture}{Texture}}(\textcolor{keyword}{const}\ std::string\&\ \_path);}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{comment}{//\ Disable\ move\ and\ copy\ constructors}}
+\DoxyCodeLine{00035\ \ \ \ \ \mbox{\hyperlink{class_texture}{Texture}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_texture}{Texture}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00036\ \ \ \ \ \mbox{\hyperlink{class_texture}{Texture}}\&\ operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_texture}{Texture}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00037\ \ \ \ \ \mbox{\hyperlink{class_texture}{Texture}}(\mbox{\hyperlink{class_texture}{Texture}}\&\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00038\ \ \ \ \ \mbox{\hyperlink{class_texture}{Texture}}\&\ operator=(\mbox{\hyperlink{class_texture}{Texture}}\&\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//\ deconstructs\ object\ and\ gl\ texture\ reference}}
+\DoxyCodeLine{00041\ \ \ \ \ \mbox{\hyperlink{class_texture}{\string~Texture}}();}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{comment}{//\ Functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ }}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//\ Loads\ the\ texture\ from\ the\ input\ system\ path,\ checks\ cache\ if\ texture\ exists\ first,}}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//\ if\ not\ creates\ a\ new\ texture\ and\ loads\ it\ into\ the\ cache.}}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_texture}{Texture}}*\ Load(\textcolor{keyword}{const}\ std::string\&\ \_path);}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{comment}{//\ Calls\ Load\ with\ default\ path\ file\ to\ white\ texture}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_texture}{Texture}}*\ LoadWhiteTexture();}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{comment}{//\ Calls\ Load\ with\ default\ path\ file\ to\ black\ texture}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_texture}{Texture}}*\ LoadBlackTexture();}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{comment}{//\ Unloads\ specific\ texture\ from\ cache\ by\ its\ file\ path.}}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ Unload(\textcolor{keyword}{const}\ std::string\&\ \_path);}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//\ Erases\ all\ elements\ of\ the\ texture\ cache}}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ ClearCache();}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{comment}{//\ Returns\ true\ if\ mID\ ==\ 0;}}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsValid()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mID\ ==\ 0;\ \}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{comment}{//\ Loads\ local\ texture\ into\ GL\ using\ stbi\_Image}}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordtype}{void}\ LoadTexture();}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ /\ setters\ /\ Adders\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{comment}{//\ Getters}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{comment}{//\ Returns\ texture\ ID.}}
+\DoxyCodeLine{00076\ \ \ \ \ TextureID\ GetTextureID()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mID;\ \}}
+\DoxyCodeLine{00077\ \};}
+\DoxyCodeLine{00078\ }
+
+\end{DoxyCode}

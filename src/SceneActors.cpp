@@ -1,7 +1,7 @@
 
 // Includes
 #include <SceneActors.h>
-#include <Logger.h>
+#include <Utilities/Logger.h>
 
 // ---------------------------------------------------------------
 // --------------------- Mesh Actor ------------------------------

@@ -4,10 +4,10 @@
 // Inherit`ers
 #include <Renderer.h>
 #include <Actor.h>
-#include <Collision.h>
+#include <Collision/Collision.h>
 // others
-#include <AABB.h>
-#include <BoundingSphere.h>
+#include <Collision/AABB.h>
+#include <Collision/BoundingSphere.h>
 
 // CODE DECLARATION --------------
 // Get AABB and BoundingSphere are basically the same function and could be converted to IBounded class for simplicity

@@ -1,7 +1,7 @@
 
 // Includes
 #include "Material.h"
-#include "Logger.h"
+#include "Utilities/Logger.h"
 
 // static cache of materials
 std::unordered_map<std::string, Material*> Material::sCache;

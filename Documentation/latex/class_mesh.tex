@@ -1,0 +1,74 @@
+\doxysection{Mesh Class Reference}
+\hypertarget{class_mesh}{}\label{class_mesh}\index{Mesh@{Mesh}}
+
+
+Contains all logic for creating and maintaining geometry in open\+GL. Uses a static cache to remember geometry optimizing loading times.  
+
+
+
+
+{\ttfamily \#include $<$Mesh.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_mesh_ad1bf45c9830197b954bd6443597f9588}\label{class_mesh_ad1bf45c9830197b954bd6443597f9588} 
+{\bfseries Mesh} (const std\+::string \+\_\+name, std\+::vector$<$ \mbox{\hyperlink{struct_vertex}{Vertex}} $>$ \&\&\+\_\+vertices, std\+::vector$<$ Index $>$ \&\&\+\_\+indices, \mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*}\+\_\+material)
+\item 
+\Hypertarget{class_mesh_ad0bcda5f1299d5bb42b398b0aba7bd00}\label{class_mesh_ad0bcda5f1299d5bb42b398b0aba7bd00} 
+void {\bfseries Draw} (const \mbox{\hyperlink{class_shader}{Shader}} \texorpdfstring{$\ast$}{*}\+\_\+shader) const
+\item 
+\Hypertarget{class_mesh_a8529bb5172422e3e527da9bfe88f7c20}\label{class_mesh_a8529bb5172422e3e527da9bfe88f7c20} 
+const \mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*} {\bfseries Get\+Material} () const
+\item 
+\Hypertarget{class_mesh_a4e28366540e8c3a0852b0ac19c7912e0}\label{class_mesh_a4e28366540e8c3a0852b0ac19c7912e0} 
+const std\+::string \texorpdfstring{$\ast$}{*} {\bfseries Get\+Name} ()
+\item 
+\Hypertarget{class_mesh_ae97941270e8930d798f88d75b8ad5b63}\label{class_mesh_ae97941270e8930d798f88d75b8ad5b63} 
+std\+::vector$<$ \mbox{\hyperlink{struct_vertex}{Vertex}} $>$ \& {\bfseries Get\+Vetices} ()
+\item 
+\Hypertarget{class_mesh_a4e13d8b7c51ffed8866080bebef4386e}\label{class_mesh_a4e13d8b7c51ffed8866080bebef4386e} 
+void {\bfseries Set\+Material} (\mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*}\+\_\+material)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_mesh_a4f1786a0950bf29e00ba254f968eaf23}\label{class_mesh_a4f1786a0950bf29e00ba254f968eaf23} 
+static \mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries Create\+Cube} (\mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*}\+\_\+material, std\+::string \+\_\+custom\+Name=std\+::string())
+\item 
+\Hypertarget{class_mesh_a55b9b9966cdb00e02e04f44132d38b27}\label{class_mesh_a55b9b9966cdb00e02e04f44132d38b27} 
+static \mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries Create\+Plane} (\mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*}\+\_\+material, std\+::string \+\_\+custom\+Name=std\+::string())
+\item 
+\Hypertarget{class_mesh_a9ba786d3d391322e04754b93ab7db18a}\label{class_mesh_a9ba786d3d391322e04754b93ab7db18a} 
+static \mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries Create\+Pyramid} (\mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*}\+\_\+material, std\+::string \+\_\+custom\+Name=std\+::string())
+\item 
+\Hypertarget{class_mesh_a753a522661cac297372950b1c28278bd}\label{class_mesh_a753a522661cac297372950b1c28278bd} 
+static \mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries Create\+Sphere} (\mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*}\+\_\+material, const int \+\_\+subdivides=2, std\+::string \+\_\+custom\+Name=std\+::string())
+\item 
+\Hypertarget{class_mesh_a5d248d9833323dda9ef327fadacf76d4}\label{class_mesh_a5d248d9833323dda9ef327fadacf76d4} 
+static \mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries Load} (const std\+::string \&\+\_\+key)
+\item 
+\Hypertarget{class_mesh_a22800116e015c3d68952614daa75c043}\label{class_mesh_a22800116e015c3d68952614daa75c043} 
+static void {\bfseries Unload} (const std\+::string \&\+\_\+key)
+\item 
+\Hypertarget{class_mesh_a72722bfa00f6f6e538e900c4bf9de3ac}\label{class_mesh_a72722bfa00f6f6e538e900c4bf9de3ac} 
+static void {\bfseries Clear\+Cache} ()
+\item 
+\Hypertarget{class_mesh_a38debfd2653fffc0c060617ec6ede0b2}\label{class_mesh_a38debfd2653fffc0c060617ec6ede0b2} 
+static void {\bfseries Gen\+Sphere} (std\+::vector$<$ \mbox{\hyperlink{struct_vertex}{Vertex}} $>$ \&\+\_\+vertices, std\+::vector$<$ Index $>$ \&\+\_\+indices, const int \+\_\+num\+Subdivides=2, float \+\_\+radius=0.\+5f)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_mesh_a25da8a916ea7ec907bc90a89faefbbbd}\label{class_mesh_a25da8a916ea7ec907bc90a89faefbbbd} 
+static std\+::unordered\+\_\+map$<$ std\+::string, \mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} $>$ {\bfseries m\+Cache}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contains all logic for creating and maintaining geometry in open\+GL. Uses a static cache to remember geometry optimizing loading times. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Mesh.\+h\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Mesh.\+cpp\end{DoxyCompactItemize}

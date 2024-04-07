@@ -1,6 +1,6 @@
 #pragma once
 // Includes
-#include <Shader.h>
+#include <Core/Shader.h>
 #include <array>
 #include <Texture.h>
 

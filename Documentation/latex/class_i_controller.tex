@@ -1,0 +1,43 @@
+\doxysection{IController Class Reference}
+\hypertarget{class_i_controller}{}\label{class_i_controller}\index{IController@{IController}}
+
+
+Interface for the controller object. Contains base functions for handling mouse movement, scroll, click and keyboard action.  
+
+
+
+
+{\ttfamily \#include $<$Controller.\+h$>$}
+
+Inheritance diagram for IController\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_i_controller}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_i_controller_ab696be83337ae63d66e67a43d3e8f39c}\label{class_i_controller_ab696be83337ae63d66e67a43d3e8f39c} 
+virtual void {\bfseries Update} (float dt)
+\item 
+\Hypertarget{class_i_controller_ae76b08d1f4d5cdf2b367aa112f28b3c5}\label{class_i_controller_ae76b08d1f4d5cdf2b367aa112f28b3c5} 
+virtual void {\bfseries Handle\+Mouse\+Move} (class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}window, double xpos, double ypos)=0
+\item 
+\Hypertarget{class_i_controller_ac785c7bf69fbb9723890590e7d48553b}\label{class_i_controller_ac785c7bf69fbb9723890590e7d48553b} 
+virtual void {\bfseries Handle\+Mouse\+Scroll} (class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}window, double xoffset, double yoffset)=0
+\item 
+\Hypertarget{class_i_controller_a7ede469072bd089eb9d123991167be90}\label{class_i_controller_a7ede469072bd089eb9d123991167be90} 
+virtual void {\bfseries Handle\+Mouse\+Button} (class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}window, int button, int action, int mods)=0
+\item 
+\Hypertarget{class_i_controller_a2d13c6a5c8ed679f5609d32112cb52b8}\label{class_i_controller_a2d13c6a5c8ed679f5609d32112cb52b8} 
+virtual void {\bfseries Handle\+Keyboard} (class \mbox{\hyperlink{class_window}{Window}} \texorpdfstring{$\ast$}{*}window, int key, int scancode, int action, int mods)=0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Interface for the controller object. Contains base functions for handling mouse movement, scroll, click and keyboard action. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Controllers/Controller.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,73 @@
+\doxysection{Transform Struct Reference}
+\hypertarget{struct_transform}{}\label{struct_transform}\index{Transform@{Transform}}
+
+
+\doxylink{struct_transform}{Transform} contains all transform logic for an in world object. It has position, rotation and scale in addition to all functions to move and change these values.  
+
+
+
+
+{\ttfamily \#include $<$Transform.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{struct_transform_a4fa757de2cccbfb6817537482a320a81}\label{struct_transform_a4fa757de2cccbfb6817537482a320a81} 
+void {\bfseries Add\+Rotation} (const glm\+::quat \&\+\_\+rotation)
+\item 
+\Hypertarget{struct_transform_a868d52292296a0f1b3510067670e4549}\label{struct_transform_a868d52292296a0f1b3510067670e4549} 
+void {\bfseries Add\+Yaw} (float \+\_\+angle\+Degrees)
+\item 
+\Hypertarget{struct_transform_a7762c4723c3ee13f134afd056b46bd17}\label{struct_transform_a7762c4723c3ee13f134afd056b46bd17} 
+void {\bfseries Add\+Pitch} (float \+\_\+angle\+Degrees)
+\item 
+\Hypertarget{struct_transform_a23bb7c7c05ed09484049cf63c13186ef}\label{struct_transform_a23bb7c7c05ed09484049cf63c13186ef} 
+void {\bfseries Set\+Position} (const glm\+::vec3 \&\+\_\+position)
+\item 
+\Hypertarget{struct_transform_a0f9cfa7b0f345b0f976779c2cc9b9835}\label{struct_transform_a0f9cfa7b0f345b0f976779c2cc9b9835} 
+void {\bfseries Set\+Rotation} (const glm\+::quat \&\+\_\+rotation)
+\item 
+\Hypertarget{struct_transform_a7574559f23644fa111ecd62c49dd168a}\label{struct_transform_a7574559f23644fa111ecd62c49dd168a} 
+void {\bfseries Set\+Scale} (const glm\+::vec3 \&\+\_\+scale)
+\item 
+\Hypertarget{struct_transform_a8fee787ae3920bddad78ab785248cf62}\label{struct_transform_a8fee787ae3920bddad78ab785248cf62} 
+void {\bfseries Set\+Rotation} (const glm\+::vec3 \&\+\_\+forward\+Direction, const glm\+::vec3 \&\+\_\+up\+Direction=glm\+::vec3(0.\+0f, 0.\+0f, 0.\+0f))
+\item 
+\Hypertarget{struct_transform_a5cf8fc8775f6961ba1faae780ba1c6d7}\label{struct_transform_a5cf8fc8775f6961ba1faae780ba1c6d7} 
+void {\bfseries Set\+Rotation\+From\+Pitch} (float \+\_\+pitch\+Degrees)
+\item 
+\Hypertarget{struct_transform_a8f83ecdcb6fa448dfb80419a7496f7ea}\label{struct_transform_a8f83ecdcb6fa448dfb80419a7496f7ea} 
+void {\bfseries Set\+Rotation\+From\+Yaw} (float \+\_\+yaw\+Degrees)
+\item 
+\Hypertarget{struct_transform_a245c3b7e94489295936c17a66bfe6aad}\label{struct_transform_a245c3b7e94489295936c17a66bfe6aad} 
+void {\bfseries Set\+Transform\+Matrix} (const glm\+::mat4 \&\+\_\+trans\+Matrix)
+\item 
+\Hypertarget{struct_transform_a7352fd5cc768b355a88b6fb059cedb32}\label{struct_transform_a7352fd5cc768b355a88b6fb059cedb32} 
+const glm\+::vec3 \& {\bfseries Get\+Position} () const
+\item 
+\Hypertarget{struct_transform_a4f3c7b6c14d9022c50d3fcf7dbef57d5}\label{struct_transform_a4f3c7b6c14d9022c50d3fcf7dbef57d5} 
+const glm\+::quat \& {\bfseries Get\+Rotation} () const
+\item 
+\Hypertarget{struct_transform_aebbac097d8e8ca298ecccfd1fa6907dd}\label{struct_transform_aebbac097d8e8ca298ecccfd1fa6907dd} 
+const glm\+::vec3 \& {\bfseries Get\+Scale} () const
+\item 
+\Hypertarget{struct_transform_ae9f7fbb73c969ec5cf1267ddc505cdb3}\label{struct_transform_ae9f7fbb73c969ec5cf1267ddc505cdb3} 
+float {\bfseries Get\+Current\+Pitch\+Degrees} () const
+\item 
+\Hypertarget{struct_transform_ae2bae0483b3e7bca778266eef98c1a40}\label{struct_transform_ae2bae0483b3e7bca778266eef98c1a40} 
+float {\bfseries Get\+Current\+Yaw\+Degrees} ()
+\item 
+\Hypertarget{struct_transform_a5eb6f03abee5b56a777749c70b276611}\label{struct_transform_a5eb6f03abee5b56a777749c70b276611} 
+glm\+::mat4 {\bfseries Get\+Transform\+Matrix} () const
+\item 
+\Hypertarget{struct_transform_a234bb227bc133cbb07ffed6d3682a5ea}\label{struct_transform_a234bb227bc133cbb07ffed6d3682a5ea} 
+glm\+::vec3 {\bfseries Get\+Right} () const
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\doxylink{struct_transform}{Transform} contains all transform logic for an in world object. It has position, rotation and scale in addition to all functions to move and change these values. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/Transform.\+h\end{DoxyCompactItemize}

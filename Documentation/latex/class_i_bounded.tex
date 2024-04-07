@@ -1,0 +1,79 @@
+\doxysection{IBounded Class Reference}
+\hypertarget{class_i_bounded}{}\label{class_i_bounded}\index{IBounded@{IBounded}}
+
+
+\doxylink{class_i_bounded}{IBounded} class is the base class for all objects that can collide in a scene. It holds variables and functions objects use for collision.  
+
+
+
+
+{\ttfamily \#include $<$Collision.\+h$>$}
+
+Inheritance diagram for IBounded\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_i_bounded}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_i_bounded_a2e55fc2374b8ae44ca74ed99c495e509}\label{class_i_bounded_a2e55fc2374b8ae44ca74ed99c495e509} 
+virtual struct \mbox{\hyperlink{struct_a_a_b_b}{AABB}} {\bfseries Get\+AABB} () const =0
+\item 
+\Hypertarget{class_i_bounded_a9efa8ae74e945d58c7b902b9284c4188}\label{class_i_bounded_a9efa8ae74e945d58c7b902b9284c4188} 
+virtual struct \mbox{\hyperlink{struct_bounding_sphere}{Bounding\+Sphere}} {\bfseries Get\+Bounding\+Sphere} () const =0
+\item 
+\Hypertarget{class_i_bounded_a9770ce2cb03ce80f0bf5369629848a8f}\label{class_i_bounded_a9770ce2cb03ce80f0bf5369629848a8f} 
+virtual struct \mbox{\hyperlink{struct_collision_properties}{Collision\+Properties}} \texorpdfstring{$\ast$}{*} {\bfseries Get\+Collision\+Properties} ()=0
+\item 
+\Hypertarget{class_i_bounded_acbdfa43e69fc816895385c8320601c96}\label{class_i_bounded_acbdfa43e69fc816895385c8320601c96} 
+class \mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries Create\+Collision\+Cube\+From\+Mesh} (class \mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*}\+\_\+material, std\+::vector$<$ struct \mbox{\hyperlink{struct_vertex}{Vertex}} $>$ \&\+\_\+existing\+Mesh)
+\item 
+\Hypertarget{class_i_bounded_aab4516df723bb0a025617b4bd8069b12}\label{class_i_bounded_aab4516df723bb0a025617b4bd8069b12} 
+class \mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries Create\+Collision\+Sphere\+From\+Mesh} (class \mbox{\hyperlink{class_material}{Material}} \texorpdfstring{$\ast$}{*}\+\_\+material, std\+::vector$<$ struct \mbox{\hyperlink{struct_vertex}{Vertex}} $>$ \&\+\_\+existing\+Mesh)
+\item 
+\Hypertarget{class_i_bounded_ae00d4b5063999c58958b9d69f01c776f}\label{class_i_bounded_ae00d4b5063999c58958b9d69f01c776f} 
+bool {\bfseries Get\+Is\+Colliding} ()
+\item 
+\Hypertarget{class_i_bounded_aecd07117c1ca90e4f5d4c77b838cc4ff}\label{class_i_bounded_aecd07117c1ca90e4f5d4c77b838cc4ff} 
+void {\bfseries Set\+Is\+Colliding} (bool \+\_\+in\+Bool)
+\item 
+\Hypertarget{class_i_bounded_aaa212a14248496fb2082d75d98796b97}\label{class_i_bounded_aaa212a14248496fb2082d75d98796b97} 
+void {\bfseries Set\+Collision\+Type} (Collision\+Type \+\_\+in\+Type)
+\item 
+\Hypertarget{class_i_bounded_aa23b1536986564c8d0f475016d8b5e63}\label{class_i_bounded_aa23b1536986564c8d0f475016d8b5e63} 
+void {\bfseries Set\+Collision\+Response} (Collision\+Response \+\_\+in\+Response)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_i_bounded_a7df02b9d55fbeca5df4f0a25a5179901}\label{class_i_bounded_a7df02b9d55fbeca5df4f0a25a5179901} 
+glm\+::vec3 {\bfseries m\+Center} \{ 0.f,0.f,0.f \}
+\item 
+\Hypertarget{class_i_bounded_afeb4929535f55edb368737ae62b951c2}\label{class_i_bounded_afeb4929535f55edb368737ae62b951c2} 
+glm\+::vec3 {\bfseries m\+Max\+Extent} \{ 0.f,0.f,0.f \}
+\item 
+\Hypertarget{class_i_bounded_a448f3abfe49c5c52c603a58d1aef790e}\label{class_i_bounded_a448f3abfe49c5c52c603a58d1aef790e} 
+glm\+::vec3 {\bfseries m\+Min\+Extent} \{ 0.f,0.f,0.f \}
+\item 
+\Hypertarget{class_i_bounded_a33f78def6ffad29524a3405fb5a7d876}\label{class_i_bounded_a33f78def6ffad29524a3405fb5a7d876} 
+float {\bfseries m\+Radius} \{ 0.\+5f \}
+\item 
+\Hypertarget{class_i_bounded_ac68447a10e647aa88e8037315a94784a}\label{class_i_bounded_ac68447a10e647aa88e8037315a94784a} 
+\mbox{\hyperlink{struct_collision_properties}{Collision\+Properties}} {\bfseries m\+Collision\+Properties} \{ Collision\+Type\+::\+STATIC, Collision\+Response\+::\+BLOCK, Collision\+Base\+::\+AABB \}
+\item 
+\Hypertarget{class_i_bounded_a046d833b9317bcb77b89a725862da25d}\label{class_i_bounded_a046d833b9317bcb77b89a725862da25d} 
+bool {\bfseries m\+Should\+Draw\+Collision\+Mesh} = true
+\item 
+\Hypertarget{class_i_bounded_ae8849835e7884206a76787b12e84b557}\label{class_i_bounded_ae8849835e7884206a76787b12e84b557} 
+bool {\bfseries m\+Is\+Colliding} = false
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\doxylink{class_i_bounded}{IBounded} class is the base class for all objects that can collide in a scene. It holds variables and functions objects use for collision. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Collision/Collision.\+h\end{DoxyCompactItemize}

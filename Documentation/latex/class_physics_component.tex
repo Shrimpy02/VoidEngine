@@ -1,0 +1,89 @@
+\doxysection{Physics\+Component Class Reference}
+\hypertarget{class_physics_component}{}\label{class_physics_component}\index{PhysicsComponent@{PhysicsComponent}}
+
+
+Inherits from component and is responsible for physics handling and behaviour of attached actor. It updates the transform based on velocity and acceleration.  
+
+
+
+
+{\ttfamily \#include $<$Physics\+Component.\+h$>$}
+
+Inheritance diagram for Physics\+Component\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_physics_component}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_physics_component_a3d74e86c4e2e6de67c2f7d8b2cfbfbe8}\label{class_physics_component_a3d74e86c4e2e6de67c2f7d8b2cfbfbe8} 
+{\bfseries Physics\+Component} (const std\+::string \&\+\_\+name, class \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+owner)
+\item 
+void \mbox{\hyperlink{class_physics_component_aafd2da3dcd23d76f36dfc3e41011137f}{Update}} (float \+\_\+dt) override
+\item 
+\Hypertarget{class_physics_component_a1d10a97ff355791d9af52846b660d15b}\label{class_physics_component_a1d10a97ff355791d9af52846b660d15b} 
+void {\bfseries Update\+Forces} ()
+\item 
+\Hypertarget{class_physics_component_a8c85413bf924bee4a17fc32fda223add}\label{class_physics_component_a8c85413bf924bee4a17fc32fda223add} 
+void {\bfseries Update\+Velocity} (float \+\_\+dt)
+\item 
+\Hypertarget{class_physics_component_a6eafd89c42191eea7168134df32017b8}\label{class_physics_component_a6eafd89c42191eea7168134df32017b8} 
+void {\bfseries Update\+Position} (float \+\_\+dt)
+\item 
+\Hypertarget{class_physics_component_ae1a167bcf48a36e70e4b37a3c6468355}\label{class_physics_component_ae1a167bcf48a36e70e4b37a3c6468355} 
+void {\bfseries Reset\+Values} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{class_component}{Component}}}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Component} (const \mbox{\hyperlink{class_component}{Component}} \&)=delete
+\item 
+\mbox{\hyperlink{class_component}{Component}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_component}{Component}} \&)=delete
+\item 
+{\bfseries Component} (\mbox{\hyperlink{class_component}{Component}} \&\&)=delete
+\item 
+\mbox{\hyperlink{class_component}{Component}} \& {\bfseries operator=} (\mbox{\hyperlink{class_component}{Component}} \&\&)=delete
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_physics_component_ae4af50bf1743d112cb2c2c784bea21c8}\label{class_physics_component_ae4af50bf1743d112cb2c2c784bea21c8} 
+class {\bfseries Actor}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Additional Inherited Members}
+\doxysubsection*{Protected Member Functions inherited from \mbox{\hyperlink{class_component}{Component}}}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Component} (const std\+::string \&\+\_\+name, class \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+owner)
+\item 
+virtual void {\bfseries Init} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{class_component}{Component}}}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*} {\bfseries m\+Owner}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Inherits from component and is responsible for physics handling and behaviour of attached actor. It updates the transform based on velocity and acceleration. 
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_physics_component_aafd2da3dcd23d76f36dfc3e41011137f}\label{class_physics_component_aafd2da3dcd23d76f36dfc3e41011137f} 
+\index{PhysicsComponent@{PhysicsComponent}!Update@{Update}}
+\index{Update@{Update}!PhysicsComponent@{PhysicsComponent}}
+\doxysubsubsection{\texorpdfstring{Update()}{Update()}}
+{\footnotesize\ttfamily void Physics\+Component\+::\+Update (\begin{DoxyParamCaption}\item[{float}]{\+\_\+dt }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_component}{Component}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Components/Physics\+Component.\+h\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Components/Physics\+Component.\+cpp\end{DoxyCompactItemize}

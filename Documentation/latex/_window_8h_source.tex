@@ -1,0 +1,93 @@
+\doxysection{Window.\+h}
+\hypertarget{_window_8h_source}{}\label{_window_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Core/Window.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Core/Window.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_window}{Window}}}
+\DoxyCodeLine{00010\ \{}
+\DoxyCodeLine{00011\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \ \ std::string\ mName;}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{int}\ mWidth,\ mHeight;}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keyword}{struct\ }GLFWwindow*\ mGLFWWindow\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_scene}{Scene}}*\ mScene\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{comment}{//\ Constructor}}
+\DoxyCodeLine{00026\ \ \ \ \ \mbox{\hyperlink{class_window}{Window}}(std::string\ \_name,\ \textcolor{keywordtype}{int}\ \_width,\ \textcolor{keywordtype}{int}\ \_height);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{comment}{//\ Disable\ copying\ and\ deleting\ of\ this\ class}}
+\DoxyCodeLine{00029\ \ \ \ \ \mbox{\hyperlink{class_window}{Window}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_window}{Window}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{class_window}{Window}}\&\ operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_window}{Window}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00031\ \ \ \ \ \mbox{\hyperlink{class_window}{Window}}(\mbox{\hyperlink{class_window}{Window}}\&\&)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00032\ \ \ \ \ \mbox{\hyperlink{class_window}{Window}}\&\ operator=(\mbox{\hyperlink{class_window}{Window}}\&\&)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{comment}{//\ De-\/constructor\ for\ glfw\ and\ imgui\ shutdown}}
+\DoxyCodeLine{00035\ \ \ \ \ \mbox{\hyperlink{class_window}{\string~Window}}();}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{comment}{//\ Initialize`s\ GLFW-\/Window,\ GLAD\ \&\ ImGui}}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordtype}{void}\ Init();}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{comment}{//\ Register\ all\ callbacks\ for\ GLFW\ \&\ ImGui}}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordtype}{void}\ RegisterWindowCallbacks();}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ Loads\ the\ given\ scene}}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{bool}\ LoadContent(\mbox{\hyperlink{class_scene}{Scene}}*\ \_scene);}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//\ Update\ -\/-\/-\/}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//\ First\ frame\ of\ the\ render\ loop}}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordtype}{void}\ StartFrame();}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{comment}{//\ Update\ logic\ per\ frame}}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordtype}{void}\ Update(\textcolor{keywordtype}{float}\ \_dt);}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//\ Render\ logic\ per\ frame}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordtype}{void}\ Render(\textcolor{keywordtype}{float}\ \_dt);}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{comment}{//\ Last\ frame\ of\ the\ render\ loop}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordtype}{void}\ EndFrame();}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{comment}{//\ Checks\ if\ the\ current\ window\ is\ closed}}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordtype}{bool}\ IsClosed();}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//\ Callbacks}}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordtype}{void}\ FramebufferSizeCallback(GLFWwindow*\ \_window,\ \textcolor{keywordtype}{int}\ \_width,\ \textcolor{keywordtype}{int}\ \_height);}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordtype}{void}\ MouseMoveCallback(GLFWwindow*\ \_window,\ \textcolor{keywordtype}{double}\ \_xpos,\ \textcolor{keywordtype}{double}\ \_ypos);}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{void}\ MouseButtonCallback(GLFWwindow*\ \_window,\ \textcolor{keywordtype}{int}\ \_button,\ \textcolor{keywordtype}{int}\ \_action,\ \textcolor{keywordtype}{int}\ \_mods);}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordtype}{void}\ MouseScrollCallback(GLFWwindow*\ \_window,\ \textcolor{keywordtype}{double}\ \_xoffset,\ \textcolor{keywordtype}{double}\ \_yoffset);}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordtype}{void}\ CharCallback(GLFWwindow*\ \_window,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \_codepoint);}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordtype}{void}\ KeyCallback(GLFWwindow*\ \_window,\ \textcolor{keywordtype}{int}\ \_key,\ \textcolor{keywordtype}{int}\ \_scancode,\ \textcolor{keywordtype}{int}\ \_action,\ \textcolor{keywordtype}{int}\ \_mods);}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ /\ setters\ /\ Adders\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{comment}{//\ Getters\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{comment}{//\ Get`s\ the\ window\ height}}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordtype}{int}\ GetHeight()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mHeight;\ \}}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{comment}{//\ Get`s\ the\ window\ width}}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{keywordtype}{int}\ GetWidth()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mWidth;\ \}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{comment}{//\ Get`s\ the\ GLFWWindow\ reference\ for\ the\ viewport\ window}}
+\DoxyCodeLine{00081\ \ \ \ \ GLFWwindow*\ GetGLFWWindow()\ \{\ \textcolor{keywordflow}{return}\ mGLFWWindow;\ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{comment}{//\ Setters\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{comment}{//\ Sets\ active\ scene}}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordtype}{void}\ SetScene(\mbox{\hyperlink{class_scene}{Scene}}*\ \_scene)\ \{\ mScene\ =\ \_scene;\ \}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{comment}{//\ Sets\ height\ of\ the\ window}}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordtype}{void}\ SetWidth(\textcolor{keywordtype}{int}\ \_width)\ \{\ mWidth\ =\ \_width;\ \}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{comment}{//\ Sets\ width\ of\ the\ window}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordtype}{void}\ SetHeight(\textcolor{keywordtype}{int}\ \_height)\ \{\ mHeight\ =\ \_height;\ \}}
+\DoxyCodeLine{00091\ \};}
+\DoxyCodeLine{00092\ }
+
+\end{DoxyCode}

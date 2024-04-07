@@ -1,0 +1,41 @@
+\doxysection{Bounding\+Sphere Struct Reference}
+\hypertarget{struct_bounding_sphere}{}\label{struct_bounding_sphere}\index{BoundingSphere@{BoundingSphere}}
+
+
+A class used for handling collision interactions, it checks intersection between other collision using center and radius. Is good for heap memory as it is small and has a small life span.  
+
+
+
+
+{\ttfamily \#include $<$Bounding\+Sphere.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{struct_bounding_sphere_afa261cadc8b8e56804d6547d1a3ea40e}\label{struct_bounding_sphere_afa261cadc8b8e56804d6547d1a3ea40e} 
+{\bfseries Bounding\+Sphere} (const glm\+::vec3 \&\+\_\+center, const float \+\_\+radius)
+\item 
+\Hypertarget{struct_bounding_sphere_a14254695d5ed5da5705113c6c563e436}\label{struct_bounding_sphere_a14254695d5ed5da5705113c6c563e436} 
+bool {\bfseries Is\+Intersecting} (const struct \mbox{\hyperlink{struct_a_a_b_b}{AABB}} \&\+\_\+other, glm\+::vec3 \texorpdfstring{$\ast$}{*}\+\_\+mtv) const
+\item 
+\Hypertarget{struct_bounding_sphere_aa721948f1ca87f6ed6cea10a1c17e904}\label{struct_bounding_sphere_aa721948f1ca87f6ed6cea10a1c17e904} 
+bool {\bfseries Is\+Intersecting} (const \mbox{\hyperlink{struct_bounding_sphere}{Bounding\+Sphere}} \&\+\_\+other, glm\+::vec3 \texorpdfstring{$\ast$}{*}\+\_\+mtv) const
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{struct_bounding_sphere_a9975e7a417553c4f425e050f198122a1}\label{struct_bounding_sphere_a9975e7a417553c4f425e050f198122a1} 
+glm\+::vec3 {\bfseries m\+Center} \{ 0.\+0f,0.\+0f,0.\+0f \}
+\item 
+\Hypertarget{struct_bounding_sphere_a305aa1ba8daf58a8834547d4e0c15e7b}\label{struct_bounding_sphere_a305aa1ba8daf58a8834547d4e0c15e7b} 
+float {\bfseries m\+Radius} = 0.\+5f
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+A class used for handling collision interactions, it checks intersection between other collision using center and radius. Is good for heap memory as it is small and has a small life span. 
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Collision/Bounding\+Sphere.\+h\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Collision/Bounding\+Sphere.\+cpp\end{DoxyCompactItemize}

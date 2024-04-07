@@ -1,0 +1,117 @@
+\doxysection{Directional\+Light\+Actor Class Reference}
+\hypertarget{class_directional_light_actor}{}\label{class_directional_light_actor}\index{DirectionalLightActor@{DirectionalLightActor}}
+
+
+The \doxylink{class_directional_light_actor}{Directional\+Light\+Actor} inherits from \doxylink{class_directional_light}{Directional\+Light} class for light properties and \doxylink{class_actor}{Actor} class for scene inclusion.  
+
+
+
+
+{\ttfamily \#include $<$Directional\+Light.\+h$>$}
+
+Inheritance diagram for Directional\+Light\+Actor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_directional_light_actor}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_directional_light_actor_a1713a6369ea8eb4f5a6aa65f4188361e}\label{class_directional_light_actor_a1713a6369ea8eb4f5a6aa65f4188361e} 
+{\bfseries Directional\+Light\+Actor} (const std\+::string \&name)
+\item 
+glm\+::vec3 \mbox{\hyperlink{class_directional_light_actor_affb779197792ffdf9366a08436941f22}{Get\+Direction}} () const override
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{class_actor}{Actor}}}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Actor} (const std\+::string \&\+\_\+name)
+\item 
+{\bfseries Actor} (const \mbox{\hyperlink{class_actor}{Actor}} \&)=delete
+\item 
+\mbox{\hyperlink{class_actor}{Actor}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_actor}{Actor}} \&)=delete
+\item 
+{\bfseries Actor} (\mbox{\hyperlink{class_actor}{Actor}} \&\&)=default
+\item 
+\mbox{\hyperlink{class_actor}{Actor}} \& {\bfseries operator=} (\mbox{\hyperlink{class_actor}{Actor}} \&\&)=default
+\item 
+virtual void {\bfseries Update} (float \+\_\+dt)
+\item 
+void {\bfseries Update\+Components} (float \+\_\+dt)
+\item 
+void {\bfseries Add\+Child} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+child)
+\item 
+void {\bfseries Remove\+Child} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+child)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void {\bfseries Add\+Component} (const std\+::string \&\+\_\+component\+Name)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void {\bfseries Query} (std\+::vector$<$ \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*} $>$ \&\+\_\+actors)
+\item 
+const glm\+::vec3 \& {\bfseries Get\+Position} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+const glm\+::quat \& {\bfseries Get\+Rotation} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+const glm\+::vec3 \& {\bfseries Get\+Scale} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+const \mbox{\hyperlink{struct_transform}{Transform}} \& {\bfseries Get\+Transform} () const
+\item 
+const glm\+::mat4 {\bfseries Get\+Transform\+Matrix} (Actor\+::\+Transform\+Space \+\_\+type) const
+\item 
+\mbox{\hyperlink{struct_transform}{Transform}} \texorpdfstring{$\ast$}{*} {\bfseries Get\+Transform} ()
+\item 
+glm\+::vec3 {\bfseries Get\+Right} () const
+\item 
+const std\+::string \& {\bfseries Get\+Tag} ()
+\item 
+std\+::vector$<$ \mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*} $>$ \& {\bfseries Get\+Children} ()
+\item 
+void {\bfseries Set\+Local\+Transform\+Matrix} (const glm\+::mat4 \&\+\_\+transform\+Matrix)
+\item 
+void {\bfseries Set\+Transform} (const \mbox{\hyperlink{struct_transform}{Transform}} \&\+\_\+transform)
+\item 
+void {\bfseries Set\+Position} (const glm\+::vec3 \&\+\_\+position, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+void {\bfseries Set\+Rotation} (const glm\+::quat \&\+\_\+rotation, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+void {\bfseries Set\+Scale} (const glm\+::vec3 \&\+\_\+scale, Actor\+::\+Transform\+Space \+\_\+type=Actor\+::\+Transform\+Space\+::\+Local)
+\item 
+void {\bfseries Set\+Parent} (\mbox{\hyperlink{class_actor}{Actor}} \texorpdfstring{$\ast$}{*}\+\_\+parent)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Additional Inherited Members}
+\doxysubsection*{Public Types inherited from \mbox{\hyperlink{class_actor}{Actor}}}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_actor_a3c153709d0bc28c652f10218ca6de712}\label{class_actor_a3c153709d0bc28c652f10218ca6de712} 
+enum class {\bfseries Transform\+Space} \{ {\bfseries Local}
+, {\bfseries Global}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes inherited from \mbox{\hyperlink{class_light}{Light}}}
+\begin{DoxyCompactItemize}
+\item 
+glm\+::vec3 {\bfseries m\+Ambient} \{ 0.\+5f,0.\+5f,0.\+5f \}
+\item 
+glm\+::vec3 {\bfseries m\+Color} \{ 1.\+0f,1.\+0f,1.\+0f \}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The \doxylink{class_directional_light_actor}{Directional\+Light\+Actor} inherits from \doxylink{class_directional_light}{Directional\+Light} class for light properties and \doxylink{class_actor}{Actor} class for scene inclusion. 
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_directional_light_actor_affb779197792ffdf9366a08436941f22}\label{class_directional_light_actor_affb779197792ffdf9366a08436941f22} 
+\index{DirectionalLightActor@{DirectionalLightActor}!GetDirection@{GetDirection}}
+\index{GetDirection@{GetDirection}!DirectionalLightActor@{DirectionalLightActor}}
+\doxysubsubsection{\texorpdfstring{GetDirection()}{GetDirection()}}
+{\footnotesize\ttfamily glm\+::vec3 Directional\+Light\+Actor\+::\+Get\+Direction (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{class_directional_light}{Directional\+Light}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Sebs\+Stuff/\+Semester4/3\+D Programming/3\+DProg\+Engine/src/\+Lights/Directional\+Light.\+h\end{DoxyCompactItemize}

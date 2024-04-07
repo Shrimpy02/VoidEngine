@@ -3,19 +3,20 @@
 #include <Scene.h>
 #include <SceneActors.h>
 #include <Material.h>
-#include <Shader.h>
 #include <Actor.h>
-#include <Defines.h>
 #include <Camera.h>
-#include <Controller.h>
-#include <CameraController.h>
-#include <ActorController.h>
 #include <Renderer.h>
-#include <Logger.h>
+
+#include <Core/Shader.h>
+#include <Controllers/Controller.h>
+#include <Controllers/CameraController.h>
+#include <Controllers/ActorController.h>
+#include <Components/PhysicsComponent.h>
+#include <ModelLoader/AssimpLoader.h>
 #include <Lights/DirectionalLight.h>
 #include <Lights/PointLight.h>
-#include <ModelLoader/AssimpLoader.h>
-#include <PhysicsComponent.h>
+#include <Utilities/Defines.h>
+#include <Utilities/Logger.h>
 
 // Additional Includes
 #include <variant>
@@ -177,7 +178,6 @@ void Scene::UpdateSceneGraph(Actor* _actor, float _dt, Transform _globalTransfor
 	const auto& children = _actor->GetChildren();
 	for (Actor* child : children)
 		UpdateSceneGraph(child, _dt, _globalTransform);
-	
 }
 
 void Scene::RenderSceneGraph(Actor* _actor, float _dt, Transform _globalTransform)

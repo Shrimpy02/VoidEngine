@@ -1,0 +1,128 @@
+\doxysection{Shader.\+h}
+\hypertarget{_shader_8h_source}{}\label{_shader_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Core/Shader.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/Core/Shader.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Includes}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <glad/glad.h>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <glm/glm.hpp>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_shader}{Shader}}}
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \ \ \ \textcolor{comment}{//\ the\ program\ ID}}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ ID;}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//\ constructor,\ reads\ the\ files\ found\ at\ the\ two\ input\ paths}}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{comment}{//\ and\ creates\ and\ links\ gl\ shader\ with\ the\ given\ source\ code.}}
+\DoxyCodeLine{00028\ \ \ \ \ \mbox{\hyperlink{class_shader}{Shader}}(\textcolor{keyword}{const}\ std::string\&\ \_vertexPath,\ \textcolor{keyword}{const}\ std::string\&\ \_fragmentPath);}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//\ Setts\ this\ shader\ to\ be\ used\ for\ gl\ context.}}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordtype}{void}\ use()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ /\ setters\ /\ Adders\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//\ Adders}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{comment}{//\ Setters}}
+\DoxyCodeLine{00043\ \ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordtype}{void}\ setBool(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keywordtype}{bool}\ \_value)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00047\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ glUniform1i(glGetUniformLocation(ID,\ \_name.c\_str()),\ (\textcolor{keywordtype}{int})\_value);}
+\DoxyCodeLine{00049\ \ \ \ \ \}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordtype}{void}\ setInt(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keywordtype}{int}\ \_value)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00054\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ glUniform1i(glGetUniformLocation(ID,\ \_name.c\_str()),\ \_value);}
+\DoxyCodeLine{00056\ \ \ \ \ \}}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordtype}{void}\ setFloat(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keywordtype}{float}\ \_value)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00061\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ glUniform1f(glGetUniformLocation(ID,\ \_name.c\_str()),\ \_value);}
+\DoxyCodeLine{00063\ \ \ \ \ \}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordtype}{void}\ setVec2(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keyword}{const}\ glm::vec2\&\ \_value)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00068\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ glUniform2fv(glGetUniformLocation(ID,\ \_name.c\_str()),\ 1,\ \&\_value[0]);}
+\DoxyCodeLine{00070\ \ \ \ \ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keywordtype}{void}\ setVec2(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keywordtype}{float}\ \_x,\ \textcolor{keywordtype}{float}\ \_y)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00074\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ glUniform2f(glGetUniformLocation(ID,\ \_name.c\_str()),\ \_x,\ \_y);}
+\DoxyCodeLine{00076\ \ \ \ \ \}}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordtype}{void}\ setVec3(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keyword}{const}\ glm::vec3\&\ \_value)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00081\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ glUniform3fv(glGetUniformLocation(ID,\ \_name.c\_str()),\ 1,\ \&\_value[0]);}
+\DoxyCodeLine{00083\ \ \ \ \ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordtype}{void}\ setVec3(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keywordtype}{float}\ \_x,\ \textcolor{keywordtype}{float}\ \_y,\ \textcolor{keywordtype}{float}\ \_z)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00087\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ glUniform3f(glGetUniformLocation(ID,\ \_name.c\_str()),\ \_x,\ \_y,\ \_z);}
+\DoxyCodeLine{00089\ \ \ \ \ \}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{void}\ setVec4(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keyword}{const}\ glm::vec4\&\ \_value)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00094\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ glUniform4fv(glGetUniformLocation(ID,\ \_name.c\_str()),\ 1,\ \&\_value[0]);}
+\DoxyCodeLine{00096\ \ \ \ \ \}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{void}\ setVec4(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keywordtype}{float}\ \_x,\ \textcolor{keywordtype}{float}\ \_y,\ \textcolor{keywordtype}{float}\ \_z,\ \textcolor{keywordtype}{float}\ \_w)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00100\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ glUniform4f(glGetUniformLocation(ID,\ \_name.c\_str()),\ \_x,\ \_y,\ \_z,\ \_w);}
+\DoxyCodeLine{00102\ \ \ \ \ \}}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keywordtype}{void}\ setMat2(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keyword}{const}\ glm::mat2\&\ \_mat)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00107\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ glUniformMatrix2fv(glGetUniformLocation(ID,\ \_name.c\_str()),\ 1,\ GL\_FALSE,\ \&\_mat[0][0]);}
+\DoxyCodeLine{00109\ \ \ \ \ \}}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordtype}{void}\ setMat3(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keyword}{const}\ glm::mat3\&\ \_mat)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00114\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ glUniformMatrix3fv(glGetUniformLocation(ID,\ \_name.c\_str()),\ 1,\ GL\_FALSE,\ \&\_mat[0][0]);}
+\DoxyCodeLine{00116\ \ \ \ \ \}}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{comment}{//\ Sets\ uniform\ by\ name\ with\ value\ inputs.}}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordtype}{void}\ setMat4(\textcolor{keyword}{const}\ std::string\&\ \_name,\ \textcolor{keyword}{const}\ glm::mat4\&\ \_mat)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00121\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ glUniformMatrix4fv(glGetUniformLocation(ID,\ \_name.c\_str()),\ 1,\ GL\_FALSE,\ \&\_mat[0][0]);}
+\DoxyCodeLine{00123\ \ \ \ \ \}}
+\DoxyCodeLine{00124\ \ \ \ \ }
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{comment}{//\ Getters}}
+\DoxyCodeLine{00126\ \};}
+
+\end{DoxyCode}

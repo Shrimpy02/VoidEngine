@@ -1,9 +1,9 @@
 
 // Class includes
 #include <Texture.h>
-#include <Logger.h>
 #include <glad/glad.h>
-#include <Defines.h>
+#include <Utilities/Logger.h>
+#include <Utilities/Defines.h>
 
 // Additional includes
 // STBI

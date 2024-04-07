@@ -3,7 +3,7 @@
 // Includes 
 #include <Vertex.h>
 #include <Material.h>
-#include <Types.h>
+#include <Utilities/Types.h>
 
 // Other includes
 #include <vector>

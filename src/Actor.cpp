@@ -1,6 +1,6 @@
 // Classes
 #include <Actor.h>
-#include <Logger.h>
+#include <Utilities/Logger.h>
 
 Actor::~Actor()
 {

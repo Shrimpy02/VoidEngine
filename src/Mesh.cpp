@@ -1,8 +1,8 @@
 // Includes
 #include <corecrt_math_defines.h>
 #include <Mesh.h>
-#include <Logger.h>
-#include <Defines.h>
+#include <Utilities/Logger.h>
+#include <Utilities/Defines.h>
 
 // static cache of meshes
 std::unordered_map<std::string, Mesh*> Mesh::mCache;

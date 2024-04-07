@@ -1,0 +1,64 @@
+\doxysection{Assimp\+Loader.\+h}
+\hypertarget{_assimp_loader_8h_source}{}\label{_assimp_loader_8h_source}\index{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/ModelLoader/AssimpLoader.h@{C:/SebsStuff/Semester4/3D Programming/3DProgEngine/src/ModelLoader/AssimpLoader.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Includes\ }}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <assimp/Importer.hpp>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <assimp/scene.h>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <assimp/postprocess.h>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00013\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_assimp_loader}{AssimpLoader}}}
+\DoxyCodeLine{00014\ \{}
+\DoxyCodeLine{00015\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ Variables\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//\ Static\ base\ path\ to\ loaded\ file.}}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keyword}{static}\ std::string\ msBasePath;}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//\ Static\ naming\ index\ for\ given\ names\ to\ multiple\ created\ scene\ objects.}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ msNameIndex;}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{comment}{//\ Static\ flags,\ for\ assimp\ import\ options.}}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ msFlags;}
+\DoxyCodeLine{00029\ \ \ }
+\DoxyCodeLine{00030\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Global\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//\ Default\ constructor/de-\/constructor\ as\ the\ class\ only\ holds\ static\ functionality\ \ }}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{comment}{//\ This\ is\ the\ only\ global\ function\ as\ it\ loads\ the\ FBX\ the\ file\ path\ refers\ to\ as\ a\ child\ of\ input\ static\ mesh\ with\ the\ given\ flags(default)}}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ Load(\textcolor{keyword}{const}\ std::string\&\ \_path,\ \textcolor{keyword}{class}\ \mbox{\hyperlink{class_actor}{Actor}}*\ \_staticMeshActor,\ \textcolor{keywordtype}{unsigned}\ \_flags\ =\ aiProcessPreset\_TargetRealtime\_MaxQuality\ |\ aiProcess\_Triangulate\ |\ aiProcess\_GenSmoothNormals\ |\ aiProcess\_GenUVCoords);}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Local\ functions\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ Processes\ all\ lights\ in\ the\ FBX\ into\ point\ or\ directional\ light\ actors\ for\ the\ scene\ }}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ ProcessLights(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ aiScene*\ \_scene,\ \textcolor{keyword}{class}\ \mbox{\hyperlink{class_actor}{Actor}}*\ \_parentActor);}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//\ Processes\ all\ scene\ nodes\ and\ creates\ the\ appropriate\ actor\ for\ the\ node\ type.}}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ ProcessNode(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ aiScene*\ \_scene,\ \textcolor{keyword}{struct}\ aiNode*\ \_node,\ \textcolor{keyword}{class}\ \mbox{\hyperlink{class_actor}{Actor}}*\ parentActor);}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{comment}{//\ Converts\ an\ aiMesh\ from\ assimp\ to\ a\ seb\ Mesh\ and\ returns\ it\ }}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_mesh}{Mesh}}*\ ProcessMesh(\textcolor{keyword}{struct}\ aiMesh*\ \_mesh);}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//\ Converts\ an\ aiMatrial\ to\ a\ seb\ material\ and\ returns\ it}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_material}{Material}}*\ ProcessMaterial(\textcolor{keyword}{struct}\ aiMaterial*\ \_material);}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Getters\ /\ setters\ /\ Adders\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{comment}{//\ Adders}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//\ Setters}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{comment}{//\ Getters}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \};}
+\DoxyCodeLine{00063\ }
+
+\end{DoxyCode}

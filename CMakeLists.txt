@@ -34,52 +34,60 @@ set( IMGUI_SOURCE
     includes/imgui/imgui_impl_opengl3.cpp
     includes/imgui/imgui_impl_glfw.cpp
     includes/imgui/imgui_tables.cpp
-  "src/PhysicsComponent.cpp" "src/SceneActors.cpp"  "src/BoundingSphere.cpp")
+    src/Components/PhysicsComponent.cpp
+    src/SceneActors.cpp 
+    src/Collision/BoundingSphere.cpp)
 
 set (HEADER_FILES
   includes/stb_image.h
   src/Camera.h
-  src/Window.h
-  src/Application.h
+  src/Core/Window.h
+  src/Core/Application.h
   src/Material.h
   src/Mesh.h
   src/Renderer.h
   src/Scene.h
   src/Texture.h
   src/Actor.h
-  src/Types.h  
+  src/Utilities/Types.h
   src/Transform.h
   src/Tag.h
   src/Vertex.h
-  
-  src/Controller.h 
-  src/CameraController.h 
-  src/Collision.h 
-  src/AABB.h 
-  src/ActorController.h
+  src/Controllers/Controller.h
+  src/Controllers/CameraController.h
+  src/Collision/Collision.h 
+  src/Collision/AABB.h 
+  src/Controllers/ActorController.h
   src/Lights/Lights.h 
   src/Lights/DirectionalLight.h 
   src/Lights/PointLight.h  
-  src/Defines.h "src/ModelLoader/AssimpLoader.h" "src/ModelLoader/AssimpUtility.h" "src/ModelLoader/Shared.h" "src/Logger.h" "src/PhysicsComponent.h" "src/Component.h" "src/SceneActors.h")
+  src/Utilities/Defines.h
+  src/ModelLoader/AssimpLoader.h
+  src/ModelLoader/AssimpUtility.h
+  src/ModelLoader/Shared.h
+  src/Utilities/Logger.h
+  src/Components/PhysicsComponent.h
+  src/Components/Component.h
+  src/SceneActors.h
+  )
 
 set (SRC_FILES
   3DProgEngine.cpp
   includes/glad.c
-  src/Shader.cpp
-  
+  src/Core/Shader.cpp
   src/Camera.cpp
-  src/Window.cpp
-  src/Application.cpp
+  src/Core/Window.cpp
+  src/Core/Application.cpp
   src/Texture.cpp 
   src/Material.cpp     
   src/Mesh.cpp
   src/Scene.cpp
-  
   src/Actor.cpp
-  
-  src/CameraController.cpp
-  src/ActorController.cpp
- "src/ModelLoader/AssimpLoader.cpp" "src/AABB.cpp")
+  src/Controllers/CameraController.cpp
+  src/Controllers/ActorController.cpp
+  src/ModelLoader/AssimpLoader.cpp
+  src/Collision/AABB.cpp
+)
 
 add_subdirectory(libs/glfw-3.3.9)
 
