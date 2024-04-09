@@ -30,65 +30,6 @@ public:
     SceneGraph(const std::string& _name) : Actor(_name) { };
 };
 
-// ---------------------------------------------------------------
-// --------------------- BaseActor ------------------------------
-// ---------------------------------------------------------------
-
-/**
- * @class BaseActor
- * @brief Represents a complete object in a scene, it inherits from actor for world location,
- * IRender for mesh rendering and IBounded for collision detection and processing.
- */
-class BaseActor : public Actor, public IRender, public IBounded
-{
-public:
-    // ---------- Global Variables --------------
-
-    // The visual mesh
-    Mesh* mMesh{ nullptr };
-
-    // The collision mesh if vis is enabled
-    Mesh* mCollisionCube{ nullptr };
-	Mesh* mCollisionSphere{ nullptr };
-
-private:
-    // ---------- Local Variables --------------
-
-public:
-    // ---------- Global functions --------------
-
-    // Constructor
-    BaseActor(const std::string& _name, Mesh* _mesh);
-
-    // Overriden from IRender passes draw call to mesh. 
-    void Draw(const Shader* _shader = nullptr) const override;
-
-    // Overrides IBounded function, Returns an AABB object for collision processing.
-    AABB GetAABB() const override;
-
-    // Overrides IBounded function, Returns a BoundingSphere object for collision processing.
-    BoundingSphere GetBoundingSphere() const override;
-
-private:
-    // ---------- Local functions --------------
-
-
-public:
-    // ---------- Getters / setters / Adders --------------
-
-    // Adders
-
-    // Setters
-
-    // Set if draw collision mesh is true or false
-    void SetDrawDebugCollisionMesh(bool _state) { mShouldDrawCollisionMesh = _state; }
-
-    // Getters
-
-    // Gets this classes collision properties.
-    CollisionProperties* GetCollisionProperties() override;
-
-};
 
 // ---------------------------------------------------------------
 // --------------------- Visual Actor ------------------------------
@@ -127,12 +68,99 @@ private:
 public:
     // ---------- Getters / setters / Adders --------------
 
+    // Getters
+
+    // Returns the mesh for this actor as Mesh*
+    Mesh* GetActorMesh() { return mMesh; }
+
     // Adders
 
     // Setters
 
 
 };
+
+// ---------------------------------------------------------------
+// --------------------- BaseActor ------------------------------
+// ---------------------------------------------------------------
+
+/**
+ * @class BaseActor
+ * @brief Represents a complete object in a scene, it inherits from actor for world location,
+ * IRender for mesh rendering and IBounded for collision detection and processing.
+ */
+class BaseActor : public Actor, public IRender, public IBounded
+{
+public:
+    // ---------- Global Variables --------------
+
+    // The visual mesh
+    Mesh* mMesh{ nullptr };
+
+    // The collision mesh if vis is enabled
+    Mesh* mCollisionCube{ nullptr };
+	Mesh* mCollisionSphere{ nullptr };
+
+    // Dirty plane reference - should be done through collision channels once complex collision goemetry is added.
+    VisualActor* mGroundPlane{ nullptr };
+
+private:
+    // ---------- Local Variables --------------
+
+public:
+    // ---------- Global functions --------------
+
+    // Constructor
+    BaseActor(const std::string& _name, Mesh* _mesh);
+
+    ~BaseActor();
+
+    // Overriden from IRender passes draw call to mesh. 
+    void Draw(const Shader* _shader = nullptr) const override;
+
+	// Overriden from Actor, handles local tick logic
+    void Update(float _dt) override;
+
+    // Overrides IBounded function, Returns an AABB object for collision processing.
+    AABB GetAABB() const override;
+
+    // Overrides IBounded function, Returns a BoundingSphere object for collision processing.
+    BoundingSphere GetBoundingSphere() const override;
+
+    // Custom line trace function
+    bool LineTraceTroughTriangle(glm::vec3 _TP1, glm::vec3 _TP2, glm::vec3 _TP3, glm::vec3 _startPos, glm::vec3 _endPos, glm::vec3& _intersectPoint);
+
+    // Returns the barycentric coordinate between three triangle points as a vec3
+    glm::vec3 GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3, glm::vec3 _actorPos);
+
+    float GetHightFromBarycentricCoordinates(const glm::vec3& _barCoords, const  glm::vec3& _p1, const  glm::vec3& _p2, const  glm::vec3& _p3);
+
+    float Function(float x, float y);
+    
+private:
+    // ---------- Local functions --------------
+
+
+public:
+    // ---------- Getters / setters / Adders --------------
+
+    // Adders
+
+    // Setters
+
+    // Set if draw collision mesh is true or false
+    void SetDrawDebugCollisionMesh(bool _state) { mShouldDrawCollisionMesh = _state; }
+
+    // Sets ground reference not optimal!
+    void SetGroundReference(class VisualActor* _inRef) { mGroundPlane = _inRef; }
+    
+    // Getters
+
+    // Gets this classes collision properties.
+    CollisionProperties* GetCollisionProperties() override;
+
+};
+
 
 // ---------------------------------------------------------------
 // --------------------- CollisionActor ------------------------------

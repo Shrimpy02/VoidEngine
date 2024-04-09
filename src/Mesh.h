@@ -103,8 +103,10 @@ public:
     const std::string* GetName() { return &mName; }
 
     // Gets this meshes vertices as address to vector
-    std::vector<Vertex>& GetVetices() { return mVertices; }
+    std::vector<Vertex>& GetVertices() { return mVertices; }
 
+    // Returns this meshes indices as vector of index struct
+    std::vector<Index>& GetIndices() { return mIndices; }
 
     // Setters
 
