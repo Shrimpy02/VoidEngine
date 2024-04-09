@@ -101,9 +101,6 @@ public:
     Mesh* mCollisionCube{ nullptr };
 	Mesh* mCollisionSphere{ nullptr };
 
-    // Dirty plane reference - should be done through collision channels once complex collision goemetry is added.
-    VisualActor* mGroundPlane{ nullptr };
-
 private:
     // ---------- Local Variables --------------
 
@@ -127,16 +124,6 @@ public:
     // Overrides IBounded function, Returns a BoundingSphere object for collision processing.
     BoundingSphere GetBoundingSphere() const override;
 
-    // Custom line trace function
-    bool LineTraceTroughTriangle(glm::vec3 _TP1, glm::vec3 _TP2, glm::vec3 _TP3, glm::vec3 _startPos, glm::vec3 _endPos, glm::vec3& _intersectPoint);
-
-    // Returns the barycentric coordinate between three triangle points as a vec3
-    glm::vec3 GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3, glm::vec3 _actorPos);
-
-    float GetHightFromBarycentricCoordinates(const glm::vec3& _barCoords, const  glm::vec3& _p1, const  glm::vec3& _p2, const  glm::vec3& _p3);
-
-    float Function(float x, float y);
-    
 private:
     // ---------- Local functions --------------
 
@@ -151,9 +138,6 @@ public:
     // Set if draw collision mesh is true or false
     void SetDrawDebugCollisionMesh(bool _state) { mShouldDrawCollisionMesh = _state; }
 
-    // Sets ground reference not optimal!
-    void SetGroundReference(class VisualActor* _inRef) { mGroundPlane = _inRef; }
-    
     // Getters
 
     // Gets this classes collision properties.

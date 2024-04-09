@@ -82,11 +82,12 @@ void Scene::LoadContent()
 	// Objects
 	mMACube0->mCollisionProperties.mType = CollisionType::DYNAMIC;
 	mMACube0->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
-	// Dirty way gets the ground plane
-	mMACube0->SetGroundReference(dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));
+	// Dirty cast to assign ground plane to physics component..
+	dynamic_cast<PhysicsComponent*>(mMACube0->GetComponents()[0])->SetGroundReference(dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));
 
+	
 	// Lights
-	//GroundPlane->SetPosition(glm::vec3(0, -2, 0), Actor::TransformSpace::Global);
+
 
 	// Controller
 	mActorController = std::shared_ptr<ActorController>(new ActorController(mMACube0, mWindow));
