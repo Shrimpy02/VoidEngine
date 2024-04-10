@@ -85,7 +85,7 @@ void Scene::LoadContent()
 	// Setting object location
 	// --------------------------------------------
 	// Objects
-	mSceneCamera.SetPosition({ 0.f, 0.f, 3.f });
+	mSceneCamera.SetPosition({ 0.f, 17.f, 3.f });
 	mMACube0->SetPosition({ 0.f, 0.f, 0.f }, Actor::TransformSpace::Global);
 	mMACube1->SetPosition({ 0.f, 25.f, 0.f }, Actor::TransformSpace::Global);
 	//mVAPlane0->SetScale(glm::vec3(10), Actor::TransformSpace::Global);
@@ -100,6 +100,8 @@ void Scene::LoadContent()
 	// --------------------------------------------
 	// Objects
 	mMACube0->mCollisionProperties.mType = CollisionType::DYNAMIC;
+	mMACube0->mCollisionProperties.mBase = CollisionBase::BoundingSphere;
+	mMACube1->mCollisionProperties.mType = CollisionType::DYNAMIC;
 	mMACube0->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
 	// Dirty cast to assign ground plane to physics component..
 	dynamic_cast<PhysicsComponent*>(mMACube0->GetComponents()[0])->SetGroundReference(dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));

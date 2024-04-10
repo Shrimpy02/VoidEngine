@@ -12,6 +12,8 @@ struct Points
 {
     glm::vec3 mPosition;
 
+
+    // constructor
     Points(glm::vec3 _pos) : mPosition(_pos) { }
 
 };
@@ -33,9 +35,10 @@ private:
 public:
     // ---------- Global functions --------------
 
-    
+    // Static function to create a parametric curve from in num points and in resolution
     static std::vector<Points> CreateParametricCurve(const unsigned int _numPoints, const float _resolution);
 
+	// Static function that conforms an in vector of points y values to the second in visualActors mesh 
     static void ConformCurveToGeometry(std::vector<Points>& _points, class VisualActor* _mesh);
 
     // Static function returns the barycentric coordinate between three triangle points as a vec3
@@ -48,6 +51,7 @@ public:
 private:
     // ---------- Local functions --------------
 
+    // A Generic 2d spiral parametric function 
     static glm::vec3 Generic2DParametricFunction(const double _t);
 
 
