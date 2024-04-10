@@ -52,12 +52,6 @@ public:
 	// This function makes sure the components owner conforms to ground geometry if mGroundReference is filled.
 	void ConformToGround(float _parentExtent);
 
-	// Returns the barycentric coordinate between three triangle points as a vec3
-	glm::vec3 GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3, glm::vec3 _actorPos);
-
-	// Returns the height of a barycentric coordinate in a tringle of three points
-	float GetHightFromBarycentricCoordinates(const glm::vec3& _barCoords, const  glm::vec3& _p1, const  glm::vec3& _p2, const  glm::vec3& _p3);
-
 
 private:
 	// ---------- Local functions --------------

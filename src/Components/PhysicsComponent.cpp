@@ -2,6 +2,7 @@
 // Classes
 #include <Components/PhysicsComponent.h>
 #include <SceneActors.h>
+#include <Core/SMath.h>
 
 PhysicsComponent::~PhysicsComponent()
 {
@@ -96,7 +97,7 @@ void PhysicsComponent::ConformToGround(float _parentExtent)
         point3 = glm::rotate(planesRotation, point3);
 
         // Calculate the Barycentric Coordinates of the components parent with the world transform of the three points.
-        glm::vec3 baryCoords = GetBarycentricCoordinates(point1, point2, point3, actorPos);
+        glm::vec3 baryCoords = SMath::GetBarycentricCoordinates(point1, point2, point3, actorPos);
 
         // if clause is reached we know the actor-pos is within this triangle
         if (baryCoords.x > 0 && baryCoords.x < 1 &&
@@ -107,7 +108,7 @@ void PhysicsComponent::ConformToGround(float _parentExtent)
             // std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
 
             // Calculates the height of a point in a triangle given by the Barycentric Coordinates and the three points of the triangle
-        	float hight = GetHightFromBarycentricCoordinates(baryCoords, point1, point2, point3);
+        	float hight = SMath::GetHightFromBarycentricCoordinates(baryCoords, point1, point2, point3);
             // Sets the height tor the ground reference and to parent extent
             hight += mGroundReference->GetPosition(Actor::TransformSpace::Global).y;
             hight += _parentExtent;
@@ -126,58 +127,3 @@ void PhysicsComponent::ConformToGround(float _parentExtent)
     }
 }
 
-
-glm::vec3 PhysicsComponent::GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3, glm::vec3 _actorPos)
-{
-    // Sets all height to 0 so they do not interfere with calculations
-    _p1.y = 0;
-    _p2.y = 0;
-    _p3.y = 0;
-    _actorPos.y = 0;
-
-    // Gets the vectors from point 1 to point 2 and 3
-    glm::vec3 p12 = _p2 - _p1;
-    glm::vec3 p13 = _p3 - _p1;
-
-    // Gets the normal of these two vectors
-    glm::vec3 n = glm::cross(p12, p13);
-    // size of cross product = the triangles total area
-    float area_123 = n.y;
-
-    // make sure there is no divide by 0 error
-    if (area_123 == 0)
-        throw std::runtime_error("ERROR::DivideBy0");
-
-    glm::vec3 barCoords; // the coords to return
-
-    // Sub triangle 1
-    // Gets the vector between actor's position in triangle and point 2 and point 3 
-    glm::vec3 p = _p2 - _actorPos;
-    glm::vec3 q = _p3 - _actorPos;
-    // gets the normal
-    n = glm::cross(p, q);
-    // gets the area of sub triangle
-    barCoords.x = n.y / area_123;
-
-    // Sub triangle 2
-    p = _p3 - _actorPos;
-    q = _p1 - _actorPos;
-    n = glm::cross(p, q);
-    barCoords.y = n.y / area_123;
-
-    // Sub triangle 3
-    p = _p1 - _actorPos;
-    q = _p2 - _actorPos;
-    n = glm::cross(p, q);
-    barCoords.z = n.y / area_123;
-
-    return barCoords;
-}
-
-float PhysicsComponent::GetHightFromBarycentricCoordinates(const glm::vec3& _barCoords, const glm::vec3& _p1, const glm::vec3& _p2, const glm::vec3& _p3)
-{
-    // Generic function to return height by barycentric coordinates and triangle points
-    float hight = _barCoords.x * _p1.y + _barCoords.y * _p2.y + _barCoords.z * _p3.y;
-    return hight;
-
-}

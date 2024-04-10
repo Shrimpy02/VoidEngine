@@ -29,6 +29,8 @@ private:
     // Scene Items -------------------------
     // MeshActors
     BaseActor* mMACube0{ nullptr };
+    BaseActor* mMACube1{ nullptr };
+
     VisualActor* mVAPlane0{ nullptr };
     // Other actors
 
