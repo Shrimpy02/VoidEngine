@@ -23,12 +23,16 @@ private:
 	glm::vec3 mAcceleration{ 0.f };
 	float mMaxSpeed = 4.f;
 
+	class VisualActor* mGroundReference{ nullptr };
+
 public:
 	// ---------- Global functions --------------
 
 	// Constructs a physics components  and attaches it to input actor
-	PhysicsComponent(const std::string& _name, class Actor* _owner)
+	PhysicsComponent(const std::string& _name, class Actor* _owner, class VisualActor* _groundReference = nullptr )
 		: Component(_name, _owner) {};
+
+	~PhysicsComponent() override;
 
 	// Overidden Update for the component, distribution to all tick functions from here. (Called each frame)
 	void Update(float _dt) override;
@@ -45,6 +49,8 @@ public:
 	// Resets all physics values, typically called on collisions. (Simple solution)
 	void ResetValues();
 
+	// This function makes sure the components owner conforms to ground geometry if mGroundReference is filled.
+	void ConformToGround(float _parentExtent);
 
 
 private:
@@ -55,5 +61,6 @@ private:
 public:
 	// ---------- Getters and setters --------------
 
+	void SetGroundReference(class VisualActor* _groundRef) { mGroundReference = _groundRef; }
 
 };

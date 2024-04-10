@@ -122,6 +122,9 @@ public:
 	const std::string& GetTag() { return mTag.GetValue(); }
 	// Returns a vector of actor pointers containing all of this actors children
 	std::vector<Actor*>& GetChildren();
+	// Returns a vector of component pointers containing all of this actors components
+	std::vector<Component*> GetComponents() { return mComponents; }
+
 
 	// Setters ---------
 	// transform setters

@@ -29,18 +29,12 @@ private:
     // Scene Items -------------------------
     // MeshActors
     BaseActor* mMACube0{ nullptr };
-    BaseActor* mMAPlane0{ nullptr };
-    BaseActor* mMAPyramid0{ nullptr };
-    BaseActor* mMASphere0{ nullptr };
+    BaseActor* mMACube1{ nullptr };
 
+    VisualActor* mVAPlane0{ nullptr };
     // Other actors
-     VisualActor* mVAPyramid0{ nullptr };
-     CollisionActor* mCA0{ nullptr };
-     CollisionActor* mCA1{ nullptr };
 
 	// lights
-    class PointLightActor* mPointLightActor0{ nullptr };
-    class PointLightActor* mPointLightActor1{ nullptr };
     class DirectionalLightActor* mDirectionalLightActor{ nullptr };
 
     // ImGui UI Variables

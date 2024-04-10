@@ -12,11 +12,13 @@
 #include <Controllers/CameraController.h>
 #include <Controllers/ActorController.h>
 #include <Components/PhysicsComponent.h>
+#include <Components/AIComponent.h>
 #include <ModelLoader/AssimpLoader.h>
 #include <Lights/DirectionalLight.h>
 #include <Lights/PointLight.h>
 #include <Utilities/Defines.h>
 #include <Utilities/Logger.h>
+#include <Core/SMath.h>
 
 // Additional Includes
 #include <variant>
@@ -43,76 +45,69 @@ void Scene::LoadContent()
 	// Actor Loading
 	// --------------------------------------------
 	// Default
-	mMACube0 = new BaseActor("BACube0", Mesh::CreateCube(crateMat));
-	mMAPlane0 = new BaseActor("BAPlane0", Mesh::CreatePlane(crateMat));
-	mMAPyramid0 = new BaseActor("BAPyramid0", Mesh::CreatePyramid(crateMat));
-	mMASphere0 = new BaseActor("BASphere0", Mesh::CreateSphere(crateMat,3));
-
-	mVAPyramid0 = new VisualActor("VAPyramid0", Mesh::CreatePyramid(crateMat));
-	mCA0 = new CollisionActor("CA0", Mesh::CreateSphere(nullptr,2, "CollisionSphere"), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::BoundingSphere });
-	mCA1 = new CollisionActor("CA1", Mesh::CreateSphere(nullptr, 2, "CollisionSphere"), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::BoundingSphere });
+	mMACube0 = new BaseActor("Player", Mesh::CreateCube(crateMat));
+	mMACube1 = new BaseActor("NPC", Mesh::CreateCube(crateMat));
+	//mVAPlane0 = new VisualActor("VAPlane0", Mesh::CreatePlane(crateMat));
 
 	// Lights
-	mPointLightActor0 = new PointLightActor("PointLight0");
-	mPointLightActor1 = new PointLightActor("PointLight1");
 	mDirectionalLightActor = new DirectionalLightActor("DirectionalLight0");
 
 	// Assimp Import
-	// Sponza is weird right now, disable collision meshes when loading it for now
-	//Actor* Sponza = new Actor("Sponza");
-	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Sponza/Sponza.fbx"), Sponza);
-	Actor* Monke = new Actor("Monke");
-	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Monkey/Monke.fbx"), Monke);
+	Actor* GroundPlane = new Actor("GroundPlane");
+	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Ground/UneavenPlane.fbx"), GroundPlane);
+
 
 	// Adding Actors to SceneGraph
 	// --------------------------------------------
 	// Objects
 	mSceneGraph.AddChild(&mSceneCamera);
 	mSceneGraph.AddChild(mMACube0);
-	mSceneGraph.AddChild(mMAPlane0);
-	mSceneGraph.AddChild(mMAPyramid0);
-	mSceneGraph.AddChild(mMASphere0);
-	//mSceneGraph.AddChild(Sponza);
-	mSceneGraph.AddChild(Monke);
+	mSceneGraph.AddChild(mMACube1);
+	//mSceneGraph.AddChild(mVAPlane0);
+	mSceneGraph.AddChild(GroundPlane);
 
-	mSceneGraph.AddChild(mVAPyramid0);
-	mSceneGraph.AddChild(mCA0);
-	mSceneGraph.AddChild(mCA1);
+	// Creates a curve
+	std::vector<Points> parametricCurve = SMath::CreateParametricCurve(10, 0.5f);
+	// Conforms the curve to the imported geometry
+	SMath::ConformCurveToGeometry(parametricCurve, dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));
+	// iterates through each point and creates a visual actor and sets its position for scene visualization
+	for (int i = 0; i < parametricCurve.size(); i++)
+	{
+		VisualActor* newVAPoint = new VisualActor("CurvePoint" + std::to_string(i), Mesh::CreateSphere(debugMat, 1));
+		newVAPoint->SetPosition(parametricCurve[i].mPosition,Actor::TransformSpace::Global);
+		mSceneGraph.AddChild(newVAPoint);
+	}
+		
 
 	// Lights
-	mSceneGraph.AddChild(mPointLightActor0);
-	mSceneGraph.AddChild(mPointLightActor1);
 	mSceneGraph.AddChild(mDirectionalLightActor);
 
 	// Setting object location
 	// --------------------------------------------
 	// Objects
-	mSceneCamera.SetPosition({ 0.f, 0.f, 3.f });
+	mSceneCamera.SetPosition({ 0.f, 17.f, 3.f });
 	mMACube0->SetPosition({ 0.f, 0.f, 0.f }, Actor::TransformSpace::Global);
-	mMAPlane0->SetPosition({ 2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
-	mMAPyramid0->SetPosition({ -2.f, 0.f, 0.f }, Actor::TransformSpace::Global);
-	mMASphere0->SetPosition({ 0.f, 2.f, 0.f }, Actor::TransformSpace::Global);
-
-	mVAPyramid0->SetPosition({ -2.f, -2.f, 0.f }, Actor::TransformSpace::Global);
-	mCA0->SetPosition({ 0.f, -2.f, 0.f }, Actor::TransformSpace::Global);
-	mCA1->SetPosition({ 2.f, -2.f, 0.f }, Actor::TransformSpace::Global);
-
-	//Sponza->SetPosition({ 0.f, -4.f, 0.f }, Actor::TransformSpace::Global);
-	Monke->SetPosition({ 0.f, -6.f, 0.f }, Actor::TransformSpace::Global);
+	mMACube1->SetPosition({ 0.f, 25.f, 0.f }, Actor::TransformSpace::Global);
+	//mVAPlane0->SetScale(glm::vec3(10), Actor::TransformSpace::Global);
+	//mVAPlane0->SetPosition(glm::vec3(0,-1,0),Actor::TransformSpace::Global);
+	GroundPlane->SetPosition({ 0.f, -4.f, 0.f }, Actor::TransformSpace::Global);
 
 	// Lights
 	mDirectionalLightActor->SetRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), Actor::TransformSpace::Global);
-	mPointLightActor0->SetPosition({0.0f,-1.0f,0.0f}, Actor::TransformSpace::Global);
-	mPointLightActor1->SetPosition({ 0.0f,1.0f,0.0f }, Actor::TransformSpace::Global);
+
 
 	// Setting Properties & Components
 	// --------------------------------------------
 	// Objects
 	mMACube0->mCollisionProperties.mType = CollisionType::DYNAMIC;
-	//mCube3->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
-	mCA0->mCollisionProperties.mType = CollisionType::DYNAMIC;
-
 	mMACube0->mCollisionProperties.mBase = CollisionBase::BoundingSphere;
+	mMACube1->mCollisionProperties.mType = CollisionType::DYNAMIC;
+	mMACube0->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
+	// Dirty cast to assign ground plane to physics component..
+	dynamic_cast<PhysicsComponent*>(mMACube0->GetComponents()[0])->SetGroundReference(dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));
+	mMACube1->AddComponent<AIComponent>("Cube1AIComponent.h");
+	dynamic_cast<AIComponent*>(mMACube1->GetComponents()[0])->SetActivePath(std::move(parametricCurve));
+
 
 	// Lights
 
@@ -135,18 +130,11 @@ void Scene::UnloadContent()
 	// Scene objects
 	delete mShader;
 	delete mMACube0;
-	delete mMAPlane0;
-	delete mMAPyramid0;
-	delete mMASphere0;
-
-	delete mVAPyramid0;
-	delete mCA0;
-	delete mCA1;
+	delete mMACube1;
+	delete mVAPlane0;
 
 	// Scene Lights
 	delete mDirectionalLightActor;
-	delete mPointLightActor0;
-	delete mPointLightActor1;
 
 	// Other
 	Mesh::ClearCache();
@@ -171,8 +159,8 @@ void Scene::UpdateSceneGraph(Actor* _actor, float _dt, Transform _globalTransfor
 	_globalTransform.SetTransformMatrix(_globalTransform.GetTransformMatrix() * _actor->GetTransformMatrix(Actor::TransformSpace::Local));
 
 	// call update for this actor and its components
-	_actor->Update(_dt);
 	_actor->UpdateComponents(_dt);
+	_actor->Update(_dt);
 
 	// for each child recursively run through this function
 	const auto& children = _actor->GetChildren();

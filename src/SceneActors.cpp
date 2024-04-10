@@ -4,16 +4,38 @@
 #include <Utilities/Logger.h>
 
 // ---------------------------------------------------------------
-// --------------------- Mesh Actor ------------------------------
+// --------------------- Visual Actor ------------------------------
+// ---------------------------------------------------------------
+
+VisualActor::VisualActor(const std::string& _name, Mesh* _mesh)
+    : Actor(_name), mMesh(_mesh)
+{
+    LOG("VisualActor Created: %s", _name.c_str());
+}
+
+void VisualActor::Draw(const Shader* _shader) const
+{
+    if (!mMesh) return;
+
+    mMesh->Draw(_shader);
+}
+
+// ---------------------------------------------------------------
+// --------------------- BaseActor ------------------------------
 // ---------------------------------------------------------------
 
 BaseActor::BaseActor(const std::string& _name, Mesh* _mesh)
     :Actor(_name), mMesh(_mesh)
 {
     // Creates and remembers both collision meshes for viualization and custom changing of collision base at run time. Is unoptomized.
-    mCollisionCube = CreateCollisionCubeFromMesh(Material::Load("Debug"), mMesh->GetVetices());
-    mCollisionSphere = CreateCollisionSphereFromMesh(Material::Load("Debug"), mMesh->GetVetices());
+    mCollisionCube = CreateCollisionCubeFromMesh(Material::Load("Debug"), mMesh->GetVertices());
+    mCollisionSphere = CreateCollisionSphereFromMesh(Material::Load("Debug"), mMesh->GetVertices());
     LOG("BaseActor Created: %s", _name.c_str());
+}
+
+BaseActor::~BaseActor()
+{
+    
 }
 
 void BaseActor::Draw(const Shader* _shader) const
@@ -25,6 +47,7 @@ void BaseActor::Draw(const Shader* _shader) const
     // Draw collision mesh after depending on collision base, draw as wire frame
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     if (mShouldDrawCollisionMesh) {
+
         if (mCollisionCube && mCollisionProperties.IsAABB())
             mCollisionCube->Draw(_shader);
 
@@ -32,6 +55,11 @@ void BaseActor::Draw(const Shader* _shader) const
             mCollisionSphere->Draw(_shader);
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void BaseActor::Update(float _dt)
+{
+   
 }
 
 AABB BaseActor::GetAABB() const
@@ -102,23 +130,6 @@ CollisionProperties* BaseActor::GetCollisionProperties()
 }
 
 // ---------------------------------------------------------------
-// --------------------- Visual Actor ------------------------------
-// ---------------------------------------------------------------
-
-VisualActor::VisualActor(const std::string& _name, Mesh* _mesh)
-    : Actor(_name), mMesh(_mesh)
-{
-    LOG("VisualActor Created: %s", _name.c_str());
-}
-
-void VisualActor::Draw(const Shader* _shader) const
-{
-    if (!mMesh) return;
-
-    mMesh->Draw(_shader);
-}
-
-// ---------------------------------------------------------------
 // --------------------- CollisionActor ------------------------------
 // ---------------------------------------------------------------
 
@@ -140,28 +151,28 @@ CollisionActor::CollisionActor(const std::string& _name, Mesh* _mesh, CollisionP
         glm::vec3 pos(0);
 
         // check all vertices looking for the longest vertex away.  
-        for (int j = 0; j < _mesh->GetVetices().size(); j++)
+        for (int j = 0; j < _mesh->GetVertices().size(); j++)
         {
             // Gets max extent for axis
-            if (_mesh->GetVetices()[j].mPosition[i] > maxExtent[i])
-                maxExtent[i] = _mesh->GetVetices()[j].mPosition[i];
+            if (_mesh->GetVertices()[j].mPosition[i] > maxExtent[i])
+                maxExtent[i] = _mesh->GetVertices()[j].mPosition[i];
 
             // Gets min extent for axis
-            else if (_mesh->GetVetices()[j].mPosition[i] < minExtent[i])
-                minExtent[i] = _mesh->GetVetices()[j].mPosition[i];
+            else if (_mesh->GetVertices()[j].mPosition[i] < minExtent[i])
+                minExtent[i] = _mesh->GetVertices()[j].mPosition[i];
 
             // Gets center location for axis 
-            pos[i] = _mesh->GetVetices()[j].mPosition[i];
+            pos[i] = _mesh->GetVertices()[j].mPosition[i];
 
             // Finds the vertex that is the furthest from the center
-            if (largetsDiff < abs(_mesh->GetVetices()[j].mPosition[i]))
-                largetsDiff = abs(_mesh->GetVetices()[j].mPosition[i]);
+            if (largetsDiff < abs(_mesh->GetVertices()[j].mPosition[i]))
+                largetsDiff = abs(_mesh->GetVertices()[j].mPosition[i]);
         }
         center += pos;
     }
 
     // Divide by num vertices for average location of center
-    center /= static_cast<float>(_mesh->GetVetices().size());
+    center /= static_cast<float>(_mesh->GetVertices().size());
 
     // set the class values to the calculated values
     mMaxExtent = maxExtent;
