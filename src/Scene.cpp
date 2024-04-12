@@ -19,6 +19,7 @@
 #include <Utilities/Defines.h>
 #include <Utilities/Logger.h>
 #include <Core/SMath.h>
+#include <SkyBox/Skybox.h>
 
 // Additional Includes
 #include <variant>
@@ -42,11 +43,23 @@ void Scene::LoadContent()
 	// --------------------------------------------
 	mShader = new Shader(SOURCE_DIRECTORY("shaderSrc/shader.vs"), SOURCE_DIRECTORY("shaderSrc/shader.fs"));
 
+	// Sky-box Loading
+	// --------------------------------------------
+	mSkybox = new Skybox({
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_left.png"),
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_right.png"),
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_up.png"),
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_down.png"),
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_front.png"),
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_back.png"),
+		});
+
 	// Actor Loading
 	// --------------------------------------------
 	// Default
 	mMACube0 = new BaseActor("Player", Mesh::CreateCube(crateMat));
 	mMACube1 = new BaseActor("NPC", Mesh::CreateCube(crateMat));
+
 	//mVAPlane0 = new VisualActor("VAPlane0", Mesh::CreatePlane(crateMat));
 
 	// Lights
@@ -55,7 +68,8 @@ void Scene::LoadContent()
 	// Assimp Import
 	Actor* GroundPlane = new Actor("GroundPlane");
 	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Ground/UneavenPlane.fbx"), GroundPlane);
-
+	//Actor* Monke = new Actor("Monke");
+	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Monkey/Monke.fbx"), Monke);
 
 	// Adding Actors to SceneGraph
 	// --------------------------------------------
@@ -85,7 +99,7 @@ void Scene::LoadContent()
 	// Setting object location
 	// --------------------------------------------
 	// Objects
-	mSceneCamera.SetPosition({ 0.f, 17.f, 3.f });
+	mSceneCamera.SetPosition({ 0.f, 18.f, 3.f });
 	mMACube0->SetPosition({ 0.f, 0.f, 0.f }, Actor::TransformSpace::Global);
 	mMACube1->SetPosition({ 0.f, 25.f, 0.f }, Actor::TransformSpace::Global);
 	//mVAPlane0->SetScale(glm::vec3(10), Actor::TransformSpace::Global);
@@ -100,9 +114,9 @@ void Scene::LoadContent()
 	// --------------------------------------------
 	// Objects
 	mMACube0->mCollisionProperties.mType = CollisionType::DYNAMIC;
-	mMACube0->mCollisionProperties.mBase = CollisionBase::BoundingSphere;
-	mMACube1->mCollisionProperties.mType = CollisionType::DYNAMIC;
-	mMACube0->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
+	//mMACube0->mCollisionProperties.mBase = CollisionBase::BoundingSphere;
+	//mMACube1->mCollisionProperties.mType = CollisionType::DYNAMIC;
+	mMACube0->AddComponent<PhysicsComponent>("PhysicsComponent");
 	// Dirty cast to assign ground plane to physics component..
 	dynamic_cast<PhysicsComponent*>(mMACube0->GetComponents()[0])->SetGroundReference(dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));
 	mMACube1->AddComponent<AIComponent>("Cube1AIComponent.h");
@@ -131,7 +145,8 @@ void Scene::UnloadContent()
 	delete mShader;
 	delete mMACube0;
 	delete mMACube1;
-	delete mVAPlane0;
+	delete mSkybox;
+	//delete mVAPlane0;
 
 	// Scene Lights
 	delete mDirectionalLightActor;
@@ -184,7 +199,7 @@ void Scene::RenderSceneGraph(Actor* _actor, float _dt, Transform _globalTransfor
 		iRender->Draw(mShader);
 	}
 
-	// for each child recursively run through this function
+	// for each child recursively run thrh this function
 	const auto& children = _actor->GetChildren();
 	for (Actor* child : children)
 	{
@@ -219,6 +234,7 @@ void Scene::Render(float _dt)
 	RenderSceneGraph(&mSceneGraph, _dt);
 	// Render UI over top, should be called last so it displays updated rather than outdated information
 	RenderUI();
+	mSkybox->Render(&mSceneCamera);
 
 	glDepthFunc(GL_LEQUAL);
 }
@@ -385,7 +401,12 @@ void Scene::imgui_WorldObjectSettings()
 			// Shows all actors in scene, based on selection can take control
 			// Note only shows the parent actors so to speak as you cannot control children
 			// ----------------------------------------------------------------------------
-			std::vector<Actor*> tempSceneActors = mSceneGraph.GetChildren();
+			std::vector<Actor*> tempSceneActors;
+			mSceneGraph.Query<BaseActor>(tempSceneActors);
+			mSceneGraph.Query<VisualActor>(tempSceneActors);
+			mSceneGraph.Query<CollisionActor>(tempSceneActors);
+			mSceneGraph.Query<DirectionalLight>(tempSceneActors);
+			mSceneGraph.Query<PointLight>(tempSceneActors);
 			std::vector<const char*> tempSceneActorNames;
 
 			for (auto* actor : tempSceneActors) {
@@ -423,6 +444,7 @@ void Scene::imgui_WorldObjectSettings()
 			ImGui::Checkbox("Show Collision debug mesh", &mShouldDrawCollisionDebugMesh);
 			std::vector<Actor*> tempActors;
 			mSceneGraph.Query<BaseActor>(tempActors);
+			mSceneGraph.Query<CollisionActor>(tempActors);
 
 			for (auto* actor : tempActors)
 			{
@@ -433,6 +455,15 @@ void Scene::imgui_WorldObjectSettings()
 						mA->SetDrawDebugCollisionMesh(true);
 					else
 						mA->SetDrawDebugCollisionMesh(false);
+				}
+
+				CollisionActor* mCA = dynamic_cast<CollisionActor*>(actor);
+				if (mCA)
+				{
+					if (mShouldDrawCollisionDebugMesh)
+						mCA->SetDrawDebugCollisionMesh(true);
+					else
+						mCA->SetDrawDebugCollisionMesh(false);
 				}
 			}
 		}
@@ -466,6 +497,19 @@ void Scene::imguiSub_WorldDetails(Actor* _aptr)
 		ImGui::Text("Actor Movement Speed"); ImGui::SameLine(); ImGui::SetNextItemWidth(mItemWidth); ImGui::InputFloat("##AMS", &tempActorMoveSpeed);
 		mActorController->SetMovementSpeed(tempActorMoveSpeed);
 		mActorController->SetNewActorToControll(_aptr);
+
+		ImGui::Checkbox("Snap camera to actor", &mSnapCameraToActor);
+
+		if(mSnapCameraToActor)
+		{
+			mSceneCamera.SetPosition(_aptr->GetPosition(Actor::TransformSpace::Global) + glm::vec3(0, 2, 7));
+
+			glm::quat rotation = _aptr->GetRotation(Actor::TransformSpace::Global);
+			glm::rotate(rotation, glm::radians(90.f), glm::vec3(0, 0, 1));
+
+			mSceneCamera.SetRotation(rotation);
+		}
+
 	}
 	else
 		mActiveController = mCameraController;
@@ -580,6 +624,19 @@ void Scene::imguiSub_WorldDetails(Actor* _aptr)
 		_aptr->SetScale(glm::vec3(currentActorsScale.x, currentActorsScale.y, currentActorsScale.z), Actor::TransformSpace::Global);
 		mActorOriginalScale = _aptr->GetScale(Actor::TransformSpace::Global);
 	}
+
+	// Component display
+	// -----------------------------------
+	ImGui::SameLine();
+	ImGui::Text("Actor Components: ");
+	std::vector<Component*> actorComponents(_aptr->GetComponents());
+	std::vector<const char*> componentNames;
+	for (auto* Component : actorComponents) {
+		componentNames.push_back(Component->GetTag().c_str());
+	}
+
+	ImGui::ListBox("##LBC", &mComponentSelectionIndex, componentNames.data(), (int)componentNames.size());
+
 }
 
 void Scene::imguiSub_Collision(IBounded* _cptr)
@@ -621,7 +678,17 @@ void Scene::imguiSub_Collision(IBounded* _cptr)
 
 	_cptr->GetCollisionProperties()->SetCollisionResponse(static_cast<CollisionResponse>(currentResponseItem));
 
-	// TODO : Add section here for base collision type for baseActors. Either aabb collision or Bounding sphere collision.
+	// Edit collision base
+	// ----------------------------------------------
+	const char* baseItems[] = { "AABB","BoundingSphere" };
+	int currentbaseItem = 0;
+
+	currentbaseItem = static_cast<int>(_cptr->GetCollisionProperties()->mBase);
+
+	ImGui::Text("Collision Base");
+	ImGui::Combo("##BB", &currentbaseItem, baseItems, IM_ARRAYSIZE(baseItems));
+
+	_cptr->GetCollisionProperties()->SetCollisionBase(static_cast<CollisionBase>(currentbaseItem));
 }
 
 void Scene::imguiSub_Light(Light* _lptr)

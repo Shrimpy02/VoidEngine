@@ -10,6 +10,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+
+
 // Static cache of textures
 std::unordered_map<std::string, Texture*> Texture::sCache;
 
@@ -115,4 +117,37 @@ void Texture::ClearCache()
 		delete it.second;
 	}
 	sCache.clear();
+}
+
+TextureID Texture::GenSkybox(std::initializer_list<std::string> texturePaths)
+{
+	TextureID texID;
+	// init all textures and assign them to the correct channels
+	glGenTextures(1, &texID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
+
+	stbi_set_flip_vertically_on_load(false);
+
+	int width, height, nrChannels, index{ 0 };
+	for (auto texturePath : texturePaths)
+	{
+		unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index++,
+				0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+			);
+		}
+		else
+		{
+			LOG_ERROR("Cubemap texture failed to load at location: %s", texturePath.c_str());
+		}
+		stbi_image_free(data);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	return texID;
 }

@@ -35,7 +35,7 @@ public:
 
     // Runs everything, init then render loop.
     int Run();
-
+    
     // Creats Window object to manage viewport and scene focus
     void Init();
 

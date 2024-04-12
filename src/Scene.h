@@ -25,6 +25,7 @@ private:
 
 	// Shader`s ----------------- 
     Shader* mShader{ nullptr };
+    class Skybox* mSkybox{ nullptr };
 
     // Scene Items -------------------------
     // MeshActors
@@ -41,15 +42,18 @@ private:
     int mMainSelectionIndex = 0;
     int mOldSelectionIndex;
     const float mItemWidth = 80.0f;
+    int mComponentSelectionIndex = 0;
+
 
     float mCurrentUniformScale = 1;
     float mOldUniformScale = 1;
     glm::vec3 mActorOriginalScale;
    
 	bool mShouldShowWireFrame = false;
-    bool mShouldDrawCollisionDebugMesh = false;
+    bool mShouldDrawCollisionDebugMesh = true;
 	bool mCanControlActor = false;
     bool mIsUniformScale = false;
+    bool mSnapCameraToActor = false;
 
     double mOldTime = 0;
     int numFrames = 0;

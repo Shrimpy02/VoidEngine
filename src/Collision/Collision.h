@@ -76,6 +76,9 @@ struct CollisionProperties
 
 	// Sets current collision response
 	void SetCollisionResponse(CollisionResponse _inType) { mResponse = _inType; }
+
+    // Sets current collision base
+    void SetCollisionBase(CollisionBase _inType) { mBase = _inType; }
 };
 
 // ---------------------------------------------------------------
@@ -240,7 +243,7 @@ public:
         center /= static_cast<float>(_existingMesh.size());
 
         // set the class values to the calculated values
-        mRadius = (float)largetsDiff * 1.5;
+        mRadius = (float)largetsDiff * (float)1.5;
 
         std::vector<Vertex> vertices;
         std::vector<Index> indices;

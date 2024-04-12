@@ -36,7 +36,7 @@ set( IMGUI_SOURCE
     includes/imgui/imgui_tables.cpp
     src/Components/PhysicsComponent.cpp
     src/SceneActors.cpp 
-    src/Collision/BoundingSphere.cpp "src/Core/SMath.cpp" "src/Components/AIComponent.cpp")
+    src/Collision/BoundingSphere.cpp "src/Core/SMath.cpp" "src/Components/AIComponent.cpp" "src/SkyBox/Skybox.cpp")
 
 set (HEADER_FILES
   includes/stb_image.h
@@ -69,7 +69,7 @@ set (HEADER_FILES
   src/Components/PhysicsComponent.h
   src/Components/Component.h
   src/SceneActors.h
-   "src/Core/SMath.h" "src/Components/AIComponent.h")
+   "src/Core/SMath.h" "src/Components/AIComponent.h" "src/SkyBox/Skybox.h" )
 
 set (SRC_FILES
   3DProgEngine.cpp

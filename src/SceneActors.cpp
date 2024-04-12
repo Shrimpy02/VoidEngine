@@ -81,6 +81,7 @@ AABB BaseActor::GetAABB() const
 
         // Construct and return the AABB
         return AABB(center, extent);
+
     }
     else {
         // Return default AABB
@@ -139,45 +140,37 @@ CollisionActor::CollisionActor(const std::string& _name, Mesh* _mesh, CollisionP
     // System to calculates extent and centre conforming to init collision mesh. 
     // TODO : kind of does`nt work with un-even scale or with object rotation. That needs to be figured out
 
-	// default extent init
-    glm::vec3 maxExtent(0);
-    glm::vec3 minExtent(0);
-    glm::vec3 center(0);
+	// Calculate the bounding box (min and max extents) of the existing mesh
+    std::vector<Vertex> existingMesh = _mesh->GetVertices();
+
+	glm::vec3 maxExtent = existingMesh[0].mPosition;
+    glm::vec3 minExtent = existingMesh[0].mPosition;
     float largetsDiff(0.f);
 
-    // For each
-    for (int i = 0; i < 3; i++)
+    // Calc extent
+    for (const auto& vertex : existingMesh)
     {
-        glm::vec3 pos(0);
-
-        // check all vertices looking for the longest vertex away.  
-        for (int j = 0; j < _mesh->GetVertices().size(); j++)
-        {
-            // Gets max extent for axis
-            if (_mesh->GetVertices()[j].mPosition[i] > maxExtent[i])
-                maxExtent[i] = _mesh->GetVertices()[j].mPosition[i];
-
-            // Gets min extent for axis
-            else if (_mesh->GetVertices()[j].mPosition[i] < minExtent[i])
-                minExtent[i] = _mesh->GetVertices()[j].mPosition[i];
-
-            // Gets center location for axis 
-            pos[i] = _mesh->GetVertices()[j].mPosition[i];
-
-            // Finds the vertex that is the furthest from the center
-            if (largetsDiff < abs(_mesh->GetVertices()[j].mPosition[i]))
-                largetsDiff = abs(_mesh->GetVertices()[j].mPosition[i]);
-        }
-        center += pos;
+        minExtent = glm::min(minExtent, vertex.mPosition);
+        maxExtent = glm::max(maxExtent, vertex.mPosition);
     }
 
-    // Divide by num vertices for average location of center
-    center /= static_cast<float>(_mesh->GetVertices().size());
+    // calc sphere radius
+    for (int i = 0; i < 3; i++)
+    {
+        // check all vertices looking for the longest vertex away.  
+        for (int j = 0; j < existingMesh.size(); j++)
+        {
+
+             // Finds the vertex that is the furthest from the center
+             if (largetsDiff < abs(existingMesh[j].mPosition[i]))
+                 largetsDiff = abs(existingMesh[j].mPosition[i]);
+
+        }
+    }
 
     // set the class values to the calculated values
     mMaxExtent = maxExtent;
     mMinExtent = minExtent;
-    mCenter = center;
     mRadius = largetsDiff;
 
     // Gets the debug material from material cache
@@ -221,8 +214,12 @@ AABB CollisionActor::GetAABB() const
         // Calculate extent of the AABB
         glm::vec3 extent = (scaledMaxExtent - scaledMinExtent) * 0.5f;
 
+       // Dirty swap of z and y axis so importing from blender gets correct coordinates
+       glm::vec3 newExtent(extent.x, extent.z, extent.y);
+
+
         // Construct and return the AABB
-        return AABB(center, extent);
+        return AABB(center, newExtent);
     }
     else {
 

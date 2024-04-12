@@ -3,6 +3,7 @@
 #include <Components/PhysicsComponent.h>
 #include <SceneActors.h>
 #include <Core/SMath.h>
+#include <GLFW/glfw3.h>
 
 PhysicsComponent::~PhysicsComponent()
 {
@@ -54,7 +55,7 @@ void PhysicsComponent::ResetValues()
 void PhysicsComponent::ConformToGround(float _parentExtent)
 {
     if (!mGroundReference) return;
-
+    inContactWithGround = false;
     // Gets the ground planes mesh
     Mesh* groundPlane = mGroundReference->GetActorMesh();
 
@@ -122,8 +123,23 @@ void PhysicsComponent::ConformToGround(float _parentExtent)
 
                 // Set the owners position
                 mOwner->SetPosition(playPos, Actor::TransformSpace::Global);
+                inContactWithGround = true;
             }
         }
     }
+}
+
+void PhysicsComponent::Jump(float jumpStrength, glm::vec3 _jumpDirection)
+{
+
+	if (!inContactWithGround) return;
+
+    //double currentTime = glfwGetTime();
+    //if (currentTime - mLastJumpTime < 0.5) return;
+
+	mVelocity += _jumpDirection * jumpStrength;
+
+    //mLastJumpTime = currentTime;
+
 }
 

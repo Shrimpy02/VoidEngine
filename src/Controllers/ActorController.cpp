@@ -4,6 +4,7 @@
 #include <Actor.h>
 #include <Core/Window.h>
 #include <GLFW/glfw3.h>
+#include <Components/PhysicsComponent.h>
 
 void ActorController::Update(float _dt)
 {
@@ -61,4 +62,12 @@ void ActorController::UpdateActor(float _dt)
     // if escape pressed end program
     if (mKeyStates[GLFW_KEY_ESCAPE] && mWindow)
         glfwSetWindowShouldClose(mWindow->GetGLFWWindow(), true);
+
+    if (mKeyStates[GLFW_KEY_SPACE])
+    {
+        std::vector<PhysicsComponent*> physicsComponents;
+        mActor->QueryPhysicsComponents<PhysicsComponent*>(physicsComponents);
+        if (physicsComponents[0])
+            physicsComponents[0]->Jump();
+    }
 }

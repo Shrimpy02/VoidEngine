@@ -21,9 +21,12 @@ private:
 
 	glm::vec3 mVelocity{ 0.f };
 	glm::vec3 mAcceleration{ 0.f };
-	float mMaxSpeed = 4.f;
+	float mMaxSpeed = 20.f;
 
 	class VisualActor* mGroundReference{ nullptr };
+	bool inContactWithGround = true;
+
+	double mLastJumpTime;
 
 public:
 	// ---------- Global functions --------------
@@ -52,6 +55,8 @@ public:
 	// This function makes sure the components owner conforms to ground geometry if mGroundReference is filled.
 	void ConformToGround(float _parentExtent);
 
+	// Adds velocity upwards to the actor
+	void Jump(float jumpStrength = 10, glm::vec3 _jumpDirection = glm::vec3(0.f, 1.f, 0.f));
 
 private:
 	// ---------- Local functions --------------
