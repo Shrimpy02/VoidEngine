@@ -19,6 +19,7 @@
 #include <Utilities/Defines.h>
 #include <Utilities/Logger.h>
 #include <Core/SMath.h>
+#include <SkyBox/Skybox.h>
 
 // Additional Includes
 #include <variant>
@@ -42,6 +43,17 @@ void Scene::LoadContent()
 	// --------------------------------------------
 	mShader = new Shader(SOURCE_DIRECTORY("shaderSrc/shader.vs"), SOURCE_DIRECTORY("shaderSrc/shader.fs"));
 
+	// Sky-box Loading
+	// --------------------------------------------
+	mSkybox = new Skybox({
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_left.png"),
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_right.png"),
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_up.png"),
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_down.png"),
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_front.png"),
+		SOURCE_DIRECTORY("assets/Textures/Skybox/SkyDay/rainbow_back.png"),
+		});
+
 	// Actor Loading
 	// --------------------------------------------
 	// Default
@@ -54,8 +66,8 @@ void Scene::LoadContent()
 	mDirectionalLightActor = new DirectionalLightActor("DirectionalLight0");
 
 	// Assimp Import
-	//Actor* GroundPlane = new Actor("GroundPlane");
-	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Ground/UneavenPlane.fbx"), GroundPlane);
+	Actor* GroundPlane = new Actor("GroundPlane");
+	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Ground/UneavenPlane.fbx"), GroundPlane);
 	Actor* Monke = new Actor("Monke");
 	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Monkey/Monke.fbx"), Monke);
 
@@ -67,6 +79,7 @@ void Scene::LoadContent()
 	mSceneGraph.AddChild(mMACube1);
 	//mSceneGraph.AddChild(mVAPlane0);
 	mSceneGraph.AddChild(Monke);
+	mSceneGraph.AddChild(GroundPlane);
 
 	//// Creates a curve
 	//std::vector<Points> parametricCurve = SMath::CreateParametricCurve(10, 0.5f);
@@ -104,9 +117,9 @@ void Scene::LoadContent()
 	mMACube0->mCollisionProperties.mType = CollisionType::DYNAMIC;
 	//mMACube0->mCollisionProperties.mBase = CollisionBase::BoundingSphere;
 	//mMACube1->mCollisionProperties.mType = CollisionType::DYNAMIC;
-	//mMACube0->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
-	//// Dirty cast to assign ground plane to physics component..
-	//dynamic_cast<PhysicsComponent*>(mMACube0->GetComponents()[0])->SetGroundReference(dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));
+	mMACube0->AddComponent<PhysicsComponent>("Cube0PhysicsComponent.h");
+	// Dirty cast to assign ground plane to physics component..
+	dynamic_cast<PhysicsComponent*>(mMACube0->GetComponents()[0])->SetGroundReference(dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));
 	//mMACube1->AddComponent<AIComponent>("Cube1AIComponent.h");
 	//dynamic_cast<AIComponent*>(mMACube1->GetComponents()[0])->SetActivePath(std::move(parametricCurve));
 
@@ -133,6 +146,7 @@ void Scene::UnloadContent()
 	delete mShader;
 	delete mMACube0;
 	delete mMACube1;
+	delete mSkybox;
 	//delete mVAPlane0;
 
 	// Scene Lights
@@ -186,7 +200,7 @@ void Scene::RenderSceneGraph(Actor* _actor, float _dt, Transform _globalTransfor
 		iRender->Draw(mShader);
 	}
 
-	// for each child recursively run through this function
+	// for each child recursively run thrh this function
 	const auto& children = _actor->GetChildren();
 	for (Actor* child : children)
 	{
@@ -221,6 +235,7 @@ void Scene::Render(float _dt)
 	RenderSceneGraph(&mSceneGraph, _dt);
 	// Render UI over top, should be called last so it displays updated rather than outdated information
 	RenderUI();
+	mSkybox->Render(&mSceneCamera);
 
 	glDepthFunc(GL_LEQUAL);
 }

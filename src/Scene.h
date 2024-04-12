@@ -25,6 +25,7 @@ private:
 
 	// Shader`s ----------------- 
     Shader* mShader{ nullptr };
+    class Skybox* mSkybox{ nullptr };
 
     // Scene Items -------------------------
     // MeshActors

@@ -3,6 +3,7 @@
 #include <Components/Component.h>
 #include <Transform.h>
 #include <Tag.h>
+#include <Components/PhysicsComponent.h>
 
 // Additional includes
 #include <vector>
@@ -91,6 +92,23 @@ public:
 		for (auto child : this->mChildren)
 			child->Query<T>(_actors);
 	}
+
+	// Template function that recursively checks itself and its children if they are appropriate component.
+	// If true they are added to the input vector address.
+	template <typename T>
+	void QueryPhysicsComponents(std::vector<class PhysicsComponent*>& physicsComponents)
+	{
+		for (auto child : mComponents)
+		{
+			PhysicsComponent* physicsComp = dynamic_cast<PhysicsComponent*>(child);
+			if (physicsComp)
+			{
+				physicsComponents.push_back(physicsComp);
+			}
+		}
+	}
+
+
 
 private:
 	// ---------- Local functions --------------

@@ -364,8 +364,8 @@ void Mesh::MakeTriangle(std::vector<Vertex>& _vertices, std::vector<Index>& _ind
 glm::vec2 Mesh::CalculateTexCoord(const glm::vec3& _vec)
 {
     // Convert spherical coordinates to texture coordinates
-    float u = 0.5f + atan2(_vec.z, _vec.x) / (2 * M_PI);
-    float v = 0.5f - asin(_vec.y) / M_PI;
+    float u = 0.5f + (float) atan2(_vec.z, _vec.x) / (2 * M_PI);
+    float v = 0.5f - (float) asin(_vec.y) / M_PI;
     return glm::vec2(u, v);
 }
 

@@ -58,6 +58,8 @@ public:
     // Erases all elements of the texture cache
     static void ClearCache();
 
+    static TextureID GenSkybox(std::initializer_list<std::string> texturePaths);
+
     // Returns true if mID == 0;
     bool IsValid() const { return mID == 0; }
 

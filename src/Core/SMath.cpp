@@ -80,7 +80,7 @@ void SMath::ConformCurveToGeometry(std::vector<Points>& _points, VisualActor* _m
             	height += -4;
                 // Set point height to triangle height + small off sett
                 // Since it got the points array by address we change the value directly so no return required
-                _points[j].mPosition.y = height + 0.2;
+                _points[j].mPosition.y = height + 0.2f;
             }
         }
     }

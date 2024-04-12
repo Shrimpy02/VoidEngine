@@ -68,7 +68,7 @@ void Material::Bind(const Shader* _shader) const
             if (mTextures[i])
             {
                 // Actives texture
-                glActiveTexture(GL_TEXTURE0 + i);
+                glActiveTexture(GL_TEXTURE0 + (GLenum) i);
                 // binds texture by id
                 glBindTexture(GL_TEXTURE_2D, mTextures[i]->GetTextureID());
 
