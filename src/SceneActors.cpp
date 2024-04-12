@@ -214,8 +214,8 @@ AABB CollisionActor::GetAABB() const
         // Calculate extent of the AABB
         glm::vec3 extent = (scaledMaxExtent - scaledMinExtent) * 0.5f;
 
-        // Dirty swap of z and y axis so importing from blender gets correct coordinates
-        glm::vec3 newExtent(extent.x, extent.z, extent.y);
+       // Dirty swap of z and y axis so importing from blender gets correct coordinates
+       glm::vec3 newExtent(extent.x, extent.z, extent.y);
 
 
         // Construct and return the AABB

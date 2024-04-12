@@ -196,6 +196,7 @@ public:
     // Adders
 
     // Setters
+    void SetDrawDebugCollisionMesh(bool _state) { mShouldDrawCollisionMesh = _state; }
 
     // Getters
 

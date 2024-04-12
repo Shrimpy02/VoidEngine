@@ -58,6 +58,6 @@ public:
 	// ---------- Getters and setters --------------
 
 	// Getters
-
+	const std::string& GetTag() { return mTag.GetValue(); }
 
 };

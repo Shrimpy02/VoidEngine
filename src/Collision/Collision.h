@@ -76,6 +76,9 @@ struct CollisionProperties
 
 	// Sets current collision response
 	void SetCollisionResponse(CollisionResponse _inType) { mResponse = _inType; }
+
+    // Sets current collision base
+    void SetCollisionBase(CollisionBase _inType) { mBase = _inType; }
 };
 
 // ---------------------------------------------------------------
