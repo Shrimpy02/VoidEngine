@@ -1,5 +1,5 @@
-prefix=C:/SebsStuff/Semester4/3D Programming/3DProgEngine/out/install/x64-debug
-exec_prefix=C:/SebsStuff/Semester4/3D Programming/3DProgEngine/out/install/x64-debug
+prefix=C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/install/x64-debug
+exec_prefix=C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/install/x64-debug
 libdir=
 sharedlibdir=
 includedir=

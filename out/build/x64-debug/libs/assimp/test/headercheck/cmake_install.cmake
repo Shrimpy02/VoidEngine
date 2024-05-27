@@ -1,8 +1,8 @@
-# Install script for directory: C:/SebsStuff/Semester4/3D Programming/3DProgEngine/libs/assimp/test/headercheck
+# Install script for directory: C:/SebsStuff/Projects/Void Engine/3DProgEngine/libs/assimp/test/headercheck
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/SebsStuff/Semester4/3D Programming/3DProgEngine/out/install/x64-debug")
+  set(CMAKE_INSTALL_PREFIX "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/install/x64-debug")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

@@ -800,7 +800,7 @@ rule CXX_EXECUTABLE_LINKER__unit_Debug
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --regenerate-during-build -S"C:\SebsStuff\Semester4\3D Programming\3DProgEngine" -B"C:\SebsStuff\Semester4\3D Programming\3DProgEngine\out\build\x64-debug"
+  command = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --regenerate-during-build -S"C:\SebsStuff\Projects\Void Engine\3DProgEngine" -B"C:\SebsStuff\Projects\Void Engine\3DProgEngine\out\build\x64-debug"
   description = Re-running CMake...
   generator = 1
 

@@ -1,8 +1,8 @@
-# Install script for directory: C:/SebsStuff/Semester4/3D Programming/3DProgEngine
+# Install script for directory: C:/SebsStuff/Projects/Void Engine/3DProgEngine
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/SebsStuff/Semester4/3D Programming/3DProgEngine/out/install/x64-debug")
+  set(CMAKE_INSTALL_PREFIX "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/install/x64-debug")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -34,8 +34,8 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/SebsStuff/Semester4/3D Programming/3DProgEngine/out/build/x64-debug/libs/glfw-3.3.9/cmake_install.cmake")
-  include("C:/SebsStuff/Semester4/3D Programming/3DProgEngine/out/build/x64-debug/libs/assimp/cmake_install.cmake")
+  include("C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/glfw-3.3.9/cmake_install.cmake")
+  include("C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/assimp/cmake_install.cmake")
 
 endif()
 
@@ -47,5 +47,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/SebsStuff/Semester4/3D Programming/3DProgEngine/out/build/x64-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

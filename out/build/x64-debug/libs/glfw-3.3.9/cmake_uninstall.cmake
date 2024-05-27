@@ -1,9 +1,9 @@
 
-if (NOT EXISTS "C:/SebsStuff/Semester4/3D Programming/3DProgEngine/out/build/x64-debug/libs/glfw-3.3.9/install_manifest.txt")
-  message(FATAL_ERROR "Cannot find install manifest: \"C:/SebsStuff/Semester4/3D Programming/3DProgEngine/out/build/x64-debug/libs/glfw-3.3.9/install_manifest.txt\"")
+if (NOT EXISTS "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/glfw-3.3.9/install_manifest.txt")
+  message(FATAL_ERROR "Cannot find install manifest: \"C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/glfw-3.3.9/install_manifest.txt\"")
 endif()
 
-file(READ "C:/SebsStuff/Semester4/3D Programming/3DProgEngine/out/build/x64-debug/libs/glfw-3.3.9/install_manifest.txt" files)
+file(READ "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/glfw-3.3.9/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 
 foreach (file ${files})
