@@ -8,7 +8,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm> // For std::clamp
 
-
 /**
  * @struct Transform,
  * @brief Transform contains all transform logic for an in world object.

@@ -34,6 +34,9 @@ Window::~Window()
 void Window::Init()
 {
     // Init GLFW-window ------------
+
+    // Functions: https://www.glfw.org/docs/3.3/group__window.html
+    // Documentation: https://www.glfw.org/docs/3.3/window_guide.html#window_hints
     mGLFWWindow = glfwCreateWindow(mWidth, mHeight, mName.c_str(), NULL, NULL);
     if (mGLFWWindow == NULL)
     {
@@ -41,6 +44,7 @@ void Window::Init()
         LOG_ERROR("GLFW Window did not initalize");
     }
     glfwMakeContextCurrent(mGLFWWindow);
+    
     LOG("Window Init Success");
 
     // Init Glad ------------

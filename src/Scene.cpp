@@ -58,7 +58,7 @@ void Scene::LoadContent()
 	// --------------------------------------------
 	// Default
 	mMACube0 = new BaseActor("Player", Mesh::CreateCube(crateMat));
-	mMACube1 = new BaseActor("NPC", Mesh::CreateCube(crateMat));
+	//mMACube1 = new BaseActor("NPC", Mesh::CreateCube(crateMat));
 
 	//mVAPlane0 = new VisualActor("VAPlane0", Mesh::CreatePlane(crateMat));
 
@@ -66,8 +66,8 @@ void Scene::LoadContent()
 	mDirectionalLightActor = new DirectionalLightActor("DirectionalLight0");
 
 	// Assimp Import
-	Actor* GroundPlane = new Actor("GroundPlane");
-	AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Ground/UneavenPlane.fbx"), GroundPlane);
+	//Actor* GroundPlane = new Actor("GroundPlane");
+	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Ground/UneavenPlane.fbx"), GroundPlane);
 	//Actor* Monke = new Actor("Monke");
 	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Monkey/Monke.fbx"), Monke);
 
@@ -76,22 +76,21 @@ void Scene::LoadContent()
 	// Objects
 	mSceneGraph.AddChild(&mSceneCamera);
 	mSceneGraph.AddChild(mMACube0);
-	mSceneGraph.AddChild(mMACube1);
+	//mSceneGraph.AddChild(mMACube1);
 	//mSceneGraph.AddChild(mVAPlane0);
-	mSceneGraph.AddChild(GroundPlane);
+	//mSceneGraph.AddChild(GroundPlane);
 
 	// Creates a curve
-	std::vector<Points> parametricCurve = SMath::CreateParametricCurve(10, 0.5f);
+	//std::vector<Points> parametricCurve = SMath::CreateParametricCurve(10, 0.5f);
 	// Conforms the curve to the imported geometry
-	SMath::ConformCurveToGeometry(parametricCurve, dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));
+	//SMath::ConformCurveToGeometry(parametricCurve, dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));
 	// iterates through each point and creates a visual actor and sets its position for scene visualization
-	for (int i = 0; i < parametricCurve.size(); i++)
-	{
-		VisualActor* newVAPoint = new VisualActor("CurvePoint" + std::to_string(i), Mesh::CreateSphere(debugMat, 1));
-		newVAPoint->SetPosition(parametricCurve[i].mPosition,Actor::TransformSpace::Global);
-		mSceneGraph.AddChild(newVAPoint);
-	}
-		
+	//for (int i = 0; i < parametricCurve.size(); i++)
+	//{
+	//	VisualActor* newVAPoint = new VisualActor("CurvePoint" + std::to_string(i), Mesh::CreateSphere(debugMat, 1));
+	//	newVAPoint->SetPosition(parametricCurve[i].mPosition,Actor::TransformSpace::Global);
+	//	mSceneGraph.AddChild(newVAPoint);
+	//}
 
 	// Lights
 	mSceneGraph.AddChild(mDirectionalLightActor);
@@ -99,12 +98,12 @@ void Scene::LoadContent()
 	// Setting object location
 	// --------------------------------------------
 	// Objects
-	mSceneCamera.SetPosition({ 0.f, 18.f, 3.f });
+	mSceneCamera.SetPosition({ 0.f, 0.f, 3.f });
 	mMACube0->SetPosition({ 0.f, 0.f, 0.f }, Actor::TransformSpace::Global);
-	mMACube1->SetPosition({ 0.f, 25.f, 0.f }, Actor::TransformSpace::Global);
+	//mMACube1->SetPosition({ 0.f, 25.f, 0.f }, Actor::TransformSpace::Global);
 	//mVAPlane0->SetScale(glm::vec3(10), Actor::TransformSpace::Global);
 	//mVAPlane0->SetPosition(glm::vec3(0,-1,0),Actor::TransformSpace::Global);
-	GroundPlane->SetPosition({ 0.f, -4.f, 0.f }, Actor::TransformSpace::Global);
+	//GroundPlane->SetPosition({ 0.f, -4.f, 0.f }, Actor::TransformSpace::Global);
 
 	// Lights
 	mDirectionalLightActor->SetRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), Actor::TransformSpace::Global);
@@ -116,15 +115,13 @@ void Scene::LoadContent()
 	mMACube0->mCollisionProperties.mType = CollisionType::DYNAMIC;
 	//mMACube0->mCollisionProperties.mBase = CollisionBase::BoundingSphere;
 	//mMACube1->mCollisionProperties.mType = CollisionType::DYNAMIC;
-	mMACube0->AddComponent<PhysicsComponent>("PhysicsComponent");
+	//mMACube0->AddComponent<PhysicsComponent>("PhysicsComponent");
 	// Dirty cast to assign ground plane to physics component..
-	dynamic_cast<PhysicsComponent*>(mMACube0->GetComponents()[0])->SetGroundReference(dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));
-	mMACube1->AddComponent<AIComponent>("Cube1AIComponent.h");
-	dynamic_cast<AIComponent*>(mMACube1->GetComponents()[0])->SetActivePath(std::move(parametricCurve));
-
+	//dynamic_cast<PhysicsComponent*>(mMACube0->GetComponents()[0])->SetGroundReference(dynamic_cast<VisualActor*>(GroundPlane->GetChildren()[0]->GetChildren()[0]));
+	//mMACube1->AddComponent<AIComponent>("Cube1AIComponent.h");
+	//dynamic_cast<AIComponent*>(mMACube1->GetComponents()[0])->SetActivePath(std::move(parametricCurve));
 
 	// Lights
-
 
 	// Controller
 	mActorController = std::shared_ptr<ActorController>(new ActorController(mMACube0, mWindow));
@@ -370,7 +367,7 @@ void Scene::RenderUI()
 	imgui_Logger();
 
 	// Demo window for inspiration and explanation
-	//ImGui::ShowDemoWindow();
+	ImGui::ShowDemoWindow();
 }
 
 void Scene::imgui_WorldObjectSettings()

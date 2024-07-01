@@ -16,7 +16,7 @@ public:
 private:
     // ---------- Local Variables --------------
 
-    Window mWindow{ "LearnOpenGL", 1280, 720 };
+    Window mWindow{ "LearnOpenGL", 1980, 1020 };
     Scene mScene{ "Scene", &mWindow };
 
 public:

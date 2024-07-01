@@ -10,7 +10,6 @@ class Window
 {
 public:
 	// ---------- Global Variables --------------
-
 private:
 	// ---------- Local Variables --------------
 
