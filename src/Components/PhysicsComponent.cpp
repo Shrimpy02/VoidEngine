@@ -7,7 +7,7 @@
 
 PhysicsComponent::~PhysicsComponent()
 {
-    delete mGroundReference;
+  
 }
 
 // Overriden function
@@ -44,7 +44,7 @@ void PhysicsComponent::UpdatePosition(float _dt)
 {
 	// sets the owners position based on velocity and delta time
 	if(mOwner)
-		mOwner->SetPosition(mOwner->GetPosition(Actor::TransformSpace::Global) + (mVelocity * _dt), Actor::TransformSpace::Global);
+		mOwner->SetGlobalPosition(mOwner->GetGlobalPosition() + (mVelocity * _dt));
 }
 
 void PhysicsComponent::ResetValues()
@@ -57,14 +57,14 @@ void PhysicsComponent::ConformToGround(float _parentExtent)
     if (!mGroundReference) return;
     inContactWithGround = false;
     // Gets the ground planes mesh
-    Mesh* groundPlane = mGroundReference->GetActorMesh();
+    std::shared_ptr<Mesh> groundPlane = mGroundReference->GetActorMesh();
 
     // Gets the vertices for positional values and indices for triangle point pairing.
     std::vector<Vertex>& planeVertices = groundPlane->GetVertices();
     std::vector<Index>& planeIndices = groundPlane->GetIndices();
 
     // Gets parent position
-    glm::vec3 actorPos(mOwner->GetPosition(Actor::TransformSpace::Global));
+    glm::vec3 actorPos(mOwner->GetGlobalPosition());
 
     // Iterates through indices in pairs of three to calc one triangle at a time
     // NOTE:: This is crazy performance intensive, should update to triangle neighbour searching method
@@ -82,9 +82,9 @@ void PhysicsComponent::ConformToGround(float _parentExtent)
         glm::vec3 point3(planeVertices[index3].mPosition);
 
         // * actor world scale for live scaling of terrain
-        point1 *= mGroundReference->GetScale(Actor::TransformSpace::Global);
-        point2 *= mGroundReference->GetScale(Actor::TransformSpace::Global);
-        point3 *= mGroundReference->GetScale(Actor::TransformSpace::Global);
+        point1 *= mGroundReference->GetGlobalScale();
+        point2 *= mGroundReference->GetGlobalScale();
+        point3 *= mGroundReference->GetGlobalScale();
 
         // perhaps + actor world position for live moveing of terrain, however this messes with height calculations because of uneven positioning
         // point1 += mGroundPlane->GetPosition(TransformSpace::Global);
@@ -92,7 +92,7 @@ void PhysicsComponent::ConformToGround(float _parentExtent)
         // point3 += mGroundPlane->GetPosition(TransformSpace::Global);
 
         // actor world rotation for live rotating of terrain
-        glm::quat planesRotation = mGroundReference->GetRotation(Actor::TransformSpace::Global);
+        glm::quat planesRotation = mGroundReference->GetGlobalRotation();
         point1 = glm::rotate(planesRotation, point1);
         point2 = glm::rotate(planesRotation, point2);
         point3 = glm::rotate(planesRotation, point3);
@@ -111,18 +111,18 @@ void PhysicsComponent::ConformToGround(float _parentExtent)
             // Calculates the height of a point in a triangle given by the Barycentric Coordinates and the three points of the triangle
         	float hight = SMath::GetHightFromBarycentricCoordinates(baryCoords, point1, point2, point3);
             // Sets the height tor the ground reference and to parent extent
-            hight += mGroundReference->GetPosition(Actor::TransformSpace::Global).y;
+            hight += mGroundReference->GetGlobalPosition().y;
             hight += _parentExtent;
 
             // If owning actor is bellow the height of the collision, set it to height of collision so it conforms to ground geometry.
-            if (mOwner->GetPosition(Actor::TransformSpace::Global).y < hight)
+            if (mOwner->GetGlobalPosition().y < hight)
             {
                 // Gets the owners position and overwrites the height with new collision value
-                glm::vec3 playPos = mOwner->GetPosition(Actor::TransformSpace::Global);
+                glm::vec3 playPos = mOwner->GetGlobalPosition();
                 playPos.y = hight;
 
                 // Set the owners position
-                mOwner->SetPosition(playPos, Actor::TransformSpace::Global);
+                mOwner->SetGlobalPosition(playPos);
                 inContactWithGround = true;
             }
         }

@@ -1,9 +1,15 @@
 #pragma once
 
 // includes
+#include <Utilities/Types.h>
+
+// Additional Includes
+#include <memory> 
 #include <string>
 #include <unordered_map>
-#include <Utilities/Types.h>
+
+// Forward Declarations
+
 
 /**
  * @class Texture
@@ -20,7 +26,7 @@ public:
     // project path to texture location
     std::string mPath; 
     // Static cache of all textures
-    static std::unordered_map<std::string, Texture*> sCache;
+    static std::unordered_map<std::string, std::shared_ptr<Texture>> sCache;
 
 private:
     // ---------- Local Variables --------------
@@ -44,13 +50,13 @@ public:
 
     // Loads the texture from the input system path, checks cache if texture exists first,
     // if not creates a new texture and loads it into the cache.
-	static Texture* Load(const std::string& _path);
+	static std::shared_ptr<Texture> Load(const std::string& _path);
 
     // Calls Load with default path file to white texture
-    static Texture* LoadWhiteTexture();
+    static std::shared_ptr<Texture> LoadWhiteTexture();
 
     // Calls Load with default path file to black texture
-    static Texture* LoadBlackTexture();
+    static std::shared_ptr<Texture> LoadBlackTexture();
 
     // Unloads specific texture from cache by its file path.
     static void Unload(const std::string& _path);

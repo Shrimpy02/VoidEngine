@@ -1,19 +1,16 @@
 
 // Class includes
-#include <Texture.h>
+#include <RenderElements/Texture.h>
 #include <glad/glad.h>
 #include <Utilities/Logger.h>
 #include <Utilities/Defines.h>
 
 // Additional includes
-// STBI
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-
-
 // Static cache of textures
-std::unordered_map<std::string, Texture*> Texture::sCache;
+std::unordered_map<std::string, std::shared_ptr<Texture>> Texture::sCache;
 
 Texture::Texture(const std::string& _path) : mID(0), mPath(_path)
 {
@@ -27,7 +24,7 @@ Texture::~Texture()
 	glDeleteTextures(1,&mID);
 }
 
-Texture* Texture::Load(const std::string& _path)
+std::shared_ptr<Texture> Texture::Load(const std::string& _path)
 {
 	// Checks cache if texture exists
 	// returns the texture cache
@@ -43,7 +40,7 @@ Texture* Texture::Load(const std::string& _path)
 	std::string endOfPath = (lastSlashIndex != std::string::npos) ? _path.substr(lastSlashIndex + 1) : _path;
 
 	// otherwise create new texture and assign it to the cache
-	Texture* texture = new Texture(_path);
+	std::shared_ptr<Texture> texture = std::make_shared<Texture>(_path);
 	sCache[_path] = texture;
 	sCache[_path] = texture;
 
@@ -52,7 +49,7 @@ Texture* Texture::Load(const std::string& _path)
 	return texture;
 }
 
-Texture* Texture::LoadWhiteTexture()
+std::shared_ptr<Texture> Texture::LoadWhiteTexture()
 {
 	// loads white texture from file
 	std::string path = SOURCE_DIRECTORY("assets/Textures/DefaultTextures/WhiteTexture.jpg");
@@ -60,7 +57,7 @@ Texture* Texture::LoadWhiteTexture()
 	return Load(path);
 }
 
-Texture* Texture::LoadBlackTexture()
+std::shared_ptr<Texture> Texture::LoadBlackTexture()
 {
 	// loads black texture from file
 	std::string path = SOURCE_DIRECTORY("assets/Textures/DefaultTextures/BlackTexture.jpg");
@@ -102,7 +99,6 @@ void Texture::Unload(const std::string& _path)
 	auto it = sCache.find(_path);
 	if(it != sCache.end())
 	{
-		delete it->second;
 		sCache.erase(it);
 	}
 	else
@@ -111,11 +107,6 @@ void Texture::Unload(const std::string& _path)
 
 void Texture::ClearCache()
 {
-	// deletes all elements of the cache
-	for (auto it : sCache)
-	{
-		delete it.second;
-	}
 	sCache.clear();
 }
 

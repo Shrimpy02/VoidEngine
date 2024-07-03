@@ -32,7 +32,7 @@ void AIComponent::FollowPath(float _dt)
 bool AIComponent::MoveTo(const glm::vec3& _targetPoint, float _dt)
 {
 	// Gets the current position to the owning actor
-	glm::vec3 currentPos = mOwner->GetPosition(Actor::TransformSpace::Global);
+	glm::vec3 currentPos = mOwner->GetGlobalPosition();
 
 	// Gets the distance from owner position to target position to create a threshold range for reaching the position
 	float distance = glm::distance(currentPos, _targetPoint);
@@ -45,7 +45,7 @@ bool AIComponent::MoveTo(const glm::vec3& _targetPoint, float _dt)
 		glm::vec3 direction = _targetPoint - currentPos;
 		glm::vec3 normDirection = glm::normalize(direction);
 		glm::vec3 movement = normDirection * _dt * mMovementSpeed;
-		mOwner->SetPosition(currentPos + movement, Actor::TransformSpace::Global);
+		mOwner->SetGlobalPosition(currentPos + movement);
 	}
 	return false;
 }

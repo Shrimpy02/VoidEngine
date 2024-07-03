@@ -9,76 +9,12 @@
 #include <Collision/AABB.h>
 #include <Collision/BoundingSphere.h>
 
-// CODE DECLARATION --------------
-// Get AABB and BoundingSphere are basically the same function and could be converted to IBounded class for simplicity
-// its collision base is what decides what one to use at collision time. Unoptomised and should be fixed. 
+// Additional Includes
+#include <string>
+#include <memory>
 
-// ---------------------------------------------------------------
-// --------------------- SceneGraph ------------------------------
-// ---------------------------------------------------------------
-
-/**
- * @class SceneGraph
- * @brief Represents a minimal actor in world context, is the top object in scene for render and update reference.
- * Has no functionality other han containing all scene objects as children.
- */
-class SceneGraph : public Actor
-{
-
-public:
-    // basic constructor
-    SceneGraph(const std::string& _name) : Actor(_name) { };
-};
-
-
-// ---------------------------------------------------------------
-// --------------------- Visual Actor ------------------------------
-// ---------------------------------------------------------------
-
-/**
- * @class VisualActor
- * @brief Represents a visual object in a scene, it inherits from actor for world location and
- * IRender for mesh rendering.
- */
-class VisualActor : public Actor, public IRender
-{
-public:
-    // ---------- Global Variables --------------
-
-    // The visual mesh
-    Mesh* mMesh{ nullptr };
-
-private:
-    // ---------- Local Variables --------------
-
-public:
-    // ---------- Global functions --------------
-
-    // Constructor
-    VisualActor(const std::string& _name, Mesh* _mesh);
-
-    // Overriden from IRender passes draw call to mesh. 
-    virtual void Draw(const class Shader* _shader = nullptr) const override;
-
-
-private:
-    // ---------- Local functions --------------
-
-
-public:
-    // ---------- Getters / setters / Adders --------------
-
-    // Getters
-
-    // Returns the mesh for this actor as Mesh*
-    Mesh* GetActorMesh() { return mMesh; }
-
-    // Adders
-
-    // Setters
-
-
-};
+// Forward Declarations
+class Shader;
 
 // ---------------------------------------------------------------
 // --------------------- BaseActor ------------------------------
@@ -95,11 +31,11 @@ public:
     // ---------- Global Variables --------------
 
     // The visual mesh
-    Mesh* mMesh{ nullptr };
+    std::shared_ptr<Mesh> mMesh{ nullptr };
 
     // The collision mesh if vis is enabled
-    Mesh* mCollisionCube{ nullptr };
-	Mesh* mCollisionSphere{ nullptr };
+    std::shared_ptr<Mesh> mCollisionCube{ nullptr };
+    std::shared_ptr<Mesh> mCollisionSphere{ nullptr };
 
 private:
     // ---------- Local Variables --------------
@@ -108,12 +44,12 @@ public:
     // ---------- Global functions --------------
 
     // Constructor
-    BaseActor(const std::string& _name, Mesh* _mesh);
+    BaseActor(const std::string& _name, std::shared_ptr<Mesh> _mesh);
 
     ~BaseActor();
 
     // Overriden from IRender passes draw call to mesh. 
-    void Draw(const Shader* _shader = nullptr) const override;
+    void Draw(const std::shared_ptr<Shader> _shader = nullptr) const override;
 
 	// Overriden from Actor, handles local tick logic
     void Update(float _dt) override;
@@ -141,10 +77,60 @@ public:
     // Getters
 
     // Gets this classes collision properties.
-    CollisionProperties* GetCollisionProperties() override;
+    //CollisionProperties& GetCollisionProperties() override;
 
 };
 
+
+
+// ---------------------------------------------------------------
+// --------------------- Visual Actor ------------------------------
+// ---------------------------------------------------------------
+
+/**
+ * @class VisualActor
+ * @brief Represents a visual object in a scene, it inherits from actor for world location and
+ * IRender for mesh rendering.
+ */
+class VisualActor : public Actor, public IRender
+{
+public:
+    // ---------- Global Variables --------------
+
+    // The visual mesh
+    std::shared_ptr<Mesh> mMesh{ nullptr };
+
+private:
+    // ---------- Local Variables --------------
+
+public:
+    // ---------- Global functions --------------
+
+    // Constructor
+    VisualActor(const std::string& _name, std::shared_ptr<Mesh>);
+
+    // Overriden from IRender passes draw call to mesh. 
+    virtual void Draw(const std::shared_ptr<Shader> _shader = nullptr) const override;
+
+
+private:
+    // ---------- Local functions --------------
+
+
+public:
+    // ---------- Getters / setters / Adders --------------
+
+    // Getters
+
+    // Returns the mesh for this actor as Mesh*
+    std::shared_ptr<Mesh> GetActorMesh() { return mMesh; }
+
+    // Adders
+
+    // Setters
+
+
+};
 
 // ---------------------------------------------------------------
 // --------------------- CollisionActor ------------------------------
@@ -161,22 +147,22 @@ public:
     // ---------- Global Variables --------------
 
     // Collision properties inherited from IBounded
-    CollisionProperties mCollisionProperties;
+    //CollisionProperties mCollisionProperties;
 
 private:
     // ---------- Local Variables --------------
 
     // Collision mesh
-    class Mesh* mCollisionMesh = nullptr;
+    std::shared_ptr<Mesh> mCollisionMesh = nullptr;
 
 public:
     // ---------- Global functions --------------
 
     // Constructor
-    CollisionActor(const std::string& name, class Mesh* _mesh, const CollisionProperties _inCollisionProps = {});
+    CollisionActor(const std::string& name, std::shared_ptr<Mesh> _mesh, const CollisionProperties _inCollisionProps = {});
     
     // Draw override inherited from IRender, only for collision visualization
-    void Draw(const Shader* _shader) const override;
+    void Draw(const std::shared_ptr<Shader> _shader) const override;
 
     // Overrides IBounded function, Returns an AABB object for collision processing.
     AABB GetAABB() const override;
@@ -185,7 +171,7 @@ public:
     BoundingSphere GetBoundingSphere() const override;
 
     // Overrides IBounded function, Returns the collision properties for this object
-    CollisionProperties* GetCollisionProperties() override;
+    //CollisionProperties& GetCollisionProperties() override;
 
 private:
     // ---------- Local functions --------------

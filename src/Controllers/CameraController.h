@@ -2,7 +2,14 @@
 
 // Includes
 #include <Controllers/Controller.h>
+
+// Additional Includes
+#include <memory> 
 #include <map>
+
+// Forward Declarations
+class CameraActor;
+class Window;
 
 /**
  * @class CameraController,
@@ -26,15 +33,15 @@ private:
     // A map of key states to keys, for manipulation outside of this class.
     std::map<int, bool> mKeyStates;
     // the camera actor this controller is controlling. 
-    class CameraActor* mCamera = nullptr;
+    std::shared_ptr<CameraActor> mCamera{nullptr};
     // A window reference
-    class Window* mWindow = nullptr;
+    std::shared_ptr<Window> mWindow = nullptr;
 
 public:
     // ---------- Global functions --------------
 
     // Constructor
-    CameraController(class CameraActor* camera, Window* _window) : mCamera(camera), mWindow(_window) {}
+    CameraController(std::shared_ptr<CameraActor> camera, std::shared_ptr<Window> _window) : mCamera(camera), mWindow(_window) {}
 
     ~CameraController() {};
 
@@ -42,13 +49,13 @@ public:
     void Update(float _dt) override;
 
     // Inherited from IController, rotates the camera object based on mouse movement
-    void HandleMouseMove(class Window* _window, double _xpos, double _ypos) override;
+    void HandleMouseMove(std::shared_ptr<Window> _window, double _xpos, double _ypos) override;
     // Inherited from IController, empty function
-    void HandleMouseScroll(class Window* _window, double _xoffset, double _yoffset) override;
+    void HandleMouseScroll(std::shared_ptr<Window> _window, double _xoffset, double _yoffset) override;
     // Inherited from IController, makes glfw capture mouse movement
-    void HandleMouseButton(class Window* _window, int _button, int _action, int _mods) override;
+    void HandleMouseButton(std::shared_ptr<Window> _window, int _button, int _action, int _mods) override;
     // Inherited from IController, asigness key states to the keystates maps
-    void HandleKeyboard(class Window* _window, int _key, int _scancode, int _action, int _mods) override;
+    void HandleKeyboard(std::shared_ptr<Window> _window, int _key, int _scancode, int _action, int _mods) override;
 
 private:
     // ---------- Local functions --------------

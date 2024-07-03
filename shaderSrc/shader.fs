@@ -105,6 +105,7 @@ void main()
     vec3 directionalLightContribution = CalculateDirectionalLightContribution();
     vec3 pointLightsContribution = CalculatePointLightContribution();
     vec3 finalColor = pointLightsContribution + directionalLightContribution;
-    FragColor = vec4(finalColor, 1);    
+    //FragColor = vec4(finalColor, 1);    
+    FragColor = vec4(0,0,1,1);
    }
 }

@@ -1,10 +1,19 @@
 #pragma once
 
 // Includes
-#include <vector>
 #include <glm/vec3.hpp>
 #include <Utilities/Types.h>
-#include <Mesh.h>
+#include <RenderElements/Mesh.h>
+#include <RenderElements/Vertex.h>
+
+// Additional Includes
+#include <memory> 
+#include <vector>
+
+#include "Collision.h"
+
+// Forward Declarations
+struct CollisionProperties;
 
 // Enum for all types of collision
 enum class CollisionType
@@ -103,7 +112,7 @@ public:
     float mRadius{ 0.5f };
 
     // objects collision properties
-    CollisionProperties mCollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::AABB };
+    //CollisionProperties mCollisionProperties = { CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::AABB };
 
     // Decides if mCollisionMesh (if there is one) should be rendered.
     bool mShouldDrawCollisionMesh = true;
@@ -128,10 +137,10 @@ public:
     virtual struct BoundingSphere GetBoundingSphere() const = 0;
 
 	// Gets CollisionProperties object for collision handling, = 0 as base function. 
-	virtual struct CollisionProperties* GetCollisionProperties() = 0;
+	//virtual  CollisionProperties& GetCollisionProperties() = 0;
 
     // Helper functions to create default cube meshe based on existing mesh vertex geometry.
-	class Mesh* CreateCollisionCubeFromMesh(class Material* _material, std::vector<struct Vertex>& _existingMesh)
+	std::shared_ptr<Mesh> CreateCollisionCubeFromMesh(std::shared_ptr<Material> _material, std::vector<struct Vertex>& _existingMesh)
 	{
         // Calculate the bounding box (min and max extents) of the existing mesh
         glm::vec3 maxExtent = _existingMesh[0].mPosition;
@@ -201,11 +210,11 @@ public:
             20, 21, 22, 20, 22, 23
         };
 
-        return new Mesh("CollisionCube", std::move(vertices), std::move(indices), _material);
+        return std::make_shared<Mesh>("CollisionCube", std::move(vertices), std::move(indices), _material);
     }
 
     // Helper functions to create default cube meshe based on existing mesh vertex geometry.
-    class Mesh* CreateCollisionSphereFromMesh(class Material* _material, std::vector<struct Vertex>& _existingMesh)
+    std::shared_ptr<Mesh> CreateCollisionSphereFromMesh(std::shared_ptr<Material> _material, std::vector<struct Vertex>& _existingMesh)
     {
         // default extent init
         glm::vec3 maxExtent(0);
@@ -249,7 +258,7 @@ public:
         std::vector<Index> indices;
         Mesh::GenSphere(vertices,indices,2,mRadius);
 
-        return new Mesh("CollisionSphere", std::move(vertices), std::move(indices), _material);
+        return std::make_shared<Mesh>("CollisionSphere", std::move(vertices), std::move(indices), _material);
     }
 
     // Returns true if this object is colliding with anything else. 
@@ -259,10 +268,10 @@ public:
     void SetIsColliding(bool _inBool) { mIsColliding = _inBool; }
 
     // Sets the collision type for this object
-    void SetCollisionType(CollisionType _inType) { mCollisionProperties.mType = _inType; }
-
-    // Sets the collision response for this object
-    void SetCollisionResponse(CollisionResponse _inResponse) { mCollisionProperties.mResponse = _inResponse; }
+   // void SetCollisionType(CollisionType _inType) { mCollisionProperties.mType = _inType; }
+   //
+   // // Sets the collision response for this object
+   // void SetCollisionResponse(CollisionResponse _inResponse) { mCollisionProperties.mResponse = _inResponse; }
 
 private:
         // ---------- Local functions --------------

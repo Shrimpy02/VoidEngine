@@ -12,19 +12,19 @@ void ActorController::Update(float _dt)
 	UpdateActor(_dt);
 }
 
-void ActorController::HandleMouseMove(Window* _window, double _xpos, double _ypos)
+void ActorController::HandleMouseMove(std::shared_ptr<Window> _window, double _xpos, double _ypos)
 {
 }
 
-void ActorController::HandleMouseScroll(Window* _window, double _xoffset, double _yoffset)
+void ActorController::HandleMouseScroll(std::shared_ptr<Window> _window, double _xoffset, double _yoffset)
 {
 }
 
-void ActorController::HandleMouseButton(Window* _window, int _button, int _action, int _mods)
+void ActorController::HandleMouseButton(std::shared_ptr<Window> _window, int _button, int _action, int _mods)
 {
 }
 
-void ActorController::HandleKeyboard(Window* _window, int _key, int _scancode, int _action, int _mods)
+void ActorController::HandleKeyboard(std::shared_ptr<Window> _window, int _key, int _scancode, int _action, int _mods)
 {
     // if there is no actor being controlled end function
 	if (!mActor) return;
@@ -42,22 +42,22 @@ void ActorController::UpdateActor(float _dt)
 {
     // Updates actor position if any of these keys are pressed
     if (mKeyStates[GLFW_KEY_D])
-        mActor->SetPosition(mActor->GetPosition(Actor::TransformSpace::Global) + glm::vec3(1.0f, 0.f, 0.f) * _dt * mMovementSpeed);
+        mActor->SetGlobalPosition(mActor->GetGlobalPosition() + glm::vec3(1.0f, 0.f, 0.f) * _dt * mMovementSpeed);
     
     if (mKeyStates[GLFW_KEY_A])
-        mActor->SetPosition(mActor->GetPosition(Actor::TransformSpace::Global) - glm::vec3(1.0f, 0.f, 0.f) * _dt * mMovementSpeed);
+        mActor->SetGlobalPosition(mActor->GetGlobalPosition() - glm::vec3(1.0f, 0.f, 0.f) * _dt * mMovementSpeed);
     
     if (mKeyStates[GLFW_KEY_W])
-        mActor->SetPosition(mActor->GetPosition(Actor::TransformSpace::Global) - glm::vec3(0.f, 0.f, 1.0f) * _dt * mMovementSpeed);
+        mActor->SetGlobalPosition(mActor->GetGlobalPosition() - glm::vec3(0.f, 0.f, 1.0f) * _dt * mMovementSpeed);
     
     if (mKeyStates[GLFW_KEY_S])
-        mActor->SetPosition(mActor->GetPosition(Actor::TransformSpace::Global) + glm::vec3(0.0f, 0.f, 1.0f) * _dt * mMovementSpeed);
+        mActor->SetGlobalPosition(mActor->GetGlobalPosition() + glm::vec3(0.0f, 0.f, 1.0f) * _dt * mMovementSpeed);
 
     if (mKeyStates[GLFW_KEY_Q])
-        mActor->SetPosition(mActor->GetPosition(Actor::TransformSpace::Global) + glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed);
+        mActor->SetGlobalPosition(mActor->GetGlobalPosition() + glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed);
 
     if (mKeyStates[GLFW_KEY_E])
-        mActor->SetPosition(mActor->GetPosition(Actor::TransformSpace::Global) - glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed);
+        mActor->SetGlobalPosition(mActor->GetGlobalPosition() - glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed);
 
     // if escape pressed end program
     if (mKeyStates[GLFW_KEY_ESCAPE] && mWindow)
@@ -65,9 +65,9 @@ void ActorController::UpdateActor(float _dt)
 
     if (mKeyStates[GLFW_KEY_SPACE])
     {
-        std::vector<PhysicsComponent*> physicsComponents;
-        mActor->QueryPhysicsComponents<PhysicsComponent*>(physicsComponents);
-        if (physicsComponents[0])
-            physicsComponents[0]->Jump();
+       // std::vector<std::shared_ptr<PhysicsComponent>> physicsComponents;
+       // mActor->QueryPhysicsComponents<std::shared_ptr<PhysicsComponent>(physicsComponents);
+       // if (physicsComponents[0])
+       //     physicsComponents[0]->Jump();
     }
 }

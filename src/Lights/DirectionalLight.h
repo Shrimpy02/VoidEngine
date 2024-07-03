@@ -2,6 +2,11 @@
 
 // Includes
 #include <Lights/Lights.h>
+#include <Actor.h>
+
+// Additional Includes
+
+// Forward Declarations
 
 /**
  * @class DirectionalLight,

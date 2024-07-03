@@ -1,5 +1,12 @@
 #pragma once
+
+// Includes
 #include <Lights/Lights.h>
+#include <Actor.h>
+
+// Additional Includes
+
+// Forward Declarations
 
 // Defines the max amount of lights in a scene.
 // If this is changed remember to change in fragment shader as well!
@@ -47,7 +54,7 @@ public:
     // Inherited function returns the position of this light source as a vec3
     virtual glm::vec3 GetLightPosition() const
     {
-        return GetPosition(Actor::TransformSpace::Global);
+        return GetGlobalPosition();
     }
 
 };

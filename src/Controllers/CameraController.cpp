@@ -13,7 +13,7 @@ void CameraController::Update(float _dt)
     UpdateCameraAcceleration();
 }
 
-void CameraController::HandleMouseMove(Window* _window, double _xpos, double _ypos)
+void CameraController::HandleMouseMove(std::shared_ptr<Window> _window, double _xpos, double _ypos)
 {
     // only handle mouse movement if right mouse button is pressed
     if (!mRightMousePressed) return;
@@ -36,12 +36,12 @@ void CameraController::HandleMouseMove(Window* _window, double _xpos, double _yp
     mCamera->AddAngularAcceleration({ xoffset * angularSpeed, yoffset * angularSpeed });
 }
 
-void CameraController::HandleMouseScroll(Window* _window, double _xoffset, double _yoffset)
+void CameraController::HandleMouseScroll(std::shared_ptr<Window> _window, double _xoffset, double _yoffset)
 {
     // no scroll funcionality yet
 }
 
-void CameraController::HandleMouseButton(Window* _window, int _button, int _action, int _mods)
+void CameraController::HandleMouseButton(std::shared_ptr<Window> _window, int _button, int _action, int _mods)
 {
     // if right mouse button is pressed, enable the local bool and remember pose positions for consistency,
     // then update glfw input mode and cursor location
@@ -66,7 +66,7 @@ void CameraController::HandleMouseButton(Window* _window, int _button, int _acti
     }
 }
 
-void CameraController::HandleKeyboard(Window* _window, int _key, int _scancode, int _action, int _mods)
+void CameraController::HandleKeyboard(std::shared_ptr<Window> _window, int _key, int _scancode, int _action, int _mods)
 {
     // Binds key to key map and changes the bool based on if key is down or not
     if (_action == GLFW_PRESS || _action == GLFW_REPEAT)

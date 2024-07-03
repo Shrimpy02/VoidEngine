@@ -23,12 +23,12 @@ std::vector<Points> SMath::CreateParametricCurve(const unsigned int _numPoints, 
 	return points;
 }
 
-void SMath::ConformCurveToGeometry(std::vector<Points>& _points, VisualActor* _mesh)
+void SMath::ConformCurveToGeometry(std::vector<Points>& _points, std::shared_ptr<VisualActor> _mesh)
 {
     if (!_mesh) return;
 
     // gets the mesh geometry from the visual actor 
-    Mesh* conformGeometry = _mesh->GetActorMesh();
+    std::shared_ptr<Mesh> conformGeometry = _mesh->GetActorMesh();
 
     // Gets the vertices for positional values and indices for triangle point pairing.
     std::vector<Vertex>& planeVertices = conformGeometry->GetVertices();
@@ -51,9 +51,9 @@ void SMath::ConformCurveToGeometry(std::vector<Points>& _points, VisualActor* _m
             glm::vec3 point3(planeVertices[index3].mPosition);
 
             // * actor world scale for live scaling of terrain
-            point1 *= _mesh->GetScale(Actor::TransformSpace::Global);
-            point2 *= _mesh->GetScale(Actor::TransformSpace::Global);
-            point3 *= _mesh->GetScale(Actor::TransformSpace::Global);
+            point1 *= _mesh->GetGlobalScale();
+            point2 *= _mesh->GetGlobalScale();
+            point3 *= _mesh->GetGlobalScale();
 
             // perhaps + actor world position for live moveing of terrain, however this messes with height calculations because of uneven positioning
         	//point1 += _mesh->GetPosition(Actor::TransformSpace::Global);
@@ -61,7 +61,7 @@ void SMath::ConformCurveToGeometry(std::vector<Points>& _points, VisualActor* _m
         	//point3 += _mesh->GetPosition(Actor::TransformSpace::Global);
 
             // actor world rotation for live rotating of terrain
-            glm::quat planesRotation = _mesh->GetRotation(Actor::TransformSpace::Global);
+            glm::quat planesRotation = _mesh->GetGlobalRotation();
             point1 = glm::rotate(planesRotation, point1);
             point2 = glm::rotate(planesRotation, point2);
             point3 = glm::rotate(planesRotation, point3);

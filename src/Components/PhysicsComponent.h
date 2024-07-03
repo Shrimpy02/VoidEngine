@@ -4,6 +4,13 @@
 #include <Components/Component.h>
 #include <glm/glm.hpp>
 
+// Additional Includes
+#include <memory> 
+
+// Forward Declarations
+class Actor;
+class VisualActor;
+
 /**
  * @class PhysicsComponent
  * @brief Inherits from component and is responsible for physics handling and behaviour of attached actor.
@@ -12,7 +19,7 @@
 class PhysicsComponent : public Component
 {
 	// Re-iterate that Actor classes are friends, even though its called in the base component.
-	friend class Actor;
+	friend Actor;
 public:
 	// ---------- Global Variables --------------
 
@@ -23,7 +30,7 @@ private:
 	glm::vec3 mAcceleration{ 0.f };
 	float mMaxSpeed = 20.f;
 
-	class VisualActor* mGroundReference{ nullptr };
+	std::shared_ptr<VisualActor> mGroundReference{ nullptr };
 	bool inContactWithGround = true;
 
 	double mLastJumpTime;
@@ -32,7 +39,7 @@ public:
 	// ---------- Global functions --------------
 
 	// Constructs a physics components  and attaches it to input actor
-	PhysicsComponent(const std::string& _name, class Actor* _owner, class VisualActor* _groundReference = nullptr )
+	PhysicsComponent(const std::string& _name, std::shared_ptr<Actor> _owner, std::shared_ptr<VisualActor> _groundReference = nullptr )
 		: Component(_name, _owner) {};
 
 	~PhysicsComponent() override;
@@ -66,6 +73,6 @@ private:
 public:
 	// ---------- Getters and setters --------------
 
-	void SetGroundReference(class VisualActor* _groundRef) { mGroundReference = _groundRef; }
+	void SetGroundReference(std::shared_ptr<VisualActor> _groundRef) { mGroundReference = _groundRef; }
 
 };

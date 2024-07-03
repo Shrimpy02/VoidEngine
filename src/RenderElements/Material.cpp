@@ -1,10 +1,11 @@
 
 // Includes
-#include "Material.h"
-#include "Utilities/Logger.h"
+#include <RenderElements/Material.h>
+#include <RenderElements/Texture.h>
+#include <Utilities/Logger.h>
 
 // static cache of materials
-std::unordered_map<std::string, Material*> Material::sCache;
+std::unordered_map<std::string, std::shared_ptr<Material>> Material::sCache;
 
 Material::Material(const std::string& _name)
 {
@@ -12,13 +13,13 @@ Material::Material(const std::string& _name)
     mTextures.fill(nullptr);
 }
 
-Material* Material::Load(const std::string& _name)
+std::shared_ptr<Material> Material::Load(const std::string& _name)
 {
     // Calls overload load function
     return Load(_name, {}, {});
 }
 
-Material* Material::Load(const std::string& _name, const std::array<Texture*, TextureType::COUNT>& _textures, const MaterialProperties& _properties)
+std::shared_ptr<Material> Material::Load(const std::string& _name, const std::array<std::shared_ptr<Texture>, TextureType::COUNT>& _textures, const MaterialProperties& _properties)
 {
     // Checks static cache for object
     auto it = sCache.find(_name);
@@ -30,7 +31,7 @@ Material* Material::Load(const std::string& _name, const std::array<Texture*, Te
     }
 
     // Otherwise create new material and add it to cache. 
-    Material* material = new Material(_name);
+    std::shared_ptr<Material> material = std::make_shared<Material>(_name);
     material->mTextures = _textures;
     material->mProperties = _properties;
     sCache[_name] = material;
@@ -44,22 +45,16 @@ void Material::Unload(const std::string& _name)
     auto it = sCache.find(_name);
     if (it != sCache.end())
     {
-        delete it->second;
         sCache.erase(it);
     }
 }
 
 void Material::ClearCache()
 {
-    // clears all elements of cache and removes it from memory
-    for (auto it : sCache)
-    {
-        delete it.second;
-    }
     sCache.clear();
 }
 
-void Material::Bind(const Shader* _shader) const
+void Material::Bind(const std::shared_ptr<Shader> _shader) const
 {
     if(_shader)
     {
@@ -84,7 +79,7 @@ void Material::Bind(const Shader* _shader) const
         LOG_ERROR("Shader not found when binding material");
 }
 
-void Material::SetTexture(TextureType _type, Texture* _texture)
+void Material::SetTexture(TextureType _type, std::shared_ptr<Texture> _texture)
 {
     // Finds the relevant texture type and replaces its index with the input texture pointer.
     if (_type >= 0 && _type < TextureType::COUNT)
@@ -93,7 +88,7 @@ void Material::SetTexture(TextureType _type, Texture* _texture)
     }
 }
 
-Texture* Material::GetTexture(TextureType _type) const
+std::shared_ptr<Texture> Material::GetTexture(TextureType _type) const
 {
     // Finds the relevant texture type and returns it. 
     if (_type >= 0 && _type < TextureType::COUNT)
@@ -105,7 +100,7 @@ Texture* Material::GetTexture(TextureType _type) const
     return nullptr;
 }
 
-Material* Material::GetMaterialFromCache(std::string& _name)
+std::shared_ptr<Material> Material::GetMaterialFromCache(std::string& _name)
 {
     // finds material in cache by name and returns it. 
     auto it = sCache.find(_name);

@@ -1,13 +1,18 @@
 #pragma once
 
 // Includes 
-#include <Vertex.h>
-#include <Material.h>
+#include <glm/glm.hpp>
 #include <Utilities/Types.h>
 
 // Other includes
-#include <vector>
 #include <unordered_map>
+#include <memory>
+#include <string>
+
+// Forward Declarations
+struct Vertex;
+class Material;
+class Shader;
 
 /**
  * @class Mesh
@@ -20,7 +25,7 @@ public:
     // ---------- Global Variables --------------
 
     // Static cache of meshes
-    static std::unordered_map<std::string, Mesh*> mCache;
+    static std::unordered_map<std::string, std::shared_ptr<Mesh>> mCache;
 
 private:
     // ---------- Local Variables --------------
@@ -30,7 +35,7 @@ private:
     // Mesh indices
     std::vector<Index> mIndices{};
     // mesh material
-    Material* mMaterial{ nullptr };
+    std::shared_ptr<Material> mMaterial{ nullptr };
     // Mesh name
     const std::string mName;
 
@@ -42,28 +47,28 @@ private:
 public:
     // ---------- Global functions --------------
     // Explicit constructor, calls settup mesh
-    explicit Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector<Index>&& _indices, Material* _material);
+    explicit Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector<Index>&& _indices, std::shared_ptr<Material> _material);
 
     // De-constructor removes class references and gl-buffer objects.
 	virtual ~Mesh();
 
     // Inherited from IRender, binds material and draws its self
-    void Draw(const Shader* _shader) const;
+    void Draw(const std::shared_ptr<Shader> _shader) const;
 
     // Creates a default cube using a cube key
-    static Mesh* CreateCube(Material* _material, std::string _customName = std::string());
+    static  std::shared_ptr<Mesh> CreateCube(std::shared_ptr<Material> _material, std::string _customName = std::string());
 
     // Creates a default plane using a plane key
-    static Mesh* CreatePlane(Material* _material, std::string _customName = std::string());
+    static std::shared_ptr<Mesh> CreatePlane(std::shared_ptr<Material> _material, std::string _customName = std::string());
 
     // Creates a default pyramid using a pyramid key
-    static Mesh* CreatePyramid(Material* _material, std::string _customName = std::string());
+    static std::shared_ptr<Mesh> CreatePyramid(std::shared_ptr<Material> _material, std::string _customName = std::string());
 
     // Creates a default sphere using a sphere key
-    static Mesh* CreateSphere(Material* _material, const int _subdivides = 2, std::string _customName = std::string());
+    static std::shared_ptr<Mesh> CreateSphere(std::shared_ptr<Material> _material, const int _subdivides = 2, std::string _customName = std::string());
 
     // Loads mesh from cache by key
-    static Mesh* Load(const std::string& _key);
+    static std::shared_ptr<Mesh> Load(const std::string& _key);
 
     // Unloads item from cache by key
     static void Unload(const std::string& _key);
@@ -97,10 +102,10 @@ public:
       // Getters
 
     // Gets the material this mesh is currently using
-    const Material* GetMaterial() const { return mMaterial; }
+    const std::shared_ptr<Material> GetMaterial() const { return mMaterial; }
 
     // gets the name of this mesh
-    const std::string* GetName() { return &mName; }
+    const std::string GetName() { return mName; }
 
     // Gets this meshes vertices as address to vector
     std::vector<Vertex>& GetVertices() { return mVertices; }
@@ -111,7 +116,7 @@ public:
     // Setters
 
     // Sets the material this mesh should use
-    void SetMaterial(Material* _material) { mMaterial = _material; }
+    void SetMaterial(std::shared_ptr<Material> _material) { mMaterial = _material; }
    
   
 };

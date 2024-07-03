@@ -2,7 +2,14 @@
 
 // Includes
 #include <Controllers/Controller.h>
+
+// Additional Includes
+#include <memory> 
 #include <map>
+
+// Forward Declarations
+class Actor;
+class Window;
 
 /**
  * @class ActorController,
@@ -22,27 +29,27 @@ private:
     // actor movement speed
     float mMovementSpeed = 1;
     // assigned actor
-    class Actor* mActor;
+    std::shared_ptr<Actor> mActor;
     // Window reference
-    class Window* mWindow; 
+    std::shared_ptr<Window> mWindow;
 
 public:
     // ---------- Global functions --------------
 
     // Constructor
-    ActorController(class Actor* _actor, class Window* _window) : mActor(_actor), mWindow(_window) {}
+    ActorController(std::shared_ptr<Actor> _actor, std::shared_ptr<Window> _window) : mActor(_actor), mWindow(_window) {}
 
     // Inherited update from IController, updates all local function each tick. 
     void Update(float _dt) override;
 
     // Inherited from IController, empty function
-    void HandleMouseMove(class Window* _window, double _xpos, double _ypos) override;
+    void HandleMouseMove(std::shared_ptr<Window> _window, double _xpos, double _ypos) override;
     // Inherited from IController, empty function
-    void HandleMouseScroll(class Window* _window, double _xoffset, double _yoffset) override;
+    void HandleMouseScroll(std::shared_ptr<Window> _window, double _xoffset, double _yoffset) override;
     // Inherited from IController, empty function
-    void HandleMouseButton(class Window* _window, int _button, int _action, int _mods) override;
+    void HandleMouseButton(std::shared_ptr<Window> _window, int _button, int _action, int _mods) override;
     // Inherited from IController, asigness key states to the keystates maps
-    void HandleKeyboard(class Window* _window, int _key, int _scancode, int _action, int _mods) override;
+    void HandleKeyboard(std::shared_ptr<Window> _window, int _key, int _scancode, int _action, int _mods) override;
 
 private:
     // ---------- Local functions --------------
@@ -58,7 +65,7 @@ public:
     // Setters
 
 	// Sets a new actor to control
-    void SetNewActorToControll(class Actor* _newActor) { mActor = _newActor; }
+    void SetNewActorToControll(std::shared_ptr<Actor> _newActor) { mActor = _newActor; }
     // sets the actor movement speed
     void SetMovementSpeed(float _inMovementSpeed) { mMovementSpeed = _inMovementSpeed; }
 

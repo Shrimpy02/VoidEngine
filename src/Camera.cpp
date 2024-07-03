@@ -23,8 +23,8 @@ CameraActor::CameraActor(
     mFieldOfView(fieldOfView)
 {
     // sets teh position and rotation to constructed values 
-    SetPosition(position);
-    SetRotation(rotation);
+    SetGlobalPosition(position);
+    SetGlobalRotation(rotation);
     // Updates the projection matrix with new positional and rotational values
     UpdateProjectionMatrix();
 }
@@ -101,7 +101,7 @@ void CameraActor::UpdatePosition(float dt)
     glm::vec3 right = glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f)));
     glm::vec3 up = glm::cross(right, front);
 
-    SetPosition(GetPosition(Actor::TransformSpace::Local) + mVelocity.x * dt * right + mVelocity.y * dt * up + mVelocity.z * dt * front);
+    SetGlobalPosition(GetLocalPosition() + mVelocity.x * dt * right + mVelocity.y * dt * up + mVelocity.z * dt * front);
 }
 
 void CameraActor::UpdateProjectionMatrix()
@@ -121,5 +121,5 @@ void CameraActor::UpdateRotationFromYawPitch()
     newRotation = glm::normalize(newRotation); // Ensure the quaternion is normalized
 
     // Assuming SetRotation directly sets the Transform's rotation
-    this->SetRotation(newRotation);
+    this->SetGlobalRotation(newRotation);
 }

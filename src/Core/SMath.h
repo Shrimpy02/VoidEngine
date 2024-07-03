@@ -1,9 +1,14 @@
 #pragma once
 
 // Includes
-#include <vector>
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 
+// Additional Includes
+#include <memory> 
+#include <vector>
+
+// Forward Declarations
+class VisualActor;
 /**
  * @struct Points
  * @brief A small struct containing positional values
@@ -39,7 +44,7 @@ public:
     static std::vector<Points> CreateParametricCurve(const unsigned int _numPoints, const float _resolution);
 
 	// Static function that conforms an in vector of points y values to the second in visualActors mesh 
-    static void ConformCurveToGeometry(std::vector<Points>& _points, class VisualActor* _mesh);
+    static void ConformCurveToGeometry(std::vector<Points>& _points, std::shared_ptr<VisualActor> _mesh);
 
     // Static function returns the barycentric coordinate between three triangle points as a vec3
     static glm::vec3 GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3, glm::vec3 _actorPos);

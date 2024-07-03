@@ -36,23 +36,23 @@ set( IMGUI_SOURCE
     includes/imgui/imgui_tables.cpp
     src/Components/PhysicsComponent.cpp
     src/SceneActors.cpp 
-    src/Collision/BoundingSphere.cpp "src/Core/SMath.cpp" "src/Components/AIComponent.cpp" "src/SkyBox/Skybox.cpp")
+    src/Collision/BoundingSphere.cpp "src/Core/SMath.cpp" "src/Components/AIComponent.cpp" "src/SkyBox/Skybox.cpp" "src/Levels/LevelManager.cpp"  "src/SceneGraph.cpp")
 
 set (HEADER_FILES
   includes/stb_image.h
   src/Camera.h
   src/Core/Window.h
   src/Core/Application.h
-  src/Material.h
-  src/Mesh.h
+  "src/RenderElements/Material.h"
+  "src/RenderElements/Mesh.h"
   src/Renderer.h
-  src/Scene.h
-  src/Texture.h
+  "src/OutDated/Scene.h"
+  "src/RenderElements/Texture.h"
   src/Actor.h
   src/Utilities/Types.h
   src/Transform.h
-  src/Tag.h
-  src/Vertex.h
+  "src/Core/Tag.h"
+  "src/RenderElements/Vertex.h"
   src/Controllers/Controller.h
   src/Controllers/CameraController.h
   src/Collision/Collision.h 
@@ -69,7 +69,7 @@ set (HEADER_FILES
   src/Components/PhysicsComponent.h
   src/Components/Component.h
   src/SceneActors.h
-   "src/Core/SMath.h" "src/Components/AIComponent.h" "src/SkyBox/Skybox.h" )
+   "src/Core/SMath.h" "src/Components/AIComponent.h" "src/SkyBox/Skybox.h"  "src/Levels/LevelManager.h" "src/Levels/Level.h" "src/SceneGraph.h")
 
 set (SRC_FILES
   3DProgEngine.cpp
@@ -78,10 +78,10 @@ set (SRC_FILES
   src/Camera.cpp
   src/Core/Window.cpp
   src/Core/Application.cpp
-  src/Texture.cpp 
-  src/Material.cpp     
-  src/Mesh.cpp
-  src/Scene.cpp
+  "src/RenderElements/Texture.cpp" 
+  "src/RenderElements/Material.cpp"     
+  "src/RenderElements/Mesh.cpp"
+  "src/OutDated/Scene.cpp"
   src/Actor.cpp
   src/Controllers/CameraController.cpp
   src/Controllers/ActorController.cpp

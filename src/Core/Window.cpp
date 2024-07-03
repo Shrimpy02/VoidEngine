@@ -1,7 +1,7 @@
 
 // Classes
 #include "Window.h"
-#include "Scene.h"
+#include "Levels/LevelManager.h"
 #include "Utilities/Logger.h"
 
 // Additional libraries
@@ -19,16 +19,13 @@ Window::Window(std::string _name, int _width, int _height)
 
 Window::~Window()
 {
-    // Destroys viewport window
+    // Destroys viewport window and it`s place in memory
     glfwDestroyWindow(mGLFWWindow);
 
     // ImGui shutdown
 	ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
-    // Delete references
-    delete mScene;
 }
 
 void Window::Init()
@@ -106,12 +103,12 @@ void Window::RegisterWindowCallbacks()
     glfwSetWindowUserPointer(mGLFWWindow, this);
 }
 
-bool Window::LoadContent(Scene* _scene)
+bool Window::LoadContent(std::shared_ptr<LevelManager> _levelManager)
 {
     // Loads scene and scene content
     LOG_INFO("----- Scene loading started ----- ");
-    mScene = _scene;
-    mScene->LoadContent();
+    mLevelManager = _levelManager;
+    mLevelManager->LoadContent();
     LOG_INFO("----- Scene loading complete ----- ");
     return true;
 }
@@ -127,7 +124,7 @@ void Window::StartFrame()
     ImGui::NewFrame();
 
     // Keeps the scenes window pointer up to date
-    mScene->SetWindow(this);
+    mLevelManager->SetWindow(shared_from_this());
 
     // Clears color and depth buffer for OpenGL rendering
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -136,14 +133,14 @@ void Window::StartFrame()
 
 void Window::Update(float _dt)
 {
-    if (mScene)
-        mScene->Update(_dt);
+    if (mLevelManager)
+        mLevelManager->Update(_dt);
 }
 
 void Window::Render(float _dt)
 {
-    if (mScene)
-        mScene->Render(_dt);
+    if (mLevelManager)
+        mLevelManager->Render(_dt);
 }
 
 void Window::EndFrame()
@@ -173,8 +170,8 @@ void Window::MouseMoveCallback(GLFWwindow* _window, double _xpos, double _ypos)
     // Stops glfw from capturing the mouse when ImGui wants it
     if (ImGui::GetIO().WantCaptureMouse) return;
 
-    if (mScene)
-        mScene->MouseMoveCallback(this, _xpos, _ypos);
+    if (mLevelManager)
+        mLevelManager->MouseMoveCallback(shared_from_this(), _xpos, _ypos);
 }
 
 void Window::MouseScrollCallback(GLFWwindow* _window, double _xoffset, double _yoffset)
@@ -183,8 +180,8 @@ void Window::MouseScrollCallback(GLFWwindow* _window, double _xoffset, double _y
     ImGui_ImplGlfw_ScrollCallback(_window, _xoffset, _yoffset);
 	if (ImGui::GetIO().WantCaptureMouse) return;
 
-	if (mScene)
-        mScene->MouseScrollCallback(this, _xoffset, _yoffset);
+	if (mLevelManager)
+        mLevelManager->MouseScrollCallback(shared_from_this(), _xoffset, _yoffset);
 }
 
 void Window::CharCallback(GLFWwindow* _window, unsigned int _codepoint)
@@ -193,8 +190,8 @@ void Window::CharCallback(GLFWwindow* _window, unsigned int _codepoint)
     ImGui_ImplGlfw_CharCallback(_window, _codepoint);
     if (ImGui::GetIO().WantCaptureKeyboard) return;
 
-    if (mScene)
-        mScene->CharCallback(this, _codepoint);
+    if (mLevelManager)
+        mLevelManager->CharCallback(shared_from_this(), _codepoint);
 }
 
 void Window::KeyCallback(GLFWwindow* _window, int _key, int _scancode, int _action, int _mods)
@@ -203,8 +200,8 @@ void Window::KeyCallback(GLFWwindow* _window, int _key, int _scancode, int _acti
 	ImGui_ImplGlfw_KeyCallback(_window, _key, _scancode, _action, _mods);
     if (ImGui::GetIO().WantCaptureKeyboard) return;
 
-    if (mScene)
-        mScene->KeyCallback(this, _key, _scancode, _action, _mods);
+    if (mLevelManager)
+        mLevelManager->KeyCallback(shared_from_this(), _key, _scancode, _action, _mods);
 }
 
 void Window::MouseButtonCallback(GLFWwindow* _window, int _button, int _action, int _mods)
@@ -213,6 +210,6 @@ void Window::MouseButtonCallback(GLFWwindow* _window, int _button, int _action, 
    ImGui_ImplGlfw_MouseButtonCallback(_window, _button, _action, _mods);
    if (ImGui::GetIO().WantCaptureMouse) return;
 
-    if (mScene)
-        mScene->MouseButtonCallback(this, _button, _action, _mods);
+    if (mLevelManager)
+        mLevelManager->MouseButtonCallback(shared_from_this(), _button, _action, _mods);
 }

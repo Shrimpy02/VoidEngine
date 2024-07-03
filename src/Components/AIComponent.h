@@ -5,6 +5,13 @@
 #include <glm/glm.hpp>
 #include <Core/SMath.h>
 
+// Additional Includes
+#include <memory> 
+
+// Forward Declarations
+class Actor;
+class VisualActor;
+
 /**
  * @class AIComponent
  * @brief Inherits from component and is responsible for ai handling,
@@ -13,7 +20,7 @@
 class AIComponent : public Component
 {
 	// Re-iterate that Actor classes are friends, even though its called in the base component.
-	friend class Actor;
+	friend Actor;
 public:
 	// ---------- Global Variables --------------
 
@@ -35,7 +42,7 @@ public:
 	// ---------- Global functions --------------
 
 	// Constructs an ai components  and attaches it to input actor
-	AIComponent(const std::string& _name, class Actor* _owner, class VisualActor* _groundReference = nullptr)
+	AIComponent(const std::string& _name, std::shared_ptr<Actor> _owner, std::shared_ptr<VisualActor> _groundReference = nullptr)
 		: Component(_name, _owner) {};
 
 	// De-constructor

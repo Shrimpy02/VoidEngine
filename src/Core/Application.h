@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Window.h>
-#include <Scene.h>
+#include <Levels/LevelManager.h>
 
 /**
  * @class Application,
@@ -17,7 +17,7 @@ private:
     // ---------- Local Variables --------------
 
     Window mWindow{ "LearnOpenGL", 1980, 1020 };
-    Scene mScene{ "Scene", &mWindow };
+    std::shared_ptr<LevelManager> mLevelManager = std::make_shared<LevelManager>(&mWindow);
 
 public:
     // ---------- Global functions --------------

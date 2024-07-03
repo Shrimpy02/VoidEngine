@@ -3,10 +3,10 @@
 #include <ModelLoader/AssimpLoader.h>
 #include <ModelLoader/Shared.h>
 #include <ModelLoader/AssimpUtility.h>
-#include <Vertex.h>
+#include <RenderElements/Vertex.h>
 #include <SceneActors.h>
-#include <Material.h>
-#include <Texture.h>
+#include <RenderElements/Material.h>
+#include <RenderElements/Texture.h>
 #include <Lights/PointLight.h>
 #include <Utilities/Logger.h>
 
@@ -15,7 +15,7 @@ std::string AssimpLoader::msBasePath = "";
 long long AssimpLoader::msNameIndex = 0;
 long long AssimpLoader::msFlags = 0;
 
-void AssimpLoader::Load(const std::string& _path, Actor* _staticMeshActor, unsigned _flags)
+void AssimpLoader::Load(const std::string& _path, std::shared_ptr<Actor> _staticMeshActor, unsigned _flags)
 {
 	LOG_INFO("--------------- Assimp Import Started ---------------\n");
 
@@ -42,7 +42,7 @@ void AssimpLoader::Load(const std::string& _path, Actor* _staticMeshActor, unsig
 	LOG_INFO("--------------- Assimp Import Finished ---------------\n");
 }
 
-void AssimpLoader::ProcessLights(const aiScene* _scene, Actor* _parentActor)
+void AssimpLoader::ProcessLights(const aiScene* _scene, std::shared_ptr<Actor> _parentActor)
 {
 	LOG_INFO("AssimpLoader::ProcessingLights::NumLights: %i", _scene->mNumLights);
 
@@ -53,7 +53,7 @@ void AssimpLoader::ProcessLights(const aiScene* _scene, Actor* _parentActor)
 			continue;
 
 		// Create a seb point light actor
-		PointLightActor* pointLightActor = new PointLightActor(_scene->mLights[i]->mName.C_Str());
+		std::shared_ptr<PointLightActor> pointLightActor = std::make_shared<PointLightActor>(_scene->mLights[i]->mName.C_Str());
 
 		// Get the point lights world position
 		aiNode* lightNode = _scene->mRootNode->FindNode(_scene->mLights[i]->mName);
@@ -73,16 +73,16 @@ void AssimpLoader::ProcessLights(const aiScene* _scene, Actor* _parentActor)
 		// Clamp color values for opengl
 		pointLightActor->mColor = glm::clamp(pointLightActor->mColor, 0.f, 1.f);
 		// Set the position 
-		pointLightActor->SetPosition(pos,Actor::TransformSpace::Global);
+		pointLightActor->SetGlobalPosition(pos);
 		// Add this light as a child to scene actor object
 		_parentActor->AddChild(pointLightActor);
 	}
 }
 
-void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, Actor* parentActor)
+void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, std::shared_ptr<Actor> parentActor)
 {
 	// Init actor object
-	Actor* actor = nullptr;
+	std::shared_ptr<Actor> actor = nullptr;
 
 	// for each mesh in scene
 	for (auto i = 0; i < _node->mNumMeshes; ++i)
@@ -99,12 +99,12 @@ void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, Actor* pare
 		// If the object has the "_AABBCollision_" prefrix in its name, actor is created as an AABB collision actor
 		if (HasCollisionAABBPrefix(mesh->mName.C_Str(), collisionPrefix)){
 
-			actor = new CollisionActor(actorName, ProcessMesh(mesh), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::AABB });
+			actor = std::make_shared<CollisionActor>(actorName, ProcessMesh(mesh), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::AABB });
 
 			// otherwise if the object has the "_BoundingSphereCollision_" prefrix in its name, actor is created as a BoundingSphere collision actor
 		} else if (HasCollisionBoundignSphererePrefix(mesh->mName.C_Str(), collisionPrefix)) {
 
-			actor = new CollisionActor(actorName, ProcessMesh(mesh), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::BoundingSphere });
+			actor = std::make_shared<CollisionActor>(actorName, ProcessMesh(mesh), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::BoundingSphere });
 
 			// otherwise if the object has the "_Light_" prefrix in its name, actor is handled elsewhere and therefore ignored
 		} else if (HasLightPrefix(mesh->mName.C_Str(), lightPrefix)){
@@ -115,25 +115,25 @@ void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, Actor* pare
 		} else {
 
 			// Creates the seb mesh from the aiMesh
-			Mesh* internalMesh = ProcessMesh(mesh);
+			std::shared_ptr<Mesh> internalMesh = ProcessMesh(mesh);
 
 			// if mesh has a material, get it and set it to the created seb mesh
 			aiMaterial* material = _scene->mMaterials[mesh->mMaterialIndex];
 			if (material)
 			{
-				Material* internalMaterial = ProcessMaterial(material);
+				std::shared_ptr<Material> internalMaterial = ProcessMaterial(material);
 				internalMesh->SetMaterial(internalMaterial);
 			}
 
 			// Sets the actor object to a visual actor with no collision
-			actor = new VisualActor(actorName, internalMesh);
+			actor = std::make_shared<VisualActor>(actorName, internalMesh);
 		}
 	}
 
 	if (!actor)
 	{
 		// This means there is no mesh associated with the node. So a new node actor is created with a unique name.
-		actor = new Actor(std::string(_node->mName.C_Str()) + "_index" + std::to_string(msNameIndex++));
+		actor = std::make_shared<Actor>(std::string(_node->mName.C_Str()) + "_index" + std::to_string(msNameIndex++));
 	}
 
 	// Apply node transform
@@ -147,7 +147,7 @@ void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, Actor* pare
 		ProcessNode(_scene, _node->mChildren[i], actor);
 }
 
-Mesh* AssimpLoader::ProcessMesh(aiMesh* _mesh)
+std::shared_ptr<Mesh> AssimpLoader::ProcessMesh(aiMesh* _mesh)
 {
 	// Init vectors for vertices and indices
 	std::vector<Vertex> vertices;
@@ -190,13 +190,13 @@ Mesh* AssimpLoader::ProcessMesh(aiMesh* _mesh)
 	}
 
 	// Create a new mesh and return it.
-	return new Mesh(std::string(_mesh->mName.C_Str()), std::move(vertices), std::move(indices), nullptr);
+	return std::make_shared<Mesh>(std::string(_mesh->mName.C_Str()), std::move(vertices), std::move(indices), nullptr);
 }
 
-Material* AssimpLoader::ProcessMaterial(aiMaterial* _material)
+std::shared_ptr<Material> AssimpLoader::ProcessMaterial(aiMaterial* _material)
 {
 	// Creates a new material and a default white and black texture set to diffuse and specular.
-	Material* internalMaterial = Material::Load(std::string(_material->GetName().C_Str()), {}, {});
+	std::shared_ptr<Material> internalMaterial = Material::Load(std::string(_material->GetName().C_Str()), {}, {});
 	internalMaterial->SetTexture(Material::DIFFUSE, Texture::LoadWhiteTexture());
 	internalMaterial->SetTexture(Material::SPECULAR, Texture::LoadBlackTexture());
 

@@ -1,13 +1,16 @@
 // Includes
-#include <corecrt_math_defines.h>
-#include <Mesh.h>
+#include <RenderElements/Mesh.h>
+#include <RenderElements/Vertex.h>
+#include <RenderElements/Material.h>
 #include <Utilities/Logger.h>
 #include <Utilities/Defines.h>
+#include <corecrt_math_defines.h>
+
 
 // static cache of meshes
-std::unordered_map<std::string, Mesh*> Mesh::mCache;
+std::unordered_map<std::string, std::shared_ptr<Mesh>> Mesh::mCache;
 
-Mesh::Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector<Index>&& _indices, Material* material)
+Mesh::Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector<Index>&& _indices, std::shared_ptr<Material> material)
     : mName(_name), mVertices(std::move(_vertices)), mIndices(std::move(_indices)), mMaterial(material)
 {
     // generates gl specific buffers for mesh init.
@@ -22,7 +25,7 @@ Mesh::~Mesh()
     glDeleteBuffers(1, &mEBO);
 }
 
-void Mesh::Draw(const Shader* _shader) const
+void Mesh::Draw(const std::shared_ptr<Shader> _shader) const
 {
     // bind the material the shader for this object if it exists
     if(mMaterial)
@@ -34,7 +37,7 @@ void Mesh::Draw(const Shader* _shader) const
     glBindVertexArray(0);
 }
 
-Mesh* Mesh::CreateCube(Material * _material, std::string _customName)
+std::shared_ptr<Mesh> Mesh::CreateCube(std::shared_ptr<Material> _material, std::string _customName)
 {
     // Create default cube key
     std::string cubeKey = "DefaultCube";
@@ -103,14 +106,14 @@ Mesh* Mesh::CreateCube(Material * _material, std::string _customName)
     };
 
     // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    mCache[cubeKey] = new Mesh(cubeKey, std::move(vertices), std::move(indices), _material);
+    mCache[cubeKey] = std::make_shared<Mesh>(cubeKey, std::move(vertices), std::move(indices), _material);
 
     // return new default cube
     //LOG("%s created", cubeKey.c_str());
 	return mCache[cubeKey];
 }
 
-Mesh* Mesh::CreatePlane(Material* _material, std::string _customName)
+std::shared_ptr<Mesh> Mesh::CreatePlane(std::shared_ptr<Material> _material, std::string _customName)
 {
     // Create default plane key
     std::string planeKey = "DefaultPlane";
@@ -143,14 +146,14 @@ Mesh* Mesh::CreatePlane(Material* _material, std::string _customName)
     };
 
     // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    mCache[planeKey] = new Mesh(planeKey, std::move(vertices), std::move(indices), _material);
+    mCache[planeKey] = std::make_shared<Mesh>(planeKey, std::move(vertices), std::move(indices), _material);
 
     // return new default plane
    // LOG("%s Created", planeKey.c_str());
     return mCache[planeKey];
 }
 
-Mesh* Mesh::CreatePyramid(Material* _material, std::string _customName)
+std::shared_ptr<Mesh> Mesh::CreatePyramid(std::shared_ptr<Material> _material, std::string _customName)
 {
     // Create default pyramid key
     std::string pyramidKey = "DefaultPyramid";
@@ -194,14 +197,14 @@ Mesh* Mesh::CreatePyramid(Material* _material, std::string _customName)
 
 
     // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    mCache[pyramidKey] = new Mesh(pyramidKey, std::move(vertices), std::move(indices), _material);
+    mCache[pyramidKey] = std::make_shared<Mesh>(pyramidKey, std::move(vertices), std::move(indices), _material);
 
     // return new default pyramid
     //LOG("%s Created", pyramidKey.c_str());
     return mCache[pyramidKey];
 }
 
-Mesh* Mesh::CreateSphere(Material* _material, const int _subdivides, std::string _customName)
+std::shared_ptr<Mesh> Mesh::CreateSphere(std::shared_ptr<Material> _material, const int _subdivides, std::string _customName)
 {
     // Create default sphere key based on num subdivides
     std::string sphereKey = "DefaultSphere" + std::to_string(_subdivides);
@@ -230,14 +233,14 @@ Mesh* Mesh::CreateSphere(Material* _material, const int _subdivides, std::string
 	GenSphere(vertices,indices,_subdivides);
 
     // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    mCache[sphereKey] = new Mesh(sphereKey, std::move(vertices), std::move(indices), _material);
+    mCache[sphereKey] = std::make_shared<Mesh>(sphereKey, std::move(vertices), std::move(indices), _material);
 
     // return new default sphere
     //LOG("%s created", sphereKey.c_str());
     return mCache[sphereKey];
 }
 
-Mesh* Mesh::Load(const std::string& _key)
+std::shared_ptr<Mesh> Mesh::Load(const std::string& _key)
 {
     // Find key in cache and load that mesh
     auto it = mCache.find(_key);
@@ -254,7 +257,6 @@ void Mesh::Unload(const std::string& _key)
     auto it = mCache.find(_key);
     if (it != mCache.end())
     {
-        delete it->second;
         mCache.erase(it);
     }
     LOG_WARNING("%s: Not found in cache for unloading", _key.c_str());
@@ -262,10 +264,6 @@ void Mesh::Unload(const std::string& _key)
 
 void Mesh::ClearCache()
 {
-    // deletes all elements of the cache
-    for (auto it : mCache)
-        delete it.second;
-    
     mCache.clear();
 }
 

@@ -118,13 +118,13 @@ public:
     const glm::vec3& GetAcceleration() const { return mAcceleration; }
 
     // Returns the front of the camera as a vec3
-    glm::vec3 GetFront() const { return glm::rotate(GetRotation(TransformSpace::Local), glm::vec3(0.0f, 0.0f, -1.0f)); };
+    glm::vec3 GetFront() const { return glm::rotate(GetLocalRotation(), glm::vec3(0.0f, 0.0f, -1.0f)); };
     // Returns the cameras up vector as a vec3
-	glm::vec3 GetUp() const { return glm::rotate(GetRotation(TransformSpace::Local), glm::vec3(0.0f, 1.0f, 0.0f)); }
+	glm::vec3 GetUp() const { return glm::rotate(GetLocalRotation(), glm::vec3(0.0f, 1.0f, 0.0f)); }
     // Returns the velocity of the camera as a vec3
 	const glm::vec3& GetVelocity() const { return mVelocity; }
     // returns the view matrix of this camera as a mat4
-    glm::mat4 GetViewMatrix() const { return glm::lookAt(GetPosition(TransformSpace::Local), GetPosition(TransformSpace::Local) + GetFront(), glm::vec3(0.0f, 1.0f, 0.0f)); };
+    glm::mat4 GetViewMatrix() const { return glm::lookAt(GetLocalPosition(), GetLocalPosition() + GetFront(), glm::vec3(0.0f, 1.0f, 0.0f)); };
     // Returns teh projection matrix as a mat4
 	const glm::mat4& GetProjectionMatrix() const { return mProjectionMatrix; }
     // returns the VP matrix asa a mat4

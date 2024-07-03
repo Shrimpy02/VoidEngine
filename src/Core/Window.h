@@ -1,12 +1,21 @@
 #pragma once
+
+// Includes
+
+// Additional Includes
 #include <string>
+#include <memory>
+
+// Forward Declarations
+struct GLFWwindow;
+class LevelManager;
 
 /**
  * @class Window,
  * @brief Not to be confused with GLFWWindow that acts as the viewport of the glfw application,
  * is the class that manages the GLFWWindow + all callbacks to it, and what scene is loaded and being rendered. 
  */
-class Window
+class Window : public std::enable_shared_from_this<Window>
 {
 public:
 	// ---------- Global Variables --------------
@@ -15,8 +24,8 @@ private:
 
 	std::string mName;
 	int mWidth, mHeight;
-	struct GLFWwindow* mGLFWWindow{ nullptr };
-	class Scene* mScene{ nullptr };
+	GLFWwindow* mGLFWWindow{ nullptr };
+	std::shared_ptr<LevelManager> mLevelManager{ nullptr };
 
 public:
 	// ---------- Global functions --------------
@@ -38,20 +47,15 @@ public:
 	// Register all callbacks for GLFW & ImGui
 	void RegisterWindowCallbacks();
 	// Loads the given scene
-	bool LoadContent(Scene* _scene);
+	bool LoadContent(std::shared_ptr<LevelManager> _levelManager);
 
 	// Update ---
 
-	// First frame of the render loop
 	void StartFrame();
-	// Update logic per frame
 	void Update(float _dt);
-	// Render logic per frame
 	void Render(float _dt);
-	// Last frame of the render loop
 	void EndFrame();
 
-	// Checks if the current window is closed
 	bool IsClosed();
 
 	// Callbacks
@@ -82,7 +86,7 @@ public:
 	// Setters -----------
 
 	// Sets active scene
-	void SetScene(Scene* _scene) { mScene = _scene; }
+	void SetLevelManager(std::shared_ptr<LevelManager> _scene) { mLevelManager = _scene; }
 	// Sets height of the window
 	void SetWidth(int _width) { mWidth = _width; }
 	// Sets width of the window

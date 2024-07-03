@@ -36,9 +36,9 @@ int Application::Run()
     }
 
     // Clears static cache of content
-    Mesh::ClearCache();
-    Material::ClearCache();
-    Texture::ClearCache();
+    //Mesh::ClearCache();
+    //Material::ClearCache();
+    //Texture::ClearCache();
 
     glfwTerminate();
 
@@ -62,6 +62,6 @@ void Application::InitializeGLFW()
 
 void Application::LoadContent()
 {
-    mWindow.LoadContent(&mScene);
+    mWindow.LoadContent(mLevelManager);
 }
 
