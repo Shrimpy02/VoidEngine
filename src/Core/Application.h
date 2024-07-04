@@ -1,7 +1,16 @@
 #pragma once
 
-#include <Core/Window.h>
-#include <Levels/LevelManager.h>
+
+// Includes
+
+
+// Additional Includes
+#include <memory> 
+
+
+// Forward Declarations
+class Window;
+class LevelManager;
 
 /**
  * @class Application,
@@ -16,13 +25,13 @@ public:
 private:
     // ---------- Local Variables --------------
 
-    Window mWindow{ "LearnOpenGL", 1980, 1020 };
-    std::shared_ptr<LevelManager> mLevelManager = std::make_shared<LevelManager>(&mWindow);
+    std::shared_ptr<Window> mWindow;
+    std::shared_ptr<LevelManager> mLevelManager;
 
 public:
     // ---------- Global functions --------------
 
-    // Uses default constructor 
+    // Uses default constructor
 
     // Disable copying and deleting of this class
     Application(const Application&) = delete;

@@ -49,7 +49,7 @@ public:
 	// Updates per tick, virtual for inherited functions
 	virtual void Update(float _dt);
 
-	void UpdateChildren(float _dt);
+
 
 	// updates all components per tick
 	void UpdateComponents(float _dt);
@@ -81,7 +81,7 @@ public:
 	{
 		// if this derives from actor, add to vector
 		if (dynamic_cast<T*>(this))
-			_actors.emplace_back(this);
+			_actors.emplace_back(shared_from_this());
 
 		// recursively check each of this actors children
 		for (auto child : this->mChildren)

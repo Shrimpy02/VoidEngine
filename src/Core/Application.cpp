@@ -1,5 +1,7 @@
 // Classes
-#include "Application.h"
+#include <Core/Application.h>
+#include <Core/Window.h>
+#include <Levels/LevelManager.h>
 
 // Additional libraries
 // Glad + glfw
@@ -14,6 +16,9 @@ Application* Application::Get()
 
 int Application::Run()
 {
+    mWindow = std::make_shared<Window>("LearnOpenGL", 1980, 1020);
+    mLevelManager = std::make_shared<LevelManager>(mWindow);
+
     // Creates window class and initializes it
     Init();
     // Loads scene content from window
@@ -22,17 +27,17 @@ int Application::Run()
     float lastFrame = 0.f;
 
     // This is the entire render loop
-    while (!mWindow.IsClosed())
+    while (!mWindow->IsClosed())
     {
         // Calc delta time
         float currentFrame = static_cast<float>(glfwGetTime());
         float deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        mWindow.StartFrame();
-        mWindow.Update(deltaTime);
-        mWindow.Render(deltaTime);
-        mWindow.EndFrame();
+        mWindow->StartFrame();
+        mWindow->Update(deltaTime);
+        mWindow->Render(deltaTime);
+        mWindow->EndFrame();
     }
 
     // Clears static cache of content
@@ -48,8 +53,8 @@ int Application::Run()
 void Application::Init()
 {
     InitializeGLFW();
-    mWindow.Init();
-    mWindow.RegisterWindowCallbacks();
+    mWindow->Init();
+    mWindow->RegisterWindowCallbacks();
 }
 
 void Application::InitializeGLFW()
@@ -62,6 +67,6 @@ void Application::InitializeGLFW()
 
 void Application::LoadContent()
 {
-    mWindow.LoadContent(mLevelManager);
+    mWindow->LoadContent(mLevelManager);
 }
 

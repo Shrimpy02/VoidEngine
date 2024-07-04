@@ -873,7 +873,6 @@
 //		mShader->setFloat(pointLightArrayIndex + ".quadratic", PLights->quadraticVar);
 //	}
 //}
-//
 //void Scene::BindCamera()
 //{
 //	// Passes the cameras matrix`s to the shader for positional computation 

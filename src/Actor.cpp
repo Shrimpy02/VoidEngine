@@ -19,16 +19,6 @@ void Actor::Update(float _dt)
 {
 }
 
-void Actor::UpdateChildren(float _dt)
-{
-	for(std::shared_ptr<Actor> child : mChildren)
-	{
-		child->UpdateComponents(_dt);
-		child->Update(_dt);
-		child->UpdateChildren(_dt);
-	}
-}
-
 void Actor::UpdateComponents(float _dt)
 {
 	// calls update for all components 
@@ -127,10 +117,13 @@ const glm::mat4 Actor::GetGlobalTransformMatrix() const
 	// iterates through each parent to get the global Transform Matrix
 	glm::mat4 globalTransform = mTransform.GetTransformMatrix();
 	std::shared_ptr<Actor> current = mParent;
-	while (current->mParent != nullptr)
+	if (mParent)
 	{
-		globalTransform = current->mParent->GetLocalTransformMatrix() * globalTransform;
-		current = current->mParent;
+		while (current->mParent != nullptr)
+		{
+			globalTransform = current->mParent->GetLocalTransformMatrix() * globalTransform;
+			current = current->mParent;
+		}
 	}
 	return globalTransform;
 }

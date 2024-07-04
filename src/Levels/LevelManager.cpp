@@ -17,8 +17,8 @@
 //#include <Components/PhysicsComponent.h>
 //#include <Components/AIComponent.h>
 //#include <ModelLoader/AssimpLoader.h>
-//#include <Lights/DirectionalLight.h>
-//#include <Lights/PointLight.h>
+#include <Lights/DirectionalLight.h>
+#include <Lights/PointLight.h>
 #include <Utilities/Defines.h>
 #include <Utilities/Logger.h>
 #include <RenderElements/Mesh.h>
@@ -31,7 +31,7 @@
 //#include <variant>
 //#include <ImGUi/imgui.h>
 
-LevelManager::LevelManager(Window* _window) : mWindow(_window)
+LevelManager::LevelManager(std::shared_ptr<Window> _window) : mWindow(_window)
 {
 }
 
@@ -52,16 +52,29 @@ void LevelManager::LoadContent()
 
 void LevelManager::LoadDefaultLevel()
 {
-	std::shared_ptr defaultCube = std::make_shared<BaseActor>("DefaultCube", Mesh::CreateCube(nullptr));
+	// Texture / Materials
+	std::shared_ptr<Texture> whiteTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/white.jpg"));
+	std::shared_ptr<Material> debugMat = Material::Load("Debug", { whiteTex }, {{glm::vec3(1.0f,0.0f,0.0f)}, {64} });
+
+	// Objects
+	std::shared_ptr defaultCube = std::make_shared<BaseActor>("DefaultCube", Mesh::CreateCube(debugMat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube);
+
+	// Camera
 	std::shared_ptr<CameraActor> cam1 = std::make_shared<CameraActor>("Camera1");
 	cam1->SetGlobalPosition(glm::vec3(0, 0, 3));
 	mActiveLevel->AddActorToSceneGraph(cam1);
 	mActiveLevel->mActiveCamera = cam1;
 
+	// Lights
+	std::shared_ptr<DirectionalLightActor> dla = std::make_shared<DirectionalLightActor>("DirLight1");
+	mActiveLevel->AddActorToSceneGraph(dla);
+	dla->SetGlobalPosition(glm::vec3(0,10,0));
+	dla->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+
 	mActorController = std::shared_ptr<ActorController>(std::make_shared<ActorController>(defaultCube, mWindow));
 	mCameraController = std::shared_ptr<CameraController>(std::make_shared<CameraController>(cam1, mWindow));
-	mActiveController = mCameraController;
+	mActiveController = mActorController;
 }
 
 void LevelManager::UnloadContent()
@@ -191,47 +204,58 @@ void LevelManager::KeyCallback(std::shared_ptr<Window> _window, int _key, int _s
 
 void LevelManager::BindDirectionalLights()
 {
-	//// Gets all directional light actors of the scene
-	//std::vector<Actor*> directionalLights;
-	//mSceneGraph.Query<DirectionalLightActor>(directionalLights);
-	//
-	//// Since there should only be one sun, pas its direction, color and ambient to the general shader.
-	//if (!directionalLights.empty())
-	//{
-	//	auto dl = dynamic_cast<DirectionalLightActor*>(directionalLights[0]);
-	//	mShader->setVec3("dl.direction", glm::normalize(dl->GetDirection()));
-	//	mShader->setVec3("dl.color", dl->mColor);
-	//	mShader->setVec3("dl.ambient", dl->mAmbient);
-	//}
-	//
-	//if (directionalLights.size() > 1)
-	//	LOG_WARNING("More than one directional lights are not bound");
+	// Gets all directional light actors of the scene
+	std::vector<std::shared_ptr<Actor>> directionalLights;
+	mActiveLevel->mSceneGraph->Query<DirectionalLightActor>(directionalLights);
+	
+	// Since there should only be one sun, pas its direction, color and ambient to the general shader.
+	if (!directionalLights.empty())
+	{
+		std::shared_ptr<DirectionalLightActor> dl = std::dynamic_pointer_cast<DirectionalLightActor>(directionalLights[0]);
+		if(dl)
+		{
+			glm::vec3 dir = glm::normalize(dl->GetDirection());
+			mShader->setVec3("dl.direction", dir);
+			mShader->setVec3("dl.color", dl->mColor);
+			mShader->setVec3("dl.ambient", dl->mAmbient);
+		} else {
+			LOG_ERROR("Cast for directioanl lighting faild");
+		}
+	}
+	
+	if (directionalLights.size() > 1)
+		LOG_WARNING("More than one directional lights are not bound");
 }
 
 void LevelManager::BindPointLights()
 {
 	// Gets all point light actors in the scene
-	//std::vector<Actor*> pointLightActors;
-	//mSceneGraph.Query<PointLightActor>(pointLightActors);
-	//
-	//// Passes the num point lights total to shader + light specific for each point light
-	//mShader->setInt("numPointLights", static_cast<int>(pointLightActors.size()));
-	//for (int i = 0; i < pointLightActors.size(); i++)
-	//{
-	//	auto PLights = dynamic_cast<PointLightActor*>(pointLightActors[i]);
-	//
-	//	if (i > MAX_POINT_LIGHTS) { LOG_WARNING("Max point lights reached, no more being processed"); continue; }
-	//
-	//	// Creates the correct array index reference based on the num elements of lights 
-	//	std::string pointLightArrayIndex = "pointLights[" + std::to_string(i) + "]";
-	//	// Passes all point light variables to the shader.
-	//	mShader->setVec3(pointLightArrayIndex + ".ambient", PLights->mAmbient);
-	//	mShader->setVec3(pointLightArrayIndex + ".color", PLights->mColor);
-	//	mShader->setVec3(pointLightArrayIndex + ".position", PLights->GetLightPosition());
-	//	mShader->setFloat(pointLightArrayIndex + ".constant", PLights->constantVar);
-	//	mShader->setFloat(pointLightArrayIndex + ".linear", PLights->linearVar);
-	//	mShader->setFloat(pointLightArrayIndex + ".quadratic", PLights->quadraticVar);
-	//}
+	std::vector<std::shared_ptr<Actor>> pointLightActors;
+	mActiveLevel->mSceneGraph->Query<PointLightActor>(pointLightActors);
+	
+	// Passes the num point lights total to shader + light specific for each point light
+	mShader->setInt("numPointLights", static_cast<int>(pointLightActors.size()));
+	for (int i = 0; i < pointLightActors.size(); i++)
+	{
+		std::shared_ptr<PointLightActor> pl = std::dynamic_pointer_cast<PointLightActor>(pointLightActors[i]);
+
+		if(pl)
+		{
+			if (i > MAX_POINT_LIGHTS) { LOG_WARNING("Max point lights reached, no more being processed"); continue; }
+			// Creates the correct array index reference based on the num elements of lights 
+			std::string pointLightArrayIndex = "pointLights[" + std::to_string(i) + "]";
+			// Passes all point light variables to the shader.
+			mShader->setVec3(pointLightArrayIndex + ".ambient", pl->mAmbient);
+			mShader->setVec3(pointLightArrayIndex + ".color", pl->mColor);
+			mShader->setVec3(pointLightArrayIndex + ".position", pl->GetLightPosition());
+			mShader->setFloat(pointLightArrayIndex + ".constant", pl->constantVar);
+			mShader->setFloat(pointLightArrayIndex + ".linear", pl->linearVar);
+			mShader->setFloat(pointLightArrayIndex + ".quadratic", pl->quadraticVar);
+		} else {
+			LOG_ERROR("Cast for point lighting faild");
+		}
+
+	}
 }
 
 void LevelManager::BindCamera()

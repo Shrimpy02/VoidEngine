@@ -62,7 +62,7 @@ private:
 
 public:
     // ---------- Global functions --------------
-    explicit LevelManager(Window* _window);
+    explicit LevelManager(std::shared_ptr<Window> _window);
 
     // Removes the ability to:    
     LevelManager(const LevelManager&) = delete;           // Copy
