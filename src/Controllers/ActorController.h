@@ -27,11 +27,17 @@ private:
     // Key map for input handeling
     std::map<int, bool> mKeyStates;
     // actor movement speed
-    float mMovementSpeed = 1;
+    float mMovementSpeed = 10;
     // assigned actor
     std::shared_ptr<Actor> mActor;
     // Window reference
     std::shared_ptr<Window> mWindow;
+
+
+    // Control settings camera
+    float mLastX = 0.0, mLastY = 0.0;
+    bool mRightMousePressed = false;
+    float mMouseSensitivity = 0.8f;
 
 public:
     // ---------- Global functions --------------

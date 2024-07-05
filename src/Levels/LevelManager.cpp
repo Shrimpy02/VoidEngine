@@ -12,7 +12,6 @@
 
 #include <Core/Shader.h>
 #include <Controllers/Controller.h>
-#include <Controllers/CameraController.h>
 #include <Controllers/ActorController.h>
 //#include <Components/PhysicsComponent.h>
 //#include <Components/AIComponent.h>
@@ -24,6 +23,7 @@
 #include <RenderElements/Mesh.h>
 #include <RenderElements/Material.h>
 #include <RenderElements/Texture.h>
+#include <UserInterface/UserInterfaceManager.h>
 //#include <Core/SMath.h>
 //#include <SkyBox/Skybox.h>
 
@@ -43,6 +43,8 @@ void LevelManager::LoadContent()
 {
 
 	mShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/shader.vs"), SOURCE_DIRECTORY("shaderSrc/shader.fs"));
+	mUserInterfaceManager = std::make_shared<UserInterfaceManager>(mShader);
+
 
 	mAllLevels.push_back(std::make_shared<Level>("LevelOne"));
 	SetActiveLevel(mAllLevels[0]);
@@ -57,7 +59,7 @@ void LevelManager::LoadDefaultLevel()
 	std::shared_ptr<Material> debugMat = Material::Load("Debug", { whiteTex }, {{glm::vec3(1.0f,0.0f,0.0f)}, {64} });
 
 	// Objects
-	std::shared_ptr defaultCube = std::make_shared<BaseActor>("DefaultCube", Mesh::CreateCube(debugMat));
+	std::shared_ptr<BaseActor> defaultCube = std::make_shared<BaseActor>("DefaultCube", Mesh::CreateCube(debugMat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube);
 
 	// Camera
@@ -72,9 +74,7 @@ void LevelManager::LoadDefaultLevel()
 	dla->SetGlobalPosition(glm::vec3(0,10,0));
 	dla->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 
-	mActorController = std::shared_ptr<ActorController>(std::make_shared<ActorController>(defaultCube, mWindow));
-	mCameraController = std::shared_ptr<CameraController>(std::make_shared<CameraController>(cam1, mWindow));
-	mActiveController = mActorController;
+	mController = std::shared_ptr<ActorController>(std::make_shared<ActorController>(cam1, mWindow));
 }
 
 void LevelManager::UnloadContent()
@@ -101,6 +101,10 @@ void LevelManager::Update(float _dt)
 
 	// Then handle collision for all objects in scene
 	//HandleCollision();
+
+	// Update interfaceData
+	mUserInterfaceManager->SetActiveLevel(mActiveLevel);
+	mUserInterfaceManager->SetController(mController);
 }
 
 void LevelManager::Render(float _dt)
@@ -117,7 +121,7 @@ void LevelManager::Render(float _dt)
 	// Render the scene graph -> all objects in scene
 	RenderLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
 	// Render UI over top, should be called last so it displays updated rather than outdated information
-	//RenderUI();
+	mUserInterfaceManager->RenderUI();
 	//mSkybox->Render(&mSceneCamera);
 
 	glDepthFunc(GL_LEQUAL);
@@ -144,7 +148,7 @@ void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, float _d
 	if (!_actor) return;
 
 	// Set transform matrix
-	_globalTransform.SetTransformMatrix(_globalTransform.GetTransformMatrix() * _actor->GetLocalTransformMatrix());
+	_globalTransform.SetTransformMatrix(_globalTransform.GetTransformMatrix() * _actor->GetGlobalTransformMatrix());
 
 	// Cast to actor to se if they inherit from IRender,
 	// if they do call their inherited draw function and bind the model matrix
@@ -164,8 +168,8 @@ void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, float _d
 
 void LevelManager::UpdateInputController(float _dt)
 {
-	if (mActiveController)
-		mActiveController->Update(_dt);
+	if (mController)
+		mController->Update(_dt);
 }
 
 void LevelManager::FramebufferSizeCallback(std::shared_ptr<Window> _window, int _width, int _height)
@@ -175,20 +179,20 @@ void LevelManager::FramebufferSizeCallback(std::shared_ptr<Window> _window, int 
 
 void LevelManager::MouseMoveCallback(std::shared_ptr<Window> _window, double _xpos, double _ypos)
 {
-	if (mActiveController)
-		mActiveController->HandleMouseMove(_window, _xpos, _ypos);
+	if (mController)
+		mController->HandleMouseMove(_window, _xpos, _ypos);
 }
 
 void LevelManager::MouseButtonCallback(std::shared_ptr<Window> _window, int _button, int _action, int _mods)
 {
-	if (mActiveController)
-		mActiveController->HandleMouseButton(_window, _button, _action, _mods);
+	if (mController)
+		mController->HandleMouseButton(_window, _button, _action, _mods);
 }
 
 void LevelManager::MouseScrollCallback(std::shared_ptr<Window> _window, double _xoffset, double _yoffset)
 {
-	if (mActiveController)
-		mActiveController->HandleMouseScroll(_window, _xoffset, _yoffset);
+	if (mController)
+		mController->HandleMouseScroll(_window, _xoffset, _yoffset);
 }
 
 void LevelManager::CharCallback(std::shared_ptr<Window> _window, unsigned int _codepoint)
@@ -198,8 +202,8 @@ void LevelManager::CharCallback(std::shared_ptr<Window> _window, unsigned int _c
 
 void LevelManager::KeyCallback(std::shared_ptr<Window> _window, int _key, int _scancode, int _action, int _mods)
 {
-	if (mActiveController)
-		mActiveController->HandleKeyboard(_window, _key, _scancode, _action, _mods);
+	if (mController)
+		mController->HandleKeyboard(_window, _key, _scancode, _action, _mods);
 }
 
 void LevelManager::BindDirectionalLights()
@@ -265,3 +269,4 @@ void LevelManager::BindCamera()
 	mShader->setMat4("projection", mActiveLevel->mActiveCamera->GetProjectionMatrix());
 	mShader->setVec3("viewPos", mActiveLevel->mActiveCamera->GetGlobalPosition());
 }
+

@@ -11,10 +11,10 @@ struct Level;
 class Window;
 class Shader;
 class ActorController;
-class CameraController;
 class IController;
 class Actor;
 struct Transform;
+class UserInterfaceManager;
 
 /**
  * @class LevelManager
@@ -30,35 +30,14 @@ private:
     // ---------- Local Variables --------------
 
     std::vector<std::shared_ptr<Level>> mAllLevels;
-    std::shared_ptr<Level> mActiveLevel;
+    std::shared_ptr<Level> mActiveLevel{ nullptr }; 
 
     std::shared_ptr<Window> mWindow{ nullptr };
+    std::shared_ptr<UserInterfaceManager> mUserInterfaceManager{ nullptr };
 
-    std::shared_ptr<ActorController> mActorController{ nullptr };
-    std::shared_ptr<CameraController> mCameraController{ nullptr };
-    std::shared_ptr<IController> mActiveController{ nullptr };
+    std::shared_ptr<IController> mController{ nullptr };
 
     std::shared_ptr<Shader> mShader{ nullptr };
-
-   // // ImGui UI Variables
-   // int mMainSelectionIndex = 0;
-   // int mOldSelectionIndex;
-   // const float mItemWidth = 80.0f;
-   // int mComponentSelectionIndex = 0;
-   // 
-   // 
-   // float mCurrentUniformScale = 1;
-   // float mOldUniformScale = 1;
-   // //glm::vec3 mActorOriginalScale;
-   // 
-   // bool mShouldShowWireFrame = false;
-   // bool mShouldDrawCollisionDebugMesh = true;
-   // bool mCanControlActor = false;
-   // bool mIsUniformScale = false;
-   // bool mSnapCameraToActor = false;
-   // 
-   // double mOldTime = 0;
-   // int numFrames = 0;
 
 public:
     // ---------- Global functions --------------
@@ -107,23 +86,6 @@ public:
 
     // Updates Input for the active controller
     void UpdateInputController(float _dt);
-  
-   
-
-    //// Local scene UIRender function for distribution (called each frame) 
-    //void RenderUI();
-    //// Contains all custom logic for the world ImGui window
-    //void imgui_WorldObjectSettings();
-    //// Contains custom ImGui logic for details sub section
-    //void imguiSub_WorldDetails(Actor* _aptr);
-    //// Contains custom ImGui logic for collision sub section
-    //void imguiSub_Collision(class IBounded* _cptr);
-    //// Contains custom ImGui logic for light sub section
-    //void imguiSub_Light(class Light* _lptr);
-    //// Contains all custom logic for the DebugLogger ImGui window
-    //void imgui_Logger();
-    //// Contains custom ImGui logic for FPS sub section
-    //void imguiSub_FPS();
 
     // Callbacks for camera or active controller to process movement or other locally. 
     void FramebufferSizeCallback(std::shared_ptr<Window> _window, int _width, int _height);
@@ -150,7 +112,7 @@ public:
     // Setters
 
     // Set`s a new controller to the active controller
-    void SetController(const std::shared_ptr<IController> _controller) { mActiveController = _controller; }
+    void SetController(const std::shared_ptr<IController> _controller) { mController = _controller; }
 
     // Setts a new window 
     void SetWindow(std::shared_ptr<Window> _window) { mWindow = _window; }
@@ -158,7 +120,8 @@ public:
     // Getters
 
     // Get`s the current active controller
-    std::shared_ptr<IController> GetController() const { return mActiveController; }
+    std::shared_ptr<IController> GetController() const { return mController; }
+    
 
 };
 
