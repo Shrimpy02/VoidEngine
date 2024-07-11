@@ -27,7 +27,9 @@ Mesh::~Mesh()
 
 void Mesh::Draw(const std::shared_ptr<Shader> _shader) const
 {
-    // bind the material the shader for this object if it exists
+    if (!mVisible) return;
+
+	// bind the material the shader for this object if it exists
     if(mMaterial)
         mMaterial->Bind(_shader);
     
@@ -111,6 +113,79 @@ std::shared_ptr<Mesh> Mesh::CreateCube(std::shared_ptr<Material> _material, std:
     // return new default cube
     //LOG("%s created", cubeKey.c_str());
 	return mCache[cubeKey];
+}
+
+std::shared_ptr<Mesh> Mesh::CreateCubeByExtent(std::shared_ptr<Mesh> _extentMesh, std::shared_ptr<Material> _material, std::string _customName)
+{
+    // Calculate the bounding box (min and max extents) of the existing mesh
+    glm::vec3 maxExtent = _extentMesh->mVertices[0].mPosition;
+    glm::vec3 minExtent = _extentMesh->mVertices[0].mPosition;
+
+    for (Vertex& vertex : _extentMesh->mVertices)
+    {
+        minExtent = glm::min(minExtent, vertex.mPosition);
+        maxExtent = glm::max(maxExtent, vertex.mPosition);
+    }
+
+    // Slight offsett
+    maxExtent += 0.001f;
+    minExtent -= 0.001f;
+
+    // Calculate the center of the bounding box
+    glm::vec3 center = (minExtent + maxExtent) * 0.5f;
+
+    // Then create the collision mesh using these extents (Mesh as cube for AABB object)
+    // generate a cube using extents
+    std::vector<Vertex> vertices = {
+        // Front face
+        {{minExtent.x, minExtent.y,  maxExtent.z}, {0.0f,  0.0f,  1.0f}, {0.0f, 0.0f}}, // Bottom-left
+        {{ maxExtent.x, minExtent.y,  maxExtent.z}, {0.0f,  0.0f,  1.0f}, {1.0f, 0.0f}}, // Bottom-right
+        {{ maxExtent.x,  maxExtent.y,  maxExtent.z}, {0.0f,  0.0f,  1.0f}, {1.0f, 1.0f}}, // Top-right
+        {{minExtent.x,  maxExtent.y,  maxExtent.z}, {0.0f,  0.0f,  1.0f}, {0.0f, 1.0f}}, // Top-left
+        // Back face
+        {{minExtent.x, minExtent.y, minExtent.z}, {0.0f,  0.0f, -1.0f}, {1.0f, 0.0f}},
+        {{ maxExtent.x, minExtent.y, minExtent.z}, {0.0f,  0.0f, -1.0f}, {0.0f, 0.0f}},
+        {{ maxExtent.x,  maxExtent.y, minExtent.z}, {0.0f,  0.0f, -1.0f}, {0.0f, 1.0f}},
+        {{minExtent.x,  maxExtent.y, minExtent.z}, {0.0f,  0.0f, -1.0f}, {1.0f, 1.0f}},
+        // Left face
+        {{minExtent.x, minExtent.y, minExtent.z}, {-1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}},
+        {{minExtent.x, minExtent.y,  maxExtent.z}, {-1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}},
+        {{minExtent.x,  maxExtent.y,  maxExtent.z}, {-1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}},
+        {{minExtent.x,  maxExtent.y, minExtent.z}, {-1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}},
+        // Right face
+        {{ maxExtent.x, minExtent.y, minExtent.z}, {1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}},
+        {{ maxExtent.x, minExtent.y,  maxExtent.z}, {1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}},
+        {{ maxExtent.x,  maxExtent.y,  maxExtent.z}, {1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}},
+        {{ maxExtent.x,  maxExtent.y, minExtent.z}, {1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}},
+        // Top face
+        {{minExtent.x,  maxExtent.y, minExtent.z}, {0.0f,  1.0f,  0.0f}, {0.0f, 1.0f}},
+        {{minExtent.x,  maxExtent.y,  maxExtent.z}, {0.0f,  1.0f,  0.0f}, {0.0f, 0.0f}},
+        {{ maxExtent.x,  maxExtent.y,  maxExtent.z}, {0.0f,  1.0f,  0.0f}, {1.0f, 0.0f}},
+        {{ maxExtent.x,  maxExtent.y, minExtent.z}, {0.0f,  1.0f,  0.0f}, {1.0f, 1.0f}},
+        // Bottom face
+        {{minExtent.x, minExtent.y, minExtent.z}, {0.0f, -1.0f,  0.0f}, {1.0f, 1.0f}},
+        {{minExtent.x, minExtent.y,  maxExtent.z}, {0.0f, -1.0f,  0.0f}, {0.0f, 1.0f}},
+        {{ maxExtent.x, minExtent.y,  maxExtent.z}, {0.0f, -1.0f,  0.0f}, {0.0f, 0.0f}},
+        {{ maxExtent.x, minExtent.y, minExtent.z}, {0.0f, -1.0f,  0.0f}, {1.0f, 0.0f}}
+    };
+
+    // Generate cube indices
+    std::vector<Index> indices = {
+        // Front face
+        0, 1, 2, 0, 2, 3,
+        // Back face
+        4, 5, 6, 4, 6, 7,
+        // Left face
+        8, 9, 10, 8, 10, 11,
+        // Right face
+        12, 13, 14, 12, 14, 15,
+        // Top face
+        16, 17, 18, 16, 18, 19,
+        // Bottom face
+        20, 21, 22, 20, 22, 23
+    };
+
+    return std::make_shared<Mesh>("CollisionCube", std::move(vertices), std::move(indices), _material);
 }
 
 std::shared_ptr<Mesh> Mesh::CreatePlane(std::shared_ptr<Material> _material, std::string _customName)
@@ -202,6 +277,41 @@ std::shared_ptr<Mesh> Mesh::CreatePyramid(std::shared_ptr<Material> _material, s
     // return new default pyramid
     //LOG("%s Created", pyramidKey.c_str());
     return mCache[pyramidKey];
+}
+
+std::shared_ptr<Mesh> Mesh::CreateSphereByExtent(std::shared_ptr<Mesh> _extentMesh, std::shared_ptr<Material> _material, std::string _customName)
+{
+    // Calculate the bounding box (min and max extents) of the existing mesh
+    glm::vec3 maxExtent = _extentMesh->mVertices[0].mPosition;
+    glm::vec3 minExtent = _extentMesh->mVertices[0].mPosition;
+
+    for (Vertex& vertex : _extentMesh->mVertices)
+    {
+        minExtent = glm::min(minExtent, vertex.mPosition);
+        maxExtent = glm::max(maxExtent, vertex.mPosition);
+    }
+
+    // Slight offsett
+    maxExtent += 0.001f;
+    minExtent -= 0.001f;
+
+    // Calculate the center of the bounding box
+    glm::vec3 center = (minExtent + maxExtent) * 0.5f;
+
+    float radius = 0.0f;
+
+    if(glm::length(minExtent) > glm::length(maxExtent))
+    {
+        radius = glm::length(minExtent);
+    } else {
+        radius = glm::length(maxExtent);
+    }
+    
+    std::vector<Vertex> vertices;
+    std::vector<Index> indices;
+    Mesh::GenSphere(vertices, indices, 2, radius);
+
+    return std::make_shared<Mesh>("CollisionSphere", std::move(vertices), std::move(indices), _material);
 }
 
 std::shared_ptr<Mesh> Mesh::CreateSphere(std::shared_ptr<Material> _material, const int _subdivides, std::string _customName)

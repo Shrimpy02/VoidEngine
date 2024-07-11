@@ -4,18 +4,44 @@
 #include <RenderElements/Mesh.h>
 #include <RenderElements/Material.h>
 #include <Utilities/Logger.h>
+#include <Utilities/Defines.h>
+
+// Additional Includes
 #include <glad/glad.h>
+
+#include "RenderElements/Texture.h"
+
 
 // ---------------------------------------------------------------
 // --------------------- BaseActor ------------------------------
 // ---------------------------------------------------------------
 
-BaseActor::BaseActor(const std::string& _name, std::shared_ptr<Mesh> _mesh)
-    :Actor(_name), mMesh(_mesh)
+BaseActor::BaseActor(const std::string& _name, std::shared_ptr<Mesh> _visualMesh, std::shared_ptr<Mesh> _collisionMesh)
+    :Actor(_name)
 {
-    // Creates and remembers both collision meshes for viualization and custom changing of collision base at run time. Is unoptomized.
-    mCollisionCube = CreateCollisionCubeFromMesh(Material::Load("Debug"), mMesh->GetVertices());
-    mCollisionSphere = CreateCollisionSphereFromMesh(Material::Load("Debug"), mMesh->GetVertices());
+
+    if (_visualMesh) {
+
+        mVisualMesh = _visualMesh;
+
+        if (_collisionMesh) {
+
+            mCollisionMesh = _collisionMesh;
+
+        } else {
+            std::shared_ptr<Texture> debugTex = Texture::LoadWhiteTexture();
+            std::shared_ptr<Material> debugMat = Material::Load("Debug", { debugTex }, { {glm::vec3(1.0f,0.0f,0.0f)}, {64} });
+            std::string collisionName = _name.c_str();
+            collisionName.append("-CollisionMesh");
+            mCollisionMesh = Mesh::CreateSphereByExtent(mVisualMesh, debugMat, collisionName);
+        }
+
+    } else {
+        LOG_WARNING("BaseActor `%s` has no visible mesh", _name.c_str());
+    }
+
+    mCollisionMesh->SetIsVisible(false);
+
     LOG("BaseActor Created: %s", _name.c_str());
 }
 
@@ -24,14 +50,18 @@ BaseActor::~BaseActor()
     
 }
 
-void BaseActor::Draw(const  std::shared_ptr<Shader> _shader) const
+void BaseActor::Draw(const std::shared_ptr<Shader> _shader) const
 {
     // Draw visual mesh first
-    if (!mMesh) return;
-    mMesh->Draw(_shader);
+    if (!mVisualMesh) return;
+    mVisualMesh->Draw(_shader);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (!mCollisionMesh) return;
+    mCollisionMesh->Draw(_shader);
 
     // Draw collision mesh after depending on collision base, draw as wire frame
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+   
     if (mShouldDrawCollisionMesh) {
 
        // if (mCollisionCube && mCollisionProperties.IsAABB())
@@ -48,9 +78,9 @@ void BaseActor::Update(float _dt)
    
 }
 
-AABB BaseActor::GetAABB() const
+Colider BaseActor::GetCollisionData()
 {
-    if (mCollisionCube)
+    if (mCollisionMesh)
     {
         // Calculate scaled min and max extents
         glm::vec3 scaledMinExtent = mMinExtent * GetGlobalScale();
@@ -78,7 +108,7 @@ AABB BaseActor::GetAABB() const
 
 BoundingSphere BaseActor::GetBoundingSphere() const
 {
-    if (mCollisionSphere)
+    if (mCollisionMesh)
     {
         // getes the average scale so that the sphere is kind of scaled with mesh scaleing. Temp fix
         float averageScale(0);

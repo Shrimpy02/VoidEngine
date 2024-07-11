@@ -15,7 +15,7 @@
 #include <Controllers/ActorController.h>
 //#include <Components/PhysicsComponent.h>
 //#include <Components/AIComponent.h>
-//#include <ModelLoader/AssimpLoader.h>
+#include <ModelLoader/AssimpLoader.h>
 #include <Lights/DirectionalLight.h>
 #include <Lights/PointLight.h>
 #include <Utilities/Defines.h>
@@ -24,6 +24,7 @@
 #include <RenderElements/Material.h>
 #include <RenderElements/Texture.h>
 #include <UserInterface/UserInterfaceManager.h>
+
 //#include <Core/SMath.h>
 //#include <SkyBox/Skybox.h>
 
@@ -55,16 +56,20 @@ void LevelManager::LoadContent()
 void LevelManager::LoadDefaultLevel()
 {
 	// Texture / Materials
-	std::shared_ptr<Texture> whiteTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/white.jpg"));
-	std::shared_ptr<Material> debugMat = Material::Load("Debug", { whiteTex }, {{glm::vec3(1.0f,0.0f,0.0f)}, {64} });
+	std::shared_ptr<Texture> defTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/ConstainerDiffuse.jpg"));
+	std::shared_ptr<Material> defMat = Material::Load("Default", { defTex }, {{glm::vec3(1.0f,1.0f,1.0f)}, {64} });
 
 	// Objects
-	std::shared_ptr<BaseActor> defaultCube = std::make_shared<BaseActor>("DefaultCube", Mesh::CreateCube(debugMat));
+	std::shared_ptr<BaseActor> defaultCube = std::make_shared<BaseActor>("DefaultCube", Mesh::CreateCube(defMat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube);
+
+	//std::shared_ptr<Actor> Model = std::make_shared<Actor>("DefaultModel");
+	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Monkey/Monke.fbx"), Model);
+	//mActiveLevel->AddActorToSceneGraph(Model);
 
 	// Camera
 	std::shared_ptr<CameraActor> cam1 = std::make_shared<CameraActor>("Camera1");
-	cam1->SetGlobalPosition(glm::vec3(0, 0, 3));
+	cam1->SetGlobalPosition(glm::vec3(0, 0, 5));
 	mActiveLevel->AddActorToSceneGraph(cam1);
 	mActiveLevel->mActiveCamera = cam1;
 

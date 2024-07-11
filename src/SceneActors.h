@@ -31,11 +31,8 @@ public:
     // ---------- Global Variables --------------
 
     // The visual mesh
-    std::shared_ptr<Mesh> mMesh{ nullptr };
-
-    // The collision mesh if vis is enabled
-    std::shared_ptr<Mesh> mCollisionCube{ nullptr };
-    std::shared_ptr<Mesh> mCollisionSphere{ nullptr };
+    std::shared_ptr<Mesh> mVisualMesh{ nullptr };
+    std::shared_ptr<Mesh> mCollisionMesh{ nullptr };
 
 private:
     // ---------- Local Variables --------------
@@ -44,7 +41,7 @@ public:
     // ---------- Global functions --------------
 
     // Constructor
-    BaseActor(const std::string& _name, std::shared_ptr<Mesh> _mesh);
+    BaseActor(const std::string& _name, std::shared_ptr<Mesh> _visualMesh, std::shared_ptr<Mesh> _collisionMesh = nullptr);
 
     ~BaseActor();
 

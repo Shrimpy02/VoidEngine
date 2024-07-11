@@ -39,6 +39,8 @@ private:
     // Mesh name
     const std::string mName;
 
+    bool mVisible = true;
+
     // gl buffer objects
     VAO mVAO{ 0U };
     VBO mVBO{ 0U };
@@ -58,11 +60,17 @@ public:
     // Creates a default cube using a cube key
     static  std::shared_ptr<Mesh> CreateCube(std::shared_ptr<Material> _material, std::string _customName = std::string());
 
+    // Creates a default cube using a cube key
+    static  std::shared_ptr<Mesh> CreateCubeByExtent(std::shared_ptr<Mesh> _extentMesh, std::shared_ptr<Material> _material, std::string _customName = std::string());
+
     // Creates a default plane using a plane key
     static std::shared_ptr<Mesh> CreatePlane(std::shared_ptr<Material> _material, std::string _customName = std::string());
 
     // Creates a default pyramid using a pyramid key
     static std::shared_ptr<Mesh> CreatePyramid(std::shared_ptr<Material> _material, std::string _customName = std::string());
+
+    // Creates a default cube using a cube key
+    static  std::shared_ptr<Mesh> CreateSphereByExtent(std::shared_ptr<Mesh> _extentMesh, std::shared_ptr<Material> _material, std::string _customName = std::string());
 
     // Creates a default sphere using a sphere key
     static std::shared_ptr<Mesh> CreateSphere(std::shared_ptr<Material> _material, const int _subdivides = 2, std::string _customName = std::string());
@@ -113,11 +121,15 @@ public:
     // Returns this meshes indices as vector of index struct
     std::vector<Index>& GetIndices() { return mIndices; }
 
+    // Returns this meshes visibility as a bool
+    bool GetIsVisible() { return mVisible; }
+
     // Setters
 
     // Sets the material this mesh should use
     void SetMaterial(std::shared_ptr<Material> _material) { mMaterial = _material; }
-   
+    void SetIsVisible(bool _b) { mVisible = _b; }
+
   
 };
 
