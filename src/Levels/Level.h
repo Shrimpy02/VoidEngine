@@ -6,7 +6,7 @@
 // Additional Includes
 
 // Forward Declarations
-struct CameraActor;
+class CameraActor;
 class SceneGraph;
 
 /**

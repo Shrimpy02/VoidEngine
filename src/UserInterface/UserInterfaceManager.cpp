@@ -9,11 +9,14 @@
 #include <Lights/PointLight.h>
 #include <Controllers/Controller.h>
 #include <Controllers/ActorController.h>
+#include <Camera.h>
 
 
 // Additional Includes
 #include <ImGUi/imgui.h>
 #include <glad/glad.h>
+
+#include "RenderElements/Mesh.h"
 
 UserInterfaceManager::UserInterfaceManager(std::shared_ptr<Shader> _shader) : mShader(_shader)
 {
@@ -61,7 +64,7 @@ void UserInterfaceManager::imgui_WorldObjectSettings()
 
 		ImGui::Separator();
 
-		if(ImGui::CollapsingHeader("Scene Actors"))
+		if(ImGui::CollapsingHeader("Level Actors"))
 		{
 
 			// Shows all actors in scene, based on selection can take control
@@ -70,22 +73,86 @@ void UserInterfaceManager::imgui_WorldObjectSettings()
 			std::vector<std::shared_ptr<Actor>> tempSceneActors;
 			mActiveLevel->mSceneGraph->Query<BaseActor>(tempSceneActors);
 			mActiveLevel->mSceneGraph->Query<VisualActor>(tempSceneActors);
-			mActiveLevel->mSceneGraph->Query<CollisionActor>(tempSceneActors);
 			mActiveLevel->mSceneGraph->Query<DirectionalLight>(tempSceneActors);
 			mActiveLevel->mSceneGraph->Query<PointLight>(tempSceneActors);
-			std::vector<const char*> tempSceneActorNames;
+			mActiveLevel->mSceneGraph->Query<CameraActor>(tempSceneActors);
 
+			std::vector<std::shared_ptr<Actor>> tempSceneCameras;
+			mActiveLevel->mSceneGraph->Query<CameraActor>(tempSceneCameras);
+
+			std::vector<const char*> tempSceneActorNames;
 			for (std::shared_ptr<Actor> actor : tempSceneActors) {
 				tempSceneActorNames.push_back(actor->GetTag().c_str());
+			}
+
+			std::vector<const char*> tempSceneCameraNames;
+			for (std::shared_ptr<Actor> camActor : tempSceneCameras) {
+				tempSceneCameraNames.push_back(camActor->GetTag().c_str());
 			}
 
 			ImGui::ListBox("##LB", &mMainSelectionIndex, tempSceneActorNames.data(), (int)tempSceneActorNames.size());
 
 			std::shared_ptr<Actor> currentActor = tempSceneActors[mMainSelectionIndex];
+
+			// Decides actor control
+			// ----------------------------------------------
+			if (currentActor == mController->GetRefToControlledActor())
+				mCanControlActor = true;
+
+			ImGui::Checkbox("Control Selected Actor", &mCanControlActor);
+			if (mCanControlActor)
+			{
+				// If new actor is camera, set it to the level camera
+				if(std::shared_ptr<CameraActor> newCamActor = std::dynamic_pointer_cast<CameraActor>(tempSceneActors[mMainSelectionIndex]))
+				{
+					mActiveLevel->mActiveCamera = newCamActor;
+				}
+
+				// Decides how fast the actor that is controlled moves
+				// ----------------------------------------------
+				float tempActorMoveSpeed = mController->GetMovementSpeed();
+				ImGui::Text("Actor Movement Speed"); ImGui::SameLine(); ImGui::SetNextItemWidth(mItemWidth); ImGui::InputFloat("##AMS", &tempActorMoveSpeed);
+				mController->SetMovementSpeed(tempActorMoveSpeed);
+				mController->SetNewActorToControl(currentActor);
+
+				// Decides if a camera should snap to selected actor
+				// ----------------------------------------------
+				ImGui::Checkbox("Snap camera to actor", &mSnapCameraToActor);
+				if (mSnapCameraToActor && currentActor != mActiveLevel->mActiveCamera)
+				{
+					// Decides what camera should snap
+					// ----------------------------------------------
+					mActiveLevel->mActiveCamera->mSnappedToActor = currentActor;
+					mActiveLevel->mActiveCamera->SetGlobalPosition(currentActor->GetGlobalPosition() + glm::vec3(0, 2, 7));
+
+				} else {
+					mSnapCameraToActor = false;
+					mActiveLevel->mActiveCamera->mSnappedToActor = nullptr;
+				}
+				// Reset control to level camera when changeing object
+			} else {
+				if (mActiveLevel->mActiveCamera)
+					mController->SetNewActorToControl(mActiveLevel->mActiveCamera);
+				mSnapCameraToActor = false;
+			}
+
+			// Resets Actor control back to camera when changing selected item
+			if (mOldSelectionIndex != mMainSelectionIndex)
+			{
+				mCanControlActor = false;
+				if (mActiveLevel->mActiveCamera)
+					mController->SetNewActorToControl(mActiveLevel->mActiveCamera);
+			}
+			mOldSelectionIndex = mMainSelectionIndex;
+
 			// Handles all local Sub UI for Actor world settings
 			// ----------------------------------------------
 			if(currentActor)
 				imguiSub_WorldDetails(currentActor);
+
+			std::shared_ptr<CameraActor> cameraPtr = std::dynamic_pointer_cast<CameraActor>(currentActor);
+			if (cameraPtr)
+				imguiSub_Camera(cameraPtr);
 
 			// Handles all local Sub UI for Actor Collision settings
 			// ----------------------------------------------
@@ -110,7 +177,6 @@ void UserInterfaceManager::imgui_WorldObjectSettings()
 			ImGui::Checkbox("Show Collision debug mesh", &mShouldDrawCollisionDebugMesh);
 			std::vector<std::shared_ptr<Actor>> tempActors;
 			mActiveLevel->mSceneGraph->Query<BaseActor>(tempActors);
-			mActiveLevel->mSceneGraph->Query<CollisionActor>(tempActors);
 
 			for (std::shared_ptr<Actor> actor : tempActors)
 			{
@@ -118,24 +184,14 @@ void UserInterfaceManager::imgui_WorldObjectSettings()
 				if(mA)
 				{
 					if (mShouldDrawCollisionDebugMesh)
-						mA->SetDrawDebugCollisionMesh(true);
+						mA->mCollisionMesh->SetIsVisible(true);
 					else
-						mA->SetDrawDebugCollisionMesh(false);
-				}
-
-				std::shared_ptr<CollisionActor> mCA = std::dynamic_pointer_cast<CollisionActor>(actor);
-				if (mCA)
-				{
-					if (mShouldDrawCollisionDebugMesh)
-						mCA->SetDrawDebugCollisionMesh(true);
-					else
-						mCA->SetDrawDebugCollisionMesh(false);
+						mA->mCollisionMesh->SetIsVisible(false);
 				}
 			}
 		}
 	}
 	ImGui::End();
-
 }
 
 void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
@@ -144,41 +200,6 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 	// ----------------------
 	ImGui::Text("Actor Details");
 	ImGui::Separator();
-
-	// Resets Actor control back to camera when changing selected item
-	if (mOldSelectionIndex != mMainSelectionIndex)
-		mCanControlActor = false;
-	mOldSelectionIndex = mMainSelectionIndex;
-
-	// Decides if user can control the selected actor
-	// ----------------------------------------------
-	ImGui::Checkbox("Control Selected Actor", &mCanControlActor);
-	//if (mCanControlActor)
-	//{
-
-
-	//	// Decides how fast the actor moves
-	//	// ----------------------------------------------
-	//	float tempActorMoveSpeed = mActorController->GetMovementSpeed();
-	//	ImGui::Text("Actor Movement Speed"); ImGui::SameLine(); ImGui::SetNextItemWidth(mItemWidth); ImGui::InputFloat("##AMS", &tempActorMoveSpeed);
-	//	mActorController->SetMovementSpeed(tempActorMoveSpeed);
-	//	mActorController->SetNewActorToControll(_aptr);
-
-	//	ImGui::Checkbox("Snap camera to actor", &mSnapCameraToActor);
-
-	//	if(mSnapCameraToActor)
-	//	{
-	//		mSceneCamera.SetPosition(_aptr->GetPosition(Actor::TransformSpace::Global) + glm::vec3(0, 2, 7));
-
-	//		glm::quat rotation = _aptr->GetRotation(Actor::TransformSpace::Global);
-	//		glm::rotate(rotation, glm::radians(90.f), glm::vec3(0, 0, 1));
-
-	//		mSceneCamera.SetRotation(rotation);
-	//	}
-
-	//}
-	//else
-	//	mActiveController = mCameraController;
 
 	// Can edit the x, y, z position for selected actor
 	// ----------------------------------------------
@@ -293,7 +314,6 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 
 	// Component display
 	// -----------------------------------
-	ImGui::SameLine();
 	ImGui::Text("Actor Components: ");
 	std::vector<std::shared_ptr<Component>> actorComponents(_aptr->GetComponents());
 	std::vector<const char*> componentNames;
@@ -302,59 +322,71 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 	}
 
 	ImGui::ListBox("##LBC", &mComponentSelectionIndex, componentNames.data(), (int)componentNames.size());
-
 }
 
 void UserInterfaceManager::imguiSub_Collision(std::shared_ptr<IBounded> _cptr)
 {
 	// Handles all collision setting logic with
-	//// ImGui and shared_ptr of the object selected
+	// ImGui and shared_ptr of the object selected
+	if (ImGui::CollapsingHeader("Collision Details"))
+	{
+		// Shows if actor is colliding 
+		// ----------------------------------------------
+		ImGui::Text("Is Colliding: "); ImGui::SameLine();
+		if (_cptr->GetIsColliding())
+			ImGui::TextColored(ImVec4(0, 1, 0, 1), "True");
+		else
+			ImGui::TextColored(ImVec4(1, 0, 0, 1), "False");
 
-	//ImGui::Text("Collision Details");
-	//ImGui::Separator();
-	//// Shows if actor is colliding 
-	//// ----------------------------------------------
-	//ImGui::Text("Is Colliding: "); ImGui::SameLine();
-	//if (_cptr->GetIsColliding())
-	//	ImGui::TextColored(ImVec4(0, 1, 0, 1), "True");
-	//else
-	//	ImGui::TextColored(ImVec4(1, 0, 0, 1), "False");
+		// Edit collision type
+		// ----------------------------------------------
+		const char* typeItems[] = { "STATIC","DYNAMIC","KINETIC" };
+		int currentTypeItem = 0;
 
-	//// Edit collision type
-	//// ----------------------------------------------
-	//const char* typeItems[] = { "STATIC","DYNAMIC","KINETIC" };
-	//int currentTypeItem = 0;
+		currentTypeItem = static_cast<int>(_cptr->mCollisionProperties.mType);
 
-	//currentTypeItem = static_cast<int>(_cptr->GetCollisionProperties()->mType);
+		ImGui::Text("Collision Type");
+		ImGui::Combo("##TB", &currentTypeItem, typeItems, IM_ARRAYSIZE(typeItems));
 
-	//ImGui::Text("Collision Type");
-	//ImGui::Combo("##TB", &currentTypeItem, typeItems, IM_ARRAYSIZE(typeItems));
+		_cptr->mCollisionProperties.SetCollisionType(static_cast<CollisionType>(currentTypeItem));
 
-	//_cptr->GetCollisionProperties()->SetCollisionType(static_cast<CollisionType>(currentTypeItem));
+		// Edit collision response
+		// ----------------------------------------------
+		const char* responseItems[] = { "BLOCK","OVERLAP","IGNORE" };
+		int currentResponseItem = 0;
 
-	//// Edit collision response
-	//// ----------------------------------------------
-	//const char* responseItems[] = { "BLOCK","OVERLAP","IGNORE" };
-	//int currentResponseItem = 0;
+		currentResponseItem = static_cast<int>(_cptr->mCollisionProperties.mResponse);
 
-	//currentResponseItem = static_cast<int>(_cptr->GetCollisionProperties()->mResponse);
+		ImGui::Text("Collision Response");
+		ImGui::Combo("##RB", &currentResponseItem, responseItems, IM_ARRAYSIZE(responseItems));
 
-	//ImGui::Text("Collision Response");
-	//ImGui::Combo("##RB", &currentResponseItem, responseItems, IM_ARRAYSIZE(responseItems));
+		_cptr->mCollisionProperties.SetCollisionResponse(static_cast<CollisionResponse>(currentResponseItem));
 
-	//_cptr->GetCollisionProperties()->SetCollisionResponse(static_cast<CollisionResponse>(currentResponseItem));
+		// Edit collision base
+		// ----------------------------------------------
+		const char* baseItems[] = { "AABB","BoundingSphere" };
+		int currentbaseItem = 0;
 
-	//// Edit collision base
-	//// ----------------------------------------------
-	//const char* baseItems[] = { "AABB","BoundingSphere" };
-	//int currentbaseItem = 0;
+		currentbaseItem = static_cast<int>(_cptr->mCollisionProperties.mBase);
 
-	//currentbaseItem = static_cast<int>(_cptr->GetCollisionProperties()->mBase);
+		ImGui::Text("Collision Base");
+		ImGui::Combo("##BB", &currentbaseItem, baseItems, IM_ARRAYSIZE(baseItems));
 
-	//ImGui::Text("Collision Base");
-	//ImGui::Combo("##BB", &currentbaseItem, baseItems, IM_ARRAYSIZE(baseItems));
+		_cptr->mCollisionProperties.SetCollisionBase(static_cast<CollisionBase>(currentbaseItem));
 
-	//_cptr->GetCollisionProperties()->SetCollisionBase(static_cast<CollisionBase>(currentbaseItem));
+		// Edit collision sub base
+		// ----------------------------------------------
+		const char* subBaseItems[] = { "NoSubBase","ConvexHul" };
+		int currentSubBaseItem = 0;
+
+		currentSubBaseItem = static_cast<int>(_cptr->mCollisionProperties.mSubBase);
+
+		ImGui::Text("Collision SubBase");
+		ImGui::Combo("##SB", &currentSubBaseItem, subBaseItems, IM_ARRAYSIZE(subBaseItems));
+
+		_cptr->mCollisionProperties.SetCollisionSubBase(static_cast<CollisionSubBase>(currentSubBaseItem));
+
+	}
 }
 
 void UserInterfaceManager::imguiSub_Light(std::shared_ptr<Light> _lptr)
@@ -380,6 +412,11 @@ void UserInterfaceManager::imguiSub_Light(std::shared_ptr<Light> _lptr)
 	_lptr->mColor.x = colorValues[0];
 	_lptr->mColor.y = colorValues[1];
 	_lptr->mColor.z = colorValues[2];
+}
+
+void UserInterfaceManager::imguiSub_Camera(std::shared_ptr<CameraActor> _captr)
+{
+
 }
 
 void UserInterfaceManager::imgui_Logger()

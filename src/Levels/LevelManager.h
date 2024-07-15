@@ -70,14 +70,8 @@ public:
     // Local scene render function for distribution (called each frame) 
     void Render(float _dt);
 
-
-   // // Scene collision handler function for all scene objects that inherit from "IBounded" (called each frame) 
-   // void HandleCollision();
-   // // Template helper function for HandleCollision, takes two template arguments for either aabb
-   // // or BoundingSphere in addition to who it belongs and executes the appropriate logic for them.
-   // // Returns true if there was a collision and false otherwise.
-   // template <typename T, typename U>
-   // bool ProcessCollision(T _a, U _b, IBounded* _iA, IBounded* _iB, Actor* _AA, Actor* _AB);
+    // Scene collision handler function for all scene objects that inherit from "IBounded" (called each frame) 
+    void ProcessCollision();
 
 	// Updates the scene graph and all children if they inherit from "Actor" (called each frame) 
 	void UpdateLevelSceneGraph(std::shared_ptr<Actor> _actor, float _dt, Transform _globalTransform = Transform{});

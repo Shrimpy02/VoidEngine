@@ -3,6 +3,8 @@
 #include <Core/SMath.h>
 #include <glm/glm.hpp>
 #include <SceneActors.h>
+#include <RenderElements/Mesh.h>
+#include <RenderElements/Vertex.h>
 
 // Additional includes
 #include <stdexcept>

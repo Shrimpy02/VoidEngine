@@ -27,7 +27,7 @@ private:
     // Key map for input handeling
     std::map<int, bool> mKeyStates;
     // actor movement speed
-    float mMovementSpeed = 10;
+    float mMovementSpeed = 5;
     // assigned actor
     std::shared_ptr<Actor> mActor;
     // Window reference
@@ -71,13 +71,15 @@ public:
     // Setters
 
 	// Sets a new actor to control
-    void SetNewActorToControll(std::shared_ptr<Actor> _newActor) { mActor = _newActor; }
+    void SetNewActorToControl(std::shared_ptr<Actor> _newActor) override { mActor = _newActor; }
     // sets the actor movement speed
-    void SetMovementSpeed(float _inMovementSpeed) { mMovementSpeed = _inMovementSpeed; }
+    void SetMovementSpeed(float _inMovementSpeed) override { mMovementSpeed = _inMovementSpeed; }
 
     // Getters
 
+    std::shared_ptr<Actor> GetRefToControlledActor() { return mActor; }
+
     // gets the current movement speed
-    float GetMovementSpeed() { return mMovementSpeed; }
+    float GetMovementSpeed() override { return mMovementSpeed; }
 };
 

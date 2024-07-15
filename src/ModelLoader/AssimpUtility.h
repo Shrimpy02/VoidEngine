@@ -7,8 +7,7 @@
 // Additional Includes
 
 // Forward Declarations
-class aiNode;
-
+struct aiNode;
 
 // Inline function returns transformation matrix of an in aiNode* as an aiMatrix4x4
 inline aiMatrix4x4 GetTransformationMatrix(const aiNode* node)

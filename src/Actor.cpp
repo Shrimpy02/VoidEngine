@@ -107,7 +107,7 @@ const glm::vec3 Actor::GetGlobalScale() const
 	return globalScale;
 }
 
-const glm::mat4& Actor::GetLocalTransformMatrix() const
+const glm::mat4 Actor::GetLocalTransformMatrix() const
 {
 	return mTransform.GetTransformMatrix();
 }

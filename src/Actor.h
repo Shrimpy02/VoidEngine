@@ -1,4 +1,5 @@
 #pragma once
+
 // Includes 
 #include <Components/Component.h>
 #include <Transform.h>
@@ -8,6 +9,11 @@
 // Additional includes
 #include <vector>
 #include <memory>
+
+// Forward Declarations
+class CameraActor;
+
+//
 /**
  * @class Actor
  * @brief The actor acts as an object in the world. It contains parent/child link,
@@ -17,6 +23,7 @@ class Actor : public std::enable_shared_from_this<Actor>
 {
 public:
 	// ---------- Global Variables --------------
+
 
 private:
 	// ---------- Local Variables --------------
@@ -103,8 +110,6 @@ public:
 		}
 	}
 
-
-
 private:
 	// ---------- Local functions --------------
 
@@ -127,7 +132,7 @@ public:
 	// Returns the actors global current scale as a vec3
 	const glm::vec3 GetGlobalScale() const;
 	// Returns the Transformation local matrix of this actor as a mat4
-	const glm::mat4& GetLocalTransformMatrix() const;
+	const glm::mat4 GetLocalTransformMatrix() const;
 	// Returns the Transformation global matrix of this actor as a mat4
 	const glm::mat4 GetGlobalTransformMatrix() const;
 	// Returns the transform of this actor as a Transform pointer

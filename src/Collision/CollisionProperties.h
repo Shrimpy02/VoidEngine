@@ -27,7 +27,15 @@ enum class CollisionResponse
 enum class CollisionBase
 {
 	AABB,
-	BoundingSphere
+	BoundingSphere,
+	Compare
+};
+
+// Enum for all collision sub bases
+enum class CollisionSubBase
+{
+	NoSubBase,
+	ConvexHul
 };
 
 /**
@@ -41,9 +49,11 @@ struct CollisionProperties
 	CollisionType mType{ CollisionType::STATIC };
 	CollisionResponse mResponse{ CollisionResponse::BLOCK };
 	CollisionBase mBase{ CollisionBase::AABB };
+	CollisionSubBase mSubBase{ CollisionSubBase::ConvexHul };
+
+	CollisionBase mBaseCompare{ CollisionBase::Compare };
 
 	// ----------- Functions ---------------
-
 	//TypeChecks
 
 	// Returns true if collision type is STATIC.
@@ -64,11 +74,17 @@ struct CollisionProperties
 	// Returns true if collision response is IGNORE.
 	bool IsIgnoreResponse() const { return mResponse == CollisionResponse::IGNORE; }
 
-	// Returns true if collision response is BLOCK.
+	// Returns true if collision base is AABB.
 	bool IsAABB() const { return mBase == CollisionBase::AABB; }
 
-	// Returns true if collision response is OVERLAP.
+	// Returns true if collision base is BoundingSphere.
 	bool IsBoundingSphere() const { return mBase == CollisionBase::BoundingSphere; }
+
+	// Returns true if collision SubBase is notComplex
+	bool isNotConvex() const { return mSubBase == CollisionSubBase::NoSubBase; }
+
+	// Returns true if collision SubBase is ConvexHul
+	bool IsConvex() const { return mSubBase == CollisionSubBase::ConvexHul;  }
 
 	// Setters ---------------
 
@@ -80,4 +96,7 @@ struct CollisionProperties
 
 	// Sets current collision base
 	void SetCollisionBase(CollisionBase _inType) { mBase = _inType; }
+
+	// Sets the current SubBase 
+	void SetCollisionSubBase(CollisionSubBase _inType) { mSubBase = _inType;  }
 };

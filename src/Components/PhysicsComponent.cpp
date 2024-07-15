@@ -1,9 +1,10 @@
 
-// Classes
+// Includes
 #include <Components/PhysicsComponent.h>
 #include <SceneActors.h>
 #include <Core/SMath.h>
-#include <GLFW/glfw3.h>
+#include <RenderElements/Mesh.h>
+#include <RenderElements/Vertex.h>
 
 PhysicsComponent::~PhysicsComponent()
 {

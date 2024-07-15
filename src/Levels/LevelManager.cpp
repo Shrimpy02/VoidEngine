@@ -60,11 +60,21 @@ void LevelManager::LoadDefaultLevel()
 	std::shared_ptr<Material> defMat = Material::Load("Default", { defTex }, {{glm::vec3(1.0f,1.0f,1.0f)}, {64} });
 
 	// Objects
-	std::shared_ptr<BaseActor> defaultCube = std::make_shared<BaseActor>("DefaultCube", Mesh::CreateCube(defMat));
-	mActiveLevel->AddActorToSceneGraph(defaultCube);
+	std::shared_ptr<BaseActor> defaultCube1 = std::make_shared<BaseActor>("DefaultCube1", Mesh::CreateCube(defMat));
+	mActiveLevel->AddActorToSceneGraph(defaultCube1);
+	defaultCube1->SetGlobalPosition(glm::vec3(1.f,0.f,0.f));
+	defaultCube1->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
+	defaultCube1->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
+	defaultCube1->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+
+	std::shared_ptr<BaseActor> defaultCube2 = std::make_shared<BaseActor>("DefaultCube2", Mesh::CreateCube(defMat));
+	mActiveLevel->AddActorToSceneGraph(defaultCube2);
+	defaultCube2->SetGlobalPosition(glm::vec3(-1.f, 0.f, 0.f));
+	defaultCube2->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
+	defaultCube2->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
 
 	//std::shared_ptr<Actor> Model = std::make_shared<Actor>("DefaultModel");
-	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Monkey/Monke.fbx"), Model);
+	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Ground/UneavenPlane.fbx"), Model);
 	//mActiveLevel->AddActorToSceneGraph(Model);
 
 	// Camera
@@ -72,6 +82,10 @@ void LevelManager::LoadDefaultLevel()
 	cam1->SetGlobalPosition(glm::vec3(0, 0, 5));
 	mActiveLevel->AddActorToSceneGraph(cam1);
 	mActiveLevel->mActiveCamera = cam1;
+
+	std::shared_ptr<CameraActor> cam2 = std::make_shared<CameraActor>("Camera2");
+	cam2->SetGlobalPosition(glm::vec3(2, 0, 5));
+	mActiveLevel->AddActorToSceneGraph(cam2);
 
 	// Lights
 	std::shared_ptr<DirectionalLightActor> dla = std::make_shared<DirectionalLightActor>("DirLight1");
@@ -105,7 +119,7 @@ void LevelManager::Update(float _dt)
 	UpdateLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
 
 	// Then handle collision for all objects in scene
-	//HandleCollision();
+	ProcessCollision();
 
 	// Update interfaceData
 	mUserInterfaceManager->SetActiveLevel(mActiveLevel);
@@ -130,6 +144,77 @@ void LevelManager::Render(float _dt)
 	//mSkybox->Render(&mSceneCamera);
 
 	glDepthFunc(GL_LEQUAL);
+}
+
+void LevelManager::ProcessCollision()
+{
+	// Get all IBounded Actors of the active level
+	std::vector<std::shared_ptr<Actor>> collisionActors;
+	mActiveLevel->mSceneGraph->Query<IBounded>(collisionActors);
+
+	// For each actor that can bound check it against all others
+	for (int i = 0; i < collisionActors.size(); i++)
+	{
+		// Get first objects collision
+		std::shared_ptr<IBounded> actorColliderA = std::dynamic_pointer_cast<IBounded>(collisionActors[i]);
+		actorColliderA->SetIsColliding(false);
+
+		for (int j = i + 1; j < collisionActors.size(); j++)
+		{
+			// Get second objects collision
+			std::shared_ptr<IBounded> actorColliderB = std::dynamic_pointer_cast<IBounded>(collisionActors[j]);
+			actorColliderB->SetIsColliding(false);
+
+			// Skip intersection
+			// ------------------------------------------------
+
+			// Skip intersection if either ignore response
+			if (actorColliderA->mCollisionProperties.IsIgnoreResponse() ||
+				actorColliderB->mCollisionProperties.IsIgnoreResponse())
+				continue;
+
+			// Skip intersection if both are static
+			if (actorColliderA->mCollisionProperties.IsStatic() &&
+				actorColliderB->mCollisionProperties.IsStatic())
+				continue;
+			
+			// Check intersection
+			// ------------------------------------------------
+
+			glm::vec3 mtv{ 0.f };
+			if(actorColliderA->isIntersecting(actorColliderB, &mtv))
+			{
+				// mtv vector init for each object
+				glm::vec3 mtvA(0.f), mtvB(0.f);
+
+				// If both actors are dynamic, split the MTV between them
+				if (actorColliderA->mCollisionProperties.IsDynamic() && actorColliderB->mCollisionProperties.IsDynamic()) {
+					mtvA = mtv * -0.5f;
+					mtvB = mtv * 0.5f;
+				}
+
+				// If only actor A is dynamic, apply the full MTV to A
+				else if (actorColliderA->mCollisionProperties.IsDynamic())
+					mtvA = -mtv;
+
+				// If only actor B is dynamic, apply the full MTV to B
+				else if (actorColliderB->mCollisionProperties.IsDynamic())
+					mtvB = mtv;
+
+				// No adjustment for static objects
+				// Apply MTV adjustments to objects it has effected
+				if (actorColliderA->mCollisionProperties.IsDynamic())
+					collisionActors[i]->SetGlobalPosition(collisionActors[i]->GetGlobalPosition() + mtvA);
+
+				if (actorColliderB->mCollisionProperties.IsDynamic())
+					collisionActors[j]->SetGlobalPosition(collisionActors[j]->GetGlobalPosition() + mtvB);
+
+				actorColliderA->SetIsColliding(true);
+				actorColliderB->SetIsColliding(true);
+
+			}
+		}
+	}
 }
 
 void LevelManager::UpdateLevelSceneGraph(std::shared_ptr<Actor> _actor, float _dt, Transform _globalTransform)

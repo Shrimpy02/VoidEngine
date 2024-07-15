@@ -31,9 +31,9 @@ private:
     // ---------- Local Variables --------------
 
     // Mesh vertexes
-    std::vector<Vertex> mVertices{};
+    std::vector<Vertex> mVertices;
     // Mesh indices
-    std::vector<Index> mIndices{};
+    std::vector<Index> mIndices;
     // mesh material
     std::shared_ptr<Material> mMaterial{ nullptr };
     // Mesh name
@@ -87,6 +87,8 @@ public:
     // Takes in vector addresses for vertices and indices and populates them with generated
 	// geometry information based on the number of subdivides the sphere should have.
     static void GenSphere(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const int _numSubdivides = 2, float _radius = 0.5f );
+
+    static glm::vec3 GetExtentByMesh(std::shared_ptr<Mesh> _exisitingMesh);
 
 private:
     // ---------- Local functions --------------

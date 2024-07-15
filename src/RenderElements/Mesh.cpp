@@ -131,9 +131,6 @@ std::shared_ptr<Mesh> Mesh::CreateCubeByExtent(std::shared_ptr<Mesh> _extentMesh
     maxExtent += 0.001f;
     minExtent -= 0.001f;
 
-    // Calculate the center of the bounding box
-    glm::vec3 center = (minExtent + maxExtent) * 0.5f;
-
     // Then create the collision mesh using these extents (Mesh as cube for AABB object)
     // generate a cube using extents
     std::vector<Vertex> vertices = {
@@ -185,7 +182,7 @@ std::shared_ptr<Mesh> Mesh::CreateCubeByExtent(std::shared_ptr<Mesh> _extentMesh
         20, 21, 22, 20, 22, 23
     };
 
-    return std::make_shared<Mesh>("CollisionCube", std::move(vertices), std::move(indices), _material);
+    return std::make_shared<Mesh>(_customName, std::move(vertices), std::move(indices), _material);
 }
 
 std::shared_ptr<Mesh> Mesh::CreatePlane(std::shared_ptr<Material> _material, std::string _customName)
@@ -295,9 +292,6 @@ std::shared_ptr<Mesh> Mesh::CreateSphereByExtent(std::shared_ptr<Mesh> _extentMe
     maxExtent += 0.001f;
     minExtent -= 0.001f;
 
-    // Calculate the center of the bounding box
-    glm::vec3 center = (minExtent + maxExtent) * 0.5f;
-
     float radius = 0.0f;
 
     if(glm::length(minExtent) > glm::length(maxExtent))
@@ -311,7 +305,7 @@ std::shared_ptr<Mesh> Mesh::CreateSphereByExtent(std::shared_ptr<Mesh> _extentMe
     std::vector<Index> indices;
     Mesh::GenSphere(vertices, indices, 2, radius);
 
-    return std::make_shared<Mesh>("CollisionSphere", std::move(vertices), std::move(indices), _material);
+    return std::make_shared<Mesh>(_customName, std::move(vertices), std::move(indices), _material);
 }
 
 std::shared_ptr<Mesh> Mesh::CreateSphere(std::shared_ptr<Material> _material, const int _subdivides, std::string _customName)
@@ -477,3 +471,25 @@ glm::vec2 Mesh::CalculateTexCoord(const glm::vec3& _vec)
     return glm::vec2(u, v);
 }
 
+glm::vec3 Mesh::GetExtentByMesh(std::shared_ptr<Mesh> _exisitingMesh)
+{
+    // Calculate the bounding box (min and max extents) of the existing mesh
+    std::vector<Vertex>& collisionMeshVertices = _exisitingMesh->GetVertices();
+    glm::vec3 maxExtent = collisionMeshVertices[0].mPosition;
+    glm::vec3 minExtent = collisionMeshVertices[0].mPosition;
+
+    for (Vertex& vertex : collisionMeshVertices)
+    {
+        minExtent = glm::min(minExtent, vertex.mPosition);
+        maxExtent = glm::max(maxExtent, vertex.mPosition);
+    }
+
+    // Slight offsett
+    maxExtent += 0.001f;
+    minExtent -= 0.001f;
+
+    glm::vec3 extent = (maxExtent - minExtent);
+    extent *= 0.5;
+
+    return extent;
+}

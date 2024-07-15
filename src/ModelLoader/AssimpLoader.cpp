@@ -3,11 +3,12 @@
 #include <ModelLoader/AssimpLoader.h>
 #include <ModelLoader/Shared.h>
 #include <ModelLoader/AssimpUtility.h>
-#include <RenderElements/Vertex.h>
-#include <SceneActors.h>
+#include <RenderElements/Mesh.h>
 #include <RenderElements/Material.h>
 #include <RenderElements/Texture.h>
+#include <RenderElements/Vertex.h>
 #include <Lights/PointLight.h>
+#include <SceneActors.h>
 #include <Utilities/Logger.h>
 
 // Static Variables
@@ -99,12 +100,12 @@ void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, std::shared
 		// If the object has the "_AABBCollision_" prefrix in its name, actor is created as an AABB collision actor
 		if (HasCollisionAABBPrefix(mesh->mName.C_Str(), collisionPrefix)){
 
-			actor = std::make_shared<CollisionActor>(actorName, ProcessMesh(mesh), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::AABB });
+			//actor = std::make_shared<BaseActor>(actorName, nullptr, ProcessMesh(mesh), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::AABB });
 
 			// otherwise if the object has the "_BoundingSphereCollision_" prefrix in its name, actor is created as a BoundingSphere collision actor
 		} else if (HasCollisionBoundignSphererePrefix(mesh->mName.C_Str(), collisionPrefix)) {
 
-			actor = std::make_shared<CollisionActor>(actorName, ProcessMesh(mesh), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::BoundingSphere });
+			//actor = std::make_shared<CollisionActor>(actorName, ProcessMesh(mesh), CollisionProperties{ CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::BoundingSphere });
 
 			// otherwise if the object has the "_Light_" prefrix in its name, actor is handled elsewhere and therefore ignored
 		} else if (HasLightPrefix(mesh->mName.C_Str(), lightPrefix)){

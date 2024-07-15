@@ -89,9 +89,17 @@ void CameraActor::UpdateAngularVelocity(float dt)
 
 void CameraActor::UpdateRotation(float dt)
 {
-    // updates rotation each tick by the angular velocity
-    AddYawDegrees(mAngularVelocity.x * dt);
-    AddPitchDegrees(mAngularVelocity.y * dt);
+    if (mSnappedToActor)
+    {
+        UpdateRotationFromYawPitch(mSnappedToActor->GetGlobalPosition());
+        ballz
+    } else {
+        // updates rotation each tick by the angular velocity
+        AddYawDegrees(mAngularVelocity.x * dt);
+        AddPitchDegrees(mAngularVelocity.y * dt);
+    }
+
+   
 }
 
 void CameraActor::UpdatePosition(float dt)
@@ -122,4 +130,27 @@ void CameraActor::UpdateRotationFromYawPitch()
 
     // Assuming SetRotation directly sets the Transform's rotation
     this->SetGlobalRotation(newRotation);
+}
+
+void CameraActor::UpdateRotationFromYawPitch(const glm::vec3& rotationCenter)
+{
+    // Get current position relative to rotation center
+    glm::vec3 currentPosition = GetGlobalPosition();
+    glm::vec3 offset = currentPosition - rotationCenter;
+
+    // Calculate rotation based on yaw and pitch
+    glm::quat pitchQuat = glm::angleAxis(glm::radians(mPitchDegrees), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::quat yawQuat = glm::angleAxis(glm::radians(mYawDegrees), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::quat newRotation = yawQuat * pitchQuat;
+    newRotation = glm::normalize(newRotation);
+
+    // Apply rotation to offset position
+    glm::vec3 rotatedOffset = glm::rotate(newRotation, offset);
+
+    // Calculate new position relative to rotation center
+    glm::vec3 newPosition = rotationCenter + rotatedOffset;
+
+    // Update global position and rotation
+    SetGlobalPosition(newPosition);
+    SetGlobalRotation(newRotation);
 }

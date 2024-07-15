@@ -37,6 +37,7 @@ void ActorController::HandleMouseMove(std::shared_ptr<Window> _window, double _x
 
         // Adds the acceleration to the camera for it to rotate
         camActor->AddAngularAcceleration({ xoffset * angularSpeed, yoffset * angularSpeed });
+        
     }
 }
 

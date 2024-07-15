@@ -1,5 +1,6 @@
 #pragma once
 
+
 // Includes
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -15,6 +16,8 @@ class CameraActor : public Actor
 public:
 	// ---------- Global Variables --------------
 
+    std::shared_ptr<Actor> mSnappedToActor{ nullptr };
+    bool mCameraIsControlled{ false };
 
 private:
 	// ---------- Local Variables --------------
@@ -46,6 +49,7 @@ private:
 
     // Projection matrix
     glm::mat4 mProjectionMatrix;
+
 
 public:
 	// ---------- Global functions --------------
@@ -86,6 +90,9 @@ private:
 
     // Updates the rotation of the camera by its yaw and pitch.
     void UpdateRotationFromYawPitch();
+
+    // Updates the rotation of the camera by its yaw and pitch around a rotation centre
+    void UpdateRotationFromYawPitch(const glm::vec3& rotationCenter);
 
 public:
 	// ---------- Getters / setters / Adders --------------
@@ -130,7 +137,6 @@ public:
     // returns the VP matrix asa a mat4
 	glm::mat4 GetVPMatrix() const { return mProjectionMatrix * GetViewMatrix(); }
 
-
     // Adders
 
     // Adds velocity to camera
@@ -169,6 +175,4 @@ public:
 	void SetAngularAcceleration(const glm::vec2& _angularAcceleration) { mAngularAcceleration = _angularAcceleration; }
     // Sets the angular damping factor
 	void SetAngularDampingFactor(float _dampingFactor) { mAngularDampingFactor = _dampingFactor; }
-
-
 };

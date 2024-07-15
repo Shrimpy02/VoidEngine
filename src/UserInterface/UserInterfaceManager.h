@@ -7,13 +7,14 @@
 #include <memory>
 #include <vector>
 
-// Forward Declarations1
+// Forward Declarations
 class Actor;
 class Shader;
-class Level;
+struct Level;
 class IBounded;
 class Light;
 class IController;
+class CameraActor;
 
 /**
  * @class UserInterfaceManager
@@ -37,6 +38,7 @@ private:
     // // ImGui UI Variables
      int mMainSelectionIndex = 0;
      int mOldSelectionIndex = 0;
+     int mCameraSelectionIndex = 0;
      const float mItemWidth = 80.0f;
      int mComponentSelectionIndex = 0;
      
@@ -85,6 +87,8 @@ private:
     void imguiSub_Collision(std::shared_ptr<IBounded> _cptr);
     //// Contains custom ImGui logic for light sub section
     void imguiSub_Light(std::shared_ptr<Light> _lptr);
+    //// Contains custom ImGui logic for camera sub section
+    void imguiSub_Camera(std::shared_ptr<CameraActor> _captr);
     //// Contains all custom logic for the DebugLogger ImGui window
     void imgui_Logger();
     //// Contains custom ImGui logic for FPS sub section
