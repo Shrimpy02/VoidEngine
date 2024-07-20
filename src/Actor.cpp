@@ -26,6 +26,11 @@ void Actor::UpdateComponents(float _dt)
 		component->Update(_dt);
 }
 
+void Actor::UpdateExtentByRotation(glm::vec3& _extent)
+{
+
+}
+
 void Actor::AddChild(std::shared_ptr<Actor> _child)
 {
 	// Adds child to this actors children array
@@ -50,6 +55,17 @@ void Actor::RemoveChild(std::shared_ptr<Actor> _child)
 			_child->mParent = nullptr;
 		}
 	}
+}
+
+std::shared_ptr<PhysicsComponent> Actor::GetPhysicsComponent()
+{
+	for(std::shared_ptr<Component> comps : mComponents)
+	{
+		if (std::shared_ptr<PhysicsComponent> physicsComp = std::dynamic_pointer_cast<PhysicsComponent>(comps))
+			return physicsComp;
+	}
+
+	return nullptr;
 }
 
 const glm::vec3& Actor::GetLocalPosition() const

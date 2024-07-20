@@ -471,10 +471,10 @@ glm::vec2 Mesh::CalculateTexCoord(const glm::vec3& _vec)
     return glm::vec2(u, v);
 }
 
-glm::vec3 Mesh::GetExtentByMesh(std::shared_ptr<Mesh> _exisitingMesh)
+std::pair<glm::vec3, glm::vec3> Mesh::GetMeshMinMaxExtent(std::shared_ptr<Mesh> _mesh)
 {
     // Calculate the bounding box (min and max extents) of the existing mesh
-    std::vector<Vertex>& collisionMeshVertices = _exisitingMesh->GetVertices();
+    std::vector<Vertex>& collisionMeshVertices = _mesh->GetVertices();
     glm::vec3 maxExtent = collisionMeshVertices[0].mPosition;
     glm::vec3 minExtent = collisionMeshVertices[0].mPosition;
 
@@ -488,8 +488,6 @@ glm::vec3 Mesh::GetExtentByMesh(std::shared_ptr<Mesh> _exisitingMesh)
     maxExtent += 0.001f;
     minExtent -= 0.001f;
 
-    glm::vec3 extent = (maxExtent - minExtent);
-    extent *= 0.5;
-
-    return extent;
+	return std::make_pair(minExtent,maxExtent);
 }
+

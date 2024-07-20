@@ -94,6 +94,8 @@ private:
     // Updates the rotation of the camera by its yaw and pitch around a rotation centre
     void UpdateRotationFromYawPitch(const glm::vec3& rotationCenter);
 
+    void LookAt(const glm::vec3& target);
+
 public:
 	// ---------- Getters / setters / Adders --------------
 
@@ -151,6 +153,23 @@ public:
     											float newPitch = glm::clamp(mPitchDegrees + _angleDegrees, -89.0f, 89.0f);
     											mPitchDegrees = newPitch;
     											UpdateRotationFromYawPitch();}
+
+    // adds rotation in yaw axis from input degrees
+    void AddYawDegrees(float _angleDegrees, const glm::vec3& rotationCenter) {
+        mYawDegrees += _angleDegrees;
+        mYawDegrees = std::fmod(mYawDegrees, 360.0f);
+        UpdateRotationFromYawPitch(rotationCenter);
+    }
+
+    // adds rotation in pitch axis from input degrees
+    void AddPitchDegrees(float _angleDegrees, const glm::vec3& rotationCenter) {  // Calculate new pitch and clamp it to prevent flipping
+        float newPitch = glm::clamp(mPitchDegrees + _angleDegrees, -89.0f, 89.0f);
+        mPitchDegrees = newPitch;
+        UpdateRotationFromYawPitch(rotationCenter);
+    }
+
+
+
     // adds angular velocity
     void AddAngularVelocity(const glm::vec2& _angularVelocityDelta) { mAngularVelocity += _angularVelocityDelta; }
     // adds angular acceleration

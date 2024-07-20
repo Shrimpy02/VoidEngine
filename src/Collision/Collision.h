@@ -23,8 +23,8 @@ public:
 	// AABB / boundingSphere variables
     // mCenter is not used currently, better to calc center when calling aabb/boundingsphere for correct scaling
 	glm::vec3 mCenter{ 0.f,0.f,0.f };
-	glm::vec3 mMaxExtent{ 0.f,0.f,0.f };
-	glm::vec3 mMinExtent{ 0.f,0.f,0.f };
+    glm::vec3 mMinExtent{ 0.f,0.f,0.f };
+    glm::vec3 mMaxExtent{ 0.f,0.f,0.f };
     glm::vec3 mExtent{ 0.f,0.f,0.f };
     float mRadius{ 0.5f };
 

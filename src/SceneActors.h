@@ -44,7 +44,7 @@ public:
     // Constructor
     BaseActor(const std::string& _name, std::shared_ptr<Mesh> _visualMesh, std::shared_ptr<Mesh> _collisionMesh = nullptr);
 
-    ~BaseActor();
+    ~BaseActor() = default;
 
     // Overriden from IRender passes draw call to mesh. 
     void Draw(const std::shared_ptr<Shader> _shader = nullptr) const override;
@@ -52,7 +52,7 @@ public:
 	// Overriden from Actor, handles local tick logic
     void Update(float _dt) override;
 
-    void SetExtent();
+    void SetMinMaxExtent();
 
     void UpdateExtent();
 
@@ -70,8 +70,12 @@ public:
     // Adders
 
     // Setters
+    glm::vec3 GetExtent() { return mExtent; }
 
     // Getters
+
+	// Returns the mesh for this actor as Mesh
+    std::shared_ptr<Mesh> GetActorVisualMesh(){ return mVisualMesh; }
 
     // Gets this classes collision properties.
 };
@@ -92,6 +96,8 @@ public:
 
     // The visual mesh
     std::shared_ptr<Mesh> mVisualMesh{ nullptr };
+
+    glm::vec3 mExtent = glm::vec3(0);
 
 private:
     // ---------- Local Variables --------------
@@ -115,8 +121,8 @@ public:
 
     // Getters
 
-    // Returns the mesh for this actor as Mesh*
-    std::shared_ptr<Mesh> GetActorMesh() { return mVisualMesh; }
+    // Returns the mesh for this actor as Mesh
+    std::shared_ptr<Mesh> GetActorVisualMesh() { return mVisualMesh; }
 
     // Adders
 

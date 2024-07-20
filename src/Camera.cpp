@@ -91,15 +91,14 @@ void CameraActor::UpdateRotation(float dt)
 {
     if (mSnappedToActor)
     {
-        UpdateRotationFromYawPitch(mSnappedToActor->GetGlobalPosition());
-        ballz
+        AddYawDegrees(mAngularVelocity.x * dt, mSnappedToActor->GetGlobalPosition());
+        AddPitchDegrees(mAngularVelocity.y * dt, mSnappedToActor->GetGlobalPosition());
+
     } else {
         // updates rotation each tick by the angular velocity
         AddYawDegrees(mAngularVelocity.x * dt);
         AddPitchDegrees(mAngularVelocity.y * dt);
     }
-
-   
 }
 
 void CameraActor::UpdatePosition(float dt)
@@ -153,4 +152,17 @@ void CameraActor::UpdateRotationFromYawPitch(const glm::vec3& rotationCenter)
     // Update global position and rotation
     SetGlobalPosition(newPosition);
     SetGlobalRotation(newRotation);
+
+    // Ensure the camera looks at the rotation center
+    LookAt(rotationCenter);
+}
+
+void CameraActor::LookAt(const glm::vec3& target)
+{
+    glm::vec3 direction = glm::normalize(target - GetGlobalPosition());
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    // Calculate the new rotation quaternion
+    glm::quat lookRotation = glm::quatLookAt(direction, up);
+    SetGlobalRotation(lookRotation);
 }

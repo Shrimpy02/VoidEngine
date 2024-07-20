@@ -13,8 +13,8 @@
 #include <Core/Shader.h>
 #include <Controllers/Controller.h>
 #include <Controllers/ActorController.h>
-//#include <Components/PhysicsComponent.h>
-//#include <Components/AIComponent.h>
+#include <Components/PhysicsComponent.h>
+#include <Components/AIComponent.h>
 #include <ModelLoader/AssimpLoader.h>
 #include <Lights/DirectionalLight.h>
 #include <Lights/PointLight.h>
@@ -59,17 +59,29 @@ void LevelManager::LoadDefaultLevel()
 	std::shared_ptr<Texture> defTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/ConstainerDiffuse.jpg"));
 	std::shared_ptr<Material> defMat = Material::Load("Default", { defTex }, {{glm::vec3(1.0f,1.0f,1.0f)}, {64} });
 
+	std::shared_ptr<Texture> whiteTex = Texture::LoadWhiteTexture();
+	std::shared_ptr<Material> whiteMat = Material::Load("WhiteDefault", { whiteTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
+
 	// Objects
+	std::shared_ptr<VisualActor> SceneGround = std::make_shared<VisualActor>("SceneGround", Mesh::CreatePlane(whiteMat));
+	mActiveLevel->AddActorToSceneGraph(SceneGround);
+	//SceneGround->SetGlobalPosition(glm::vec3(13.f, 0.f, 0.f));
+	//SceneGround->SetGlobalRotation(glm::quat(glm::angleAxis(70.f, glm::vec3(0.f, 0.f, 1.f))));
+	SceneGround->SetGlobalScale(glm::vec3(10.f));
+
 	std::shared_ptr<BaseActor> defaultCube1 = std::make_shared<BaseActor>("DefaultCube1", Mesh::CreateCube(defMat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube1);
-	defaultCube1->SetGlobalPosition(glm::vec3(1.f,0.f,0.f));
+	defaultCube1->SetGlobalPosition(glm::vec3(0.0f,2.f,0.0f));
 	defaultCube1->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
 	defaultCube1->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
-	defaultCube1->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+	defaultCube1->AddComponent<PhysicsComponent>("PhysicsComp");
+	defaultCube1->GetPhysicsComponent()->SetSurfaceReference(SceneGround);
+	defaultCube1->GetPhysicsComponent()->SetGravityEnabled(true);
+	defaultCube1->AddComponent<AIComponent>("AiComp");
 
 	std::shared_ptr<BaseActor> defaultCube2 = std::make_shared<BaseActor>("DefaultCube2", Mesh::CreateCube(defMat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube2);
-	defaultCube2->SetGlobalPosition(glm::vec3(-1.f, 0.f, 0.f));
+	defaultCube2->SetGlobalPosition(glm::vec3(-1.f, 2.f, 0.f));
 	defaultCube2->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
 	defaultCube2->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
 
@@ -79,12 +91,12 @@ void LevelManager::LoadDefaultLevel()
 
 	// Camera
 	std::shared_ptr<CameraActor> cam1 = std::make_shared<CameraActor>("Camera1");
-	cam1->SetGlobalPosition(glm::vec3(0, 0, 5));
+	cam1->SetGlobalPosition(glm::vec3(0, 2, 5));
 	mActiveLevel->AddActorToSceneGraph(cam1);
 	mActiveLevel->mActiveCamera = cam1;
 
 	std::shared_ptr<CameraActor> cam2 = std::make_shared<CameraActor>("Camera2");
-	cam2->SetGlobalPosition(glm::vec3(2, 0, 5));
+	cam2->SetGlobalPosition(glm::vec3(2, 2, 5));
 	mActiveLevel->AddActorToSceneGraph(cam2);
 
 	// Lights
@@ -94,6 +106,8 @@ void LevelManager::LoadDefaultLevel()
 	dla->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 
 	mController = std::shared_ptr<ActorController>(std::make_shared<ActorController>(cam1, mWindow));
+
+	//defaultCube1->SetGlobalRotation(glm::quat( glm::angleAxis(45.f,glm::vec3(0.f,1.f,0.f))));
 }
 
 void LevelManager::UnloadContent()

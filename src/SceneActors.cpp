@@ -2,13 +2,13 @@
 // Includes
 #include <SceneActors.h>
 #include <RenderElements/Mesh.h>
-#include <RenderElements/Vertex.h>
 #include <RenderElements/Texture.h>
 #include <RenderElements/Material.h>
 #include <Utilities/Logger.h>
 
 // Additional Includes
 #include <glad/glad.h>
+
 
 
 
@@ -40,11 +40,6 @@ BaseActor::BaseActor(const std::string& _name, std::shared_ptr<Mesh> _visualMesh
     LOG("BaseActor Created: %s", _name.c_str());
 }
 
-BaseActor::~BaseActor()
-{
-    
-}
-
 void BaseActor::Draw(const std::shared_ptr<Shader> _shader) const
 {
     // Draw visual mesh first
@@ -65,37 +60,24 @@ void BaseActor::Update(float _dt)
 	UpdateExtent();
 }
 
-
-void BaseActor::SetExtent()
+void BaseActor::SetMinMaxExtent()
 {
-    // Calculate the bounding box (min and max extents) of the existing mesh
-    std::vector<Vertex>& collisionMeshVertices = mCollisionMesh->GetVertices();
-    glm::vec3 maxExtent = collisionMeshVertices[0].mPosition;
-    glm::vec3 minExtent = collisionMeshVertices[0].mPosition;
-
-    for (Vertex& vertex : collisionMeshVertices)
-    {
-        minExtent = glm::min(minExtent, vertex.mPosition);
-        maxExtent = glm::max(maxExtent, vertex.mPosition);
-    }
-
-    // Slight offsett
-    maxExtent += 0.001f;
-    minExtent -= 0.001f;
-
-    // Updates extents
-    mMinExtent = minExtent;
-    mMaxExtent = maxExtent;
+    std::pair<glm::vec3, glm::vec3> extents = Mesh::GetMeshMinMaxExtent(mVisualMesh);
+   
+    mMinExtent = extents.first;
+    mMaxExtent = extents.second;
 }
 
 void BaseActor::UpdateExtent()
 {
     if (mCollisionProperties.IsAABB())
     {
-        glm::quat actorRotation = GetGlobalRotation();
 
-        // Get the total extent
-        glm::vec3 extent = (mMaxExtent - mMinExtent) * 0.5f * GetGlobalScale();
+    	glm::vec3 extent = (mMaxExtent - mMinExtent) * glm::vec3(0.5);
+
+        extent *= GetGlobalScale();
+
+        glm::quat actorRotation = GetGlobalRotation();
 
         // Rotate the total extent by the actor's rotation for each axis
         glm::vec3 xAxis = actorRotation * glm::vec3(extent.x, 0.0f, 0.0f);
@@ -106,18 +88,14 @@ void BaseActor::UpdateExtent()
         glm::vec3 rotatedExtents(
             glm::abs(xAxis.x) + glm::abs(yAxis.x) + glm::abs(zAxis.x),
             glm::abs(xAxis.y) + glm::abs(yAxis.y) + glm::abs(zAxis.y),
-            glm::abs(xAxis.z) + glm::abs(yAxis.z) + glm::abs(zAxis.z)
-        );
+            glm::abs(xAxis.z) + glm::abs(yAxis.z) + glm::abs(zAxis.z));
 
         mExtent = rotatedExtents;
         mCenter = ((mMinExtent + mMaxExtent) * 0.5f) + GetGlobalPosition();
 
-    }
-    else if (mCollisionProperties.IsBoundingSphere()) {
+    } else if (mCollisionProperties.IsBoundingSphere()) {
 
-        glm::vec3 extent = Mesh::GetExtentByMesh(mVisualMesh);
-
-        mRadius = glm::length(extent);
+        mRadius = glm::length(((mMaxExtent - mMinExtent) * glm::vec3(0.5)) * GetGlobalScale());
         mCenter = ((mMinExtent + mMaxExtent) * 0.5f) + GetGlobalPosition();
     }
 
@@ -135,19 +113,18 @@ void BaseActor::UpdateCollisionMeshBasedOnCollisionBase()
 
             collisionName.append("-CollisionCubeAABB");
             mCollisionMesh = Mesh::CreateCubeByExtent(mVisualMesh, debugMat, collisionName);
-            SetExtent();
+            SetMinMaxExtent();
         }
         else if (mCollisionProperties.IsBoundingSphere()) {
 
             collisionName.append("-CollisionSphere");
             mCollisionMesh = Mesh::CreateSphereByExtent(mVisualMesh, debugMat, collisionName);
-            SetExtent();
+            SetMinMaxExtent();
         }
         mCollisionProperties.mBaseCompare = mCollisionProperties.mBase;
-
     }
     else if (mCustomCollisionMesh && doOnce) {
-        SetExtent();
+        SetMinMaxExtent();
         doOnce = false;
     }
 }

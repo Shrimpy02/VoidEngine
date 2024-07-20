@@ -9,6 +9,7 @@
 // Forward Declarations
 class Window;
 class Actor;
+class CameraActor;
 
 /**
  * @class IController,
@@ -29,4 +30,5 @@ public:
     virtual void SetNewActorToControl(std::shared_ptr<Actor> _newActor) = 0;
     virtual void SetMovementSpeed(float _inMovementSpeed) = 0;
     virtual std::shared_ptr<Actor> GetRefToControlledActor() = 0;
+    virtual void SetCameraForSnap(std::shared_ptr<CameraActor> _camRef) = 0;
 };

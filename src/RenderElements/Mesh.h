@@ -1,11 +1,13 @@
 #pragma once
 
 // Includes 
-#include <glm/glm.hpp>
+
 #include <Utilities/Types.h>
 
 // Other includes
 #include <unordered_map>
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <memory>
 #include <string>
 
@@ -88,7 +90,6 @@ public:
 	// geometry information based on the number of subdivides the sphere should have.
     static void GenSphere(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const int _numSubdivides = 2, float _radius = 0.5f );
 
-    static glm::vec3 GetExtentByMesh(std::shared_ptr<Mesh> _exisitingMesh);
 
 private:
     // ---------- Local functions --------------
@@ -110,6 +111,8 @@ public:
     // ---------- Getters / setters / Adders --------------
 
       // Getters
+    // Returns the min max extent of the un transformed mesh
+    static std::pair<glm::vec3, glm::vec3> GetMeshMinMaxExtent(std::shared_ptr<Mesh> _mesh);
 
     // Gets the material this mesh is currently using
     const std::shared_ptr<Material> GetMaterial() const { return mMaterial; }

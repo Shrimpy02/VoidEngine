@@ -10,6 +10,7 @@
 // Forward Declarations
 class Actor;
 class Window;
+class CameraActor;
 
 /**
  * @class ActorController,
@@ -20,6 +21,8 @@ class ActorController : public IController
 {
 public:
     // ---------- Global Variables --------------
+
+    std::shared_ptr<CameraActor> mCameraForSnap{ nullptr };
 
 private:
     // ---------- Local Variables --------------
@@ -74,6 +77,8 @@ public:
     void SetNewActorToControl(std::shared_ptr<Actor> _newActor) override { mActor = _newActor; }
     // sets the actor movement speed
     void SetMovementSpeed(float _inMovementSpeed) override { mMovementSpeed = _inMovementSpeed; }
+
+    void SetCameraForSnap(std::shared_ptr<CameraActor> _camRef) override { mCameraForSnap = _camRef; }
 
     // Getters
 

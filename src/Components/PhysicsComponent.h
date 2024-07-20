@@ -2,10 +2,10 @@
 
 // Includes
 #include <Components/Component.h>
-#include <glm/glm.hpp>
 
 // Additional Includes
-#include <memory> 
+#include <memory>
+#include <glm/glm.hpp>
 
 // Forward Declarations
 class Actor;
@@ -30,23 +30,25 @@ private:
 	glm::vec3 mAcceleration{ 0.f };
 	float mMaxSpeed = 20.f;
 
-	std::shared_ptr<VisualActor> mGroundReference{ nullptr };
+	std::shared_ptr<VisualActor> mSurfaceReference{ nullptr };
+
 	bool inContactWithGround = true;
 
+	bool mGravityEnabled = true;
 	double mLastJumpTime;
 
 public:
 	// ---------- Global functions --------------
 
 	// Constructs a physics components  and attaches it to input actor
-	PhysicsComponent(const std::string& _name, std::shared_ptr<Actor> _owner, std::shared_ptr<VisualActor> _groundReference = nullptr )
-		: Component(_name, _owner) {};
+	PhysicsComponent(const std::string& _name, std::shared_ptr<Actor> _owner)
+		: Component(_name, _owner) {}
 
-	~PhysicsComponent() override;
+	~PhysicsComponent() override = default;
 
 	// Overidden Update for the component, distribution to all tick functions from here. (Called each frame)
 	void Update(float _dt) override;
-
+	
 	// Updates all forces affecting the component.
 	void UpdateForces();
 
@@ -60,7 +62,7 @@ public:
 	void ResetValues();
 
 	// This function makes sure the components owner conforms to ground geometry if mGroundReference is filled.
-	void ConformToGround(float _parentExtent);
+	void ConformToSurface();
 
 	// Adds velocity upwards to the actor
 	void Jump(float jumpStrength = 10, glm::vec3 _jumpDirection = glm::vec3(0.f, 1.f, 0.f));
@@ -73,6 +75,8 @@ private:
 public:
 	// ---------- Getters and setters --------------
 
-	void SetGroundReference(std::shared_ptr<VisualActor> _groundRef) { mGroundReference = _groundRef; }
+	void SetSurfaceReference(std::shared_ptr<VisualActor> _groundRef) { mSurfaceReference = _groundRef; }
+
+	void SetGravityEnabled(bool _b) { mGravityEnabled = _b; }
 
 };

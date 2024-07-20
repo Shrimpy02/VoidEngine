@@ -24,6 +24,7 @@ class Actor : public std::enable_shared_from_this<Actor>
 public:
 	// ---------- Global Variables --------------
 
+	int mTriangleIndex;
 
 private:
 	// ---------- Local Variables --------------
@@ -56,10 +57,10 @@ public:
 	// Updates per tick, virtual for inherited functions
 	virtual void Update(float _dt);
 
-
-
 	// updates all components per tick
 	void UpdateComponents(float _dt);
+
+	void UpdateExtentByRotation(glm::vec3& _extent);
 
 	// Adds a child to this actor, also sets the child`s parent to this actor
 	void AddChild(std::shared_ptr<Actor> _child);
@@ -76,7 +77,7 @@ public:
 		static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component");
 
 		// if it does create a new one and add it to this actors component vector and run init
-		auto component = new T(_componentName, this);
+		std::shared_ptr<T> component = std::make_shared<T>(_componentName, shared_from_this());
 		component->Init();
 		mComponents.emplace_back(component);
 	}
@@ -100,9 +101,9 @@ public:
 	template <typename T>
 	void QueryPhysicsComponents(std::vector<std::shared_ptr<PhysicsComponent>>& physicsComponents)
 	{
-		for (auto child : mComponents)
+		for (std::shared_ptr<Component> component : mComponents)
 		{
-			std::shared_ptr<PhysicsComponent> physicsComp = std::dynamic_pointer_cast<PhysicsComponent>(child);
+			std::shared_ptr<PhysicsComponent> physicsComp = std::dynamic_pointer_cast<PhysicsComponent>(component);
 			if (physicsComp)
 			{
 				physicsComponents.push_back(physicsComp);
@@ -141,6 +142,9 @@ public:
 	glm::vec3 GetRight() const;
 
 	// other getters
+
+	// Returns pointer to the first physics component of this actor.
+	std::shared_ptr<PhysicsComponent> GetPhysicsComponent();
 
 	// Returns the name of this actor
 	const std::string& GetTag() { return mTag.GetValue(); }

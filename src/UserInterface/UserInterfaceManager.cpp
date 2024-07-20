@@ -124,10 +124,13 @@ void UserInterfaceManager::imgui_WorldObjectSettings()
 					// ----------------------------------------------
 					mActiveLevel->mActiveCamera->mSnappedToActor = currentActor;
 					mActiveLevel->mActiveCamera->SetGlobalPosition(currentActor->GetGlobalPosition() + glm::vec3(0, 2, 7));
-
+					mController->SetCameraForSnap(mActiveLevel->mActiveCamera);
+					
 				} else {
+
 					mSnapCameraToActor = false;
 					mActiveLevel->mActiveCamera->mSnappedToActor = nullptr;
+					mController->SetCameraForSnap(nullptr);
 				}
 				// Reset control to level camera when changeing object
 			} else {

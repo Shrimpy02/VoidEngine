@@ -16,28 +16,37 @@ void ActorController::Update(float _dt)
 
 void ActorController::HandleMouseMove(std::shared_ptr<Window> _window, double _xpos, double _ypos)
 {
-    if(std::shared_ptr<CameraActor> camActor = std::dynamic_pointer_cast<CameraActor>(mActor))
+    std::shared_ptr<CameraActor> camActor = std::dynamic_pointer_cast<CameraActor>(mActor);
+
+    // only handle mouse movement if right mouse button is pressed
+    if (!mRightMousePressed) return;
+
+    // checks with last x and y for consistent mouse movement
+    float xoffset = mLastX - (float)_xpos;
+    float yoffset = mLastY - (float)_ypos;
+
+    mLastX = (float)_xpos;
+    mLastY = (float)_ypos;
+
+    // applies mouse sensitivity 
+    xoffset *= mMouseSensitivity;
+    yoffset *= mMouseSensitivity;
+
+    if(camActor)
     {
-        // only handle mouse movement if right mouse button is pressed
-        if (!mRightMousePressed) return;
-
-        // checks with last x and y for consistent mouse movement
-        float xoffset = mLastX - (float)_xpos;
-        float yoffset = mLastY - (float)_ypos;
-
-        mLastX = (float)_xpos;
-        mLastY = (float)_ypos;
-
-        // applies mouse sensitivity 
-        xoffset *= mMouseSensitivity;
-        yoffset *= mMouseSensitivity;
-
         // gets teh angular speed for a smooth camera rotation based on mouse movement
         auto angularSpeed = camActor->GetAngularAccelerationSpeed();
 
         // Adds the acceleration to the camera for it to rotate
         camActor->AddAngularAcceleration({ xoffset * angularSpeed, yoffset * angularSpeed });
-        
+
+    } else if(mCameraForSnap) {
+
+        // gets teh angular speed for a smooth camera rotation based on mouse movement
+        auto angularSpeed = mCameraForSnap->GetAngularAccelerationSpeed();
+
+        // Adds the acceleration to the camera for it to rotate
+        mCameraForSnap->AddAngularAcceleration({ xoffset * angularSpeed, yoffset * angularSpeed });
     }
 }
 
@@ -111,8 +120,41 @@ void ActorController::UpdateActor(float _dt)
         // Sets the camera acceleration.
         camActor->SetAcceleration(acceleration);
 
-    } else {
+    } else if(mCameraForSnap){
 
+        // Updates actor position if any of these keys are pressed
+        if (mKeyStates[GLFW_KEY_D])
+            mActor->SetGlobalPosition(mActor->GetGlobalPosition() + mCameraForSnap->GetRight() * _dt * mMovementSpeed);
+
+        if (mKeyStates[GLFW_KEY_A])
+            mActor->SetGlobalPosition(mActor->GetGlobalPosition() + (mCameraForSnap->GetRight() * glm::vec3(-1)) * _dt * mMovementSpeed);
+
+        if (mKeyStates[GLFW_KEY_W])
+            mActor->SetGlobalPosition(mActor->GetGlobalPosition() + mCameraForSnap->GetFront() * _dt * mMovementSpeed);
+
+        if (mKeyStates[GLFW_KEY_S])
+            mActor->SetGlobalPosition(mActor->GetGlobalPosition() + (mCameraForSnap->GetFront() * glm::vec3(-1)) * _dt * mMovementSpeed);
+
+        if (mKeyStates[GLFW_KEY_Q])
+            mActor->SetGlobalPosition(mActor->GetGlobalPosition() + mCameraForSnap->GetUp() * _dt * mMovementSpeed);
+
+        if (mKeyStates[GLFW_KEY_E])
+            mActor->SetGlobalPosition(mActor->GetGlobalPosition() + (mCameraForSnap->GetUp() * glm::vec3(-1)) * _dt * mMovementSpeed);
+
+        // if escape pressed end program
+        if (mKeyStates[GLFW_KEY_ESCAPE] && mWindow)
+            glfwSetWindowShouldClose(mWindow->GetGLFWWindow(), true);
+
+        if (mKeyStates[GLFW_KEY_SPACE])
+        {
+            std::vector<std::shared_ptr<PhysicsComponent>> physicsComponents;
+            mActor->QueryPhysicsComponents<std::shared_ptr<PhysicsComponent>>(physicsComponents);
+            if (physicsComponents[0])
+                physicsComponents[0]->Jump();
+        }
+
+
+    } else {
         // Updates actor position if any of these keys are pressed
         if (mKeyStates[GLFW_KEY_D])
             mActor->SetGlobalPosition(mActor->GetGlobalPosition() + glm::vec3(1.0f, 0.f, 0.f) * _dt * mMovementSpeed);
@@ -138,10 +180,10 @@ void ActorController::UpdateActor(float _dt)
 
         if (mKeyStates[GLFW_KEY_SPACE])
         {
-            // std::vector<std::shared_ptr<PhysicsComponent>> physicsComponents;
-            // mActor->QueryPhysicsComponents<std::shared_ptr<PhysicsComponent>(physicsComponents);
-            // if (physicsComponents[0])
-            //     physicsComponents[0]->Jump();
+            std::vector<std::shared_ptr<PhysicsComponent>> physicsComponents;
+            mActor->QueryPhysicsComponents<std::shared_ptr<PhysicsComponent>>(physicsComponents);
+            if (physicsComponents[0])
+                physicsComponents[0]->Jump();
         }
     }
 
