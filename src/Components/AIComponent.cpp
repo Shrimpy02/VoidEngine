@@ -17,7 +17,7 @@ void AIComponent::FollowPath(float _dt)
 {
 	// If move to is true it increases the index giving the next position in the vector,
 	// if it is false it moves the owning actor but does not iterate to the next point
-	if(MoveTo(mActivePath[mPathIndex].mPosition, _dt))
+	if(MoveTo(mActivePath[mPathIndex]->GetGlobalPosition(), _dt))
 	{
 		// Updates the target point to the next in the path vector
 		mPathIndex++;

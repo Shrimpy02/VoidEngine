@@ -54,12 +54,12 @@ void PhysicsComponent::ConformToSurface()
 	inContactWithGround = false;
 
 
-	if(std::shared_ptr<BaseActor> ownerIsBaseActor = std::dynamic_pointer_cast<BaseActor>(mOwner))
+	if (SMath::ConformObjectToGeometry(mOwner, mSurfaceReference))
 	{
-		if (SMath::ConformObjectToGeometry(mOwner, mSurfaceReference, ownerIsBaseActor->GetExtent().y))
-			inContactWithGround = true;
+		inContactWithGround = true;
+		mVelocity.y = 0;
 	}
-	
+		
 }
 
 void PhysicsComponent::Jump(float jumpStrength, glm::vec3 _jumpDirection)

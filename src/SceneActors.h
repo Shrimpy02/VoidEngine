@@ -97,7 +97,12 @@ public:
     // The visual mesh
     std::shared_ptr<Mesh> mVisualMesh{ nullptr };
 
-    glm::vec3 mExtent = glm::vec3(0);
+    // Variables for terrain extent
+    glm::vec3 mCenter{ 0.f,0.f,0.f };
+    glm::vec3 mMinExtent{ 0.f,0.f,0.f };
+    glm::vec3 mMaxExtent{ 0.f,0.f,0.f };
+    glm::vec3 mExtent{ 0.f,0.f,0.f };
+
 
 private:
     // ---------- Local Variables --------------
@@ -111,6 +116,11 @@ public:
     // Overriden from IRender passes draw call to mesh. 
     virtual void Draw(const std::shared_ptr<Shader> _shader = nullptr) const override;
 
+    virtual void Update(float _dt) override;
+
+    void SetMinMaxExtent();
+
+    void UpdateExtent();
 
 private:
     // ---------- Local functions --------------

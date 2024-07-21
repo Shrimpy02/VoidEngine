@@ -28,7 +28,7 @@ private:
 	// ---------- Local Variables --------------
 
 	// The assigned path this ai will follow
-	std::vector<Points> mActivePath;
+	std::vector<std::shared_ptr<Actor>> mActivePath;
 		// The path index for the active path
 	int mPathIndex = 1;
 
@@ -69,7 +69,7 @@ public:
 	// Getters
 
 	// Returns the active path for this component as an address to this classes vector of points
-	std::vector<Points>& GetActivePath() { return mActivePath; }
+	std::vector<std::shared_ptr<Actor>>& GetActivePath() { return mActivePath; }
 
 	// Returns the movement speed this components owner uses in ai context as a float
 	float GetMovementSpeed() { return mMovementSpeed; }
@@ -81,7 +81,7 @@ public:
 	// Setters
 
 	// Sets mActivePath from input vector of points
-	void SetActivePath(std::vector<Points> _inPath) { mActivePath = _inPath; }
+	void SetActivePath(std::vector<std::shared_ptr<Actor>> _inPath) { mActivePath = _inPath; }
 
 	// Sets the movement speed this components owner will move with
 	void SetMovementSpeed(const float _inMoveSpeed) { mMovementSpeed = _inMoveSpeed; }
