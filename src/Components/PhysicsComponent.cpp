@@ -1,7 +1,7 @@
 
 // Includes
 #include <Components/PhysicsComponent.h>
-#include <SceneActors.h>
+#include <Actor.h>
 #include <Core/SMath.h>
 
 // Overriden function

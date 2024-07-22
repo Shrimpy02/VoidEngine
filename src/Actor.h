@@ -1,19 +1,16 @@
 #pragma once
 
 // Includes 
-#include <Components/Component.h>
-#include <Transform.h>
-#include <Core/Tag.h>
 #include <Components/PhysicsComponent.h>
+#include <Transform.h>
 
 // Additional includes
 #include <vector>
 #include <memory>
 
 // Forward Declarations
-class CameraActor;
 
-//
+
 /**
  * @class Actor
  * @brief The actor acts as an object in the world. It contains parent/child link,

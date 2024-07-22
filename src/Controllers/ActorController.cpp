@@ -1,12 +1,12 @@
 
-// Class Include
+// Includes
 #include <Controllers/ActorController.h>
-#include <Actor.h>
 #include <Core/Window.h>
-#include <GLFW/glfw3.h>
 #include <Components/PhysicsComponent.h>
-#include <Utilities/Logger.h>
-#include <Camera.h>
+#include <LevelActors/CameraActor.h>
+
+// Additional Includes
+#include <GLFW/glfw3.h>
 
 void ActorController::Update(float _dt)
 {

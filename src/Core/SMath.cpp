@@ -1,7 +1,8 @@
 
 // Includes
 #include <Core/SMath.h>
-#include <SceneActors.h>
+#include <LevelActors/BaseActor.h>
+#include <LevelActors/VisualActor.h>
 #include <RenderElements/Mesh.h>
 #include <RenderElements/Vertex.h>
 #include <Utilities/Logger.h>
@@ -144,13 +145,59 @@ bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::
     return false;
 }
 
-bool SMath::IsWithinTerrainXZExtent(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface)
-{
-    if (!_object || !_surface) { LOG_ERROR("No object or surface refrence for extentbounds"); return false; }
 
-    return (_object->GetGlobalPosition().x > -_surface->mExtent.x && _object->GetGlobalPosition().x < _surface->mExtent.x) &&
-        (_object->GetGlobalPosition().z > -_surface->mExtent.z && _object->GetGlobalPosition().z < _surface->mExtent.z);
+std::vector<glm::vec3> SMath::NevillParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, float _step)
+{
+    std::vector<glm::vec3> temp;
+    for (float t = 0; t < 2; t += _step)
+    {
+        glm::vec3 point = ((((1 / 2) * (t * t)) - ((3 / 2) * t) + 1) * _point1) + (((2 * t) - (t * t)) * _point2) + ((((1 / 2) * (t * t)) - ((1 / 2) * t)) * _point3);
+        temp.push_back(point);
+    }
+    return temp;
 }
+
+std::vector<glm::vec3> SMath::DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, float _step)
+{
+    std::vector<glm::vec3> temp;
+    for (float t = 0; t <= 1; t += _step)
+    {
+        glm::vec3 c01 = (1 - t) * _point1 + t * (_point2);
+        temp.push_back(c01);
+    }
+    return temp;
+}
+
+std::vector<glm::vec3> SMath::DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, float _step)
+{
+    std::vector<glm::vec3> temp;
+    for (float t = 0; t <= 1; t += _step)
+    {
+        glm::vec3 c01 = (1 - t) * _point1 + t * (_point2);
+        glm::vec3 c11 = (1 - t) * _point2 + t * (_point3);
+        glm::vec3 c02 = (1 - t) * c01 + t * (c11);
+        temp.push_back(c02);
+    }
+    return temp;
+}
+
+std::vector<glm::vec3> SMath::DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, glm::vec3 _point4, float _step)
+{
+    std::vector<glm::vec3> temp;
+    for (float t = 0; t < 1; t += _step)
+    {
+        glm::vec3 c01 = (1 - t) * _point1 + t * (_point2);
+        glm::vec3 c11 = (1 - t) * _point2 + t * (_point3);
+        glm::vec3 c21 = (1 - t) * _point3 + t * (_point4);
+        glm::vec3 c02 = (1 - t) * c01 + t * (c11);
+        glm::vec3 c12 = (1 - t) * c11 + t * (c21);
+        glm::vec3 c03 = (1 - t) * c02 + t * (c12);
+        temp.push_back(c03);
+    }
+    return temp;
+}
+
+// ------------------------------------- Private -------------------------------------------------
 
 glm::vec3 SMath::GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3, glm::vec3 _objectPos)
 {
@@ -200,4 +247,12 @@ float SMath::GetHeightFromBarycentricCoordinates(const glm::vec3& _barCoords, co
 {
     // Calculates height by barycentric coordinates and triangle points
     return ( _barCoords.x * _p1.y + _barCoords.y * _p2.y + _barCoords.z * _p3.y);
+}
+
+bool SMath::IsWithinTerrainXZExtent(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface)
+{
+    if (!_object || !_surface) { LOG_ERROR("No object or surface refrence for extentbounds"); return false; }
+
+    return (_object->GetGlobalPosition().x > -_surface->mExtent.x && _object->GetGlobalPosition().x < _surface->mExtent.x) &&
+        (_object->GetGlobalPosition().z > -_surface->mExtent.z && _object->GetGlobalPosition().z < _surface->mExtent.z);
 }

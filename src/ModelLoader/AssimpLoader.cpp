@@ -8,7 +8,8 @@
 #include <RenderElements/Texture.h>
 #include <RenderElements/Vertex.h>
 #include <Lights/PointLight.h>
-#include <SceneActors.h>
+#include <LevelActors/BaseActor.h>
+#include <LevelActors/VisualActor.h>
 #include <Utilities/Logger.h>
 
 // Static Variables
@@ -86,7 +87,7 @@ void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, std::shared
 	std::shared_ptr<Actor> actor = nullptr;
 
 	// for each mesh in scene
-	for (auto i = 0; i < _node->mNumMeshes; ++i)
+	for (unsigned int i = 0; i < _node->mNumMeshes; ++i)
 	{
 		// Get the mesh
 		aiMesh* mesh = _scene->mMeshes[_node->mMeshes[i]];
@@ -144,7 +145,7 @@ void AssimpLoader::ProcessNode(const aiScene* _scene, aiNode* _node, std::shared
 	parentActor->AddChild(actor);
 
 	// for each of the children do this function again recursively 
-	for (auto i = 0; i < _node->mNumChildren; ++i)
+	for (unsigned int i = 0; i < _node->mNumChildren; ++i)
 		ProcessNode(_scene, _node->mChildren[i], actor);
 }
 
@@ -155,7 +156,7 @@ std::shared_ptr<Mesh> AssimpLoader::ProcessMesh(aiMesh* _mesh)
 	std::vector<Index> indices;
 
 	// convert aiMesh vertices to seb mesh vertices
-	for (auto i = 0; i < _mesh->mNumVertices; i++)
+	for (unsigned int i = 0; i < _mesh->mNumVertices; i++)
 	{
 		glm::vec3 pos{ 0.f };
 		pos.x = _mesh->mVertices[i].x;
@@ -181,10 +182,10 @@ std::shared_ptr<Mesh> AssimpLoader::ProcessMesh(aiMesh* _mesh)
 	}
 
 	// convert aiMesh indices to seb mesh indices
-	for (auto i = 0; i < _mesh->mNumFaces; i++)
+	for (unsigned int i = 0; i < _mesh->mNumFaces; i++)
 	{
 		aiFace face = _mesh->mFaces[i];
-		for (auto j = 0; j < face.mNumIndices; j++)
+		for (unsigned int j = 0; j < face.mNumIndices; j++)
 		{
 			indices.push_back(face.mIndices[j]);
 		}

@@ -79,7 +79,7 @@ public:
     void RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, float _dt, Transform _globalTransform = Transform{});
 
     // Updates Input for the active controller
-    void UpdateInputController(float _dt);
+    void UpdateInputControler(float _dt);
 
     // Callbacks for camera or active controller to process movement or other locally. 
     void FramebufferSizeCallback(std::shared_ptr<Window> _window, int _width, int _height);

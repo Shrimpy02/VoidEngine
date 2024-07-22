@@ -1,6 +1,6 @@
 
 // Class includes
-#include <Camera.h>
+#include <LevelActors/CameraActor.h>
 
 CameraActor::CameraActor(
     const std::string& name,

@@ -37,6 +37,17 @@ public:
     // Static function returns true if _object is within the barycentric coordinates of _surface
     static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height);
 
+    // Curves ------
+    // Static function returns a vector of vec3 locations as an interpolated parametric curve from Neville`s algorithm by the tree given points.
+    static std::vector<glm::vec3> NevillParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, float _step = 0.25f);
+
+	// Static function returns a vector of vec3 locations as an approximated parametric curve from DeCastalejau`s algorithm by the two given points.
+    static std::vector<glm::vec3> DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, float _step = 0.25f);
+    // Static function returns a vector of vec3 locations as an approximated parametric curve from DeCastalejau`s algorithm by the three given points.
+	static std::vector<glm::vec3> DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, float _step = 0.25f);
+    // Static function returns a vector of vec3 locations as an approximated parametric curve from DeCastalejau`s algorithm by the four given points.
+    static std::vector<glm::vec3> DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, glm::vec3 _point4, float _step = 0.25f);
+
 private:
     // ---------- Local functions --------------
 

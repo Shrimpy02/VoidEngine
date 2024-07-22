@@ -3,11 +3,12 @@
 #include <Levels/LevelManager.h>
 #include <Levels/Level.h>
 
-#include <SceneActors.h>
-#include <SceneGraph.h>
+#include <LevelActors/SceneGraph.h>
+#include <LevelActors/BaseActor.h>
+#include <LevelActors/VisualActor.h>
+#include <LevelActors/CameraActor.h>
+#include <LevelActors/GraphActor.h>
 //#include <Material.h>
-#include <Actor.h>
-#include <Camera.h>
 //#include <Renderer.h>
 
 #include <Core/Shader.h>
@@ -29,8 +30,6 @@
 //#include <SkyBox/Skybox.h>
 
 // Additional Includes
-//#include <variant>
-//#include <ImGUi/imgui.h>
 
 LevelManager::LevelManager(std::shared_ptr<Window> _window) : mWindow(_window)
 {
@@ -42,7 +41,6 @@ LevelManager::~LevelManager()
 
 void LevelManager::LoadContent()
 {
-
 	mShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/shader.vs"), SOURCE_DIRECTORY("shaderSrc/shader.fs"));
 	mUserInterfaceManager = std::make_shared<UserInterfaceManager>(mShader);
 
@@ -84,6 +82,10 @@ void LevelManager::LoadDefaultLevel()
 	defaultCube2->SetGlobalPosition(glm::vec3(-1.f, 2.f, 0.f));
 	defaultCube2->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
 	defaultCube2->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
+
+	std::shared_ptr<GraphActor> graph1 = std::make_shared<GraphActor>("Graph1");
+	mActiveLevel->AddActorToSceneGraph(graph1);
+	
 
 	//std::shared_ptr<Actor> Model = std::make_shared<Actor>("DefaultModel");
 	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Ground/UneavenPlane.fbx"), Model);
@@ -127,7 +129,7 @@ void LevelManager::SetActiveLevel(std::shared_ptr<Level> _activeLevel)
 void LevelManager::Update(float _dt)
 {
 	// Update input first
-	UpdateInputController(_dt);
+	UpdateInputControler(_dt);
 
 	// Update the scene graph -> all objects in scene
 	UpdateLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
@@ -248,7 +250,7 @@ void LevelManager::UpdateLevelSceneGraph(std::shared_ptr<Actor> _actor, float _d
 
 void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, float _dt, Transform _globalTransform)
 {
-	// if there is no actor reference end function
+	// If there is no actor reference end function
 	if (!_actor) return;
 
 	// Set transform matrix
@@ -262,7 +264,7 @@ void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, float _d
 		iRender->Draw(mShader);
 	}
 
-	// for each child recursively run thrh this function
+	// For each child recursively run this function
 	const auto& children = _actor->GetChildren();
 	for (std::shared_ptr<Actor> child : children)
 	{
@@ -270,7 +272,7 @@ void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, float _d
 	}
 }
 
-void LevelManager::UpdateInputController(float _dt)
+void LevelManager::UpdateInputControler(float _dt)
 {
 	if (mController)
 		mController->Update(_dt);

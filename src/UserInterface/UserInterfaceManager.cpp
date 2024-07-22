@@ -3,24 +3,22 @@
 #include <UserInterface/UserInterfaceManager.h>
 #include <Core/Shader.h>
 #include <Levels/Level.h>
-#include <SceneActors.h>
+#include <LevelActors/BaseActor.h>
+#include <LevelActors/VisualActor.h>
+#include <LevelActors/CameraActor.h>
+#include <RenderElements/Mesh.h>
 #include <Actor.h>
 #include <Lights/DirectionalLight.h>
 #include <Lights/PointLight.h>
 #include <Controllers/Controller.h>
-#include <Controllers/ActorController.h>
-#include <Camera.h>
-
+//#include <Controllers/ActorController.h>
 
 // Additional Includes
 #include <ImGUi/imgui.h>
 #include <glad/glad.h>
 
-#include "RenderElements/Mesh.h"
-
 UserInterfaceManager::UserInterfaceManager(std::shared_ptr<Shader> _shader) : mShader(_shader)
 {
-
 }
 
 UserInterfaceManager::~UserInterfaceManager()
