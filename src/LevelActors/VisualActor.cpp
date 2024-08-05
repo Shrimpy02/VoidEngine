@@ -10,6 +10,7 @@ VisualActor::VisualActor(const std::string& _name, std::shared_ptr<Mesh> _mesh)
     : Actor(_name), mVisualMesh(_mesh)
 {
     SetMinMaxExtent();
+    UpdateExtent();
     LOG("VisualActor Created: %s", _name.c_str());
 }
 
@@ -27,9 +28,6 @@ void VisualActor::Update(float _dt)
 
 void VisualActor::SetMinMaxExtent()
 {
-
-
-
     if (!mVisualMesh) return;
 
     std::pair<glm::vec3, glm::vec3> extents = Mesh::GetMeshMinMaxExtent(mVisualMesh);

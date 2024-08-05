@@ -13,6 +13,7 @@
 
 // Forward Declarations
 struct Vertex;
+struct GraphVertex;
 class Material;
 class Shader;
 
@@ -34,6 +35,8 @@ private:
 
     // Mesh vertexes
     std::vector<Vertex> mVertices;
+    // Mesh vertexes
+    std::vector<GraphVertex> mGraphVertices;
     // Mesh indices
     std::vector<Index> mIndices;
     // mesh material
@@ -52,6 +55,8 @@ public:
     // ---------- Global functions --------------
     // Explicit constructor, calls settup mesh
     explicit Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector<Index>&& _indices, std::shared_ptr<Material> _material);
+
+    explicit Mesh(const std::string _name, std::vector<GraphVertex>&& _vertices, std::vector<Index>&& _indices);
 
     // De-constructor removes class references and gl-buffer objects.
 	virtual ~Mesh();
@@ -77,6 +82,8 @@ public:
     // Creates a default sphere using a sphere key
     static std::shared_ptr<Mesh> CreateSphere(std::shared_ptr<Material> _material, const int _subdivides = 2, std::string _customName = std::string());
 
+    static std::shared_ptr<Mesh> CreateGraphSphere(const int _subdivides = 1, std::string _customName = std::string());
+
     // Loads mesh from cache by key
     static std::shared_ptr<Mesh> Load(const std::string& _key);
 
@@ -90,6 +97,8 @@ public:
 	// geometry information based on the number of subdivides the sphere should have.
     static void GenSphere(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const int _numSubdivides = 2, float _radius = 0.5f );
 
+    static void GenSphere(std::vector<GraphVertex>& _vertices, std::vector<Index>& _indices, const int _numSubdivides = 1, float _radius = 0.5f);
+
 
 private:
     // ---------- Local functions --------------
@@ -97,12 +106,18 @@ private:
     // gl generation of buffers and attributes, called when class is constructed
     void SetupMesh();
 
+    void SetupGraphMesh();
+
     // Subdivides existing base geometry recursively by number subdivides
     // Passes vector address to Make Triangle function
     static void SubDivide(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC, const int _numSubdivides, float _radius);
 
-    // Takes the 3 positions at a time and populates each vector with appropriate geometry.
+    static void SubDivide(std::vector<GraphVertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC, const int _numSubdivides, float _radius);
+
+	// Takes the 3 positions at a time and populates each vector with appropriate geometry.
     static void MakeTriangle(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC);
+
+    static void MakeTriangle(std::vector<GraphVertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC);
 
     // Helper function to calculate texture location on a sphere.
     static glm::vec2 CalculateTexCoord(const glm::vec3& _vec);

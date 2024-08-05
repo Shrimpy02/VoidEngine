@@ -1,33 +1,53 @@
 #pragma once
 
-// Includes 
-#include <glad/glad.h>
-#include <glm/glm.hpp>
+// Includes
+#include <Renderer.h>
+#include <Actor.h>
+
+// Additional Includes
+#include <memory>
+
+// Forward Declarations
+class Shader;
+class Mesh;
 
 /**
- * @struct GraphPoint
- * @brief A struct containing point information.
- * Also holds the Attribute setup for this point.
+ * @class GraphPoint
+ * @brief Represents each point on a graph.
  */
-struct GraphPoint
+class GraphPoint : public Actor, public IRender
 {
-    // ----------- Variables ---------------
+public:
+    // ---------- Global Variables --------------
 
-    glm::vec3 mPosition;
+private:
+    // ---------- Local Variables --------------
 
-    // ----------- Functions ---------------
+    std::shared_ptr<Mesh> mVisualPointMesh{ nullptr };
+
+public:
+    // ---------- Global functions --------------
 
     // Constructor
-    GraphPoint(const glm::vec3& _position)
-        : mPosition(_position) {}
+    GraphPoint(const std::string& _name);
 
-    // Custom setup of attributes for this vertex type that contains position, normals and texture coordinates
-    static void SetupAttributes()
-    {
-        // position
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GraphPoint), (void*)offsetof(GraphPoint, mPosition));
-        glEnableVertexAttribArray(0);
-    }
+    // Overriden from IRender passes draw call to mesh. 
+    virtual void Draw(const std::shared_ptr<Shader> _shader = nullptr) const override;
+
+    virtual void Update(float _dt) override;
+
+private:
+    // ---------- Local functions --------------
+
+
+public:
+    // ---------- Getters / setters / Adders --------------
+
+    // Getters
+
+    // Adders
+
+    // Setters
 
 
 };

@@ -41,9 +41,12 @@ LevelManager::~LevelManager()
 
 void LevelManager::LoadContent()
 {
-	mShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/shader.vs"), SOURCE_DIRECTORY("shaderSrc/shader.fs"));
-	mUserInterfaceManager = std::make_shared<UserInterfaceManager>(mShader);
+	mDefaultShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/DefaultShader.vs"), SOURCE_DIRECTORY("shaderSrc/DefaultShader.fs"));
+	mGraphShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/GraphShader.vs"), SOURCE_DIRECTORY("shaderSrc/GraphShader.fs"));
+	mDebugShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/DebugShader.vs"), SOURCE_DIRECTORY("shaderSrc/DebugShader.fs"));
+	mSkyboxShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/SkyboxShader.vs"), SOURCE_DIRECTORY("shaderSrc/SkyboxShader.fs"));
 
+	mUserInterfaceManager = std::make_shared<UserInterfaceManager>(mDefaultShader);
 
 	mAllLevels.push_back(std::make_shared<Level>("LevelOne"));
 	SetActiveLevel(mAllLevels[0]);
@@ -64,8 +67,9 @@ void LevelManager::LoadDefaultLevel()
 	std::shared_ptr<VisualActor> SceneGround = std::make_shared<VisualActor>("SceneGround", Mesh::CreatePlane(whiteMat));
 	mActiveLevel->AddActorToSceneGraph(SceneGround);
 	//SceneGround->SetGlobalPosition(glm::vec3(13.f, 0.f, 0.f));
-	//SceneGround->SetGlobalRotation(glm::quat(glm::angleAxis(70.f, glm::vec3(0.f, 0.f, 1.f))));
+	SceneGround->SetGlobalRotation(glm::quat(glm::angleAxis(60.f, glm::vec3(0.f, 0.f, 1.f))));
 	SceneGround->SetGlobalScale(glm::vec3(10.f));
+	SceneGround->UpdateExtent();
 
 	std::shared_ptr<BaseActor> defaultCube1 = std::make_shared<BaseActor>("DefaultCube1", Mesh::CreateCube(defMat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube1);
@@ -76,6 +80,7 @@ void LevelManager::LoadDefaultLevel()
 	defaultCube1->GetPhysicsComponent()->SetSurfaceReference(SceneGround);
 	defaultCube1->GetPhysicsComponent()->SetGravityEnabled(true);
 	defaultCube1->AddComponent<AIComponent>("AiComp");
+	//defaultCube1->SetShaderObjectType(ShaderObjectType::Default);
 
 	std::shared_ptr<BaseActor> defaultCube2 = std::make_shared<BaseActor>("DefaultCube2", Mesh::CreateCube(defMat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube2);
@@ -83,9 +88,12 @@ void LevelManager::LoadDefaultLevel()
 	defaultCube2->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
 	defaultCube2->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
 
-	std::shared_ptr<GraphActor> graph1 = std::make_shared<GraphActor>("Graph1");
-	mActiveLevel->AddActorToSceneGraph(graph1);
-	
+	std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor1");
+	mActiveLevel->AddActorToSceneGraph(graphActor);
+	graphActor->SetGlobalPosition(glm::vec3(0.f, 5.f, 0.f));
+	graphActor->SetPoints(SMath::DeCastParametricCurveFromPoints(glm::vec3(0, 0, 0), glm::vec3(3, 0, 0), glm::vec3(3, 0, 3)));
+	SMath::ConformCurveToGeometry(graphActor->GetChildren(), SceneGround, 0.5);
+	//defaultCube1->AddChild(graphActor);
 
 	//std::shared_ptr<Actor> Model = std::make_shared<Actor>("DefaultModel");
 	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Ground/UneavenPlane.fbx"), Model);
@@ -148,10 +156,13 @@ void LevelManager::Render(float _dt)
 	glEnable(GL_DEPTH_TEST);
 
 	// Define what shader to use, then bind light and camera
-	mShader->use();
-	BindDirectionalLights();
-	BindPointLights();
-	BindCamera();
+	BindDirectionalLights(mDefaultShader);
+	BindPointLights(mDefaultShader);
+	BindCamera(mDefaultShader);
+
+	BindCamera(mGraphShader);
+	BindCamera(mDebugShader);
+	BindCamera(mSkyboxShader);
 
 	// Render the scene graph -> all objects in scene
 	RenderLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
@@ -260,8 +271,30 @@ void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, float _d
 	// if they do call their inherited draw function and bind the model matrix
 	if (std::shared_ptr<IRender> iRender = std::dynamic_pointer_cast<IRender>(_actor))
 	{
-		mShader->setMat4("model", _globalTransform.GetTransformMatrix());
-		iRender->Draw(mShader);
+		if(iRender->GetShaderObjectType() == ShaderObjectType::Default){
+
+			mDefaultShader->use();
+			mDefaultShader->setMat4("model", _globalTransform.GetTransformMatrix());
+			iRender->Draw(mDefaultShader);
+
+		} else if(iRender->GetShaderObjectType() == ShaderObjectType::Graph) {
+
+			mGraphShader->use();
+			mGraphShader->setMat4("model", _globalTransform.GetTransformMatrix());
+			iRender->Draw(mGraphShader);
+
+		} else if (iRender->GetShaderObjectType() == ShaderObjectType::Debug) {
+
+			mDebugShader->use();
+			mDebugShader->setMat4("model", _globalTransform.GetTransformMatrix());
+			iRender->Draw(mDebugShader);
+
+		} else if (iRender->GetShaderObjectType() == ShaderObjectType::Skybox) {
+
+			mSkyboxShader->use();
+			mDebugShader->setMat4("model", _globalTransform.GetTransformMatrix());
+			iRender->Draw(mSkyboxShader);
+		}
 	}
 
 	// For each child recursively run this function
@@ -312,8 +345,9 @@ void LevelManager::KeyCallback(std::shared_ptr<Window> _window, int _key, int _s
 		mController->HandleKeyboard(_window, _key, _scancode, _action, _mods);
 }
 
-void LevelManager::BindDirectionalLights()
+void LevelManager::BindDirectionalLights(std::shared_ptr<Shader> _bindShader)
 {
+	_bindShader->use();
 	// Gets all directional light actors of the scene
 	std::vector<std::shared_ptr<Actor>> directionalLights;
 	mActiveLevel->mSceneGraph->Query<DirectionalLightActor>(directionalLights);
@@ -325,9 +359,9 @@ void LevelManager::BindDirectionalLights()
 		if(dl)
 		{
 			glm::vec3 dir = glm::normalize(dl->GetDirection());
-			mShader->setVec3("dl.direction", dir);
-			mShader->setVec3("dl.color", dl->mColor);
-			mShader->setVec3("dl.ambient", dl->mAmbient);
+			_bindShader->setVec3("dl.direction", dir);
+			_bindShader->setVec3("dl.color", dl->mColor);
+			_bindShader->setVec3("dl.ambient", dl->mAmbient);
 		} else {
 			LOG_ERROR("Cast for directioanl lighting faild");
 		}
@@ -337,14 +371,15 @@ void LevelManager::BindDirectionalLights()
 		LOG_WARNING("More than one directional lights are not bound");
 }
 
-void LevelManager::BindPointLights()
+void LevelManager::BindPointLights(std::shared_ptr<Shader> _bindShader)
 {
+	_bindShader->use();
 	// Gets all point light actors in the scene
 	std::vector<std::shared_ptr<Actor>> pointLightActors;
 	mActiveLevel->mSceneGraph->Query<PointLightActor>(pointLightActors);
 	
 	// Passes the num point lights total to shader + light specific for each point light
-	mShader->setInt("numPointLights", static_cast<int>(pointLightActors.size()));
+	_bindShader->setInt("numPointLights", static_cast<int>(pointLightActors.size()));
 	for (int i = 0; i < pointLightActors.size(); i++)
 	{
 		std::shared_ptr<PointLightActor> pl = std::dynamic_pointer_cast<PointLightActor>(pointLightActors[i]);
@@ -355,12 +390,12 @@ void LevelManager::BindPointLights()
 			// Creates the correct array index reference based on the num elements of lights 
 			std::string pointLightArrayIndex = "pointLights[" + std::to_string(i) + "]";
 			// Passes all point light variables to the shader.
-			mShader->setVec3(pointLightArrayIndex + ".ambient", pl->mAmbient);
-			mShader->setVec3(pointLightArrayIndex + ".color", pl->mColor);
-			mShader->setVec3(pointLightArrayIndex + ".position", pl->GetLightPosition());
-			mShader->setFloat(pointLightArrayIndex + ".constant", pl->constantVar);
-			mShader->setFloat(pointLightArrayIndex + ".linear", pl->linearVar);
-			mShader->setFloat(pointLightArrayIndex + ".quadratic", pl->quadraticVar);
+			_bindShader->setVec3(pointLightArrayIndex + ".ambient", pl->mAmbient);
+			_bindShader->setVec3(pointLightArrayIndex + ".color", pl->mColor);
+			_bindShader->setVec3(pointLightArrayIndex + ".position", pl->GetLightPosition());
+			_bindShader->setFloat(pointLightArrayIndex + ".constant", pl->constantVar);
+			_bindShader->setFloat(pointLightArrayIndex + ".linear", pl->linearVar);
+			_bindShader->setFloat(pointLightArrayIndex + ".quadratic", pl->quadraticVar);
 		} else {
 			LOG_ERROR("Cast for point lighting faild");
 		}
@@ -368,11 +403,13 @@ void LevelManager::BindPointLights()
 	}
 }
 
-void LevelManager::BindCamera()
+void LevelManager::BindCamera(std::shared_ptr<Shader> _bindShader)
 {
+	_bindShader->use();
 	// Passes the cameras matrix`s to the shader for positional computation 
-	mShader->setMat4("view", mActiveLevel->mActiveCamera->GetViewMatrix());
-	mShader->setMat4("projection", mActiveLevel->mActiveCamera->GetProjectionMatrix());
-	mShader->setVec3("viewPos", mActiveLevel->mActiveCamera->GetGlobalPosition());
+	_bindShader->setMat4("view", mActiveLevel->mActiveCamera->GetViewMatrix());
+	_bindShader->setMat4("projection", mActiveLevel->mActiveCamera->GetProjectionMatrix());
+	_bindShader->setVec3("viewPos", mActiveLevel->mActiveCamera->GetGlobalPosition());
+
 }
 

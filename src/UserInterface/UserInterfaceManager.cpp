@@ -6,6 +6,7 @@
 #include <LevelActors/BaseActor.h>
 #include <LevelActors/VisualActor.h>
 #include <LevelActors/CameraActor.h>
+#include <LevelActors/GraphActor.h>
 #include <RenderElements/Mesh.h>
 #include <Actor.h>
 #include <Lights/DirectionalLight.h>
@@ -74,6 +75,8 @@ void UserInterfaceManager::imgui_WorldObjectSettings()
 			mActiveLevel->mSceneGraph->Query<DirectionalLight>(tempSceneActors);
 			mActiveLevel->mSceneGraph->Query<PointLight>(tempSceneActors);
 			mActiveLevel->mSceneGraph->Query<CameraActor>(tempSceneActors);
+			mActiveLevel->mSceneGraph->Query<GraphActor>(tempSceneActors);
+			//mActiveLevel->mSceneGraph->Query<Actor>(tempSceneActors);
 
 			std::vector<std::shared_ptr<Actor>> tempSceneCameras;
 			mActiveLevel->mSceneGraph->Query<CameraActor>(tempSceneCameras);

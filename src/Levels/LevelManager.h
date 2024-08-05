@@ -37,7 +37,10 @@ private:
 
     std::shared_ptr<IController> mController{ nullptr };
 
-    std::shared_ptr<Shader> mShader{ nullptr };
+    std::shared_ptr<Shader> mDefaultShader{ nullptr };
+    std::shared_ptr<Shader> mGraphShader{ nullptr };
+    std::shared_ptr<Shader> mDebugShader{ nullptr };
+    std::shared_ptr<Shader> mSkyboxShader{ nullptr };
 
 public:
     // ---------- Global functions --------------
@@ -92,11 +95,11 @@ public:
 private:
     // ---------- Local functions --------------
     // Binds all directional light objects to the shader for light processing
-    void BindDirectionalLights();
+    void BindDirectionalLights(std::shared_ptr<Shader> _bindShader);
     // Binds all point light objects to the shader for light processing
-    void BindPointLights();
+    void BindPointLights(std::shared_ptr<Shader> _bindShader);
     // Binds the camera objects to the shader for light processing
-    void BindCamera();
+    void BindCamera(std::shared_ptr<Shader> _bindShader);
 
 public:
     // ---------- Getters / setters / Adders --------------

@@ -253,6 +253,6 @@ bool SMath::IsWithinTerrainXZExtent(std::shared_ptr<Actor> _object, std::shared_
 {
     if (!_object || !_surface) { LOG_ERROR("No object or surface refrence for extentbounds"); return false; }
 
-    return (_object->GetGlobalPosition().x > -_surface->mExtent.x && _object->GetGlobalPosition().x < _surface->mExtent.x) &&
-        (_object->GetGlobalPosition().z > -_surface->mExtent.z && _object->GetGlobalPosition().z < _surface->mExtent.z);
+    return (_object->GetGlobalPosition().x >= -_surface->mExtent.x && _object->GetGlobalPosition().x <= _surface->mExtent.x) &&
+        (_object->GetGlobalPosition().z >= -_surface->mExtent.z && _object->GetGlobalPosition().z <= _surface->mExtent.z);
 }

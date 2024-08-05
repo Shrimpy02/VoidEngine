@@ -3,21 +3,19 @@
 // Includes
 #include <Renderer.h>
 #include <Actor.h>
-#include <RenderElements/GraphPoint.h>
 
 // Additional Includes
 #include <memory>
 
 // Forward Declarations
-class Mesh;
 class Shader;
+class Mesh;
 
 /**
  * @class GraphActor
- * @brief Represents an actor in the scene that keeps track of a path, curve,
- * graph or other structures containing multiple points. 
+ * @brief Represents an object managing a series of points that makes a graph.
  */
-class GraphActor : public Actor, IRender
+class GraphActor : public Actor, public IRender
 {
 public:
     // ---------- Global Variables --------------
@@ -25,36 +23,29 @@ public:
 private:
     // ---------- Local Variables --------------
 
-    std::vector<std::shared_ptr<GraphPoint>> mGraphPoints;
-
 public:
     // ---------- Global functions --------------
 
     // Constructor
-    GraphActor(const std::string& _name, std::vector<glm::vec3> _points);
-
-    ~GraphActor() = default;
+    GraphActor(const std::string& _name);
 
     // Overriden from IRender passes draw call to mesh. 
-    void Draw(const std::shared_ptr<Shader> _shader = nullptr) const override;
+    virtual void Draw(const std::shared_ptr<Shader> _shader = nullptr) const override;
 
-    // Overriden from Actor, handles local tick logic
-    void Update(float _dt) override;
-
+    virtual void Update(float _dt) override;
 
 private:
-
-
     // ---------- Local functions --------------
 
 
 public:
     // ---------- Getters / setters / Adders --------------
 
+    // Getters
+
     // Adders
 
     // Setters
-
-    // Getters
+    void SetPoints(std::vector<glm::vec3> _pointPositions);
 
 };

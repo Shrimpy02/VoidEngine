@@ -1,6 +1,7 @@
 // Includes
 #include <RenderElements/Mesh.h>
 #include <RenderElements/Vertex.h>
+#include <RenderElements/GraphVertex.h>
 #include <RenderElements/Material.h>
 #include <Utilities/Logger.h>
 #include <Utilities/Defines.h>
@@ -15,6 +16,12 @@ Mesh::Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector
 {
     // generates gl specific buffers for mesh init.
     SetupMesh();
+}
+
+Mesh::Mesh(const std::string _name, std::vector<GraphVertex>&& _vertices, std::vector<Index>&& _indices)
+    : mName(_name), mGraphVertices(std::move(_vertices)), mIndices(std::move(_indices))
+{
+    SetupGraphMesh();
 }
 
 Mesh::~Mesh()
@@ -344,6 +351,39 @@ std::shared_ptr<Mesh> Mesh::CreateSphere(std::shared_ptr<Material> _material, co
     return mCache[sphereKey];
 }
 
+std::shared_ptr<Mesh> Mesh::CreateGraphSphere(const int _subdivides, std::string _customName)
+{
+    // Create default sphere key based on num subdivides
+    std::string sphereKey = "DefaultGraphSphere" + std::to_string(_subdivides);
+
+    if (!_customName.empty()) {
+        // Overwrites default key if custom name is added.
+        sphereKey = _customName;
+    }
+
+    // Checks if default sphere exists in cache,if it does use that
+     // rather than calculating an entire new cube to save loading time.
+    auto it = mCache.find(sphereKey);
+    if (it != mCache.end())
+    {
+        // LOG("%s Loaded", sphereKey.c_str());
+        return it->second;
+    }
+
+    // otherwise gen vertices and indices from vector
+    std::vector<GraphVertex> vertices;
+    std::vector<Index> indices;
+
+    GenSphere(vertices, indices, _subdivides);
+
+    // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
+    mCache[sphereKey] = std::make_shared<Mesh>(sphereKey, std::move(vertices), std::move(indices));
+
+    // return new default sphere
+    //LOG("%s created", sphereKey.c_str());
+    return mCache[sphereKey];
+}
+
 std::shared_ptr<Mesh> Mesh::Load(const std::string& _key)
 {
     // Find key in cache and load that mesh
@@ -365,6 +405,7 @@ void Mesh::Unload(const std::string& _key)
     }
     LOG_WARNING("%s: Not found in cache for unloading", _key.c_str());
 }
+
 
 void Mesh::ClearCache()
 {
@@ -394,6 +435,29 @@ void Mesh::SetupMesh()
     glBindVertexArray(0);
 }
 
+void Mesh::SetupGraphMesh()
+{
+    // Generates VAO
+    glGenVertexArrays(1, &mVAO);
+    glBindVertexArray(mVAO);
+
+    // Gen VBO and assign mesh vertices to the buffer.
+    glGenBuffers(1, &mVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+    glBufferData(GL_ARRAY_BUFFER, mGraphVertices.size() * sizeof(GraphVertex), mGraphVertices.data(), GL_STATIC_DRAW);
+
+    // Gen EBO and assign mesh indices to the buffer.
+    glGenBuffers(1, &mEBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size() * sizeof(Index), mIndices.data(), GL_STATIC_DRAW);
+
+    // setts upp the vertex attributes
+    GraphVertex::SetupAttributes();
+
+    // unbinds the VAO once finished
+    glBindVertexArray(0);
+}
+
 void Mesh::GenSphere(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const int _numSubdivides, float _radius)
 {
     // initial vertex position to create a base mesh
@@ -414,6 +478,29 @@ void Mesh::GenSphere(std::vector<Vertex>& _vertices, std::vector<Index>& _indice
     SubDivide(_vertices, _indices, v5, v3, v2, _numSubdivides,_radius);
     SubDivide(_vertices, _indices, v5, v4, v3, _numSubdivides,_radius);
     SubDivide(_vertices, _indices, v5, v1, v4, _numSubdivides,_radius);
+}
+
+void Mesh::GenSphere(std::vector<GraphVertex>& _vertices, std::vector<Index>& _indices, const int _numSubdivides,
+	float _radius)
+{
+    // initial vertex position to create a base mesh
+    glm::vec3 v0 = glm::vec3(0, 0, _radius);
+    glm::vec3 v1 = glm::vec3(_radius, 0, 0);
+    glm::vec3 v2 = glm::vec3(0, _radius, 0);
+    glm::vec3 v3 = glm::vec3(-_radius, 0, 0);
+    glm::vec3 v4 = glm::vec3(0, -_radius, 0);
+    glm::vec3 v5 = glm::vec3(0, 0, -_radius);
+
+    // SubDivide positions by num subdivides input
+    SubDivide(_vertices, _indices, v0, v1, v2, _numSubdivides, _radius);
+    SubDivide(_vertices, _indices, v0, v2, v3, _numSubdivides, _radius);
+    SubDivide(_vertices, _indices, v0, v3, v4, _numSubdivides, _radius);
+    SubDivide(_vertices, _indices, v0, v4, v1, _numSubdivides, _radius);
+
+    SubDivide(_vertices, _indices, v5, v2, v1, _numSubdivides, _radius);
+    SubDivide(_vertices, _indices, v5, v3, v2, _numSubdivides, _radius);
+    SubDivide(_vertices, _indices, v5, v4, v3, _numSubdivides, _radius);
+    SubDivide(_vertices, _indices, v5, v1, v4, _numSubdivides, _radius);
 }
 
 void Mesh::SubDivide(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC, const int _numSubdivides, float _radius)
@@ -441,6 +528,31 @@ void Mesh::SubDivide(std::vector<Vertex>& _vertices, std::vector<Index>& _indice
     
 }
 
+void Mesh::SubDivide(std::vector<GraphVertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA,
+	const glm::vec3& _vecB, const glm::vec3& _vecC, const int _numSubdivides, float _radius)
+{
+    // if num subdivide min is reached pass positional values into make triangle
+   // otherwise process, normalize and subdivide further.
+    if (_numSubdivides > 0)
+    {
+        glm::vec3 v1 = _vecA + _vecB;
+        v1 = normalize(v1) * _radius;
+
+        glm::vec3 v2 = _vecA + _vecC;
+        v2 = normalize(v2) * _radius;
+
+        glm::vec3 v3 = _vecC + _vecB;
+        v3 = normalize(v3) * _radius;
+
+        SubDivide(_vertices, _indices, _vecA, v1, v2, _numSubdivides - 1, _radius);
+        SubDivide(_vertices, _indices, v1, _vecB, v3, _numSubdivides - 1, _radius);
+        SubDivide(_vertices, _indices, v2, v3, _vecC, _numSubdivides - 1, _radius);
+        SubDivide(_vertices, _indices, v1, v3, v2, _numSubdivides - 1, _radius);
+    }
+    else
+        MakeTriangle(_vertices, _indices, _vecA, _vecB, _vecC);
+}
+
 void Mesh::MakeTriangle(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC)
 {
     // Calculate normal for the triangle (assuming clockwise vertex order)
@@ -455,6 +567,20 @@ void Mesh::MakeTriangle(std::vector<Vertex>& _vertices, std::vector<Index>& _ind
     _vertices.emplace_back(Vertex{ _vecA, normal, texCoordA });
     _vertices.emplace_back(Vertex{ _vecB, normal, texCoordB });
     _vertices.emplace_back(Vertex{ _vecC, normal, texCoordC });
+
+    // Calculate indices for the newly added vertices
+    unsigned int baseIndex = static_cast<unsigned int>(_vertices.size()) - 3;
+    _indices.emplace_back(baseIndex);
+    _indices.emplace_back(baseIndex + 1);
+    _indices.emplace_back(baseIndex + 2);
+}
+
+void Mesh::MakeTriangle(std::vector<GraphVertex>& _vertices, std::vector<Index>& _indices, const glm::vec3& _vecA, const glm::vec3& _vecB, const glm::vec3& _vecC)
+{
+    // Add vertices with calculated normal and texture coordinates
+    _vertices.emplace_back(GraphVertex{ _vecA});
+    _vertices.emplace_back(GraphVertex{ _vecB});
+    _vertices.emplace_back(GraphVertex{ _vecC});
 
     // Calculate indices for the newly added vertices
     unsigned int baseIndex = static_cast<unsigned int>(_vertices.size()) - 3;
