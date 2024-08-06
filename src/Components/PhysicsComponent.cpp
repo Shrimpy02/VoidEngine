@@ -53,8 +53,9 @@ void PhysicsComponent::ConformToSurface()
 	// Reset contact with ground
 	inContactWithGround = false;
 
+	mDebugBarryLocations.clear();
 
-	if (SMath::ConformObjectToGeometry(mOwner, mSurfaceReference))
+	if (SMath::ConformObjectToGeometry(mOwner, mSurfaceReference, mDebugBarryLocations))
 	{
 		inContactWithGround = true;
 		mVelocity.y = 0;

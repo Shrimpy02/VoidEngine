@@ -1,7 +1,7 @@
 #version 330 core
 out vec4 FragColor;
 
-const vec3 debugColor = vec3(0,1,0);
+const vec3 debugColor = vec3(1,0,0);
 
 void main()
 {

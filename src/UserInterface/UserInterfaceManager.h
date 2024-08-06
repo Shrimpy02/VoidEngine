@@ -15,6 +15,7 @@ class IBounded;
 class Light;
 class IController;
 class CameraActor;
+class DebugActor;
 
 /**
  * @class UserInterfaceManager
@@ -35,6 +36,9 @@ private:
 
     std::shared_ptr<IController> mController{ nullptr };
 
+    std::shared_ptr<DebugActor> mBarycentricDebugActor{ nullptr };
+
+
     // // ImGui UI Variables
      int mMainSelectionIndex = 0;
      int mOldSelectionIndex = 0;
@@ -52,6 +56,7 @@ private:
      bool mCanControlActor = false;
      bool mIsUniformScale = false;
      bool mSnapCameraToActor = false;
+     bool mShowBarycentricLocation = false;
      
      double mOldTime = 0;
      int numFrames = 0;

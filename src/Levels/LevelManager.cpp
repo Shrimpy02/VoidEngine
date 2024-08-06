@@ -8,6 +8,7 @@
 #include <LevelActors/VisualActor.h>
 #include <LevelActors/CameraActor.h>
 #include <LevelActors/GraphActor.h>
+#include <LevelActors/DebugActor.h>
 //#include <Material.h>
 //#include <Renderer.h>
 
@@ -66,7 +67,7 @@ void LevelManager::LoadDefaultLevel()
 	// Objects
 	std::shared_ptr<VisualActor> SceneGround = std::make_shared<VisualActor>("SceneGround", Mesh::CreatePlane(whiteMat));
 	mActiveLevel->AddActorToSceneGraph(SceneGround);
-	//SceneGround->SetGlobalPosition(glm::vec3(13.f, 0.f, 0.f));
+	SceneGround->SetGlobalPosition(glm::vec3(0.f, -1.f, 0.f));
 	SceneGround->SetGlobalRotation(glm::quat(glm::angleAxis(60.f, glm::vec3(0.f, 0.f, 1.f))));
 	SceneGround->SetGlobalScale(glm::vec3(10.f));
 	SceneGround->UpdateExtent();
@@ -92,7 +93,7 @@ void LevelManager::LoadDefaultLevel()
 	mActiveLevel->AddActorToSceneGraph(graphActor);
 	graphActor->SetGlobalPosition(glm::vec3(0.f, 5.f, 0.f));
 	graphActor->SetPoints(SMath::DeCastParametricCurveFromPoints(glm::vec3(0, 0, 0), glm::vec3(3, 0, 0), glm::vec3(3, 0, 3)));
-	SMath::ConformCurveToGeometry(graphActor->GetChildren(), SceneGround, 0.5);
+	SMath::ConformCurveToGeometry(graphActor->GetChildren(), SceneGround, 3);
 	//defaultCube1->AddChild(graphActor);
 
 	//std::shared_ptr<Actor> Model = std::make_shared<Actor>("DefaultModel");

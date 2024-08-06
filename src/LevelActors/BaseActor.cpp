@@ -108,7 +108,7 @@ void BaseActor::UpdateCollisionMeshBasedOnCollisionBase()
 
             collisionName.append("-CollisionCubeAABB");
             mCollisionMesh = Mesh::CreateCubeByExtent(mVisualMesh, debugMat, collisionName);
-            SetMinMaxExtent();
+        	SetMinMaxExtent();
         }
         else if (mCollisionProperties.IsBoundingSphere()) {
 

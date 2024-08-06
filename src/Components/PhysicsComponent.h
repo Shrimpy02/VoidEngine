@@ -30,6 +30,8 @@ private:
 	glm::vec3 mAcceleration{ 0.f };
 	float mMaxSpeed = 20.f;
 
+	std::vector<glm::vec3> mDebugBarryLocations;
+
 	std::shared_ptr<VisualActor> mSurfaceReference{ nullptr };
 
 	bool inContactWithGround = true;
@@ -74,6 +76,12 @@ private:
 
 public:
 	// ---------- Getters and setters --------------
+
+	bool HasSurfaceReference() { if (mSurfaceReference) return true; return false; };
+
+	std::shared_ptr<VisualActor> GetSurfaceReference() { return mSurfaceReference; }
+
+	std::vector<glm::vec3> GetDebugSurfaceBarycentricPoints() { return mDebugBarryLocations; }
 
 	void SetSurfaceReference(std::shared_ptr<VisualActor> _groundRef) { mSurfaceReference = _groundRef; }
 

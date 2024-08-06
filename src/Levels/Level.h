@@ -43,9 +43,9 @@ public:
         mSceneGraph->AddChild(_inActor);
     }
 
-    void RemoveActorToLevel()
+    void RemoveActorFromSceneGraph(std::shared_ptr<Actor> _inActor)
 	{
-
+        mSceneGraph->RemoveChild(_inActor);
 	}
 
     void ClearLevel()

@@ -32,10 +32,13 @@ public:
     static bool ConformCurveToGeometry(std::vector<std::shared_ptr<Actor>>& _points, std::shared_ptr<VisualActor> _surface, float _offsettHeight = 0.f);
 
     // Static function that conforms an actor _object to a visual actor _surface with the sett height offset. It returns true if _object is in contact with _surface.
-    static bool ConformObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float _offsettHeight = 0.f);
+    static bool ConformObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, std::vector<glm::vec3>& _debugSurfacePoints, float _offsettHeight = 0.f);
 
     // Static function returns true if _object is within the barycentric coordinates of _surface
     static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height);
+
+    // Static function returns true if _object is within the barycentric coordinates of _surface
+    static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, std::vector<glm::vec3>& _debugSurfacePoints);
 
     // Curves ------
     // Static function returns a vector of vec3 locations as an interpolated parametric curve from Neville`s algorithm by the tree given points.

@@ -160,10 +160,8 @@
 				23,
 				24,
 				25,
-				69,
-				71,
+				26,
 				72,
-				73,
 				74,
 				75,
 				76,
@@ -173,7 +171,10 @@
 				80,
 				81,
 				82,
-				83
+				83,
+				84,
+				85,
+				86
 			]
 		},
 		{
@@ -217,7 +218,7 @@
 			"language" : "C",
 			"sourceIndexes" : 
 			[
-				70
+				73
 			]
 		}
 	],
@@ -229,11 +230,11 @@
 		},
 		{
 			"backtrace" : 3,
-			"id" : "zlibstatic::@142f1425b4d57e544353"
+			"id" : "assimp::@c18b53e73a5197b875a6"
 		},
 		{
 			"backtrace" : 3,
-			"id" : "assimp::@c18b53e73a5197b875a6"
+			"id" : "zlibstatic::@142f1425b4d57e544353"
 		}
 	],
 	"id" : "3DProgEngine::@6890427a1f51a3e7e1df",
@@ -289,7 +290,6 @@
 				2,
 				3,
 				4,
-				26,
 				27,
 				28,
 				29,
@@ -331,7 +331,10 @@
 				65,
 				66,
 				67,
-				68
+				68,
+				69,
+				70,
+				71
 			]
 		},
 		{
@@ -359,9 +362,7 @@
 				23,
 				24,
 				25,
-				69,
-				70,
-				71,
+				26,
 				72,
 				73,
 				74,
@@ -373,7 +374,10 @@
 				80,
 				81,
 				82,
-				83
+				83,
+				84,
+				85,
+				86
 			]
 		}
 	],
@@ -528,6 +532,12 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/RenderElements/GraphPoint.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/LevelActors/DebugActor.cpp",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -743,6 +753,16 @@
 		{
 			"backtrace" : 1,
 			"path" : "src/RenderElements/GraphVertex.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/LevelActors/DebugActor.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/RenderElements/DebugVertex.h",
 			"sourceGroupIndex" : 0
 		},
 		{

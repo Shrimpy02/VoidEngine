@@ -1,7 +1,6 @@
 #pragma once
 
 // Includes 
-
 #include <Utilities/Types.h>
 
 // Other includes
@@ -14,6 +13,7 @@
 // Forward Declarations
 struct Vertex;
 struct GraphVertex;
+struct DebugVertex;
 class Material;
 class Shader;
 
@@ -37,6 +37,9 @@ private:
     std::vector<Vertex> mVertices;
     // Mesh vertexes
     std::vector<GraphVertex> mGraphVertices;
+    // Mesh vertexes
+    std::vector<DebugVertex> mDebugVertices;
+
     // Mesh indices
     std::vector<Index> mIndices;
     // mesh material
@@ -58,11 +61,15 @@ public:
 
     explicit Mesh(const std::string _name, std::vector<GraphVertex>&& _vertices, std::vector<Index>&& _indices);
 
+    explicit Mesh(const std::string _name, std::vector<DebugVertex>&& _vertices);
+
     // De-constructor removes class references and gl-buffer objects.
 	virtual ~Mesh();
 
     // Inherited from IRender, binds material and draws its self
     void Draw(const std::shared_ptr<Shader> _shader) const;
+
+    void DrawDebugLines(const std::shared_ptr<Shader> _shader) const;
 
     // Creates a default cube using a cube key
     static  std::shared_ptr<Mesh> CreateCube(std::shared_ptr<Material> _material, std::string _customName = std::string());
@@ -83,6 +90,8 @@ public:
     static std::shared_ptr<Mesh> CreateSphere(std::shared_ptr<Material> _material, const int _subdivides = 2, std::string _customName = std::string());
 
     static std::shared_ptr<Mesh> CreateGraphSphere(const int _subdivides = 1, std::string _customName = std::string());
+
+    static std::shared_ptr<Mesh> CreateDebugLine(std::vector<glm::vec3> _points);
 
     // Loads mesh from cache by key
     static std::shared_ptr<Mesh> Load(const std::string& _key);
@@ -107,6 +116,8 @@ private:
     void SetupMesh();
 
     void SetupGraphMesh();
+
+    void SetupDebugMesh();
 
     // Subdivides existing base geometry recursively by number subdivides
     // Passes vector address to Make Triangle function

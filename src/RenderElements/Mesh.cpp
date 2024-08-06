@@ -2,6 +2,7 @@
 #include <RenderElements/Mesh.h>
 #include <RenderElements/Vertex.h>
 #include <RenderElements/GraphVertex.h>
+#include <RenderElements/DebugVertex.h>
 #include <RenderElements/Material.h>
 #include <Utilities/Logger.h>
 #include <Utilities/Defines.h>
@@ -24,6 +25,12 @@ Mesh::Mesh(const std::string _name, std::vector<GraphVertex>&& _vertices, std::v
     SetupGraphMesh();
 }
 
+Mesh::Mesh(const std::string _name, std::vector<DebugVertex>&& _vertices)
+    : mName(_name), mDebugVertices(std::move(_vertices))
+{
+    SetupDebugMesh();
+}
+
 Mesh::~Mesh()
 {
     // deletes gl mesh buffers
@@ -36,7 +43,6 @@ void Mesh::Draw(const std::shared_ptr<Shader> _shader) const
 {
     if (!mVisible) return;
 
-	// bind the material the shader for this object if it exists
     if(mMaterial)
         mMaterial->Bind(_shader);
     
@@ -44,6 +50,22 @@ void Mesh::Draw(const std::shared_ptr<Shader> _shader) const
     glBindVertexArray(mVAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mIndices.size()), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+}
+
+void Mesh::DrawDebugLines(const std::shared_ptr<Shader> _shader) const
+{
+    if (!mVisible) return;
+
+    if (mMaterial)
+        mMaterial->Bind(_shader);
+
+    // binds VAO and draws all geometry by given indices and vertices
+    glBindVertexArray(mVAO);
+    glLineWidth(10.0f);
+    glDrawArrays(GL_LINES, 0,static_cast<GLsizei>(mDebugVertices.size()));
+    //glDrawElements(GL_LINES, static_cast<GLsizei>(mIndices.size()), GL_UNSIGNED_INT, 0);
+	glLineWidth(1.0f);
+	glBindVertexArray(0);
 }
 
 std::shared_ptr<Mesh> Mesh::CreateCube(std::shared_ptr<Material> _material, std::string _customName)
@@ -384,6 +406,23 @@ std::shared_ptr<Mesh> Mesh::CreateGraphSphere(const int _subdivides, std::string
     return mCache[sphereKey];
 }
 
+std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::vector<glm::vec3> _points)
+{
+    // Create default plane key
+    std::string lineKey = "DebugLine";
+
+    std::vector<DebugVertex> vertices;
+
+    for (glm::vec3 pointLocation : _points)
+    {
+        DebugVertex newVertex = DebugVertex(pointLocation);
+        vertices.push_back(newVertex);
+    }
+
+    // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
+    return std::make_shared<Mesh>(lineKey, std::move(vertices));
+}
+
 std::shared_ptr<Mesh> Mesh::Load(const std::string& _key)
 {
     // Find key in cache and load that mesh
@@ -453,6 +492,25 @@ void Mesh::SetupGraphMesh()
 
     // setts upp the vertex attributes
     GraphVertex::SetupAttributes();
+
+    // unbinds the VAO once finished
+    glBindVertexArray(0);
+}
+
+
+void Mesh::SetupDebugMesh()
+{
+    // Generates VAO
+    glGenVertexArrays(1, &mVAO);
+    glBindVertexArray(mVAO);
+
+    // Gen VBO and assign mesh vertices to the buffer.
+    glGenBuffers(1, &mVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+    glBufferData(GL_ARRAY_BUFFER, mDebugVertices.size() * sizeof(DebugVertex), mDebugVertices.data(), GL_STATIC_DRAW);
+
+    // setts upp the vertex attributes
+    DebugVertex::SetupAttributes();
 
     // unbinds the VAO once finished
     glBindVertexArray(0);

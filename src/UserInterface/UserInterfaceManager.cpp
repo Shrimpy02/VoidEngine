@@ -7,12 +7,13 @@
 #include <LevelActors/VisualActor.h>
 #include <LevelActors/CameraActor.h>
 #include <LevelActors/GraphActor.h>
+#include <LevelActors/DebugActor.h>
 #include <RenderElements/Mesh.h>
 #include <Actor.h>
 #include <Lights/DirectionalLight.h>
 #include <Lights/PointLight.h>
 #include <Controllers/Controller.h>
-//#include <Controllers/ActorController.h>
+#include <Utilities/Logger.h>
 
 // Additional Includes
 #include <ImGUi/imgui.h>
@@ -38,7 +39,7 @@ void UserInterfaceManager::RenderUI()
 	imgui_Logger();
 
 	// Demo window for inspiration and explanation
-	//ImGui::ShowDemoWindow();
+	ImGui::ShowDemoWindow();
 }
 
 void UserInterfaceManager::imgui_WorldObjectSettings()
@@ -76,6 +77,8 @@ void UserInterfaceManager::imgui_WorldObjectSettings()
 			mActiveLevel->mSceneGraph->Query<PointLight>(tempSceneActors);
 			mActiveLevel->mSceneGraph->Query<CameraActor>(tempSceneActors);
 			mActiveLevel->mSceneGraph->Query<GraphActor>(tempSceneActors);
+
+			//mActiveLevel->mSceneGraph->Query<DebugActor>(tempSceneActors);
 			//mActiveLevel->mSceneGraph->Query<Actor>(tempSceneActors);
 
 			std::vector<std::shared_ptr<Actor>> tempSceneCameras;
@@ -316,6 +319,54 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 		mActorOriginalScale = _aptr->GetGlobalScale();
 	}
 
+	// Debug visualize barycentric coordinates 
+	// -----------------------------------
+	if (_aptr->GetPhysicsComponent() && _aptr->GetPhysicsComponent()->HasSurfaceReference()) {
+
+		ImGui::Checkbox("Show barycentric location", &mShowBarycentricLocation);
+
+		// If checkbox enabled
+		if(mShowBarycentricLocation)
+		{
+			std::vector<glm::vec3> debugMeshPoints = _aptr->GetPhysicsComponent()->GetDebugSurfaceBarycentricPoints();
+
+			// If debugActor does not exist create new, otherwise update its visual mesh
+			if (!mBarycentricDebugActor)
+			{
+				std::string name = _aptr->GetTag() + "_BarycentricDebug";
+
+				mBarycentricDebugActor = std::make_shared<DebugActor>(name, debugMeshPoints);
+				mActiveLevel->AddActorToSceneGraph(mBarycentricDebugActor);
+			}
+			else {
+
+				mBarycentricDebugActor->UpdateVisualMesh(debugMeshPoints);
+
+			}
+
+			// If checkbox disabled remove debug actor reference
+		} else {
+
+			if (mBarycentricDebugActor)
+			{
+				mActiveLevel->RemoveActorFromSceneGraph(mBarycentricDebugActor);
+				mBarycentricDebugActor = nullptr;
+				mShowBarycentricLocation = false;
+			}
+		}
+
+		// Same if switched selection
+	} else {
+
+		if (mBarycentricDebugActor)
+		{
+			mActiveLevel->RemoveActorFromSceneGraph(mBarycentricDebugActor);
+			mBarycentricDebugActor = nullptr;
+			mShowBarycentricLocation = false;
+		}
+
+	}
+
 	// Component display
 	// -----------------------------------
 	ImGui::Text("Actor Components: ");
@@ -326,6 +377,7 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 	}
 
 	ImGui::ListBox("##LBC", &mComponentSelectionIndex, componentNames.data(), (int)componentNames.size());
+
 }
 
 void UserInterfaceManager::imguiSub_Collision(std::shared_ptr<IBounded> _cptr)
