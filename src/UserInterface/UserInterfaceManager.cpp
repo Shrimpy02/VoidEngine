@@ -33,13 +33,51 @@ void UserInterfaceManager::UpdateUI()
 
 void UserInterfaceManager::RenderUI()
 {
+
+	ui_WorldObjects();
+
+	ui_ObjectProperties();
+
+
+	// old ------------
 	// World object settings window logic 
-	imgui_WorldObjectSettings();
+	//imgui_WorldObjectSettings();
 	// Logger window logic
-	imgui_Logger();
+	//imgui_Logger();
+
+	//imgui_ContentBrowser();
+
+	//imgui_SceneItems();
 
 	// Demo window for inspiration and explanation
-	ImGui::ShowDemoWindow();
+	//ImGui::ShowDemoWindow();
+}
+
+void UserInterfaceManager::ui_WorldObjects()
+{
+	if (ImGui::Begin("Level Actors"))
+	{
+		ImGui::Text("Level Actors");
+		
+	}
+	ImGui::End();
+}
+
+void UserInterfaceManager::ui_ObjectProperties()
+{
+
+	if (ImGui::Begin("Properties"))
+	{
+		ImGui::Text("item properties");
+
+	}
+	ImGui::End();
+
+}
+
+void UserInterfaceManager::ui_docktest()
+{
+
 }
 
 void UserInterfaceManager::imgui_WorldObjectSettings()
@@ -555,3 +593,64 @@ void UserInterfaceManager::imguiSub_FPS()
 	ImGui::SetCursorPosX(190);
 	ImGui::Text("now");
 }
+
+void UserInterfaceManager::imgui_ContentBrowser()
+{
+	if (ImGui::Begin("ContentBrowser") && mShader && mActiveLevel)
+	{
+
+		if (ImGui::BeginTabBar("##TabBar"))
+		{
+			if (ImGui::BeginTabItem("Primitives"))
+			{
+				ImGui::Text("ta");
+
+
+				ImGui::EndTabItem();
+			}
+			
+
+			if (ImGui::BeginTabItem("OtherPrimitives"))
+			{
+				ImGui::Text("da");
+
+
+				ImGui::EndTabItem();
+			}
+			
+		}
+		ImGui::EndTabBar();
+	}
+	ImGui::End();
+}
+
+void UserInterfaceManager::imgui_SceneItems()
+{
+	if (ImGui::Begin("Scene items") && mShader && mActiveLevel)
+	{
+
+		if (ImGui::BeginTabBar("##TabBar"))
+		{
+			if (ImGui::BeginTabItem("Primitives"))
+			{
+				ImGui::Text("ta");
+
+
+				ImGui::EndTabItem();
+			}
+
+
+			if (ImGui::BeginTabItem("OtherPrimitives"))
+			{
+				ImGui::Text("da");
+
+
+				ImGui::EndTabItem();
+			}
+
+		}
+		ImGui::EndTabBar();
+	}
+	ImGui::End();
+}
+

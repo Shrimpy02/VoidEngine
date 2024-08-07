@@ -84,6 +84,12 @@ public:
 private:
     // ---------- Local functions --------------
 
+    void ui_WorldObjects();
+
+    void ui_ObjectProperties();
+
+    void ui_docktest();
+
     //// Contains all custom logic for the world ImGui window
     void imgui_WorldObjectSettings();
     //// Contains custom ImGui logic for details sub section
@@ -99,6 +105,9 @@ private:
     //// Contains custom ImGui logic for FPS sub section
     void imguiSub_FPS();
 
+    void imgui_ContentBrowser();
+
+    void imgui_SceneItems();
 
 public:
     // ---------- Getters / setters / Adders --------------

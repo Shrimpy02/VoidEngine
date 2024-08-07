@@ -12,6 +12,9 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <imgui_internal.h>
+#include <imgui/imconfig.h>
+
 
 Window::Window(std::string _name, int _width, int _height)
     :mName(_name), mWidth(_width), mHeight(_height)
@@ -56,7 +59,9 @@ void Window::Init()
 	IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;    // Enable Multi-Viewport / Platform Windows
 
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(mGLFWWindow, false);
