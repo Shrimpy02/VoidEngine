@@ -1,23 +1,19 @@
 
 // Classes
-#include "Window.h"
-#include "Levels/LevelManager.h"
-#include "Utilities/Logger.h"
+#include <Core/Window.h>
+#include <Levels/LevelManager.h>
+#include <UserInterface/UserInterfaceManager.h>
+#include <Utilities/Logger.h>
 
 // Additional libraries
-// Glad + glfw
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-// ImGui
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-#include <imgui_internal.h>
-#include <imgui/imconfig.h>
 
 
-Window::Window(std::string _name, int _width, int _height)
-    :mName(_name), mWidth(_width), mHeight(_height)
+Window::Window(std::string _name, int _width, int _height, std::shared_ptr<UserInterfaceManager> _inInterfaceManager)
+    :mName(_name), mWidth(_width), mHeight(_height), mUserInterfaceManager(_inInterfaceManager)
 {}
 
 Window::~Window()
@@ -25,10 +21,6 @@ Window::~Window()
     // Destroys viewport window and it`s place in memory
     glfwDestroyWindow(mGLFWWindow);
 
-    // ImGui shutdown
-	ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 }
 
 void Window::Init()
@@ -55,17 +47,7 @@ void Window::Init()
     }
     LOG("GLAD Init Success");
 
-    // Init ImGui ------------
-	IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;    // Enable Multi-Viewport / Platform Windows
-
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(mGLFWWindow, false);
-    ImGui_ImplOpenGL3_Init("#version 130");
+    mUserInterfaceManager->ImguiInit(mGLFWWindow);
 }
 
 void Window::RegisterWindowCallbacks()
@@ -123,10 +105,7 @@ void Window::StartFrame()
     // Gets poll evenets
 	glfwPollEvents();
 
-    // Tell`s ImGui this is the first frame of the render loop
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+    mUserInterfaceManager->ImguiStartFrame();
 
     // Keeps the scenes window pointer up to date
     mLevelManager->SetWindow(shared_from_this());
@@ -150,9 +129,7 @@ void Window::Render(float _dt)
 
 void Window::EndFrame()
 {
-    // Tell`s ImGui this is the last frame of the render loop
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    mUserInterfaceManager->ImguiEndFrame();
 
     // Swaps buffers to next image frame & polls events again
     glfwSwapBuffers(mGLFWWindow);

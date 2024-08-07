@@ -32,12 +32,10 @@
 
 // Additional Includes
 
-LevelManager::LevelManager(std::shared_ptr<Window> _window) : mWindow(_window)
+LevelManager::LevelManager(std::shared_ptr<Window> _window, std::shared_ptr<UserInterfaceManager> _interfaceManager)
+	: mWindow(_window), mUserInterfaceManager(_interfaceManager)
 {
-}
-
-LevelManager::~LevelManager()
-{
+	mUserInterfaceManager->SetDefaultShader(mDefaultShader);
 }
 
 void LevelManager::LoadContent()
@@ -47,7 +45,7 @@ void LevelManager::LoadContent()
 	mDebugShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/DebugShader.vs"), SOURCE_DIRECTORY("shaderSrc/DebugShader.fs"));
 	mSkyboxShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/SkyboxShader.vs"), SOURCE_DIRECTORY("shaderSrc/SkyboxShader.fs"));
 
-	mUserInterfaceManager = std::make_shared<UserInterfaceManager>(mDefaultShader);
+
 
 	mAllLevels.push_back(std::make_shared<Level>("LevelOne"));
 	SetActiveLevel(mAllLevels[0]);

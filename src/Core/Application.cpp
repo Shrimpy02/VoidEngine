@@ -8,6 +8,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "UserInterface/UserInterfaceManager.h"
+
 Application* Application::Get()
 {
 	static Application* app = new Application;
@@ -16,8 +18,9 @@ Application* Application::Get()
 
 int Application::Run()
 {
-    mWindow = std::make_shared<Window>("LearnOpenGL", 1980, 1020);
-    mLevelManager = std::make_shared<LevelManager>(mWindow);
+    mUserInterfaceManager = std::make_shared<UserInterfaceManager>();
+    mWindow = std::make_shared<Window>("LearnOpenGL", 1980, 1020, mUserInterfaceManager);
+	mLevelManager = std::make_shared<LevelManager>(mWindow, mUserInterfaceManager);
 
     // Creates window class and initializes it
     Init();

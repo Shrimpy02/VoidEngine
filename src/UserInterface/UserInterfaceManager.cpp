@@ -16,15 +16,61 @@
 #include <Utilities/Logger.h>
 
 // Additional Includes
-#include <ImGUi/imgui.h>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
-UserInterfaceManager::UserInterfaceManager(std::shared_ptr<Shader> _shader) : mShader(_shader)
+
+UserInterfaceManager::UserInterfaceManager()
 {
 }
 
 UserInterfaceManager::~UserInterfaceManager()
 {
+	// ImGui shutdown
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+}
+
+void UserInterfaceManager::ImguiInit(GLFWwindow* _glfwWindow)
+{
+	// Init ImGui ------------
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	// Imgui
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Docking
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;    // Enable Multi-Viewport / Platform Windows
+
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(_glfwWindow, false);
+	ImGui_ImplOpenGL3_Init("#version 130");
+}
+
+void UserInterfaceManager::ImguiStartFrame()
+{
+	// Tell`s ImGui this is the first frame of the render loop
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+}
+
+void UserInterfaceManager::ImguiEndFrame()
+{
+	// Tell`s ImGui this is the last frame of the render loop
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	// Handle platform windows (for multi-viewport)
+	ImGuiIO& io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		GLFWwindow* backup_current_context = glfwGetCurrentContext();
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		glfwMakeContextCurrent(backup_current_context);
+	}
 }
 
 void UserInterfaceManager::UpdateUI()
@@ -34,9 +80,32 @@ void UserInterfaceManager::UpdateUI()
 void UserInterfaceManager::RenderUI()
 {
 
-	ui_WorldObjects();
+	// Render the docking space
+	ImGuiID dockspace_id = ImGui::GetID("MyDockspace");
+	if (!ImGui::DockBuilderGetNode(dockspace_id)) // Only build docking layout if it doesn't exist
+	{
+		ImGui::DockBuilderRemoveNode(dockspace_id); // Clear previous layout
+		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add a dockspace node
+		ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
 
+		ImGuiID dock_main_id = dockspace_id; // This is our main dockspace node
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.25f, nullptr, &dock_main_id);
+
+		// Dock windows into the main node
+		ImGui::DockBuilderDockWindow("Level Actors", dock_id_left);
+		ImGui::DockBuilderDockWindow("Properties", dock_main_id);
+
+		ImGui::DockBuilderFinish(dockspace_id);
+	}
+
+	// Render the docking space
+	ImGui::DockSpace(dockspace_id);
+
+	// Render individual UI components
+	ui_WorldObjects();
 	ui_ObjectProperties();
+	ui_docktest();
+
 
 
 	// old ------------
@@ -73,18 +142,30 @@ void UserInterfaceManager::ui_ObjectProperties()
 	}
 	ImGui::End();
 
+
+	if (ImGui::Begin("other prop"))
+	{
+		ImGui::Text("item properties other");
+
+	}
+	ImGui::End();
 }
 
 void UserInterfaceManager::ui_docktest()
 {
+	if (ImGui::Begin("Something else"))
+	{
+		ImGui::Text("Completly");
 
+	}
+	ImGui::End();
 }
 
 void UserInterfaceManager::imgui_WorldObjectSettings()
 {
 	// Starts window, set to true.
 	// If window is closed this becomes false and code inside is not run. 
-	if(ImGui::Begin("WorldSettings") && mShader && mActiveLevel)
+	if(ImGui::Begin("WorldSettings") && mDefaultShader && mActiveLevel)
 	{
 		if(ImGui::CollapsingHeader("Dev Options"))
 		{
@@ -97,7 +178,7 @@ void UserInterfaceManager::imgui_WorldObjectSettings()
 			else
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-			mShader->setBool("ShouldDisableTexture", mShouldShowWireFrame);
+			mDefaultShader->setBool("ShouldDisableTexture", mShouldShowWireFrame);
 		}
 
 		ImGui::Separator();
@@ -596,7 +677,7 @@ void UserInterfaceManager::imguiSub_FPS()
 
 void UserInterfaceManager::imgui_ContentBrowser()
 {
-	if (ImGui::Begin("ContentBrowser") && mShader && mActiveLevel)
+	if (ImGui::Begin("ContentBrowser") && mDefaultShader && mActiveLevel)
 	{
 
 		if (ImGui::BeginTabBar("##TabBar"))
@@ -626,7 +707,7 @@ void UserInterfaceManager::imgui_ContentBrowser()
 
 void UserInterfaceManager::imgui_SceneItems()
 {
-	if (ImGui::Begin("Scene items") && mShader && mActiveLevel)
+	if (ImGui::Begin("Scene items") && mDefaultShader && mActiveLevel)
 	{
 
 		if (ImGui::BeginTabBar("##TabBar"))

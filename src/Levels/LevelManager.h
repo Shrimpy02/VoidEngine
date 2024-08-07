@@ -44,7 +44,7 @@ private:
 
 public:
     // ---------- Global functions --------------
-    explicit LevelManager(std::shared_ptr<Window> _window);
+    explicit LevelManager(std::shared_ptr<Window> _window, std::shared_ptr<UserInterfaceManager> _interfaceManager);
 
     // Removes the ability to:    
     LevelManager(const LevelManager&) = delete;           // Copy
@@ -52,7 +52,7 @@ public:
     LevelManager(LevelManager&&) = delete;                // Move
     LevelManager& operator=(LevelManager&&) = delete;     // Move ref
     // Because this class is explicit.
-    ~LevelManager();
+    ~LevelManager() = default;
 
     // Function`s
     // ------------------------------------------------------------

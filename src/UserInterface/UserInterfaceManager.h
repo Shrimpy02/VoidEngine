@@ -7,6 +7,12 @@
 #include <memory>
 #include <vector>
 
+// ImGui
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_internal.h>
+
 // Forward Declarations
 class Actor;
 class Shader;
@@ -16,6 +22,7 @@ class Light;
 class IController;
 class CameraActor;
 class DebugActor;
+class Window;
 
 /**
  * @class UserInterfaceManager
@@ -30,12 +37,10 @@ public:
 private:
     // ---------- Local Variables --------------
 
-    //
-    std::shared_ptr<Shader> mShader{ nullptr };
+    // world
+    std::shared_ptr<Shader> mDefaultShader{ nullptr };
     std::shared_ptr<Level> mActiveLevel{ nullptr };
-
     std::shared_ptr<IController> mController{ nullptr };
-
     std::shared_ptr<DebugActor> mBarycentricDebugActor{ nullptr };
 
 
@@ -63,7 +68,7 @@ private:
 
 public:
     // ---------- Global functions --------------
-    explicit UserInterfaceManager(std::shared_ptr<Shader> _shader);
+    explicit UserInterfaceManager();
 
     // Removes the ability to:    
     UserInterfaceManager(const UserInterfaceManager&) = delete;           // Copy
@@ -76,6 +81,13 @@ public:
     // Function`s
     // ------------------------------------------------------------
 
+    void ImguiInit(GLFWwindow* _glfwWindow);
+
+    void ImguiStartFrame();
+
+    void ImguiEndFrame();
+
+
 	//// Local scene UIUpdate function for distribution (called each frame) 
     void UpdateUI();
     //// Local scene UIRender function for distribution (called each frame) 
@@ -83,6 +95,8 @@ public:
 
 private:
     // ---------- Local functions --------------
+
+
 
     void ui_WorldObjects();
 
@@ -117,6 +131,7 @@ public:
     // Setters
     void SetActiveLevel(std::shared_ptr<Level> _lvl) { mActiveLevel = _lvl; }
     void SetController(std::shared_ptr<IController> _controller) { mController = _controller; }
+    void SetDefaultShader(std::shared_ptr<Shader> _inShader) { mDefaultShader = _inShader; }
 
     // Getters
 

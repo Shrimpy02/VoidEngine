@@ -9,6 +9,7 @@
 // Forward Declarations
 struct GLFWwindow;
 class LevelManager;
+class UserInterfaceManager;
 
 /**
  * @class Window,
@@ -26,12 +27,13 @@ private:
 	int mWidth, mHeight;
 	GLFWwindow* mGLFWWindow{ nullptr };
 	std::shared_ptr<LevelManager> mLevelManager{ nullptr };
+	std::shared_ptr<UserInterfaceManager> mUserInterfaceManager{ nullptr };
 
 public:
 	// ---------- Global functions --------------
 
 	// Constructor
-	Window(std::string _name, int _width, int _height);
+	Window(std::string _name, int _width, int _height, std::shared_ptr<UserInterfaceManager> _inInterfaceManager);
 
 	// Disable copying and deleting of this class
 	Window(const Window&) = delete;

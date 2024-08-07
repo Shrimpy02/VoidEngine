@@ -11,6 +11,7 @@
 // Forward Declarations
 class Window;
 class LevelManager;
+class UserInterfaceManager;
 
 /**
  * @class Application,
@@ -25,8 +26,9 @@ public:
 private:
     // ---------- Local Variables --------------
 
-    std::shared_ptr<Window> mWindow;
-    std::shared_ptr<LevelManager> mLevelManager;
+    std::shared_ptr<Window> mWindow{ nullptr };
+    std::shared_ptr<UserInterfaceManager> mUserInterfaceManager{ nullptr };
+    std::shared_ptr<LevelManager> mLevelManager{ nullptr };
 
 public:
     // ---------- Global functions --------------
