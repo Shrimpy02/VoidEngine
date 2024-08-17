@@ -58,6 +58,8 @@ public:
     // Calls Load with default path file to black texture
     static std::shared_ptr<Texture> LoadBlackTexture();
 
+    static std::shared_ptr<Texture> LoadImage(const std::string& _path);
+
     // Unloads specific texture from cache by its file path.
     static void Unload(const std::string& _path);
 

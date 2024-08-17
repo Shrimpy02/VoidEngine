@@ -67,6 +67,17 @@ std::shared_ptr<PhysicsComponent> Actor::GetPhysicsComponent()
 	return nullptr;
 }
 
+std::shared_ptr<AIComponent> Actor::GetAIComponent()
+{
+	for (std::shared_ptr<Component> comps : mComponents)
+	{
+		if (std::shared_ptr<AIComponent> AiComp = std::dynamic_pointer_cast<AIComponent>(comps))
+			return AiComp;
+	}
+
+	return nullptr;
+}
+
 const glm::vec3& Actor::GetLocalPosition() const
 {
 	return mTransform.GetPosition();

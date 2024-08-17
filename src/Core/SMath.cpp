@@ -296,25 +296,22 @@ glm::vec3 SMath::GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::ve
     if (area_123 == 0)
         throw std::runtime_error("ERROR::DivideBy0");
 
-    glm::vec3 barCoords; // the coordinates to return
+    // Sub Triangle Vectors
+    glm::vec3 vecP1 = _p1 - _objectPos;
+    glm::vec3 vecP2 = _p2 - _objectPos;
+    glm::vec3 vecP3 = _p3 - _objectPos;
+    glm::vec3 barCoords;
 
-    // Sub triangle 1 ---
-    // Gets the vector between actor's position in triangle and point 2 and point 3 
-    glm::vec3 p = _p2 - _objectPos;
-    glm::vec3 q = _p3 - _objectPos;
-    n = glm::cross(p, q); 
+	// Sub triangle 1 ---
+    n = glm::cross(vecP2, vecP3);
     barCoords.x = n.y / area_123;
 
     // Sub triangle 2 ---
-    p = _p3 - _objectPos;
-    q = _p1 - _objectPos;
-    n = glm::cross(p, q);
+    n = glm::cross(vecP3, vecP1);
     barCoords.y = n.y / area_123;
 
     // Sub triangle 3 ---
-    p = _p1 - _objectPos;
-    q = _p2 - _objectPos;
-    n = glm::cross(p, q);
+    n = glm::cross(vecP1, vecP2);
     barCoords.z = n.y / area_123;
 
     return barCoords;

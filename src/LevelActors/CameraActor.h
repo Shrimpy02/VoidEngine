@@ -194,4 +194,6 @@ public:
 	void SetAngularAcceleration(const glm::vec2& _angularAcceleration) { mAngularAcceleration = _angularAcceleration; }
     // Sets the angular damping factor
 	void SetAngularDampingFactor(float _dampingFactor) { mAngularDampingFactor = _dampingFactor; }
+
+    void SetSnappedToActor(std::shared_ptr<Actor> _inActor) { mSnappedToActor = _inActor; }
 };

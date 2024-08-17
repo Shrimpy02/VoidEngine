@@ -2,6 +2,7 @@
 
 // Includes 
 #include <Components/PhysicsComponent.h>
+#include <Components/AIComponent.h>
 #include <Transform.h>
 
 // Additional includes
@@ -142,6 +143,10 @@ public:
 
 	// Returns pointer to the first physics component of this actor.
 	std::shared_ptr<PhysicsComponent> GetPhysicsComponent();
+
+
+	// Returns pointer to the first Ai component of this actor.
+	std::shared_ptr<AIComponent> GetAIComponent();
 
 	// Returns the name of this actor
 	const std::string& GetTag() { return mTag.GetValue(); }

@@ -32,10 +32,10 @@
 
 // Additional Includes
 
-LevelManager::LevelManager(std::shared_ptr<Window> _window, std::shared_ptr<UserInterfaceManager> _interfaceManager)
-	: mWindow(_window), mUserInterfaceManager(_interfaceManager)
+LevelManager::LevelManager(std::shared_ptr<ActorController> _inController)
+	: mController(_inController)
 {
-	mUserInterfaceManager->SetDefaultShader(mDefaultShader);
+	
 }
 
 void LevelManager::LoadContent()
@@ -45,9 +45,7 @@ void LevelManager::LoadContent()
 	mDebugShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/DebugShader.vs"), SOURCE_DIRECTORY("shaderSrc/DebugShader.fs"));
 	mSkyboxShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/SkyboxShader.vs"), SOURCE_DIRECTORY("shaderSrc/SkyboxShader.fs"));
 
-
-
-	mAllLevels.push_back(std::make_shared<Level>("LevelOne"));
+	mAllLevels.push_back(std::make_shared<Level>("DefaultLevel"));
 	SetActiveLevel(mAllLevels[0]);
 
 	LoadDefaultLevel();
@@ -56,8 +54,9 @@ void LevelManager::LoadContent()
 void LevelManager::LoadDefaultLevel()
 {
 	// Texture / Materials
-	std::shared_ptr<Texture> defTex = Texture::Load(SOURCE_DIRECTORY("assets/Textures/ConstainerDiffuse.jpg"));
-	std::shared_ptr<Material> defMat = Material::Load("Default", { defTex }, {{glm::vec3(1.0f,1.0f,1.0f)}, {64} });
+	std::shared_ptr<Texture> defTexDif = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerDiffuse.jpg"));
+	std::shared_ptr<Texture> defTexSpec = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/ContainerSpecular.jpg"));
+	std::shared_ptr<Material> defMat = Material::Load("Default", { defTexDif,defTexSpec }, {{glm::vec3(1.0f,1.0f,1.0f)}, {64} });
 
 	std::shared_ptr<Texture> whiteTex = Texture::LoadWhiteTexture();
 	std::shared_ptr<Material> whiteMat = Material::Load("WhiteDefault", { whiteTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
@@ -72,7 +71,7 @@ void LevelManager::LoadDefaultLevel()
 
 	std::shared_ptr<BaseActor> defaultCube1 = std::make_shared<BaseActor>("DefaultCube1", Mesh::CreateCube(defMat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube1);
-	defaultCube1->SetGlobalPosition(glm::vec3(0.0f,2.f,0.0f));
+	defaultCube1->SetGlobalPosition(glm::vec3(3.0f,2.f,0.0f));
 	defaultCube1->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
 	defaultCube1->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
 	defaultCube1->AddComponent<PhysicsComponent>("PhysicsComp");
@@ -83,7 +82,7 @@ void LevelManager::LoadDefaultLevel()
 
 	std::shared_ptr<BaseActor> defaultCube2 = std::make_shared<BaseActor>("DefaultCube2", Mesh::CreateCube(defMat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube2);
-	defaultCube2->SetGlobalPosition(glm::vec3(-1.f, 2.f, 0.f));
+	defaultCube2->SetGlobalPosition(glm::vec3(-3.f, 2.f, 0.f));
 	defaultCube2->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
 	defaultCube2->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
 
@@ -114,8 +113,7 @@ void LevelManager::LoadDefaultLevel()
 	dla->SetGlobalPosition(glm::vec3(0,10,0));
 	dla->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 
-	mController = std::shared_ptr<ActorController>(std::make_shared<ActorController>(cam1, mWindow));
-
+	mController->SetActorToControl(cam1);
 	//defaultCube1->SetGlobalRotation(glm::quat( glm::angleAxis(45.f,glm::vec3(0.f,1.f,0.f))));
 }
 
@@ -135,21 +133,14 @@ void LevelManager::SetActiveLevel(std::shared_ptr<Level> _activeLevel)
 
 void LevelManager::Update(float _dt)
 {
-	// Update input first
-	UpdateInputControler(_dt);
-
 	// Update the scene graph -> all objects in scene
 	UpdateLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
 
 	// Then handle collision for all objects in scene
 	ProcessCollision();
-
-	// Update interfaceData
-	mUserInterfaceManager->SetActiveLevel(mActiveLevel);
-	mUserInterfaceManager->SetController(mController);
 }
 
-void LevelManager::Render(float _dt)
+void LevelManager::Render()
 {
 	// Enable depth testing
 	glEnable(GL_DEPTH_TEST);
@@ -163,10 +154,8 @@ void LevelManager::Render(float _dt)
 	BindCamera(mDebugShader);
 	BindCamera(mSkyboxShader);
 
-	// Render the scene graph -> all objects in scene
-	RenderLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
-	// Render UI over top, should be called last so it displays updated rather than outdated information
-	mUserInterfaceManager->RenderUI();
+	RenderLevelSceneGraph(mActiveLevel->mSceneGraph);
+
 	//mSkybox->Render(&mSceneCamera);
 
 	glDepthFunc(GL_LEQUAL);
@@ -258,7 +247,7 @@ void LevelManager::UpdateLevelSceneGraph(std::shared_ptr<Actor> _actor, float _d
 		UpdateLevelSceneGraph(child, _dt, _globalTransform);
 }
 
-void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, float _dt, Transform _globalTransform)
+void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, Transform _globalTransform)
 {
 	// If there is no actor reference end function
 	if (!_actor) return;
@@ -300,48 +289,48 @@ void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, float _d
 	const auto& children = _actor->GetChildren();
 	for (std::shared_ptr<Actor> child : children)
 	{
-		RenderLevelSceneGraph(child, _dt, _globalTransform);
+		RenderLevelSceneGraph(child, _globalTransform);
 	}
 }
 
-void LevelManager::UpdateInputControler(float _dt)
+void LevelManager::FrameBufferSizeCallback(int _width, int _height)
 {
-	if (mController)
-		mController->Update(_dt);
+	mActiveLevel->mActiveCamera->SetAspectRatio(static_cast<float>(_height) / static_cast<float>(_width));
 }
 
-void LevelManager::FramebufferSizeCallback(std::shared_ptr<Window> _window, int _width, int _height)
+void LevelManager::AddActorToLevel(std::shared_ptr<Actor> _inActor)
 {
-	mActiveLevel->mActiveCamera->SetAspectRatio(static_cast<float>(_width) / static_cast<float>(_height));
+	mActiveLevel->AddActorToSceneGraph(_inActor);
 }
 
-void LevelManager::MouseMoveCallback(std::shared_ptr<Window> _window, double _xpos, double _ypos)
+void LevelManager::ShadersDrawWireFrame(bool _b)
 {
-	if (mController)
-		mController->HandleMouseMove(_window, _xpos, _ypos);
-}
+	if (_b)
+	{
+		mDefaultShader->use();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		mDefaultShader->setBool("ShouldDisableTexture", _b);
+		mGraphShader->use();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		mDebugShader->use();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		mSkyboxShader->use();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-void LevelManager::MouseButtonCallback(std::shared_ptr<Window> _window, int _button, int _action, int _mods)
-{
-	if (mController)
-		mController->HandleMouseButton(_window, _button, _action, _mods);
-}
-
-void LevelManager::MouseScrollCallback(std::shared_ptr<Window> _window, double _xoffset, double _yoffset)
-{
-	if (mController)
-		mController->HandleMouseScroll(_window, _xoffset, _yoffset);
-}
-
-void LevelManager::CharCallback(std::shared_ptr<Window> _window, unsigned int _codepoint)
-{
-	// Mostly for imgui logic. has no glfw oriented function as of yet. 
-}
-
-void LevelManager::KeyCallback(std::shared_ptr<Window> _window, int _key, int _scancode, int _action, int _mods)
-{
-	if (mController)
-		mController->HandleKeyboard(_window, _key, _scancode, _action, _mods);
+	}
+	else
+	{
+		mDefaultShader->use();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		mDefaultShader->setBool("ShouldDisableTexture", _b);
+		mGraphShader->use();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		mDebugShader->use();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		mSkyboxShader->use();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+	
 }
 
 void LevelManager::BindDirectionalLights(std::shared_ptr<Shader> _bindShader)

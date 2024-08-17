@@ -63,6 +63,10 @@ public:
 	// Resets all physics values, typically called on collisions. (Simple solution)
 	void ResetValues();
 
+	// Resets acceleration and velocity
+	void ResetForces();
+
+
 	// This function makes sure the components owner conforms to ground geometry if mGroundReference is filled.
 	void ConformToSurface();
 
@@ -86,5 +90,7 @@ public:
 	void SetSurfaceReference(std::shared_ptr<VisualActor> _groundRef) { mSurfaceReference = _groundRef; }
 
 	void SetGravityEnabled(bool _b) { mGravityEnabled = _b; }
+
+	bool IsGravityEnabled() { return mGravityEnabled; }
 
 };

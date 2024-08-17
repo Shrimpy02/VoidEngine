@@ -1,14 +1,11 @@
-// Classes
-#include <Core/Application.h>
-#include <Core/Window.h>
-#include <Levels/LevelManager.h>
 
-// Additional libraries
-// Glad + glfw
+// Include
+#include <Core/Application.h>
+#include <Core/WindowManager.h>
+
+// Additional include
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-#include "UserInterface/UserInterfaceManager.h"
 
 Application* Application::Get()
 {
@@ -18,46 +15,29 @@ Application* Application::Get()
 
 int Application::Run()
 {
-    mUserInterfaceManager = std::make_shared<UserInterfaceManager>();
-    mWindow = std::make_shared<Window>("LearnOpenGL", 1980, 1020, mUserInterfaceManager);
-	mLevelManager = std::make_shared<LevelManager>(mWindow, mUserInterfaceManager);
+    mWindowManager = std::make_shared<WindowManager>("VoidEngine");
 
-    // Creates window class and initializes it
-    Init();
-    // Loads scene content from window
-    LoadContent();
+    InitializeGLFW();
+    InitializeWindow();
 
+    // Render/Update loop -----------
     float lastFrame = 0.f;
-
-    // This is the entire render loop
-    while (!mWindow->IsClosed())
+    while (!mWindowManager->IsClosed())
     {
         // Calc delta time
         float currentFrame = static_cast<float>(glfwGetTime());
         float deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        mWindow->StartFrame();
-        mWindow->Update(deltaTime);
-        mWindow->Render(deltaTime);
-        mWindow->EndFrame();
+        mWindowManager->StartFrame();
+        mWindowManager->Update(deltaTime);
+        mWindowManager->Render();
+        mWindowManager->EndFrame();
     }
-
-    // Clears static cache of content
-    //Mesh::ClearCache();
-    //Material::ClearCache();
-    //Texture::ClearCache();
 
     glfwTerminate();
 
     return 0;
-}
-
-void Application::Init()
-{
-    InitializeGLFW();
-    mWindow->Init();
-    mWindow->RegisterWindowCallbacks();
 }
 
 void Application::InitializeGLFW()
@@ -68,8 +48,9 @@ void Application::InitializeGLFW()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-void Application::LoadContent()
+void Application::InitializeWindow()
 {
-    mWindow->LoadContent(mLevelManager);
+    mWindowManager->Init();
+    mWindowManager->RegisterWindowCallbacks();
+    mWindowManager->LoadContent();
 }
-

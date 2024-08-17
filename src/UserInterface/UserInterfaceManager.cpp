@@ -1,5 +1,5 @@
 
-// Class Includes
+// Includes
 #include <UserInterface/UserInterfaceManager.h>
 #include <Core/Shader.h>
 #include <Levels/Level.h>
@@ -9,18 +9,23 @@
 #include <LevelActors/GraphActor.h>
 #include <LevelActors/DebugActor.h>
 #include <RenderElements/Mesh.h>
+#include <RenderElements/Texture.h>
 #include <Actor.h>
 #include <Lights/DirectionalLight.h>
 #include <Lights/PointLight.h>
-#include <Controllers/Controller.h>
 #include <Utilities/Logger.h>
+#include <Utilities/Defines.h>
+#include <Levels/LevelManager.h>
+#include <Controllers/ActorController.h>
+#include <Core/WindowManager.h>
 
 // Additional Includes
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 
-UserInterfaceManager::UserInterfaceManager()
+//  --------------------------- Constructors ----------------------------
+
+UserInterfaceManager::UserInterfaceManager(std::shared_ptr<WindowManager> _inWindowManager)
+	: mWindowManager(_inWindowManager)
 {
 }
 
@@ -32,23 +37,38 @@ UserInterfaceManager::~UserInterfaceManager()
 	ImGui::DestroyContext();
 }
 
-void UserInterfaceManager::ImguiInit(GLFWwindow* _glfwWindow)
-{
-	// Init ImGui ------------
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	// Imgui
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Docking
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;    // Enable Multi-Viewport / Platform Windows
+//  --------------------------- Global ----------------------------
 
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(_glfwWindow, false);
-	ImGui_ImplOpenGL3_Init("#version 130");
+void UserInterfaceManager::Init(GLFWwindow* _glfwWindow)
+{
+	mController = std::make_shared<ActorController>(mWindowManager,shared_from_this());
+	mLevelManager = std::make_shared<LevelManager>(mController);
+	ImGuiInit(_glfwWindow);
+	InitImages();
+
 }
 
-void UserInterfaceManager::ImguiStartFrame()
+void UserInterfaceManager::InitImages()
+{
+	mLogoIcon = Texture::LoadImage(SOURCE_DIRECTORY("EngineAssets/EngineIcons/Temp_VoidLogo_Icon.png"));
+	mFolderIcon = Texture::LoadImage(SOURCE_DIRECTORY("EngineAssets/EngineIcons/Temp_Folder_Icon.png"));
+	mJPGIcon = Texture::LoadImage(SOURCE_DIRECTORY("EngineAssets/EngineIcons/Temp_JPG_Icon.png"));
+	mPNGIcon = Texture::LoadImage(SOURCE_DIRECTORY("EngineAssets/EngineIcons/Temp_PNG_Icon.png"));
+	mFBXIcon = Texture::LoadImage(SOURCE_DIRECTORY("EngineAssets/EngineIcons/Temp_FBX_Icon.png"));
+	mLVLIcon = Texture::LoadImage(SOURCE_DIRECTORY("EngineAssets/EngineIcons/Temp_Lvl_Icon.png"));
+	mErrorIcon = Texture::LoadImage(SOURCE_DIRECTORY("EngineAssets/EngineIcons/Temp_ERROR_Icon.png"));
+}
+
+void UserInterfaceManager::LoadContent()
+{
+	if (mLevelManager)
+	{
+		mLevelManager->LoadContent();
+		mDefaultShader = mLevelManager->GetDefaultShader();
+	}
+}
+
+void UserInterfaceManager::StartFrame()
 {
 	// Tell`s ImGui this is the first frame of the render loop
 	ImGui_ImplOpenGL3_NewFrame();
@@ -56,7 +76,21 @@ void UserInterfaceManager::ImguiStartFrame()
 	ImGui::NewFrame();
 }
 
-void UserInterfaceManager::ImguiEndFrame()
+void UserInterfaceManager::Update(float _dt)
+{
+	if (mController)
+		mController->ProcessInput(_dt);
+
+	if (mLevelManager)
+		mLevelManager->Update(_dt);
+}
+
+void UserInterfaceManager::Render()
+{
+	RenderUI();
+}
+
+void UserInterfaceManager::EndFrame()
 {
 	// Tell`s ImGui this is the last frame of the render loop
 	ImGui::Render();
@@ -73,254 +107,751 @@ void UserInterfaceManager::ImguiEndFrame()
 	}
 }
 
-void UserInterfaceManager::UpdateUI()
+void UserInterfaceManager::FrameBufferCallback(GLFWwindow* _window, int _width, int _height)
 {
+	ResizeFrameBuffer(_width,_height);
+}
+
+void UserInterfaceManager::MouseMoveCallback(GLFWwindow* _window, double _xPos, double _yPos)
+{
+	// Actor Controller if using viewport
+	if (mController && mViewportHasFocusAndHover)
+		mController->HandleMouseMove( _xPos, _yPos);
+}
+
+void UserInterfaceManager::MouseScrollCallback(GLFWwindow* _window, double _xOffset, double _yOffset)
+{
+	// Passes all scroll callbacks to ImGui
+	ImGui_ImplGlfw_ScrollCallback(_window, _xOffset, _yOffset);
+
+	if (mController && mViewportHasFocusAndHover)
+		mController->HandleMouseScroll(_xOffset, _yOffset);
+}
+
+void UserInterfaceManager::CharCallback(GLFWwindow* _window, unsigned int _codePoint)
+{
+	// Passes all character keyboard callbacks to ImGui and stops glfw from using them (a,b,c so on)
+	ImGui_ImplGlfw_CharCallback(_window, _codePoint);
+
+	if (mController && mViewportHasFocusAndHover)
+		mController->HandleChar(_codePoint);
+}
+
+void UserInterfaceManager::KeyCallback(GLFWwindow* _window, int _key, int _scanCode, int _action, int _mods)
+{
+	// Passes all key-keyboard callbacks to ImGui and stops glfw from using them (backspace, enter so on)
+	ImGui_ImplGlfw_KeyCallback(_window, _key, _scanCode, _action, _mods);
+	//if (ImGui::GetIO().WantCaptureMouse) return;
+
+	if (mController && mViewportHasFocusAndHover)
+		mController->HandleKeyboard(_key, _scanCode, _action, _mods);
+}
+
+void UserInterfaceManager::MouseButtonCallback(GLFWwindow* _window, int _button, int _action, int _mods)
+{
+	// Passes all mouse button callbacks to ImGui and stops glfw from using them
+	ImGui_ImplGlfw_MouseButtonCallback(_window, _button, _action, _mods);
+
+	if (mController && mViewportHasFocusAndHover)
+		mController->HandleMouseButton(_button, _action, _mods);
+}
+
+bool UserInterfaceManager::IsViewportFocusedAndHovered()
+{
+	return mViewportHasFocusAndHover;
+}
+
+//  --------------------------- Local ----------------------------
+
+void UserInterfaceManager::ImGuiInit(GLFWwindow* _glfwWindow)
+{
+	// Init ImGui ------------
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	// Imgui
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Docking
+	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;    // Enable Multi-Viewport // Disabled for now because of overhead
+
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(_glfwWindow, false);
+	ImGui_ImplOpenGL3_Init("#version 130");
+
+	CreateViewportTexture();
+}
+
+void UserInterfaceManager::CreateViewportTexture()
+{
+	glGenFramebuffers(1, &mFrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
+
+	// Generate texture
+	glGenTextures(1, &mViewportTexture);
+	glBindTexture(GL_TEXTURE_2D, mViewportTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mViewportWidth, mViewportHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	// Attach texture to frameBuffer
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mViewportTexture, 0);
+
+	// Create and attach depth buffer
+
+	glGenRenderbuffers(1, &mDepthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, mViewportWidth, mViewportHeight);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthBuffer);
+
+	// Error check
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		LOG_ERROR("Framebuffer not complete!");
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0); // Unbind frameBuffer
 }
 
 void UserInterfaceManager::RenderUI()
 {
-
-	// Render the docking space
-	ImGuiID dockspace_id = ImGui::GetID("MyDockspace");
-	if (!ImGui::DockBuilderGetNode(dockspace_id)) // Only build docking layout if it doesn't exist
-	{
-		ImGui::DockBuilderRemoveNode(dockspace_id); // Clear previous layout
-		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add a dockspace node
-		ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
-
-		ImGuiID dock_main_id = dockspace_id; // This is our main dockspace node
-		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.25f, nullptr, &dock_main_id);
-
-		// Dock windows into the main node
-		ImGui::DockBuilderDockWindow("Level Actors", dock_id_left);
-		ImGui::DockBuilderDockWindow("Properties", dock_main_id);
-
-		ImGui::DockBuilderFinish(dockspace_id);
-	}
-
-	// Render the docking space
-	ImGui::DockSpace(dockspace_id);
-
-	// Render individual UI components
-	ui_WorldObjects();
-	ui_ObjectProperties();
-	ui_docktest();
-
-
-
-	// old ------------
-	// World object settings window logic 
-	//imgui_WorldObjectSettings();
-	// Logger window logic
-	//imgui_Logger();
-
-	//imgui_ContentBrowser();
-
-	//imgui_SceneItems();
-
 	// Demo window for inspiration and explanation
 	//ImGui::ShowDemoWindow();
+	// Create dock space for UI windows
+	ui_DockSpace();
+	
+	// Renders level to texture for viewport
+	RenderLevelToTexture();
+
+	// Render individual UI components
+	ui_CreateActors();
+	ui_ViewPort();
+	ui_WorldProperties();
+	ui_DebugProperties();
+	ui_ContentBrowser();
+	ui_ContentProperties();
+	ui_FileExplorer();
+	ui_Log();
+	ui_Console();
+
 }
 
-void UserInterfaceManager::ui_WorldObjects()
+void UserInterfaceManager::RenderLevelToTexture()
 {
-	if (ImGui::Begin("Level Actors"))
+	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	if(mLevelManager)
+		mLevelManager->Render();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0); 
+}
+
+void UserInterfaceManager::ResizeFrameBuffer(int newWidth, int newHeight)
+{
+	mViewportWidth = newWidth;
+	mViewportHeight = newHeight;
+
+	LOG("Resize");
+
+	glViewport(0, 0, mViewportWidth, mViewportHeight);
+
+	// Bind the frame buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
+
+	// Resize the texture
+	glBindTexture(GL_TEXTURE_2D, mViewportTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mViewportWidth, mViewportHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+
+	// Resize the depth buffer
+	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, mViewportWidth, mViewportHeight);
+
+	// Check if the frame buffer is complete
+	static bool dontCheckFirstFrame = false;
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE && dontCheckFirstFrame)
 	{
-		ImGui::Text("Level Actors");
+		LOG_ERROR("Framebuffer not complete!");
+		dontCheckFirstFrame = true;
+	}
+
+	// Unbind the frame buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+ImVec2 UserInterfaceManager::CalculateAspectRatioSize(ImVec2 availableSize, float aspectRatio)
+{
+	float windowAspectRatio = availableSize.x / availableSize.y;
+	if (windowAspectRatio > aspectRatio)
+	{
+		// Window is wider than the desired aspect ratio, adjust width
+		float newWidth = availableSize.y * aspectRatio;
+		return ImVec2(newWidth, availableSize.y);
+	}
+	else
+	{
+		// Window is taller than the desired aspect ratio, adjust height
+		float newHeight = availableSize.x / aspectRatio;
+		return ImVec2(availableSize.x, newHeight);
+	}
+}
+
+
+void UserInterfaceManager::ui_DockSpace()
+{
+
+	// Get the main ImGui viewport
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+	// Set the next window position and size to match the viewport (GLFW window)
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	// Create the root ImGui window
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+	// Adjust to fill the entire screen
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+	// Begin the root dock space window
+	ImGui::Begin("RootDockSpaceWindow", nullptr, windowFlags);
+	ImGui::PopStyleVar(2);
+
+	ui_Sub_MainMenuBar();
+
+	//Create dock space inside the root window
+	const ImGuiID dockSpace_id = ImGui::GetID("RootDockSpace");
+	ImGui::DockSpace(dockSpace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+
+
+	// Initialize the dock space layout if it's not already set up
+	if (!ImGui::DockBuilderGetNode(dockSpace_id)) // Only build docking layout if it doesn't exist
+	{
+		ImGui::DockBuilderRemoveNode(dockSpace_id); // Clear previous layout
+		ImGui::DockBuilderAddNode(dockSpace_id, ImGuiDockNodeFlags_None); // Add a new dockspace node
+
+		ImGuiID dock_main_id = dockSpace_id;
+		const ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.25f, nullptr, &dock_main_id);
+		const ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.25f, nullptr, &dock_main_id);
+		const ImGuiID dock_id_bottom = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.25f, nullptr, &dock_main_id);
+
+		// Dock the windows
+		ImGui::DockBuilderDockWindow("LevelViewport", dock_main_id);
+		ImGui::DockBuilderDockWindow("Content Browser", dock_id_left);
+		ImGui::DockBuilderDockWindow("Properties", dock_id_left);
+		ImGui::DockBuilderDockWindow("File Explorer", dock_id_bottom);
+		ImGui::DockBuilderDockWindow("Log", dock_id_bottom);
+		ImGui::DockBuilderDockWindow("Console", dock_id_bottom);
+		ImGui::DockBuilderDockWindow("Create Actor", dock_id_right);
+		ImGui::DockBuilderDockWindow("Debug Properties", dock_id_right);
+	
+		ImGui::DockBuilderFinish(dockSpace_id);
+	}
+
+	ImGui::End();
+}
+
+void UserInterfaceManager::ui_Sub_MainMenuBar()
+{
+	// Create the menu bar
+	if (ImGui::BeginMenuBar())
+	{
+		ui_Element_Image(mLogoIcon, mIconSize);
+
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("New", "Ctrl+N")) { /* New action */ }
+			if (ImGui::MenuItem("Open", "Ctrl+O")) { /* Open action */ }
+			if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Save action */ }
+
+			if (ImGui::MenuItem("Exit", "Alt+F4")) {
+				mController->ExitApplication();
+			}
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Tools"))
+		{
+			if (ImGui::MenuItem("Option 1")) { /* Option 1 action */ }
+			if (ImGui::MenuItem("Option 2")) { /* Option 2 action */ }
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Windows"))
+		{
+			// Window Settings
+			// ----------------------------
+			bool windowed = mWindowManager->GetWindowMode() == WindowMode::WM_Windowed ? true : false;
+			bool borderless = mWindowManager->GetWindowMode() == WindowMode::WM_BoarderLess ? true : false;;
+			bool fullScreen = mWindowManager->GetWindowMode() == WindowMode::WM_FullScreen ? true : false;;
+
+			if (ImGui::MenuItem("Windowed", "F9", &windowed))
+				mWindowManager->SetWindowed();
+
+			if (ImGui::MenuItem("Borderless Windowed", "F10", nullptr, &borderless))
+				mWindowManager->SetBoarderLessWindow();
+
+			if (ImGui::MenuItem("FullScreen", "F11", &fullScreen))
+				mWindowManager->SetFullScreen();
+
+			ImGui::Separator();
+
+			// Window Visibilities
+			// ----------------------------
+			if (ImGui::MenuItem("Create Actor", nullptr, mIsCreateActorWindowOpen))
+				mIsCreateActorWindowOpen = !mIsCreateActorWindowOpen;
+			
+			if (ImGui::MenuItem("View Port", nullptr, mIsViewportWindowOpen))
+				mIsViewportWindowOpen = !mIsViewportWindowOpen;
+
+			if (ImGui::MenuItem("World Properties", nullptr, mIsWorldPropertiesWindowOpen))
+				mIsWorldPropertiesWindowOpen = !mIsWorldPropertiesWindowOpen;
+
+			if (ImGui::MenuItem("Debug Properties", nullptr, mIsDebugPropertiesWindowOpen))
+				mIsDebugPropertiesWindowOpen = !mIsDebugPropertiesWindowOpen;
+
+			if (ImGui::MenuItem("Content Browser", nullptr, mIsContentBrowserWindowOpen))
+				mIsContentBrowserWindowOpen = !mIsContentBrowserWindowOpen;
+
+			if (ImGui::MenuItem("Content Properties", nullptr, mIsContentPropertiesWindowOpen))
+				mIsContentPropertiesWindowOpen = !mIsContentPropertiesWindowOpen;
+
+			if (ImGui::MenuItem("File Explorer", nullptr, mIsFileExplorerWindowOpen))
+				mIsFileExplorerWindowOpen = !mIsFileExplorerWindowOpen;
+
+			if (ImGui::MenuItem("Log", nullptr, mIsLogWindowOpen))
+				mIsLogWindowOpen = !mIsLogWindowOpen;
+
+			if (ImGui::MenuItem("Console", nullptr, mIsConsoleWindowOpen))
+				mIsConsoleWindowOpen = !mIsConsoleWindowOpen;
+
+				ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Help"))
+		{
+			if (ImGui::MenuItem("About")) { /* About dialog */ }
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenuBar();
+	}
+}
+
+void UserInterfaceManager::ui_CreateActors()
+{
+	if (!mIsCreateActorWindowOpen) return;
+
+	if (ImGui::Begin("Create Actor", &mIsCreateActorWindowOpen, ImGuiWindowFlags_NoCollapse))
+	{
+		// Get the available space in the window
+		ImVec2 availableSize = ImGui::GetContentRegionAvail();
+
+		// Determine the number of rows and columns
+		int numColumns = 2; // Number of columns for buttons
+		int numRows = (IM_ARRAYSIZE(mActorNames) + numColumns - 1) / numColumns;
+
+		// Calculate the size of each button to fit as a square
+		float buttonSize = fminf(availableSize.x / numColumns, availableSize.y / numRows) - 10; // Leave space for margins
+
+		// Iterate through each item to create button and drag source
+		for (int n = 0; n < IM_ARRAYSIZE(mActorNames); n++)
+		{
+			// Set up button
+			ImGui::PushID(n);
+			if (ImGui::Button(mActorNames[n], ImVec2(buttonSize, buttonSize)))
+			{
+				// Button click logic goes here
+				std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedCube", Mesh::CreateCube(nullptr));
+				mLevelManager->AddActorToLevel(baseActor);
+			}
+
+			// Set up the drag source
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+			{
+				// Set payload to carry the index of the item
+				ImGui::SetDragDropPayload("DND_CREATE_ITEM", &n, sizeof(int));
+
+				// Display a preview during the drag operation
+				ImGui::Text("Creating %s", mActorNames[n]);
+
+				ImGui::EndDragDropSource();
+			}
+			ImGui::PopID();
+
+			// Move to the next column
+			if ((n + 1) % numColumns != 0)
+			{
+				ImGui::SameLine();
+			}
+		}
+	}
+
+	ImGui::End();
+	
+}
+
+void UserInterfaceManager::ui_ViewPort()
+{
+	if (!mIsViewportWindowOpen) return;
+
+	if(ImGui::Begin("LevelViewport", &mIsViewportWindowOpen, ImGuiWindowFlags_NoCollapse))
+	{
+		// Viewport Render
+		// -------------------------------------------
+		// Get`s size of viewport imgui window
+		const ImVec2 availableSize = ImGui::GetContentRegionAvail(); // Get the available space in the window
+		const int newWidth = static_cast<int>(availableSize.x);
+		const int newHeight = static_cast<int>(availableSize.y);
+
+		// Resize scene texture to render at the correct resolution dynamically based on window size
+		if (newWidth != mViewportWidth || newHeight != mViewportHeight)
+		{
+			ResizeFrameBuffer(newWidth, newHeight);
+
+			// Enable this to make cameras aspect ratio reflect viewport size
+			//if (mLevelManager)
+			//	mLevelManager->FrameBufferSizeCallback(newWidth, newHeight);
+		}
+
+		// Sets the texture and inverts it for glfw
+		ImVec2 uv0 = ImVec2(0.0f, 1.0f); // Top-left
+		ImVec2 uv1 = ImVec2(1.0f, 0.0f); // Bottom-right
+		ImGui::Image((void*)(intptr_t)mViewportTexture, availableSize, uv0, uv1);
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_CREATE_ITEM"))
+			{
+				IM_ASSERT(payload->DataSize == sizeof(int));
+				const int payload_n = *(const int*)payload->Data;
+
+				// Handle the creation of the actor based on the dropped item
+				if (payload_n >= 0 && payload_n < mNumActorItems)
+				{
+					if (strcmp(mActorNames[payload_n], "Cube") == 0)
+					{
+						std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedCube", Mesh::CreateCube(nullptr));
+						mLevelManager->AddActorToLevel(baseActor);
+					}
+					else if (strcmp(mActorNames[payload_n], "Pyramid") == 0)
+					{
+						std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPyramid", Mesh::CreatePyramid(nullptr));
+						mLevelManager->AddActorToLevel(baseActor);
+					}
+					else if (strcmp(mActorNames[payload_n], "Plane") == 0)
+					{
+						std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPlane", Mesh::CreatePlane(nullptr));
+						mLevelManager->AddActorToLevel(baseActor);
+					}
+					else if (strcmp(mActorNames[payload_n], "Sphere") == 0)
+					{
+						std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedSphere", Mesh::CreateSphere(nullptr));
+						mLevelManager->AddActorToLevel(baseActor);
+					}
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
+
+		mViewportHasFocusAndHover = ImGui::IsWindowFocused() && ImGui::IsWindowHovered() ? true : false;
+
+		mViewportPos = ImGui::GetWindowPos();
+	}
+	ImGui::End();
+}
+
+void UserInterfaceManager::ui_LevelSelect()
+{
+
+
+
+}
+
+void UserInterfaceManager::ui_WorldProperties()
+{
+	if (!mIsWorldPropertiesWindowOpen) return;
+
+	// Starts window, set to true.
+	// If window is closed this becomes false and code inside is not run. 
+	if (ImGui::Begin("World Properties", &mIsWorldPropertiesWindowOpen, ImGuiWindowFlags_NoCollapse) && mDefaultShader)
+	{
+		// Decides if world is rendered as wire frame or solid mesh.
+		// ---------------------------------------------------------
+		ImGui::Checkbox("Wire-Frame Mode", &mShouldShowWireFrame);
+
+		if(mLevelManager)
+			mLevelManager->ShadersDrawWireFrame(mShouldShowWireFrame);
+
+		ImGui::Separator();
+	}
+	ImGui::End();
+}
+
+
+void UserInterfaceManager::ui_DebugProperties()
+{
+	if (!mIsDebugPropertiesWindowOpen) return;
+
+	if (ImGui::Begin("Debug Properties", &mIsDebugPropertiesWindowOpen, ImGuiWindowFlags_NoCollapse))
+	{
+		// Static init
+		// in array values the array nums (10) is the x axis, while its content is the y axis.
+		// So it remembers and gets the average from the last 10 seconds in this case. 
+		static float values[10] = {};
+		static int index = 0;
+
+		// counts the amount of frames processed this round
+		numFrames++;
+
+		// Gets the current time
+		double currentTime = ImGui::GetTime();
+		// Calculates the elapsed time 
+		double elapsedTime = currentTime - mOldTime;
+		// Each second this if function should tick. (0.004 inaccuracy).
+		if (elapsedTime >= 1.0)
+		{
+			// assigns 
+			values[index] = (float)numFrames;
+			// once max array size is reached offset is reset to 0
+			index = (index + 1) % IM_ARRAYSIZE(values);
+			// resets frames and mOldTime to continue the loop
+			numFrames = 0;
+			mOldTime = currentTime;
+		}
+
+		// Find the average FPS value over the 10 seconds of sample fps numbers
+		float average = 0.0f;
+		int divNum = 1;
+		for (int n = 0; n < IM_ARRAYSIZE(values); n++)
+		{
+			// Does not include 0 or high values since they may inflate average before values are filled in.
+			if (values[n] > 0 && values[n] < 10000)
+			{
+				average += values[n];
+				divNum++;
+			}
+		}
+
+		// Calc the average
+		average /= (float)divNum;
+
+		// Write average into char array for dynamic text rendering
+		char overlay[32];
+		sprintf_s(overlay, "Avg fps %f", average);
+
+		// Sets text pos 50 right and draw
+		ImGui::SetCursorPosX(50);
+		ImGui::Text(overlay);
+
+		// Draws the graph
+		ImGui::PlotLines("##FPSPlot", values, IM_ARRAYSIZE(values), (int)mOldTime, "", -1.0f, 1.0f, ImVec2(200, 80.0f));
+
+		// Section to create descriptive lines on graph
+		ImGui::Text(" | "); ImGui::SameLine();
+		ImGui::SetCursorPosX(100);
+		ImGui::Text(" | "); ImGui::SameLine();
+		ImGui::SetCursorPosX(200);
+		ImGui::Text(" | ");
+
+		ImGui::Text("10 sec"); ImGui::SameLine();
+		ImGui::SetCursorPosX(90);
+		ImGui::Text("5 sec"); ImGui::SameLine();
+		ImGui::SetCursorPosX(190);
+		ImGui::Text("now");
+
+		ImGui::Separator();
+
+		// Handles visibility of collision debug mesh
+		// ------------------------------------------
+		ImGui::Checkbox("Show Collision debug mesh", &mShouldDrawCollisionDebugMesh);
+		std::vector<std::shared_ptr<Actor>> tempActors;
+		mLevelManager->GetActiveLevel()->mSceneGraph->Query<BaseActor>(tempActors);
+
+		for (std::shared_ptr<Actor> actor : tempActors)
+		{
+			std::shared_ptr<BaseActor> mA = std::dynamic_pointer_cast<BaseActor>(actor);
+			if (mA)
+			{
+				if (mShouldDrawCollisionDebugMesh)
+					mA->mCollisionMesh->SetIsVisible(true);
+				else
+					mA->mCollisionMesh->SetIsVisible(false);
+			}
+		}
+
+		ImGui::Separator();
+
+	}
+	ImGui::End();
+}
+
+void UserInterfaceManager::ui_ContentBrowser()
+{
+	if (!mIsContentBrowserWindowOpen) {
+		mContentSelectedActor = nullptr;
+		return;
+	}
+
+	if (ImGui::Begin("Content Browser", &mIsContentBrowserWindowOpen, ImGuiWindowFlags_NoCollapse))
+	{
+		static int selectionIndex = 0;
+		static int oldSelectionIndex = 0;
+
+		//Shows all actors in scene, based on selection can take control
+			// Note only shows the parent actors so to speak as you cannot control children
+			// ----------------------------------------------------------------------------
+		std::vector<std::shared_ptr<Actor>> tempSceneActors;
+		mLevelManager->GetActiveLevel()->mSceneGraph->Query<BaseActor>(tempSceneActors);
+		mLevelManager->GetActiveLevel()->mSceneGraph->Query<VisualActor>(tempSceneActors);
+		mLevelManager->GetActiveLevel()->mSceneGraph->Query<DirectionalLight>(tempSceneActors);
+		mLevelManager->GetActiveLevel()->mSceneGraph->Query<PointLight>(tempSceneActors);
+		mLevelManager->GetActiveLevel()->mSceneGraph->Query<CameraActor>(tempSceneActors);
+		mLevelManager->GetActiveLevel()->mSceneGraph->Query<GraphActor>(tempSceneActors);
+
+		std::vector<const char*> tempSceneActorNames;
+		for (std::shared_ptr<Actor> actor : tempSceneActors) {
+			tempSceneActorNames.push_back(actor->GetTag().c_str());
+		}
+
+		// Calculate the available space for the list box
+		ImVec2 listBoxSize = ImGui::GetContentRegionAvail();
+
+		// Use BeginListBox to create a resizable list box
+		if (ImGui::BeginListBox("##LB", listBoxSize)) {
+			// Populate the list box items
+			for (int i = 0; i < tempSceneActorNames.size(); ++i) {
+				if (ImGui::Selectable(tempSceneActorNames[i], selectionIndex == i)) {
+					selectionIndex = i;
+				}
+			}
+			ImGui::EndListBox();
+		}
+
+		mContentSelectedActor = tempSceneActors[selectionIndex];
+
+		if (oldSelectionIndex != selectionIndex)
+		{
+			mCanControlActor = false;
+			if (mLevelManager->GetActiveLevel()->mActiveCamera)
+				mController->SetActorToControl(mLevelManager->GetActiveLevel()->mActiveCamera);
+		}
+		oldSelectionIndex = selectionIndex;
+	}
+	ImGui::End();
+}
+
+void UserInterfaceManager::ui_ContentProperties()
+{
+	if (!mIsContentPropertiesWindowOpen) return;
+
+	if (ImGui::Begin("Content Properties", &mIsContentPropertiesWindowOpen, ImGuiWindowFlags_NoCollapse))
+	{
+		if (!mContentSelectedActor)
+		{
+			ImGui::End();
+			return;
+		}
+
+		// Decides actor control
+		// ----------------------------------------------
+		if (mContentSelectedActor == mController->GetRefToControlledActor())
+			mCanControlActor = true;
+
+		ImGui::Checkbox("Control Selected Actor", &mCanControlActor);
+		if (mCanControlActor)
+		{
+			// If new actor is camera, set it to the level camera
+			if (std::shared_ptr<CameraActor> newCamActor = std::dynamic_pointer_cast<CameraActor>(mContentSelectedActor))
+			{
+				mLevelManager->GetActiveLevel()->mActiveCamera = newCamActor;
+			}
+
+			// Decides how fast the actor that is controlled moves
+			// ----------------------------------------------
+			float tempActorMoveSpeed = mController->GetMovementSpeed();
+			ImGui::Text("Actor Movement Speed"); ImGui::SameLine(); ImGui::SetNextItemWidth(mItemWidth); ImGui::InputFloat("##AMS", &tempActorMoveSpeed);
+			mController->SetMovementSpeed(tempActorMoveSpeed);
+			mController->SetActorToControl(mContentSelectedActor);
+
+			if(std::shared_ptr<CameraActor> camActor = std::dynamic_pointer_cast<CameraActor>(mContentSelectedActor))
+			{
+				
+			} else
+			{
+
+				// Decides if a camera should snap to selected actor
+				// ----------------------------------------------
+				ImGui::Checkbox("Snap camera to actor", &mSnapCameraToActor);
+				if (mSnapCameraToActor && mContentSelectedActor != mLevelManager->GetActiveLevel()->mActiveCamera)
+				{
+					// Decides what camera should snap
+					// ----------------------------------------------
+					mLevelManager->GetActiveLevel()->mActiveCamera->mSnappedToActor = mContentSelectedActor;
+					mLevelManager->GetActiveLevel()->mActiveCamera->SetGlobalPosition(mContentSelectedActor->GetGlobalPosition() + glm::vec3(0, 2, 7));
+					mController->SnapCameraToControlledActor(mLevelManager->GetActiveLevel()->mActiveCamera);
+
+				}
+				else {
+
+					mSnapCameraToActor = false;
+					mLevelManager->GetActiveLevel()->mActiveCamera->mSnappedToActor = nullptr;
+					mController->UnSnapCameraToControlledActor();
+				}
+				// Reset control to level camera when chaneging object
+			}
+
+		}
+		else {
+			if (mLevelManager->GetActiveLevel()->mActiveCamera)
+			{
+				mController->SetActorToControl(mLevelManager->GetActiveLevel()->mActiveCamera);
+				mController->UnSnapCameraToControlledActor();
+			}
+			mSnapCameraToActor = false;
+		}
+
+		// Resets Actor control back to camera when changing selected item
+		
+
+		// Handles all local Sub UI for Actor world settings
+		// ----------------------------------------------
+		if (mContentSelectedActor)
+			uiSub_WorldProperties(mContentSelectedActor);
+
+		// Handles all local Sub UI for component settings
+		// ----------------------------------------------
+		if (mContentSelectedActor)
+			uiSub_ComponentProperties(mContentSelectedActor);
+
+		// Handles all local Sub UI for camera settings
+		// ----------------------------------------------
+		std::shared_ptr<CameraActor> cameraPtr = std::dynamic_pointer_cast<CameraActor>(mContentSelectedActor);
+		if (cameraPtr)
+			uiSub_CameraProperties(cameraPtr);
+
+		// Handles all local Sub UI for Actor Collision settings
+		// ----------------------------------------------
+		std::shared_ptr<IBounded> collisionPtr = std::dynamic_pointer_cast<IBounded>(mContentSelectedActor);
+		if (collisionPtr)
+			uiSub_CollisionProperties(collisionPtr);
+
+		// Handles all local Sub UI for Actor Light settings
+		// ----------------------------------------------
+		std::shared_ptr<Light> lightptr = std::dynamic_pointer_cast<Light>(mContentSelectedActor);
+		if (lightptr)
+			uiSub_LightProperties(lightptr);
 		
 	}
 	ImGui::End();
 }
 
-void UserInterfaceManager::ui_ObjectProperties()
-{
-
-	if (ImGui::Begin("Properties"))
-	{
-		ImGui::Text("item properties");
-
-	}
-	ImGui::End();
-
-
-	if (ImGui::Begin("other prop"))
-	{
-		ImGui::Text("item properties other");
-
-	}
-	ImGui::End();
-}
-
-void UserInterfaceManager::ui_docktest()
-{
-	if (ImGui::Begin("Something else"))
-	{
-		ImGui::Text("Completly");
-
-	}
-	ImGui::End();
-}
-
-void UserInterfaceManager::imgui_WorldObjectSettings()
-{
-	// Starts window, set to true.
-	// If window is closed this becomes false and code inside is not run. 
-	if(ImGui::Begin("WorldSettings") && mDefaultShader && mActiveLevel)
-	{
-		if(ImGui::CollapsingHeader("Dev Options"))
-		{
-			// Decides if world is rendered as wire frame or solid mesh.
-			// ---------------------------------------------------------
-			ImGui::Checkbox("Wire-Frame Mode", &mShouldShowWireFrame);
-
-			if (mShouldShowWireFrame)
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			else
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-			mDefaultShader->setBool("ShouldDisableTexture", mShouldShowWireFrame);
-		}
-
-		ImGui::Separator();
-
-		if(ImGui::CollapsingHeader("Level Actors"))
-		{
-
-			// Shows all actors in scene, based on selection can take control
-			// Note only shows the parent actors so to speak as you cannot control children
-			// ----------------------------------------------------------------------------
-			std::vector<std::shared_ptr<Actor>> tempSceneActors;
-			mActiveLevel->mSceneGraph->Query<BaseActor>(tempSceneActors);
-			mActiveLevel->mSceneGraph->Query<VisualActor>(tempSceneActors);
-			mActiveLevel->mSceneGraph->Query<DirectionalLight>(tempSceneActors);
-			mActiveLevel->mSceneGraph->Query<PointLight>(tempSceneActors);
-			mActiveLevel->mSceneGraph->Query<CameraActor>(tempSceneActors);
-			mActiveLevel->mSceneGraph->Query<GraphActor>(tempSceneActors);
-
-			//mActiveLevel->mSceneGraph->Query<DebugActor>(tempSceneActors);
-			//mActiveLevel->mSceneGraph->Query<Actor>(tempSceneActors);
-
-			std::vector<std::shared_ptr<Actor>> tempSceneCameras;
-			mActiveLevel->mSceneGraph->Query<CameraActor>(tempSceneCameras);
-
-			std::vector<const char*> tempSceneActorNames;
-			for (std::shared_ptr<Actor> actor : tempSceneActors) {
-				tempSceneActorNames.push_back(actor->GetTag().c_str());
-			}
-
-			std::vector<const char*> tempSceneCameraNames;
-			for (std::shared_ptr<Actor> camActor : tempSceneCameras) {
-				tempSceneCameraNames.push_back(camActor->GetTag().c_str());
-			}
-
-			ImGui::ListBox("##LB", &mMainSelectionIndex, tempSceneActorNames.data(), (int)tempSceneActorNames.size());
-
-			std::shared_ptr<Actor> currentActor = tempSceneActors[mMainSelectionIndex];
-
-			// Decides actor control
-			// ----------------------------------------------
-			if (currentActor == mController->GetRefToControlledActor())
-				mCanControlActor = true;
-
-			ImGui::Checkbox("Control Selected Actor", &mCanControlActor);
-			if (mCanControlActor)
-			{
-				// If new actor is camera, set it to the level camera
-				if(std::shared_ptr<CameraActor> newCamActor = std::dynamic_pointer_cast<CameraActor>(tempSceneActors[mMainSelectionIndex]))
-				{
-					mActiveLevel->mActiveCamera = newCamActor;
-				}
-
-				// Decides how fast the actor that is controlled moves
-				// ----------------------------------------------
-				float tempActorMoveSpeed = mController->GetMovementSpeed();
-				ImGui::Text("Actor Movement Speed"); ImGui::SameLine(); ImGui::SetNextItemWidth(mItemWidth); ImGui::InputFloat("##AMS", &tempActorMoveSpeed);
-				mController->SetMovementSpeed(tempActorMoveSpeed);
-				mController->SetNewActorToControl(currentActor);
-
-				// Decides if a camera should snap to selected actor
-				// ----------------------------------------------
-				ImGui::Checkbox("Snap camera to actor", &mSnapCameraToActor);
-				if (mSnapCameraToActor && currentActor != mActiveLevel->mActiveCamera)
-				{
-					// Decides what camera should snap
-					// ----------------------------------------------
-					mActiveLevel->mActiveCamera->mSnappedToActor = currentActor;
-					mActiveLevel->mActiveCamera->SetGlobalPosition(currentActor->GetGlobalPosition() + glm::vec3(0, 2, 7));
-					mController->SetCameraForSnap(mActiveLevel->mActiveCamera);
-					
-				} else {
-
-					mSnapCameraToActor = false;
-					mActiveLevel->mActiveCamera->mSnappedToActor = nullptr;
-					mController->SetCameraForSnap(nullptr);
-				}
-				// Reset control to level camera when changeing object
-			} else {
-				if (mActiveLevel->mActiveCamera)
-					mController->SetNewActorToControl(mActiveLevel->mActiveCamera);
-				mSnapCameraToActor = false;
-			}
-
-			// Resets Actor control back to camera when changing selected item
-			if (mOldSelectionIndex != mMainSelectionIndex)
-			{
-				mCanControlActor = false;
-				if (mActiveLevel->mActiveCamera)
-					mController->SetNewActorToControl(mActiveLevel->mActiveCamera);
-			}
-			mOldSelectionIndex = mMainSelectionIndex;
-
-			// Handles all local Sub UI for Actor world settings
-			// ----------------------------------------------
-			if(currentActor)
-				imguiSub_WorldDetails(currentActor);
-
-			std::shared_ptr<CameraActor> cameraPtr = std::dynamic_pointer_cast<CameraActor>(currentActor);
-			if (cameraPtr)
-				imguiSub_Camera(cameraPtr);
-
-			// Handles all local Sub UI for Actor Collision settings
-			// ----------------------------------------------
-			std::shared_ptr<IBounded> collisionPtr = std::dynamic_pointer_cast<IBounded>(currentActor);
-			if (collisionPtr)
-				imguiSub_Collision(collisionPtr);
-
-			// Handles all local Sub UI for Actor Light settings
-			// ----------------------------------------------
-			std::shared_ptr<Light> lightptr = std::dynamic_pointer_cast<Light>(currentActor);
-			if (lightptr)
-				imguiSub_Light(lightptr);
-		}
-
-		ImGui::Separator();
-
-		// World Physics related options
-		if (ImGui::CollapsingHeader("World Physics"))
-		{
-			// Handles visibility of collision debug mesh
-			// ------------------------------------------
-			ImGui::Checkbox("Show Collision debug mesh", &mShouldDrawCollisionDebugMesh);
-			std::vector<std::shared_ptr<Actor>> tempActors;
-			mActiveLevel->mSceneGraph->Query<BaseActor>(tempActors);
-
-			for (std::shared_ptr<Actor> actor : tempActors)
-			{
-				std::shared_ptr<BaseActor> mA = std::dynamic_pointer_cast<BaseActor>(actor);
-				if(mA)
-				{
-					if (mShouldDrawCollisionDebugMesh)
-						mA->mCollisionMesh->SetIsVisible(true);
-					else
-						mA->mCollisionMesh->SetIsVisible(false);
-				}
-			}
-		}
-	}
-	ImGui::End();
-}
-
-void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
+void UserInterfaceManager::uiSub_WorldProperties(std::shared_ptr<Actor> _inActor)
 {
 	// Actor specific details
 	// ----------------------
@@ -329,7 +860,7 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 
 	// Can edit the x, y, z position for selected actor
 	// ----------------------------------------------
-	glm::vec3 currentActorsPosition = _aptr->GetGlobalPosition();
+	glm::vec3 currentActorsPosition = _inActor->GetGlobalPosition();
 
 	ImGui::Text("World Position: ");
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), "X");
@@ -349,11 +880,11 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 	ImGui::SetNextItemWidth(mItemWidth);
 	ImGui::InputFloat("##PZ", &currentActorsPosition.z);
 
-	_aptr->SetGlobalPosition(currentActorsPosition);
+	_inActor->SetGlobalPosition(currentActorsPosition);
 
 	// Can edit the x, y, z rotation for selected actor
 	// ----------------------------------------------
-	glm::quat currentActorsRotation = _aptr->GetGlobalRotation();
+	glm::quat currentActorsRotation = _inActor->GetGlobalRotation();
 
 	// Convert quaternion to Euler angles
 	glm::vec3 actorRotationInEulerAngles = glm::degrees(glm::eulerAngles(currentActorsRotation));
@@ -361,7 +892,7 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 	float yaw = actorRotationInEulerAngles.y;
 	float roll = actorRotationInEulerAngles.z;
 
-	const float maxPitch = (float) 89.9; // Maximum pitch angle to avoid gimbal lock
+	const float maxPitch = (float)89.9; // Maximum pitch angle to avoid gimbal lock
 	pitch = glm::clamp(pitch, -maxPitch, maxPitch);
 
 	ImGui::Text("World Rotation: ");
@@ -384,7 +915,7 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 
 	// Convert Euler angles back to quaternion
 	glm::vec3 backActorsEulerAngles = glm::radians(glm::vec3(pitch, yaw, roll));
-	_aptr->SetGlobalRotation(glm::quat(backActorsEulerAngles));
+	_inActor->SetGlobalRotation(glm::quat(backActorsEulerAngles));
 
 	// Can edit the x, y, z scale for selected actor
 	// ----------------------------------------------
@@ -406,7 +937,7 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 		{
 			// set scale of actor to its current scale * uniform
 			// should only proc once since Old is set to current immediately after
-			_aptr->SetGlobalScale(mActorOriginalScale * mCurrentUniformScale);
+			_inActor->SetGlobalScale(mActorOriginalScale * mCurrentUniformScale);
 
 			mOldUniformScale = mCurrentUniformScale;
 		}
@@ -414,7 +945,7 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 	}
 	else {
 
-		glm::vec3 currentActorsScale = _aptr->GetGlobalScale();
+		glm::vec3 currentActorsScale = _inActor->GetGlobalScale();
 		mCurrentUniformScale = 1;
 
 		ImGui::TextColored(ImVec4(1, 0, 0, 1), "X");
@@ -434,28 +965,28 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 		ImGui::SetNextItemWidth(mItemWidth);
 		ImGui::InputFloat("##SZ", &currentActorsScale.z);
 
-		_aptr->SetGlobalScale(glm::vec3(currentActorsScale.x, currentActorsScale.y, currentActorsScale.z));
-		mActorOriginalScale = _aptr->GetGlobalScale();
+		_inActor->SetGlobalScale(glm::vec3(currentActorsScale.x, currentActorsScale.y, currentActorsScale.z));
+		mActorOriginalScale = _inActor->GetGlobalScale();
 	}
 
 	// Debug visualize barycentric coordinates 
 	// -----------------------------------
-	if (_aptr->GetPhysicsComponent() && _aptr->GetPhysicsComponent()->HasSurfaceReference()) {
+	if (_inActor->GetPhysicsComponent() && _inActor->GetPhysicsComponent()->HasSurfaceReference()) {
 
 		ImGui::Checkbox("Show barycentric location", &mShowBarycentricLocation);
 
 		// If checkbox enabled
-		if(mShowBarycentricLocation)
+		if (mShowBarycentricLocation)
 		{
-			std::vector<glm::vec3> debugMeshPoints = _aptr->GetPhysicsComponent()->GetDebugSurfaceBarycentricPoints();
+			std::vector<glm::vec3> debugMeshPoints = _inActor->GetPhysicsComponent()->GetDebugSurfaceBarycentricPoints();
 
 			// If debugActor does not exist create new, otherwise update its visual mesh
 			if (!mBarycentricDebugActor)
 			{
-				std::string name = _aptr->GetTag() + "_BarycentricDebug";
+				std::string name = _inActor->GetTag() + "_BarycentricDebug";
 
 				mBarycentricDebugActor = std::make_shared<DebugActor>(name, debugMeshPoints);
-				mActiveLevel->AddActorToSceneGraph(mBarycentricDebugActor);
+				mLevelManager->GetActiveLevel()->AddActorToSceneGraph(mBarycentricDebugActor);
 			}
 			else {
 
@@ -464,32 +995,39 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 			}
 
 			// If checkbox disabled remove debug actor reference
-		} else {
+		}
+		else {
 
 			if (mBarycentricDebugActor)
 			{
-				mActiveLevel->RemoveActorFromSceneGraph(mBarycentricDebugActor);
+				mLevelManager->GetActiveLevel()->RemoveActorFromSceneGraph(mBarycentricDebugActor);
 				mBarycentricDebugActor = nullptr;
 				mShowBarycentricLocation = false;
 			}
 		}
 
 		// Same if switched selection
-	} else {
+	}
+	else {
 
 		if (mBarycentricDebugActor)
 		{
-			mActiveLevel->RemoveActorFromSceneGraph(mBarycentricDebugActor);
+			mLevelManager->GetActiveLevel()->RemoveActorFromSceneGraph(mBarycentricDebugActor);
 			mBarycentricDebugActor = nullptr;
 			mShowBarycentricLocation = false;
 		}
 
 	}
+}
+
+void UserInterfaceManager::uiSub_ComponentProperties(std::shared_ptr<Actor> _inActor)
+{
 
 	// Component display
 	// -----------------------------------
-	ImGui::Text("Actor Components: ");
-	std::vector<std::shared_ptr<Component>> actorComponents(_aptr->GetComponents());
+	ImGui::Text("Component Details");
+	ImGui::Separator();
+	std::vector<std::shared_ptr<Component>> actorComponents(_inActor->GetComponents());
 	std::vector<const char*> componentNames;
 	for (std::shared_ptr<Component> Component : actorComponents) {
 		componentNames.push_back(Component->GetTag().c_str());
@@ -497,241 +1035,341 @@ void UserInterfaceManager::imguiSub_WorldDetails(std::shared_ptr<Actor> _aptr)
 
 	ImGui::ListBox("##LBC", &mComponentSelectionIndex, componentNames.data(), (int)componentNames.size());
 
-}
-
-void UserInterfaceManager::imguiSub_Collision(std::shared_ptr<IBounded> _cptr)
-{
-	// Handles all collision setting logic with
-	// ImGui and shared_ptr of the object selected
-	if (ImGui::CollapsingHeader("Collision Details"))
+	if(_inActor->GetPhysicsComponent())
 	{
-		// Shows if actor is colliding 
-		// ----------------------------------------------
-		ImGui::Text("Is Colliding: "); ImGui::SameLine();
-		if (_cptr->GetIsColliding())
-			ImGui::TextColored(ImVec4(0, 1, 0, 1), "True");
-		else
-			ImGui::TextColored(ImVec4(1, 0, 0, 1), "False");
+		if (_inActor->GetPhysicsComponent() == _inActor->GetComponents()[mComponentSelectionIndex])
+		{
+			mEnableGravity = _inActor->GetPhysicsComponent()->IsGravityEnabled();
+			ImGui::Checkbox("Gravity", &mEnableGravity);
+			if (mEnableGravity)
+				_inActor->GetPhysicsComponent()->SetGravityEnabled(mEnableGravity);
+			else
+				_inActor->GetPhysicsComponent()->SetGravityEnabled(mEnableGravity);
 
-		// Edit collision type
-		// ----------------------------------------------
-		const char* typeItems[] = { "STATIC","DYNAMIC","KINETIC" };
-		int currentTypeItem = 0;
+			if (ImGui::Button("ResetForces"))
+			{
+				_inActor->GetPhysicsComponent()->ResetForces();
+			}
+		}
+	}
 
-		currentTypeItem = static_cast<int>(_cptr->mCollisionProperties.mType);
+	if (_inActor->GetAIComponent())
+	{
+		if (_inActor->GetAIComponent() == _inActor->GetComponents()[mComponentSelectionIndex])
+		{
 
-		ImGui::Text("Collision Type");
-		ImGui::Combo("##TB", &currentTypeItem, typeItems, IM_ARRAYSIZE(typeItems));
-
-		_cptr->mCollisionProperties.SetCollisionType(static_cast<CollisionType>(currentTypeItem));
-
-		// Edit collision response
-		// ----------------------------------------------
-		const char* responseItems[] = { "BLOCK","OVERLAP","IGNORE" };
-		int currentResponseItem = 0;
-
-		currentResponseItem = static_cast<int>(_cptr->mCollisionProperties.mResponse);
-
-		ImGui::Text("Collision Response");
-		ImGui::Combo("##RB", &currentResponseItem, responseItems, IM_ARRAYSIZE(responseItems));
-
-		_cptr->mCollisionProperties.SetCollisionResponse(static_cast<CollisionResponse>(currentResponseItem));
-
-		// Edit collision base
-		// ----------------------------------------------
-		const char* baseItems[] = { "AABB","BoundingSphere" };
-		int currentbaseItem = 0;
-
-		currentbaseItem = static_cast<int>(_cptr->mCollisionProperties.mBase);
-
-		ImGui::Text("Collision Base");
-		ImGui::Combo("##BB", &currentbaseItem, baseItems, IM_ARRAYSIZE(baseItems));
-
-		_cptr->mCollisionProperties.SetCollisionBase(static_cast<CollisionBase>(currentbaseItem));
-
-		// Edit collision sub base
-		// ----------------------------------------------
-		const char* subBaseItems[] = { "NoSubBase","ConvexHul" };
-		int currentSubBaseItem = 0;
-
-		currentSubBaseItem = static_cast<int>(_cptr->mCollisionProperties.mSubBase);
-
-		ImGui::Text("Collision SubBase");
-		ImGui::Combo("##SB", &currentSubBaseItem, subBaseItems, IM_ARRAYSIZE(subBaseItems));
-
-		_cptr->mCollisionProperties.SetCollisionSubBase(static_cast<CollisionSubBase>(currentSubBaseItem));
-
+			// Edit movement speed of Ai actor
+			// ----------------------------------------------
+			float currentActorsAIMovementSpeed = _inActor->GetAIComponent()->GetMovementSpeed();
+			ImGui::Text("AI MovementSpeed: ");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(mItemWidth);
+			ImGui::InputFloat("##AIX", &currentActorsAIMovementSpeed);
+			_inActor->GetAIComponent()->SetMovementSpeed(currentActorsAIMovementSpeed);
+		}
 	}
 }
 
-void UserInterfaceManager::imguiSub_Light(std::shared_ptr<Light> _lptr)
+void UserInterfaceManager::uiSub_CameraProperties(std::shared_ptr<CameraActor> _inCamera)
+{
+}
+
+void UserInterfaceManager::uiSub_CollisionProperties(std::shared_ptr<IBounded> _inCollision)
 {
 	// Handles all collision setting logic with
 	// ImGui and shared_ptr of the object selected
+	ImGui::Text("Collision Details");
+	ImGui::Separator();
+	// Shows if actor is colliding 
+	// ----------------------------------------------
+	ImGui::Text("Is Colliding: "); ImGui::SameLine();
+	if (_inCollision->GetIsColliding())
+		ImGui::TextColored(ImVec4(0, 1, 0, 1), "True");
+	else
+		ImGui::TextColored(ImVec4(1, 0, 0, 1), "False");
 
-	ImGui::Text("Lighting Details");
+	// Edit collision type
+	// ----------------------------------------------
+	const char* typeItems[] = { "STATIC","DYNAMIC","KINETIC" };
+	int currentTypeItem = 0;
+
+	currentTypeItem = static_cast<int>(_inCollision->mCollisionProperties.mType);
+
+	ImGui::Text("Collision Type");
+	ImGui::Combo("##TB", &currentTypeItem, typeItems, IM_ARRAYSIZE(typeItems));
+
+	_inCollision->mCollisionProperties.SetCollisionType(static_cast<CollisionType>(currentTypeItem));
+
+	// Edit collision response
+	// ----------------------------------------------
+	const char* responseItems[] = { "BLOCK","OVERLAP","IGNORE" };
+	int currentResponseItem = 0;
+
+	currentResponseItem = static_cast<int>(_inCollision->mCollisionProperties.mResponse);
+
+	ImGui::Text("Collision Response");
+	ImGui::Combo("##RB", &currentResponseItem, responseItems, IM_ARRAYSIZE(responseItems));
+
+	_inCollision->mCollisionProperties.SetCollisionResponse(static_cast<CollisionResponse>(currentResponseItem));
+
+	// Edit collision base
+	// ----------------------------------------------
+	const char* baseItems[] = { "AABB","BoundingSphere" };
+	int currentbaseItem = 0;
+
+	currentbaseItem = static_cast<int>(_inCollision->mCollisionProperties.mBase);
+
+	ImGui::Text("Collision Base");
+	ImGui::Combo("##BB", &currentbaseItem, baseItems, IM_ARRAYSIZE(baseItems));
+
+	_inCollision->mCollisionProperties.SetCollisionBase(static_cast<CollisionBase>(currentbaseItem));
+
+	// Edit collision sub base
+	// ----------------------------------------------
+	const char* subBaseItems[] = { "NoSubBase","ConvexHul" };
+	int currentSubBaseItem = 0;
+
+	currentSubBaseItem = static_cast<int>(_inCollision->mCollisionProperties.mSubBase);
+
+	ImGui::Text("Collision SubBase");
+	ImGui::Combo("##SB", &currentSubBaseItem, subBaseItems, IM_ARRAYSIZE(subBaseItems));
+
+	_inCollision->mCollisionProperties.SetCollisionSubBase(static_cast<CollisionSubBase>(currentSubBaseItem));
+}
+
+void UserInterfaceManager::uiSub_LightProperties(std::shared_ptr<Light> _inLight)
+{
+	// Handles all collision setting logic with
+	// ImGui and shared_ptr of the object selected
+	
+	ImGui::Text("Light Details");
 	ImGui::Separator();
 	// Edit ambient light strength
 	// ----------------------------------------------
-	float ambientStrength = _lptr->mAmbient.x;
+	float ambientStrength = _inLight->mAmbient.x;
 	ImGui::Text("Ambient Strength: "); ImGui::SameLine(); ImGui::InputFloat(" ", &ambientStrength);
-	_lptr->mAmbient.x = ambientStrength;
-	_lptr->mAmbient.y = ambientStrength;
-	_lptr->mAmbient.z = ambientStrength;
-
+	_inLight->mAmbient.x = ambientStrength;
+	_inLight->mAmbient.y = ambientStrength;
+	_inLight->mAmbient.z = ambientStrength;
+	
 	// Edit light Color
 	// ----------------------------------------------
-	glm::vec3 lightColor = _lptr->mColor;
+	glm::vec3 lightColor = _inLight->mColor;
 	float colorValues[3] = { lightColor.x,lightColor.y,lightColor.z };
 	ImGui::Text("Light Color: "); ImGui::SameLine(); ImGui::ColorEdit3("  ", &colorValues[0]);
-	_lptr->mColor.x = colorValues[0];
-	_lptr->mColor.y = colorValues[1];
-	_lptr->mColor.z = colorValues[2];
+	_inLight->mColor.x = colorValues[0];
+	_inLight->mColor.y = colorValues[1];
+	_inLight->mColor.z = colorValues[2];
 }
 
-void UserInterfaceManager::imguiSub_Camera(std::shared_ptr<CameraActor> _captr)
+void UserInterfaceManager::ui_FileExplorer()
 {
+	if (!mIsFileExplorerWindowOpen) return;
 
-}
-
-void UserInterfaceManager::imgui_Logger()
-{
-	if(ImGui::Begin("System Display"))
+	if (ImGui::Begin("File Explorer", &mIsFileExplorerWindowOpen, ImGuiWindowFlags_NoCollapse))
 	{
-		// Handles FPS calculating and displaying
-		// ---------------------------------------
-		imguiSub_FPS();
 
+		// Navigate up in the directory structure
+		if (ImGui::Button("Up")) {
+			std::string temp = std::filesystem::path(mCurrentDirectoryPath).parent_path().string();
+			if (temp != GetCoreFilePath())
+				mCurrentDirectoryPath = temp;
+		}
+		ImGui::SameLine();
+		
+		char buff[100] = { 0 };
+		ImGui::InputText("Search", buff, IM_ARRAYSIZE(buff));
+		ImGui::Text("Current Path: %s", mCurrentDirectoryPath.c_str());
+		ImGui::Separator();
+
+		// Gets the available size for the child window and button spacing
+		const ImVec2 windowSize = ImGui::GetContentRegionAvail();
+		
+		if (ImGui::BeginChild("xxcd", windowSize))
+		{
+			std::vector<FileItem> items = GetDirectoryContents(mCurrentDirectoryPath);
+
+			float availableSpace = windowSize.x;
+
+			// Remove button background style for file explorer
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));         // Transparent button background
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));  // Transparent hover color
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));   // Transparent active (click) color
+
+			for (int i = 0; i < items.size(); i++)
+			{
+				ImGui::PushID(i);
+
+				// Make item + name a vertical group
+				ImGui::BeginGroup();
+
+				// If item is a folder, click: go into its directory
+				if(items[i].mIsDirectory)
+				{
+					if (ImGui::ImageButton((void*)(intptr_t)mFolderIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(1.0f, 1.0f), ImVec2(0.0f, 0.0f)))
+						mCurrentDirectoryPath = (std::filesystem::path(mCurrentDirectoryPath) / items[i].mName).string();
+
+					// If item is jpg, click: 
+				} else if (HasSuffix((items[i].mName).c_str(), "jpg")) {
+					
+					if (ImGui::ImageButton((void*)(intptr_t)mJPGIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+						LOG("jpg");
+
+				}	// If item is png, click:
+				else if (HasSuffix((items[i].mName).c_str(), "png")) {
+
+					if (ImGui::ImageButton((void*)(intptr_t)mPNGIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+						LOG("png");
+
+				}	// If item is fbx, click: drag into level
+				else if (HasSuffix((items[i].mName).c_str(), "fbx")) {
+
+					if (ImGui::ImageButton((void*)(intptr_t)mFBXIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+						LOG("fbx");
+
+				}	// If item is lvl, click: open level
+				else if (HasSuffix((items[i].mName).c_str(), "lvl")) {
+
+					if (ImGui::ImageButton((void*)(intptr_t)mLVLIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+						LOG("lvl");
+
+				}	// If item is undefined
+				else {
+
+					if (ImGui::ImageButton((void*)(intptr_t)mErrorIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+						LOG("error");
+
+				}
+
+				// Center the item name text horizontally under the icon
+				if(items[i].mName.length() <= mMaxDisplayCharacters)
+				{
+					ImVec2 textSize = ImGui::CalcTextSize(items[i].mName.c_str());
+					float textOffsetX = (mItemIconSize - textSize.x) * 0.5f;
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffsetX);
+					ImGui::TextWrapped("%s", items[i].mName.c_str());
+
+					// Remove end of name if too long and append '..' to the end of it
+				} else {
+					std::string temp = items[i].mName.c_str();
+					temp.erase(temp.begin() + mMaxDisplayCharacters, temp.end());
+					temp.append("..");
+					ImVec2 textSize = ImGui::CalcTextSize(temp.c_str());
+					float textOffsetX = (mItemIconSize - textSize.x) * 0.5f;
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffsetX);
+					ImGui::TextWrapped("%s", temp.c_str());
+				}
+
+				ImGui::EndGroup();
+
+				// Manage new row and spacing for items
+				availableSpace -= mItemIconSize + mItemIconSpacing;
+				if (availableSpace > ((mItemIconSize + mItemIconSpacing) * 2))
+					ImGui::SameLine();
+				else
+					availableSpace = windowSize.x;
+
+				ImGui::PopID();
+			}
+
+			// Revert the style changes
+			ImGui::PopStyleColor(3);
+		}
+		ImGui::EndChild();
+
+	}
+	ImGui::End();
+
+
+}
+
+void UserInterfaceManager::ui_Log()
+{
+	if (!mIsLogWindowOpen) return;
+
+	if (ImGui::Begin("Log", &mIsLogWindowOpen, ImGuiWindowFlags_NoCollapse))
+	{
+		ImGui::Text("tmp - Log");
 
 	}
 	ImGui::End();
 }
 
-void UserInterfaceManager::imguiSub_FPS()
+void UserInterfaceManager::ui_Console()
 {
-	// Static init
-	// in array values the array nums (10) is the x axis, while its content is the y axis.
-	// So it remembers and gets the average from the last 10 seconds in this case. 
-	static float values[10] = {};
-	static int index = 0;
+	if (!mIsConsoleWindowOpen) return;
 
-	// counts the amount of frames processed this round
-	numFrames++;
-
-	// Gets the current time
-	double currentTime = ImGui::GetTime();
-	// Calculates the elapsed time 
-	double elapsedTime = currentTime - mOldTime;
-	// Each second this if function should tick. (0.004 inaccuracy).
-	if (elapsedTime >= 1.0)
+	if (ImGui::Begin("Console", &mIsConsoleWindowOpen, ImGuiWindowFlags_NoCollapse))
 	{
-		// assigns 
-		values[index] = (float) numFrames;
-		// once max array size is reached offset is reset to 0
-		index = (index + 1) % IM_ARRAYSIZE(values);
-		// resets frames and mOldTime to continue the loop
-		numFrames = 0;
-		mOldTime = currentTime;
-	}
+		ImGui::Text("tmp - Console");
 
-	// Find the average FPS value over the 10 seconds of sample fps numbers
-	float average = 0.0f;
-	int divNum = 1;
-	for (int n = 0; n < IM_ARRAYSIZE(values); n++)
-	{
-		// Does not include 0 or high values since they may inflate average before values are filled in.
-		if (values[n] > 0 && values[n] < 10000)
-		{
-			average += values[n];
-			divNum++;
-		}
-	}
-
-	// Calc the average
-	average /= (float)divNum;
-
-	// Write average into char array for dynamic text rendering
-	char overlay[32];
-	sprintf_s(overlay, "Avg fps %f", average);
-
-	// Sets text pos 50 right and draw
-	ImGui::SetCursorPosX(50);
-	ImGui::Text(overlay);
-
-	// Draws the graph
-	ImGui::PlotLines("##FPSPlot", values, IM_ARRAYSIZE(values), (int)mOldTime, "", -1.0f, 1.0f, ImVec2(200, 80.0f));
-
-	// Section to create descriptive lines on graph
-	ImGui::Text(" | "); ImGui::SameLine();
-	ImGui::SetCursorPosX(100);
-	ImGui::Text(" | "); ImGui::SameLine();
-	ImGui::SetCursorPosX(200);
-	ImGui::Text(" | ");
-
-	ImGui::Text("10 sec"); ImGui::SameLine();
-	ImGui::SetCursorPosX(90);
-	ImGui::Text("5 sec"); ImGui::SameLine();
-	ImGui::SetCursorPosX(190);
-	ImGui::Text("now");
-}
-
-void UserInterfaceManager::imgui_ContentBrowser()
-{
-	if (ImGui::Begin("ContentBrowser") && mDefaultShader && mActiveLevel)
-	{
-
-		if (ImGui::BeginTabBar("##TabBar"))
-		{
-			if (ImGui::BeginTabItem("Primitives"))
-			{
-				ImGui::Text("ta");
-
-
-				ImGui::EndTabItem();
-			}
-			
-
-			if (ImGui::BeginTabItem("OtherPrimitives"))
-			{
-				ImGui::Text("da");
-
-
-				ImGui::EndTabItem();
-			}
-			
-		}
-		ImGui::EndTabBar();
 	}
 	ImGui::End();
 }
 
-void UserInterfaceManager::imgui_SceneItems()
+void UserInterfaceManager::ui_Element_Image(std::shared_ptr<Texture> _image, ImVec2 _imageSize, ImVec2 _uv0, ImVec2 _uv1, bool _centreVertically)
 {
-	if (ImGui::Begin("Scene items") && mDefaultShader && mActiveLevel)
+	if(_image)
 	{
-
-		if (ImGui::BeginTabBar("##TabBar"))
+		// Centered vertically image
+		if(_centreVertically)
 		{
-			if (ImGui::BeginTabItem("Primitives"))
-			{
-				ImGui::Text("ta");
+			const float frameHeight = ImGui::GetFrameHeight();
+			const float verticalPadding = (frameHeight - _imageSize.y) / 2.0f;
+			const ImVec2 cursorPos = ImGui::GetCursorPos();
+			ImGui::SetCursorPosY(cursorPos.y + verticalPadding);
 
+			ImGui::Image((void*)(intptr_t)_image->GetTextureID(), _imageSize, _uv0, _uv1);
 
-				ImGui::EndTabItem();
-			}
+			ImGui::SetCursorPosX(cursorPos.x + _imageSize.x + ImGui::GetStyle().ItemSpacing.x);
+			ImGui::SameLine();
 
+			// Un-centered vertically image
+		} else {
 
-			if (ImGui::BeginTabItem("OtherPrimitives"))
-			{
-				ImGui::Text("da");
-
-
-				ImGui::EndTabItem();
-			}
-
+			ImGui::Image((void*)(intptr_t)_image->GetTextureID(), _imageSize, _uv0, _uv1);
+			ImGui::SameLine();
 		}
-		ImGui::EndTabBar();
 	}
-	ImGui::End();
 }
 
+bool UserInterfaceManager::HasSuffix(const std::string& _fileName, const std::string& _suffix)
+{
+	// Ensure _fullName is long enough to contain the _suffix
+	if (_fileName.length() >= _suffix.length()) {
+		// Compare the end of _fullName with _suffix
+		return (_fileName.compare(_fileName.length() - _suffix.length(), _suffix.length(), _suffix) == 0);
+	}
+	return false;
+}
+
+std::string UserInterfaceManager::GetFilePath()
+{
+	std::string directoryPath = std::filesystem::current_path().string();
+
+	directoryPath = std::filesystem::path(directoryPath).parent_path().string();
+	directoryPath = std::filesystem::path(directoryPath).parent_path().string();
+	directoryPath = std::filesystem::path(directoryPath).parent_path().string();
+
+	return (std::filesystem::path(directoryPath) / "UserAssets").string();
+}
+
+std::string UserInterfaceManager::GetCoreFilePath()
+{
+	std::string directoryPath = std::filesystem::current_path().string();
+
+	directoryPath = std::filesystem::path(directoryPath).parent_path().string();
+	directoryPath = std::filesystem::path(directoryPath).parent_path().string();
+	directoryPath = std::filesystem::path(directoryPath).parent_path().string();
+
+	return directoryPath;
+}
+
+std::vector<FileItem> UserInterfaceManager::GetDirectoryContents(const std::string& _path)
+{
+	std::vector<FileItem> items;
+	for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::directory_iterator(_path))) {
+		items.push_back({ entry.path().filename().string(), entry.is_directory() });
+	}
+	return items;
+}

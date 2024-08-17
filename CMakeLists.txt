@@ -36,12 +36,12 @@ set( IMGUI_SOURCE
     includes/imgui/imgui_tables.cpp
     src/Components/PhysicsComponent.cpp
     "src/OutDated/SceneActors.cpp" 
-    "src/OutDated/BoundingSphere.cpp" "src/Core/SMath.cpp" "src/Components/AIComponent.cpp" "src/SkyBox/Skybox.cpp" "src/Levels/LevelManager.cpp"  "src/LevelActors/SceneGraph.cpp" "src/UserInterface/UserInterfaceManager.cpp"   "src/Collision/Collision.cpp"  "src/LevelActors/BaseActor.cpp" "src/LevelActors/VisualActor.cpp"  "src/LevelActors/GraphActor.cpp" "src/RenderElements/GraphPoint.cpp" "src/LevelActors/DebugActor.cpp")
+    "src/OutDated/BoundingSphere.cpp" "src/Core/SMath.cpp" "src/Components/AIComponent.cpp" "src/SkyBox/Skybox.cpp" "src/Levels/LevelManager.cpp"  "src/LevelActors/SceneGraph.cpp" "src/UserInterface/UserInterfaceManager.cpp"   "src/Collision/Collision.cpp"  "src/LevelActors/BaseActor.cpp" "src/LevelActors/VisualActor.cpp"  "src/LevelActors/GraphActor.cpp" "src/RenderElements/GraphPoint.cpp" "src/LevelActors/DebugActor.cpp" "src/OutDated/UIController.cpp")
 
 set (HEADER_FILES
   includes/stb_image.h
   "src/LevelActors/CameraActor.h"
-  src/Core/Window.h
+  "src/Core/WindowManager.h"
   src/Core/Application.h
   "src/RenderElements/Material.h"
   "src/RenderElements/Mesh.h"
@@ -69,14 +69,14 @@ set (HEADER_FILES
   src/Components/PhysicsComponent.h
   src/Components/Component.h
   "src/OutDated/SceneActors.h"
-   "src/Core/SMath.h" "src/Components/AIComponent.h" "src/SkyBox/Skybox.h"  "src/Levels/LevelManager.h" "src/Levels/Level.h" "src/LevelActors/SceneGraph.h" "src/UserInterface/UserInterfaceManager.h"   "src/Collision/CollisionProperties.h"  "src/LevelActors/BaseActor.h" "src/LevelActors/VisualActor.h"  "src/LevelActors/GraphActor.h" "src/RenderElements/GraphPoint.h" "src/RenderElements/GraphVertex.h" "src/LevelActors/DebugActor.h" "src/RenderElements/DebugVertex.h")
+   "src/Core/SMath.h" "src/Components/AIComponent.h" "src/SkyBox/Skybox.h"  "src/Levels/LevelManager.h" "src/Levels/Level.h" "src/LevelActors/SceneGraph.h" "src/UserInterface/UserInterfaceManager.h"   "src/Collision/CollisionProperties.h"  "src/LevelActors/BaseActor.h" "src/LevelActors/VisualActor.h"  "src/LevelActors/GraphActor.h" "src/RenderElements/GraphPoint.h" "src/RenderElements/GraphVertex.h" "src/LevelActors/DebugActor.h" "src/RenderElements/DebugVertex.h" "src/OutDated/UIController.h")
 
 set (SRC_FILES
   3DProgEngine.cpp
   includes/glad.c
   src/Core/Shader.cpp
   "src/LevelActors/CameraActor.cpp"
-  src/Core/Window.cpp
+  "src/Core/WindowManager.cpp"
   src/Core/Application.cpp
   "src/RenderElements/Texture.cpp" 
   "src/RenderElements/Material.cpp"     

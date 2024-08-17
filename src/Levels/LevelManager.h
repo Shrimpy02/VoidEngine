@@ -8,7 +8,7 @@
 
 // Forward Declarations
 struct Level;
-class Window;
+class WindowManager;
 class Shader;
 class ActorController;
 class IController;
@@ -20,7 +20,8 @@ class UserInterfaceManager;
  * @class LevelManager
  * @brief 
  */
-class LevelManager
+class LevelManager : public std::enable_shared_from_this<LevelManager>
+
 {
 public:
     // ---------- Global Variables --------------
@@ -32,10 +33,7 @@ private:
     std::vector<std::shared_ptr<Level>> mAllLevels;
     std::shared_ptr<Level> mActiveLevel{ nullptr }; 
 
-    std::shared_ptr<Window> mWindow{ nullptr };
-    std::shared_ptr<UserInterfaceManager> mUserInterfaceManager{ nullptr };
-
-    std::shared_ptr<IController> mController{ nullptr };
+    std::shared_ptr<ActorController> mController{ nullptr };
 
     std::shared_ptr<Shader> mDefaultShader{ nullptr };
     std::shared_ptr<Shader> mGraphShader{ nullptr };
@@ -44,7 +42,7 @@ private:
 
 public:
     // ---------- Global functions --------------
-    explicit LevelManager(std::shared_ptr<Window> _window, std::shared_ptr<UserInterfaceManager> _interfaceManager);
+    explicit LevelManager(std::shared_ptr<ActorController> _inController);
 
     // Removes the ability to:    
     LevelManager(const LevelManager&) = delete;           // Copy
@@ -71,7 +69,7 @@ public:
     // Local scene update function for distribution (called each frame) 
     void Update(float _dt);
     // Local scene render function for distribution (called each frame) 
-    void Render(float _dt);
+    void Render();
 
     // Scene collision handler function for all scene objects that inherit from "IBounded" (called each frame) 
     void ProcessCollision();
@@ -79,18 +77,15 @@ public:
 	// Updates the scene graph and all children if they inherit from "Actor" (called each frame) 
 	void UpdateLevelSceneGraph(std::shared_ptr<Actor> _actor, float _dt, Transform _globalTransform = Transform{});
     // Renders the scene grapg and all chidlren if they inherit from "IRender" (called each frame) 
-    void RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, float _dt, Transform _globalTransform = Transform{});
+    void RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, Transform _globalTransform = Transform{});
 
-    // Updates Input for the active controller
-    void UpdateInputControler(float _dt);
+    // Callbacks for camera to process movement or other locally. 
+    void FrameBufferSizeCallback(int _width, int _height);
 
-    // Callbacks for camera or active controller to process movement or other locally. 
-    void FramebufferSizeCallback(std::shared_ptr<Window> _window, int _width, int _height);
-    void MouseMoveCallback(std::shared_ptr<Window> _window, double _xpos, double _ypos);
-    void MouseButtonCallback(std::shared_ptr<Window> _window, int _button, int _action, int _mods);
-    void MouseScrollCallback(std::shared_ptr<Window> _window, double _xoffset, double _yoffset);
-    void CharCallback(std::shared_ptr<Window> _window, unsigned int _codepoint);
-    void KeyCallback(std::shared_ptr<Window> _window, int _key, int _scancode, int _action, int _mods);
+    void AddActorToLevel(std::shared_ptr<Actor> _inActor);
+
+    // Makes All Shaders draw in wire-frame mode
+    void ShadersDrawWireFrame(bool _b);
 
 private:
     // ---------- Local functions --------------
@@ -108,17 +103,19 @@ public:
 
     // Setters
 
-    // Set`s a new controller to the active controller
-    void SetController(const std::shared_ptr<IController> _controller) { mController = _controller; }
+    
 
-    // Setts a new window 
-    void SetWindow(std::shared_ptr<Window> _window) { mWindow = _window; }
+    // Set`s a new controller to the active controller
+    void SetController(const std::shared_ptr<ActorController> _controller) { mController = _controller; }
 
     // Getters
 
-    // Get`s the current active controller
-    std::shared_ptr<IController> GetController() const { return mController; }
-    
+    std::shared_ptr<ActorController> GetActorController() const { return mController;  }
+
+    std::shared_ptr<Level> GetActiveLevel() { return mActiveLevel; }
+
+    std::shared_ptr<Shader> GetDefaultShader() { return mDefaultShader; }
+
 
 };
 

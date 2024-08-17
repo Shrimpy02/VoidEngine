@@ -48,6 +48,12 @@ void PhysicsComponent::ResetValues()
 	mAcceleration = glm::vec3(0.f);
 }
 
+void PhysicsComponent::ResetForces()
+{
+	mAcceleration = glm::vec3(0.f);
+	mVelocity = glm::vec3(0.f);
+}
+
 void PhysicsComponent::ConformToSurface()
 {
 	// Reset contact with ground
