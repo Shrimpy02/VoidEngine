@@ -1,13 +1,15 @@
 #pragma once
 // Includes
 #include <Core/Tag.h>
-#include <LevelActors/SceneGraph.h>
 
 // Additional Includes
+#include <memory>
 
 // Forward Declarations
+class TagUnique;
 class CameraActor;
 class SceneGraph;
+class Actor;
 
 /**
  * @struct Level
@@ -23,7 +25,6 @@ private:
 public:
     // ----------- Global Variables ---------------
 
-
     std::shared_ptr<SceneGraph> mSceneGraph{nullptr};
     std::shared_ptr<CameraActor> mActiveCamera{nullptr}; 
 
@@ -32,34 +33,22 @@ public:
 	// ----------- Global Functions ---------------
 
     // Constructor
-    Level(const std::string& _name) : mTag(_name)
-    {
-        mSceneGraph = std::make_shared<SceneGraph>("SceneGraph");
-    }
+    Level(const std::string& _name);
 
     // Functions
-    void AddActorToSceneGraph(std::shared_ptr<Actor> _inActor)
-    {
-        mSceneGraph->AddChild(_inActor);
-    }
+    void AddActorToSceneGraph(std::shared_ptr<Actor> _inActor);
 
-    void RemoveActorFromSceneGraph(std::shared_ptr<Actor> _inActor)
-	{
-        mSceneGraph->RemoveChild(_inActor);
-	}
+    void RemoveActorFromSceneGraph(std::shared_ptr<Actor> _inActor);
 
-    void ClearLevel()
-	{
+    void RemoveActorFromSceneGraphRecursive(const std::shared_ptr<Actor>& parent, const std::shared_ptr<Actor>& _inActor);
 
-	}
+
+    void ClearLevel();
 
     // Setters ---------------
 
     // Getters ---------------
 
-	void GetLevelName()
-    {
-
-    }
+    void GetLevelName();
 };
 

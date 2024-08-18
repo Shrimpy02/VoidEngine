@@ -3,6 +3,7 @@
 #include <UserInterface/UserInterfaceManager.h>
 #include <Core/Shader.h>
 #include <Levels/Level.h>
+#include <LevelActors/SceneGraph.h>
 #include <LevelActors/BaseActor.h>
 #include <LevelActors/VisualActor.h>
 #include <LevelActors/CameraActor.h>
@@ -18,6 +19,8 @@
 #include <Levels/LevelManager.h>
 #include <Controllers/ActorController.h>
 #include <Core/WindowManager.h>
+
+#include <ModelLoader/AssimpLoader.h>
 
 // Additional Includes
 
@@ -225,15 +228,14 @@ void UserInterfaceManager::RenderUI()
 
 	// Render individual UI components
 	ui_CreateActors();
+	ui_FileExplorer();
 	ui_ViewPort();
 	ui_WorldProperties();
 	ui_DebugProperties();
 	ui_ContentBrowser();
 	ui_ContentProperties();
-	ui_FileExplorer();
 	ui_Log();
 	ui_Console();
-
 }
 
 void UserInterfaceManager::RenderLevelToTexture()
@@ -467,8 +469,8 @@ void UserInterfaceManager::ui_CreateActors()
 			if (ImGui::Button(mActorNames[n], ImVec2(buttonSize, buttonSize)))
 			{
 				// Button click logic goes here
-				std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedCube", Mesh::CreateCube(nullptr));
-				mLevelManager->AddActorToLevel(baseActor);
+				//std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedCube", Mesh::CreateCube(nullptr));
+				//mLevelManager->AddActorToLevel(baseActor);
 			}
 
 			// Set up the drag source
@@ -494,6 +496,146 @@ void UserInterfaceManager::ui_CreateActors()
 
 	ImGui::End();
 	
+}
+
+
+void UserInterfaceManager::ui_FileExplorer()
+{
+	if (!mIsFileExplorerWindowOpen) return;
+
+	if (ImGui::Begin("File Explorer", &mIsFileExplorerWindowOpen, ImGuiWindowFlags_NoCollapse))
+	{
+		// Navigate up in the directory structure
+		if (ImGui::Button("Up")) {
+			std::string temp = std::filesystem::path(mCurrentDirectoryPath).parent_path().string();
+			if (temp != GetCoreFilePath())
+				mCurrentDirectoryPath = temp;
+		}
+		ImGui::SameLine();
+
+		char buff[100] = { 0 };
+		ImGui::InputText("Search", buff, IM_ARRAYSIZE(buff));
+		ImGui::Text("Current Path: %s", mCurrentDirectoryPath.c_str());
+		ImGui::Separator();
+
+		// Gets the available size for the child window and button spacing
+		const ImVec2 windowSize = ImGui::GetContentRegionAvail();
+
+		if (ImGui::BeginChild("xxcd", windowSize))
+		{
+			std::vector<FileItem> items = GetDirectoryContents(mCurrentDirectoryPath);
+
+			float availableSpace = windowSize.x;
+
+			// Remove button background style for file explorer
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));         // Transparent button background
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));  // Transparent hover color
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));   // Transparent active (click) color
+
+			for (int i = 0; i < items.size(); i++)
+			{
+				ImGui::PushID(i);
+
+				// Make item + name a vertical group
+				ImGui::BeginGroup();
+
+				// If item is a folder, click: go into its directory
+				if (items[i].mIsDirectory)
+				{
+					if (ImGui::ImageButton((void*)(intptr_t)mFolderIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(1.0f, 1.0f), ImVec2(0.0f, 0.0f)))
+						mCurrentDirectoryPath = (std::filesystem::path(mCurrentDirectoryPath) / items[i].mName).string();
+
+					// If item is jpg, click: 
+				}
+				else if (HasSuffix((items[i].mName).c_str(), "jpg")) {
+
+					if (ImGui::ImageButton((void*)(intptr_t)mJPGIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+						LOG("jpg");
+
+				}	// If item is png, click:
+				else if (HasSuffix((items[i].mName).c_str(), "png")) {
+
+					if (ImGui::ImageButton((void*)(intptr_t)mPNGIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+						LOG("png");
+
+				}	// If item is fbx, click: drag into level
+				else if (HasSuffix((items[i].mName).c_str(), "fbx")) {
+
+					if (ImGui::ImageButton((void*)(intptr_t)mFBXIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+					{
+
+					}
+
+					// Set up the drag source
+					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+					{
+						// Combine directory and item name into a single string
+						std::string fullPath = mCurrentDirectoryPath + "/" + items[i].mName;
+
+						// Set payload to carry the index of the item
+						ImGui::SetDragDropPayload("DND_DRAG_FBX", fullPath.c_str(), fullPath.size() + 1);
+
+						// Display a preview during the drag operation
+						ImGui::Text("Creating %s", items[i].mName.c_str());
+
+						ImGui::EndDragDropSource();
+					}
+
+				}	// If item is lvl, click: open level
+				else if (HasSuffix((items[i].mName).c_str(), "lvl")) {
+
+					if (ImGui::ImageButton((void*)(intptr_t)mLVLIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+						LOG("lvl");
+
+				}	// If item is undefined
+				else {
+
+					if (ImGui::ImageButton((void*)(intptr_t)mErrorIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+						LOG("error");
+
+				}
+
+				// Center the item name text horizontally under the icon
+				if (items[i].mName.length() <= mMaxDisplayCharacters)
+				{
+					ImVec2 textSize = ImGui::CalcTextSize(items[i].mName.c_str());
+					float textOffsetX = (mItemIconSize - textSize.x) * 0.5f;
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffsetX);
+					ImGui::TextWrapped("%s", items[i].mName.c_str());
+
+					// Remove end of name if too long and append '..' to the end of it
+				}
+				else {
+					std::string temp = items[i].mName.c_str();
+					temp.erase(temp.begin() + mMaxDisplayCharacters, temp.end());
+					temp.append("..");
+					ImVec2 textSize = ImGui::CalcTextSize(temp.c_str());
+					float textOffsetX = (mItemIconSize - textSize.x) * 0.5f;
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffsetX);
+					ImGui::TextWrapped("%s", temp.c_str());
+				}
+
+				ImGui::EndGroup();
+
+				// Manage new row and spacing for items
+				availableSpace -= mItemIconSize + mItemIconSpacing;
+				if (availableSpace > ((mItemIconSize + mItemIconSpacing) * 2))
+					ImGui::SameLine();
+				else
+					availableSpace = windowSize.x;
+
+				ImGui::PopID();
+			}
+
+			// Revert the style changes
+			ImGui::PopStyleColor(3);
+		}
+		ImGui::EndChild();
+
+	}
+	ImGui::End();
+
+
 }
 
 void UserInterfaceManager::ui_ViewPort()
@@ -526,33 +668,72 @@ void UserInterfaceManager::ui_ViewPort()
 
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_CREATE_ITEM"))
+			if (mIsCreateActorWindowOpen)
 			{
-				IM_ASSERT(payload->DataSize == sizeof(int));
-				const int payload_n = *(const int*)payload->Data;
-
-				// Handle the creation of the actor based on the dropped item
-				if (payload_n >= 0 && payload_n < mNumActorItems)
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_CREATE_ITEM"))
 				{
-					if (strcmp(mActorNames[payload_n], "Cube") == 0)
+					IM_ASSERT(payload->DataSize == sizeof(int));
+					const int payload_n = *(const int*)payload->Data;
+
+					// Handle the creation of the actor based on the dropped item
+					if (payload_n >= 0)
 					{
-						std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedCube", Mesh::CreateCube(nullptr));
-						mLevelManager->AddActorToLevel(baseActor);
+						if (strcmp(mActorNames[payload_n], "Cube") == 0)
+						{
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedCube", Mesh::CreateCube(nullptr));
+							mLevelManager->AddActorToLevel(baseActor);
+						}
+						else if (strcmp(mActorNames[payload_n], "Pyramid") == 0)
+						{
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPyramid", Mesh::CreatePyramid(nullptr));
+							mLevelManager->AddActorToLevel(baseActor);
+						}
+						else if (strcmp(mActorNames[payload_n], "Plane") == 0)
+						{
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPlane", Mesh::CreatePlane(nullptr));
+							mLevelManager->AddActorToLevel(baseActor);
+						}
+						else if (strcmp(mActorNames[payload_n], "Sphere") == 0)
+						{
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedSphere", Mesh::CreateSphere(nullptr));
+							mLevelManager->AddActorToLevel(baseActor);
+						}
+						else if (strcmp(mActorNames[payload_n], "Directional-Light") == 0)
+						{
+							std::shared_ptr<DirectionalLightActor> baseActor = std::make_shared<DirectionalLightActor>("DirectionalLight");
+							mLevelManager->AddActorToLevel(baseActor);
+						}
+						else if (strcmp(mActorNames[payload_n], "Point-Light") == 0)
+						{
+							std::shared_ptr<PointLightActor> baseActor = std::make_shared<PointLightActor>("PointLight");
+							mLevelManager->AddActorToLevel(baseActor);
+						}
 					}
-					else if (strcmp(mActorNames[payload_n], "Pyramid") == 0)
+				}
+			}
+
+			if (mIsFileExplorerWindowOpen)
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DRAG_FBX"))
+				{
+					// Check if the payload is a string (full path)
+					if (payload->DataSize > 0)
 					{
-						std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPyramid", Mesh::CreatePyramid(nullptr));
-						mLevelManager->AddActorToLevel(baseActor);
-					}
-					else if (strcmp(mActorNames[payload_n], "Plane") == 0)
-					{
-						std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPlane", Mesh::CreatePlane(nullptr));
-						mLevelManager->AddActorToLevel(baseActor);
-					}
-					else if (strcmp(mActorNames[payload_n], "Sphere") == 0)
-					{
-						std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedSphere", Mesh::CreateSphere(nullptr));
-						mLevelManager->AddActorToLevel(baseActor);
+						const char* fullPath = static_cast<const char*>(payload->Data);
+
+						const char* fileName = strrchr(fullPath, '/');
+
+						if (fileName) {
+							fileName++;
+						}
+						else {
+							fileName = fullPath;
+						}
+
+						// Create the FBX actor using the provided path
+						std::shared_ptr<Actor> fbxActor = std::make_shared<Actor>(fileName);
+						AssimpLoader::Load(fullPath, fbxActor);
+						mLevelManager->AddActorToLevel(fbxActor);
 					}
 				}
 			}
@@ -678,7 +859,7 @@ void UserInterfaceManager::ui_DebugProperties()
 			std::shared_ptr<BaseActor> mA = std::dynamic_pointer_cast<BaseActor>(actor);
 			if (mA)
 			{
-				if (mShouldDrawCollisionDebugMesh)
+				if (mShouldDrawCollisionDebugMesh && mA->mCollisionMesh)
 					mA->mCollisionMesh->SetIsVisible(true);
 				else
 					mA->mCollisionMesh->SetIsVisible(false);
@@ -700,50 +881,102 @@ void UserInterfaceManager::ui_ContentBrowser()
 
 	if (ImGui::Begin("Content Browser", &mIsContentBrowserWindowOpen, ImGuiWindowFlags_NoCollapse))
 	{
-		static int selectionIndex = 0;
-		static int oldSelectionIndex = 0;
-
 		//Shows all actors in scene, based on selection can take control
-			// Note only shows the parent actors so to speak as you cannot control children
-			// ----------------------------------------------------------------------------
+		// Note only shows the parent actors so to speak as you cannot control children
+		// ----------------------------------------------------------------------------
 		std::vector<std::shared_ptr<Actor>> tempSceneActors;
-		mLevelManager->GetActiveLevel()->mSceneGraph->Query<BaseActor>(tempSceneActors);
-		mLevelManager->GetActiveLevel()->mSceneGraph->Query<VisualActor>(tempSceneActors);
-		mLevelManager->GetActiveLevel()->mSceneGraph->Query<DirectionalLight>(tempSceneActors);
-		mLevelManager->GetActiveLevel()->mSceneGraph->Query<PointLight>(tempSceneActors);
-		mLevelManager->GetActiveLevel()->mSceneGraph->Query<CameraActor>(tempSceneActors);
-		mLevelManager->GetActiveLevel()->mSceneGraph->Query<GraphActor>(tempSceneActors);
-
-		std::vector<const char*> tempSceneActorNames;
-		for (std::shared_ptr<Actor> actor : tempSceneActors) {
-			tempSceneActorNames.push_back(actor->GetTag().c_str());
-		}
+	
+		GetSceneActors(mLevelManager->GetActiveLevel()->mSceneGraph, tempSceneActors);
 
 		// Calculate the available space for the list box
 		ImVec2 listBoxSize = ImGui::GetContentRegionAvail();
 
 		// Use BeginListBox to create a resizable list box
 		if (ImGui::BeginListBox("##LB", listBoxSize)) {
-			// Populate the list box items
-			for (int i = 0; i < tempSceneActorNames.size(); ++i) {
-				if (ImGui::Selectable(tempSceneActorNames[i], selectionIndex == i)) {
-					selectionIndex = i;
+
+			int iterator = 0;
+			
+			for(std::shared_ptr<Actor> actors : tempSceneActors)
+			{
+				// Check the depth level of the actor in the hierarchy
+				int hierarchyLevel = actors->GetHierarchyLevel();
+
+				// Indent based on hierarchy level
+				ImGui::Indent(hierarchyLevel * ImGui::GetStyle().IndentSpacing);
+
+
+				iterator++;
+				//bool selected = false;
+				if(ImGui::Selectable(actors->GetTag().c_str()))
+				{
+					mContentSelectedActor = actors;
 				}
+			
+				// Create a right-click context menu for this item
+				std::string contextMenuID = "ItemContextMenu_" + std::to_string(iterator);
+				if (ImGui::BeginPopupContextItem(contextMenuID.c_str()))
+				{
+					if (ImGui::MenuItem("Delete")) {
+			
+						auto it = std::find(tempSceneActors.begin(), tempSceneActors.end(), actors);
+						if (it != tempSceneActors.end())
+							tempSceneActors.erase(it);
+
+						mLevelManager->RemoveActorFromLevel(actors);
+						mContentSelectedActor = nullptr;
+						ImGui::EndPopup();
+						break;
+					}
+					if (ImGui::MenuItem("Rename")) {
+
+						mOpenRenamePopup = true;
+
+					}
+					ImGui::EndPopup();
+				}
+				// Unindent after rendering the actor
+				ImGui::Unindent(hierarchyLevel * ImGui::GetStyle().IndentSpacing);
 			}
-			ImGui::EndListBox();
 		}
-
-		mContentSelectedActor = tempSceneActors[selectionIndex];
-
-		if (oldSelectionIndex != selectionIndex)
-		{
-			mCanControlActor = false;
-			if (mLevelManager->GetActiveLevel()->mActiveCamera)
-				mController->SetActorToControl(mLevelManager->GetActiveLevel()->mActiveCamera);
-		}
-		oldSelectionIndex = selectionIndex;
+		ImGui::EndListBox();
 	}
 	ImGui::End();
+
+	if(mOpenRenamePopup)
+		ImGui::OpenPopup("RenamePopup");
+
+	// Handle the Rename Popup
+	if (ImGui::BeginPopup("RenamePopup"))
+	{
+		char newItemName[100] = { 0 }; // Buffer to store new item name
+
+		ImGui::Text("Rename Item:");
+		ImGui::InputText("NewName", newItemName, IM_ARRAYSIZE(newItemName));
+
+		if (ImGui::Button("OK"))
+		{
+			if (mContentSelectedActor)
+				mContentSelectedActor->RenameActor(newItemName);
+			
+			mOpenRenamePopup = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel"))
+		{
+			mOpenRenamePopup = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
+	if (mOldContentSelectedActor != mContentSelectedActor)
+	{
+		mCanControlActor = false;
+		if (mLevelManager->GetActiveLevel()->mActiveCamera)
+			mController->SetActorToControl(mLevelManager->GetActiveLevel()->mActiveCamera);
+	}
+	mOldContentSelectedActor = mContentSelectedActor;
 }
 
 void UserInterfaceManager::ui_ContentProperties()
@@ -1162,127 +1395,6 @@ void UserInterfaceManager::uiSub_LightProperties(std::shared_ptr<Light> _inLight
 	_inLight->mColor.z = colorValues[2];
 }
 
-void UserInterfaceManager::ui_FileExplorer()
-{
-	if (!mIsFileExplorerWindowOpen) return;
-
-	if (ImGui::Begin("File Explorer", &mIsFileExplorerWindowOpen, ImGuiWindowFlags_NoCollapse))
-	{
-
-		// Navigate up in the directory structure
-		if (ImGui::Button("Up")) {
-			std::string temp = std::filesystem::path(mCurrentDirectoryPath).parent_path().string();
-			if (temp != GetCoreFilePath())
-				mCurrentDirectoryPath = temp;
-		}
-		ImGui::SameLine();
-		
-		char buff[100] = { 0 };
-		ImGui::InputText("Search", buff, IM_ARRAYSIZE(buff));
-		ImGui::Text("Current Path: %s", mCurrentDirectoryPath.c_str());
-		ImGui::Separator();
-
-		// Gets the available size for the child window and button spacing
-		const ImVec2 windowSize = ImGui::GetContentRegionAvail();
-		
-		if (ImGui::BeginChild("xxcd", windowSize))
-		{
-			std::vector<FileItem> items = GetDirectoryContents(mCurrentDirectoryPath);
-
-			float availableSpace = windowSize.x;
-
-			// Remove button background style for file explorer
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));         // Transparent button background
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));  // Transparent hover color
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));   // Transparent active (click) color
-
-			for (int i = 0; i < items.size(); i++)
-			{
-				ImGui::PushID(i);
-
-				// Make item + name a vertical group
-				ImGui::BeginGroup();
-
-				// If item is a folder, click: go into its directory
-				if(items[i].mIsDirectory)
-				{
-					if (ImGui::ImageButton((void*)(intptr_t)mFolderIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(1.0f, 1.0f), ImVec2(0.0f, 0.0f)))
-						mCurrentDirectoryPath = (std::filesystem::path(mCurrentDirectoryPath) / items[i].mName).string();
-
-					// If item is jpg, click: 
-				} else if (HasSuffix((items[i].mName).c_str(), "jpg")) {
-					
-					if (ImGui::ImageButton((void*)(intptr_t)mJPGIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
-						LOG("jpg");
-
-				}	// If item is png, click:
-				else if (HasSuffix((items[i].mName).c_str(), "png")) {
-
-					if (ImGui::ImageButton((void*)(intptr_t)mPNGIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
-						LOG("png");
-
-				}	// If item is fbx, click: drag into level
-				else if (HasSuffix((items[i].mName).c_str(), "fbx")) {
-
-					if (ImGui::ImageButton((void*)(intptr_t)mFBXIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
-						LOG("fbx");
-
-				}	// If item is lvl, click: open level
-				else if (HasSuffix((items[i].mName).c_str(), "lvl")) {
-
-					if (ImGui::ImageButton((void*)(intptr_t)mLVLIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
-						LOG("lvl");
-
-				}	// If item is undefined
-				else {
-
-					if (ImGui::ImageButton((void*)(intptr_t)mErrorIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
-						LOG("error");
-
-				}
-
-				// Center the item name text horizontally under the icon
-				if(items[i].mName.length() <= mMaxDisplayCharacters)
-				{
-					ImVec2 textSize = ImGui::CalcTextSize(items[i].mName.c_str());
-					float textOffsetX = (mItemIconSize - textSize.x) * 0.5f;
-					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffsetX);
-					ImGui::TextWrapped("%s", items[i].mName.c_str());
-
-					// Remove end of name if too long and append '..' to the end of it
-				} else {
-					std::string temp = items[i].mName.c_str();
-					temp.erase(temp.begin() + mMaxDisplayCharacters, temp.end());
-					temp.append("..");
-					ImVec2 textSize = ImGui::CalcTextSize(temp.c_str());
-					float textOffsetX = (mItemIconSize - textSize.x) * 0.5f;
-					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffsetX);
-					ImGui::TextWrapped("%s", temp.c_str());
-				}
-
-				ImGui::EndGroup();
-
-				// Manage new row and spacing for items
-				availableSpace -= mItemIconSize + mItemIconSpacing;
-				if (availableSpace > ((mItemIconSize + mItemIconSpacing) * 2))
-					ImGui::SameLine();
-				else
-					availableSpace = windowSize.x;
-
-				ImGui::PopID();
-			}
-
-			// Revert the style changes
-			ImGui::PopStyleColor(3);
-		}
-		ImGui::EndChild();
-
-	}
-	ImGui::End();
-
-
-}
-
 void UserInterfaceManager::ui_Log()
 {
 	if (!mIsLogWindowOpen) return;
@@ -1363,6 +1475,16 @@ std::string UserInterfaceManager::GetCoreFilePath()
 	directoryPath = std::filesystem::path(directoryPath).parent_path().string();
 
 	return directoryPath;
+}
+
+void UserInterfaceManager::GetSceneActors(std::shared_ptr<Actor> _sceneGraph, std::vector<std::shared_ptr<Actor>>& _actorHolder)
+{
+	for (std::shared_ptr<Actor> _actor : _sceneGraph->GetChildren())
+	{
+		_actorHolder.push_back(_actor);
+
+		GetSceneActors(_actor, _actorHolder);
+	}
 }
 
 std::vector<FileItem> UserInterfaceManager::GetDirectoryContents(const std::string& _path)

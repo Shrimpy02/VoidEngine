@@ -2,6 +2,7 @@
 // Includes
 #include <string>
 #include <unordered_set>
+#include <sstream>
 #include <stdexcept>
 
 /**
@@ -23,11 +24,10 @@ public:
     // Constructs a tag object with a name. Throws an exception if a tag name already exists in the application.
     TagUnique(const std::string& _val)
     {
-        if (sExistingTags.find(_val) != sExistingTags.end())
-           throw std::runtime_error("Tag already exists: " + _val);
+        std::string tag = IncrementTag(_val);
         
-        mValue = _val;
-        sExistingTags.insert(_val);
+        mValue = tag;
+        sExistingTags.insert(tag);
     }
 
     // Removes ability to move or copy object
@@ -42,6 +42,11 @@ public:
         sExistingTags.erase(mValue);
     }
 
+    void RenameTag(std::string _newName)
+    {
+        mValue = _newName;
+    }
+
     // returns the name of the tag
     const std::string& GetValue() const
     {
@@ -54,12 +59,49 @@ public:
         return sExistingTags.find(tag) != sExistingTags.end();
     }
 
+    static std::string IncrementTag(std::string _tag)
+    {
+        // Check if the base tag already exists
+        if (!TagExists(_tag))
+        {
+            return _tag;
+        }
+
+        // If the base tag exists, find a unique tag by appending a number
+        int suffix = 1;
+        std::string newTag;
+        do
+        {
+            std::ostringstream oss;
+            oss << _tag << "_" << suffix;
+            newTag = oss.str();
+            ++suffix;
+        } while (TagExists(newTag));
+
+        return newTag;
+    }
+
     // Clears all existing tags from memory
     static void ClearCache()
     {
         sExistingTags.clear();
         
     }
+
+    static void RemoveTagFromCache(std::string _tagToRemove)
+    {
+        if (sExistingTags.find(_tagToRemove) != sExistingTags.end())
+            sExistingTags.erase(_tagToRemove);
+    }
+
+    void Rename(std::string _newTag)
+    {
+        std::string tag = IncrementTag(_newTag);
+
+        mValue = tag;
+        sExistingTags.insert(tag);
+    }
+
 };
 
 inline std::unordered_set<std::string> TagUnique::sExistingTags{};

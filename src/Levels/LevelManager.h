@@ -84,6 +84,8 @@ public:
 
     void AddActorToLevel(std::shared_ptr<Actor> _inActor);
 
+    void RemoveActorFromLevel(std::shared_ptr<Actor> _inActor);
+
     // Makes All Shaders draw in wire-frame mode
     void ShadersDrawWireFrame(bool _b);
 

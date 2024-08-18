@@ -63,8 +63,24 @@ private:
 
     // Create Actors ----------
     bool mIsCreateActorWindowOpen = true;
-    const char* mActorNames[4] = { "Cube", "Pyramid", "Plane", "Sphere" };
+    const char* mActorNames[6] = { "Cube", "Pyramid", "Plane", "Sphere","Directional-Light", "Point-Light"};
     const int mNumActorItems = (int)std::size(mActorNames);
+
+    // File Explorer ------
+    bool mIsFileExplorerWindowOpen = true;
+    std::string mCurrentDirectoryPath = GetFilePath();
+    int mMaxDisplayCharacters = 16;
+    const float mItemIconSize = 130.0f;
+    const float mItemIconSpacing = 5.0f;
+    std::shared_ptr<Texture> mFolderIcon{ nullptr };
+    std::shared_ptr<Texture> mJPGIcon{ nullptr };
+    std::shared_ptr<Texture> mPNGIcon{ nullptr };
+    std::shared_ptr<Texture> mFBXIcon{ nullptr };
+    std::shared_ptr<Texture> mLVLIcon{ nullptr };
+    std::shared_ptr<Texture> mErrorIcon{ nullptr };
+    // Image uv coords
+    // This is for Speilvent: ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)
+    // This is for upside down: ImVec2(1.0f, 1.0f), ImVec2(0.0f, 0.0f)
 
     // Viewport ----------
     bool mIsViewportWindowOpen = true;
@@ -86,8 +102,10 @@ private:
     // ContentBrowser ----------
     bool mIsContentBrowserWindowOpen = true;
     std::shared_ptr<Actor> mContentSelectedActor{ nullptr };
+    std::shared_ptr<Actor> mOldContentSelectedActor{ nullptr };
     const float mItemWidth = 60.0f;
     bool mCanControlActor = false;
+    bool mOpenRenamePopup = false;
 
     // Content properties ------
     bool mIsContentPropertiesWindowOpen = true;
@@ -112,22 +130,6 @@ private:
 
     // World properties ---
 	bool mShouldShowWireFrame = false;
-
-    // File Explorer ------
-    bool mIsFileExplorerWindowOpen = true;
-    std::string mCurrentDirectoryPath = GetFilePath();
-    int mMaxDisplayCharacters = 16;
-    const float mItemIconSize = 130.0f;
-    const float mItemIconSpacing = 5.0f;
-    std::shared_ptr<Texture> mFolderIcon{ nullptr };
-    std::shared_ptr<Texture> mJPGIcon{ nullptr };
-    std::shared_ptr<Texture> mPNGIcon{ nullptr };
-    std::shared_ptr<Texture> mFBXIcon{ nullptr };
-    std::shared_ptr<Texture> mLVLIcon{ nullptr };
-    std::shared_ptr<Texture> mErrorIcon{ nullptr };
-    // Image uv coords
-	// This is for Speilvent: ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)
-	// This is for upside down: ImVec2(1.0f, 1.0f), ImVec2(0.0f, 0.0f)
 
     // Log ------
     bool mIsLogWindowOpen = true;
@@ -211,6 +213,8 @@ private:
 
     void ui_CreateActors();
 
+    void ui_FileExplorer();
+
     void ui_ViewPort();
 
     void ui_LevelSelect();
@@ -233,8 +237,6 @@ private:
 
     void uiSub_LightProperties(std::shared_ptr<Light> _inLight);
 
-    void ui_FileExplorer();
-
     void ui_Log();
 
     void ui_Console();
@@ -245,8 +247,12 @@ private:
 
     bool HasSuffix(const std::string& _fileName, const std::string& _suffix);
 
+    void RevertToDefaultSelection();
+
     std::string GetFilePath();
     std::string GetCoreFilePath();
+
+    void GetSceneActors(std::shared_ptr<Actor> _sceneGraph, std::vector<std::shared_ptr<Actor>>& _actorHolder);
 
 public:
     // ---------- Getters / setters / Adders --------------

@@ -303,6 +303,12 @@ void LevelManager::AddActorToLevel(std::shared_ptr<Actor> _inActor)
 	mActiveLevel->AddActorToSceneGraph(_inActor);
 }
 
+void LevelManager::RemoveActorFromLevel(std::shared_ptr<Actor> _inActor)
+{
+	mActiveLevel->RemoveActorFromSceneGraph(_inActor);
+}
+
+
 void LevelManager::ShadersDrawWireFrame(bool _b)
 {
 	if (_b)
@@ -353,6 +359,11 @@ void LevelManager::BindDirectionalLights(std::shared_ptr<Shader> _bindShader)
 		} else {
 			LOG_ERROR("Cast for directioanl lighting faild");
 		}
+	} else {
+
+		_bindShader->setVec3("dl.direction", glm::vec3(0));
+		_bindShader->setVec3("dl.color", glm::vec3(0));
+		_bindShader->setVec3("dl.ambient", glm::vec3(0));
 	}
 	
 	if (directionalLights.size() > 1)
@@ -387,8 +398,18 @@ void LevelManager::BindPointLights(std::shared_ptr<Shader> _bindShader)
 		} else {
 			LOG_ERROR("Cast for point lighting faild");
 		}
-
 	}
+
+	if(pointLightActors.size() < 1)
+	{
+		_bindShader->setVec3("pointLights[0].ambient", glm::vec3(0));
+			_bindShader->setVec3("pointLights[0].color", glm::vec3(0));
+			_bindShader->setVec3("pointLights[0].position", glm::vec3(0));
+			_bindShader->setFloat("pointLights[0].constant", 0.0f);
+			_bindShader->setFloat("pointLights[0].linear", 0.0f);
+			_bindShader->setFloat("pointLights[0].quadratic", 0.0f);
+	}
+
 }
 
 void LevelManager::BindCamera(std::shared_ptr<Shader> _bindShader)

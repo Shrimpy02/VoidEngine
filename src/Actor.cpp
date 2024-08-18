@@ -56,6 +56,13 @@ void Actor::RemoveChild(std::shared_ptr<Actor> _child)
 	}
 }
 
+void Actor::RenameActor(std::string _newTag)
+{
+	std::string oldTag = mTag.GetValue();
+	mTag.Rename(_newTag);
+	TagUnique::RemoveTagFromCache(oldTag);
+}
+
 std::shared_ptr<PhysicsComponent> Actor::GetPhysicsComponent()
 {
 	for(std::shared_ptr<Component> comps : mComponents)
@@ -65,6 +72,14 @@ std::shared_ptr<PhysicsComponent> Actor::GetPhysicsComponent()
 	}
 
 	return nullptr;
+}
+
+int Actor::GetHierarchyLevel()
+{
+	if (mParent) {
+		return mParent->GetHierarchyLevel() + 1;
+	}
+	return 0;
 }
 
 std::shared_ptr<AIComponent> Actor::GetAIComponent()

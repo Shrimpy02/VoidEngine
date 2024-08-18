@@ -66,6 +66,9 @@ public:
 	// Removes a specific child from from this actor, also removes child`s parent reference if this actor is its parent.
 	void RemoveChild(std::shared_ptr<Actor> _child);
 
+	// Renames this actor
+	void RenameActor(std::string _newTag);
+
 	// Template function that takes in a class and name, if that class has component as a base it creates
 	// that object as a component and adds it to the components vector of this actor.
 	template <typename T>
@@ -144,6 +147,7 @@ public:
 	// Returns pointer to the first physics component of this actor.
 	std::shared_ptr<PhysicsComponent> GetPhysicsComponent();
 
+	int GetHierarchyLevel();
 
 	// Returns pointer to the first Ai component of this actor.
 	std::shared_ptr<AIComponent> GetAIComponent();
