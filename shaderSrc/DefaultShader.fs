@@ -57,8 +57,8 @@ vec3 CalculateDirectionalLightContribution(){
     vec3 materialDiffuseColor = vec3(texture(material.diffuseMap, TexCoord)) * material.diffuseColor;
     vec3 materialSpecularColor = vec3(texture(material.specularMap, TexCoord));
 
-    vec3 ambientContribution = dl.ambient * materialDiffuseColor;
-    vec3 diffuseContribution = materialDiffuseColor * NdL;
+    vec3 ambientContribution = dl.color * dl.ambient * materialDiffuseColor;
+    vec3 diffuseContribution = dl.color * materialDiffuseColor * NdL;
     vec3 specularContribution = dl.color * materialSpecularColor * VdR;
 
     return ambientContribution + diffuseContribution + specularContribution;
@@ -80,7 +80,7 @@ vec3 CalculatePointLightContribution(){
         float NdL = max(dot(Normal, plDir), 0);
         float VdR = pow(max(dot(viewDir, reflectDir), 0), material.shininess);
 
-        vec3 ambientContribution = pointLights[i].ambient * materialDiffuseColor;
+        vec3 ambientContribution = pointLights[i].color * pointLights[i].ambient * materialDiffuseColor;
         vec3 diffuseContribution = pointLights[i].color * materialDiffuseColor * NdL;
         vec3 specularContribution = pointLights[i].color * materialSpecularColor * VdR;
 
@@ -92,6 +92,7 @@ vec3 CalculatePointLightContribution(){
 
     return finalColor;
 }
+
 
 void main()
 {

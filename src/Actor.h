@@ -22,7 +22,7 @@ class Actor : public std::enable_shared_from_this<Actor>
 public:
 	// ---------- Global Variables --------------
 
-	int mTriangleIndex;
+	int mTriangleIndex = 0;
 
 private:
 	// ---------- Local Variables --------------

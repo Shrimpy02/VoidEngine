@@ -68,6 +68,8 @@ public:
 
     // Getters
 
+    std::shared_ptr<Mesh> GetMesh() { return mVisualMesh; }
+
     // Returns the mesh for this actor as Mesh
     std::shared_ptr<Mesh> GetActorVisualMesh() { return mVisualMesh; }
 

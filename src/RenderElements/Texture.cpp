@@ -115,8 +115,7 @@ void Texture::LoadTexture()
 		glGenerateMipmap(GL_TEXTURE_2D);
 	} else
 	{
-		std::cout << "Texture Load Failed\n";
-		std::cout << mPath.c_str();
+		LOG_ERROR("Texture Load Failed: %s", mPath.c_str());
 	}
 	stbi_image_free(data);
 }

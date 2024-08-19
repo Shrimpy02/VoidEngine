@@ -54,22 +54,22 @@ void LevelManager::LoadContent()
 void LevelManager::LoadDefaultLevel()
 {
 	// Texture / Materials
-	std::shared_ptr<Texture> defTexDif = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerDiffuse.jpg"));
-	std::shared_ptr<Texture> defTexSpec = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/ContainerSpecular.jpg"));
-	std::shared_ptr<Material> defMat = Material::Load("Default", { defTexDif,defTexSpec }, {{glm::vec3(1.0f,1.0f,1.0f)}, {64} });
 
-	std::shared_ptr<Texture> whiteTex = Texture::LoadWhiteTexture();
-	std::shared_ptr<Material> whiteMat = Material::Load("WhiteDefault", { whiteTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
 
 	// Objects
-	std::shared_ptr<VisualActor> SceneGround = std::make_shared<VisualActor>("SceneGround", Mesh::CreatePlane(whiteMat));
+	std::shared_ptr<Texture> ground1Diffuse = Texture::LoadWhiteTexture();
+	std::shared_ptr<Material> ground1Mat = Material::Load("ground1Mat", { ground1Diffuse }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
+	std::shared_ptr<VisualActor> SceneGround = std::make_shared<VisualActor>("SceneGround", Mesh::CreatePlane(ground1Mat));
 	mActiveLevel->AddActorToSceneGraph(SceneGround);
 	SceneGround->SetGlobalPosition(glm::vec3(0.f, -1.f, 0.f));
 	SceneGround->SetGlobalRotation(glm::quat(glm::angleAxis(60.f, glm::vec3(0.f, 0.f, 1.f))));
 	SceneGround->SetGlobalScale(glm::vec3(10.f));
 	SceneGround->UpdateExtent();
 
-	std::shared_ptr<BaseActor> defaultCube1 = std::make_shared<BaseActor>("DefaultCube1", Mesh::CreateCube(defMat));
+	std::shared_ptr<Texture> cube1Diffuse = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerDiffuse.jpg"));
+	std::shared_ptr<Texture> cube1Specular = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerSpecular.jpg"));
+	std::shared_ptr<Material> cube1mat = Material::Load("cube1mat", { cube1Diffuse,cube1Specular }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
+	std::shared_ptr<BaseActor> defaultCube1 = std::make_shared<BaseActor>("DefaultCube1", Mesh::CreateCube(cube1mat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube1);
 	defaultCube1->SetGlobalPosition(glm::vec3(3.0f,2.f,0.0f));
 	defaultCube1->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
@@ -80,7 +80,10 @@ void LevelManager::LoadDefaultLevel()
 	defaultCube1->AddComponent<AIComponent>("AiComp");
 	//defaultCube1->SetShaderObjectType(ShaderObjectType::Default);
 
-	std::shared_ptr<BaseActor> defaultCube2 = std::make_shared<BaseActor>("DefaultCube2", Mesh::CreateCube(defMat));
+	std::shared_ptr<Texture> cube2Diffuse = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerDiffuse.jpg"));
+	std::shared_ptr<Texture> cube2Specular = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerSpecular.jpg"));
+	std::shared_ptr<Material> cube2mat = Material::Load("cube2mat", { cube2Diffuse,cube2Specular }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
+	std::shared_ptr<BaseActor> defaultCube2 = std::make_shared<BaseActor>("DefaultCube2", Mesh::CreateCube(cube2mat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube2);
 	defaultCube2->SetGlobalPosition(glm::vec3(-3.f, 2.f, 0.f));
 	defaultCube2->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
@@ -339,6 +342,13 @@ void LevelManager::ShadersDrawWireFrame(bool _b)
 	
 }
 
+std::shared_ptr<Actor> LevelManager::LineTrace(glm::vec3 _startPos, glm::vec3 _endPosition)
+{
+
+
+	swA
+}
+
 void LevelManager::BindDirectionalLights(std::shared_ptr<Shader> _bindShader)
 {
 	_bindShader->use();
@@ -421,4 +431,3 @@ void LevelManager::BindCamera(std::shared_ptr<Shader> _bindShader)
 	_bindShader->setVec3("viewPos", mActiveLevel->mActiveCamera->GetGlobalPosition());
 
 }
-

@@ -160,8 +160,7 @@ public:
     // Sets the material this mesh should use
     void SetMaterial(std::shared_ptr<Material> _material) { mMaterial = _material; }
     void SetIsVisible(bool _b) { mVisible = _b; }
-
-  
+    
 };
 
 

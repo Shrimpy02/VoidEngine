@@ -28,6 +28,7 @@ struct FileItem
 class WindowManager;
 class ActorController;
 class Texture;
+class Mesh;
 
 class Actor;
 class Shader;
@@ -118,6 +119,9 @@ private:
     float mOldUniformScale = 1;
     glm::vec3 mActorOriginalScale = glm::vec3(0);
     bool mShowBarycentricLocation = false;
+
+    // Sub Mesh properties -----
+    bool mShowMesh = true;
 
     // Sub component properties ----
     int mComponentSelectionIndex = 0;
@@ -229,7 +233,9 @@ private:
 
     void uiSub_WorldProperties(std::shared_ptr<Actor> _inActor);
 
-    void uiSub_ComponentProperties(std::shared_ptr<Actor> _inActor);
+    void uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh);
+
+	void uiSub_ComponentProperties(std::shared_ptr<Actor> _inActor);
 
     void uiSub_CameraProperties(std::shared_ptr<CameraActor> _inCamera);
 
@@ -247,7 +253,7 @@ private:
 
     bool HasSuffix(const std::string& _fileName, const std::string& _suffix);
 
-    void RevertToDefaultSelection();
+    void DrawBoarderAroundImage(const ImVec4 _color = ImVec4(0.5f, 0.0f, 0.5f, 1.0f));
 
     std::string GetFilePath();
     std::string GetCoreFilePath();

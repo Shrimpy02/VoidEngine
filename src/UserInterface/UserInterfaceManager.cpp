@@ -11,6 +11,7 @@
 #include <LevelActors/DebugActor.h>
 #include <RenderElements/Mesh.h>
 #include <RenderElements/Texture.h>
+#include <RenderElements/Material.h>
 #include <Actor.h>
 #include <Lights/DirectionalLight.h>
 #include <Lights/PointLight.h>
@@ -539,6 +540,9 @@ void UserInterfaceManager::ui_FileExplorer()
 				// Make item + name a vertical group
 				ImGui::BeginGroup();
 
+				std::string fullPath = mCurrentDirectoryPath + "/" + items[i].mName;
+				const char* fullItemDirectory = static_cast<const char*>(fullPath.c_str());
+
 				// If item is a folder, click: go into its directory
 				if (items[i].mIsDirectory)
 				{
@@ -549,14 +553,45 @@ void UserInterfaceManager::ui_FileExplorer()
 				}
 				else if (HasSuffix((items[i].mName).c_str(), "jpg")) {
 
-					if (ImGui::ImageButton((void*)(intptr_t)mJPGIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
-						LOG("jpg");
+
+					if (ImGui::ImageButton((void*)(intptr_t)Texture::Load(fullItemDirectory)->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+					{
+						
+					}
+					DrawBoarderAroundImage();
+
+					// Set up the drag source
+					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+					{
+						// Set payload to carry the index of the item
+						ImGui::SetDragDropPayload("DND_DRAG_JPG", fullPath.c_str(), fullPath.size() + 1);
+
+						// Display a preview during the drag operation
+						ImGui::Text("Creating %s", items[i].mName.c_str());
+
+						ImGui::EndDragDropSource();
+					}
 
 				}	// If item is png, click:
 				else if (HasSuffix((items[i].mName).c_str(), "png")) {
 
-					if (ImGui::ImageButton((void*)(intptr_t)mPNGIcon->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
-						LOG("png");
+					if (ImGui::ImageButton((void*)(intptr_t)Texture::Load(fullItemDirectory)->GetTextureID(), ImVec2(mItemIconSize, mItemIconSize), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f)))
+					{
+						
+					}
+					DrawBoarderAroundImage();
+
+					// Set up the drag source
+					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+					{
+						// Set payload to carry the index of the item
+						ImGui::SetDragDropPayload("DND_DRAG_PNG", fullPath.c_str(), fullPath.size() + 1);
+
+						// Display a preview during the drag operation
+						ImGui::Text("Creating %s", items[i].mName.c_str());
+
+						ImGui::EndDragDropSource();
+					}
 
 				}	// If item is fbx, click: drag into level
 				else if (HasSuffix((items[i].mName).c_str(), "fbx")) {
@@ -569,9 +604,6 @@ void UserInterfaceManager::ui_FileExplorer()
 					// Set up the drag source
 					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 					{
-						// Combine directory and item name into a single string
-						std::string fullPath = mCurrentDirectoryPath + "/" + items[i].mName;
-
 						// Set payload to carry the index of the item
 						ImGui::SetDragDropPayload("DND_DRAG_FBX", fullPath.c_str(), fullPath.size() + 1);
 
@@ -678,24 +710,32 @@ void UserInterfaceManager::ui_ViewPort()
 					// Handle the creation of the actor based on the dropped item
 					if (payload_n >= 0)
 					{
+						static int cubeNum = 0;
+						static int pyramidNum = 0;
+						static int planeNum = 0;
+						static int sphereNum = 0;
 						if (strcmp(mActorNames[payload_n], "Cube") == 0)
 						{
-							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedCube", Mesh::CreateCube(nullptr));
+							cubeNum++;
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedCube" + std::to_string(cubeNum), Mesh::CreateCube(nullptr, "CreatedCube" + std::to_string(cubeNum) + "_mat"));
 							mLevelManager->AddActorToLevel(baseActor);
 						}
 						else if (strcmp(mActorNames[payload_n], "Pyramid") == 0)
 						{
-							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPyramid", Mesh::CreatePyramid(nullptr));
+							pyramidNum++;
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPyramid" + std::to_string(pyramidNum), Mesh::CreatePyramid(nullptr, "CreatedPyramid" + std::to_string(pyramidNum) + "_mat"));
 							mLevelManager->AddActorToLevel(baseActor);
 						}
 						else if (strcmp(mActorNames[payload_n], "Plane") == 0)
 						{
-							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPlane", Mesh::CreatePlane(nullptr));
+							planeNum++;
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPlane" + std::to_string(planeNum), Mesh::CreatePlane(nullptr, "CreatedPlane" + std::to_string(planeNum) + "_mat"));
 							mLevelManager->AddActorToLevel(baseActor);
 						}
 						else if (strcmp(mActorNames[payload_n], "Sphere") == 0)
 						{
-							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedSphere", Mesh::CreateSphere(nullptr));
+							sphereNum++;
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedSphere" + std::to_string(sphereNum), Mesh::CreateSphere(nullptr,2,"CreatedSphere" + std::to_string(sphereNum) + "_mat"));
 							mLevelManager->AddActorToLevel(baseActor);
 						}
 						else if (strcmp(mActorNames[payload_n], "Directional-Light") == 0)
@@ -939,6 +979,7 @@ void UserInterfaceManager::ui_ContentBrowser()
 			}
 		}
 		ImGui::EndListBox();
+
 	}
 	ImGui::End();
 
@@ -1056,6 +1097,15 @@ void UserInterfaceManager::ui_ContentProperties()
 		// ----------------------------------------------
 		if (mContentSelectedActor)
 			uiSub_WorldProperties(mContentSelectedActor);
+
+		// Handles all local Sub UI for Mesh world settings
+		// ----------------------------------------------
+		std::shared_ptr<BaseActor> basePtr = std::dynamic_pointer_cast<BaseActor>(mContentSelectedActor);
+		std::shared_ptr<VisualActor> visualPtr = std::dynamic_pointer_cast<VisualActor>(mContentSelectedActor);
+		if (basePtr && basePtr->GetMesh())
+			uiSub_MeshProperties(basePtr->GetMesh());
+		else if(visualPtr && visualPtr->GetMesh())
+			uiSub_MeshProperties(visualPtr->GetMesh());
 
 		// Handles all local Sub UI for component settings
 		// ----------------------------------------------
@@ -1251,6 +1301,178 @@ void UserInterfaceManager::uiSub_WorldProperties(std::shared_ptr<Actor> _inActor
 		}
 
 	}
+}
+
+void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
+{
+
+	// Mesh display
+	// -----------------------------------
+	ImGui::Text("Mesh Details");
+	ImGui::Separator();
+
+	ImGui::Checkbox("ShowMesh", &mShowMesh);
+	_inMesh->SetIsVisible(mShowMesh);
+
+	ImGui::Text("Material textures: ");
+
+	// Diffuse texture --------
+	if(_inMesh->GetMaterial()->GetTexture(Material::DIFFUSE))
+	{
+		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::DIFFUSE)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+		DrawBoarderAroundImage();
+		ImGui::SameLine();
+		if (mIsFileExplorerWindowOpen)
+		{
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DRAG_JPG"))
+				{
+					// Check if the payload is a string (full path)
+					if (payload->DataSize > 0)
+					{
+						const char* fullPath = static_cast<const char*>(payload->Data);
+
+						_inMesh->GetMaterial()->SetTexture(Material::DIFFUSE, Texture::Load(fullPath));
+					}
+				}
+				else if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DRAG_PNG"))
+				{
+					// Check if the payload is a string (full path)
+					if (payload->DataSize > 0)
+					{
+						const char* fullPath = static_cast<const char*>(payload->Data);
+
+						_inMesh->GetMaterial()->SetTexture(Material::DIFFUSE, Texture::Load(fullPath));
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
+		}
+	} else {
+		ImGui::Image((void*)(intptr_t)mJPGIcon->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+		DrawBoarderAroundImage();
+		ImGui::SameLine();
+	}
+	
+
+	// Specular texture --------
+	if(_inMesh->GetMaterial()->GetTexture(Material::SPECULAR))
+	{
+		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::SPECULAR)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+		DrawBoarderAroundImage();
+		ImGui::SameLine();
+		if (mIsFileExplorerWindowOpen)
+		{
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DRAG_JPG"))
+				{
+					// Check if the payload is a string (full path)
+					if (payload->DataSize > 0)
+					{
+						const char* fullPath = static_cast<const char*>(payload->Data);
+
+						_inMesh->GetMaterial()->SetTexture(Material::SPECULAR, Texture::Load(fullPath));
+					}
+				}
+				else if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DRAG_PNG"))
+				{
+					// Check if the payload is a string (full path)
+					if (payload->DataSize > 0)
+					{
+						const char* fullPath = static_cast<const char*>(payload->Data);
+
+						_inMesh->GetMaterial()->SetTexture(Material::SPECULAR, Texture::Load(fullPath));
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
+		}
+	}
+	else {
+		ImGui::Image((void*)(intptr_t)mJPGIcon->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+		DrawBoarderAroundImage();
+		ImGui::SameLine();
+	}
+	
+
+	// Normal texture --------
+	if(_inMesh->GetMaterial()->GetTexture(Material::NORMAL))
+	{
+		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::NORMAL)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+		DrawBoarderAroundImage();
+		ImGui::SameLine();
+		if (mIsFileExplorerWindowOpen)
+		{
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DRAG_JPG"))
+				{
+					// Check if the payload is a string (full path)
+					if (payload->DataSize > 0)
+					{
+						const char* fullPath = static_cast<const char*>(payload->Data);
+
+						_inMesh->GetMaterial()->SetTexture(Material::NORMAL, Texture::Load(fullPath));
+					}
+				}
+				else if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DRAG_PNG"))
+				{
+					// Check if the payload is a string (full path)
+					if (payload->DataSize > 0)
+					{
+						const char* fullPath = static_cast<const char*>(payload->Data);
+
+						_inMesh->GetMaterial()->SetTexture(Material::NORMAL, Texture::Load(fullPath));
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
+		}
+	} else {
+		ImGui::Image((void*)(intptr_t)mJPGIcon->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+		DrawBoarderAroundImage();
+		ImGui::SameLine();
+	}
+	
+	// Alpha texture --------
+	if(_inMesh->GetMaterial()->GetTexture(Material::ALPHA))
+	{
+		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::ALPHA)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+		DrawBoarderAroundImage();
+		if (mIsFileExplorerWindowOpen)
+		{
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DRAG_JPG"))
+				{
+					// Check if the payload is a string (full path)
+					if (payload->DataSize > 0)
+					{
+						const char* fullPath = static_cast<const char*>(payload->Data);
+
+						_inMesh->GetMaterial()->SetTexture(Material::ALPHA, Texture::Load(fullPath));
+					}
+				}
+				else if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DRAG_PNG"))
+				{
+					// Check if the payload is a string (full path)
+					if (payload->DataSize > 0)
+					{
+						const char* fullPath = static_cast<const char*>(payload->Data);
+
+						_inMesh->GetMaterial()->SetTexture(Material::ALPHA, Texture::Load(fullPath));
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
+		}
+	} else {
+		ImGui::Image((void*)(intptr_t)mJPGIcon->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+		DrawBoarderAroundImage();
+	}
+
 }
 
 void UserInterfaceManager::uiSub_ComponentProperties(std::shared_ptr<Actor> _inActor)
@@ -1453,6 +1675,26 @@ bool UserInterfaceManager::HasSuffix(const std::string& _fileName, const std::st
 		return (_fileName.compare(_fileName.length() - _suffix.length(), _suffix.length(), _suffix) == 0);
 	}
 	return false;
+}
+
+void UserInterfaceManager::DrawBoarderAroundImage(ImVec4 _color)
+{
+
+	// Get the current position and size of the image
+	ImVec2 image_pos = ImGui::GetItemRectMin(); // Top-left corner of the image
+	ImVec2 image_size = ImGui::GetItemRectSize(); // Size of the image
+
+	// Calculate the rectangle corners
+	ImVec2 rect_min = image_pos;
+	ImVec2 rect_max = ImVec2(image_pos.x + image_size.x, image_pos.y + image_size.y);
+
+	// Set the color and thickness of the border
+	ImU32 border_color = ImGui::GetColorU32(_color); // Red color
+	float border_thickness = 2.0f;
+
+	// Draw the border
+	ImGui::GetWindowDrawList()->AddRect(rect_min, rect_max, border_color, 0.0f, 0, border_thickness);
+
 }
 
 std::string UserInterfaceManager::GetFilePath()

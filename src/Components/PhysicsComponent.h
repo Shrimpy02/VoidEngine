@@ -37,7 +37,7 @@ private:
 	bool inContactWithGround = true;
 
 	bool mGravityEnabled = true;
-	double mLastJumpTime;
+	double mLastJumpTime = 0.f;
 
 public:
 	// ---------- Global functions --------------

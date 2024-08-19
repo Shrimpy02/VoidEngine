@@ -105,8 +105,8 @@ void CameraActor::UpdatePosition(float dt)
 {
     // updates position by velocity
     glm::vec3 front = GetFront();
-    glm::vec3 right = glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f)));
-    glm::vec3 up = glm::cross(right, front);
+    glm::vec3 right = GetRight();
+    glm::vec3 up = GetUp();
 
     SetGlobalPosition(GetLocalPosition() + mVelocity.x * dt * right + mVelocity.y * dt * up + mVelocity.z * dt * front);
 }

@@ -8,6 +8,8 @@
 #include <Utilities/Defines.h>
 #include <corecrt_math_defines.h>
 
+#include "Texture.h"
+
 
 // static cache of meshes
 std::unordered_map<std::string, std::shared_ptr<Mesh>> Mesh::mCache;
@@ -17,6 +19,10 @@ Mesh::Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector
 {
     // generates gl specific buffers for mesh init.
     SetupMesh();
+
+    if(!mMaterial)
+        mMaterial = Material::Load(mName, {Texture::LoadWhiteTexture()}, {});
+
 }
 
 Mesh::Mesh(const std::string _name, std::vector<GraphVertex>&& _vertices, std::vector<Index>&& _indices)
@@ -78,14 +84,15 @@ std::shared_ptr<Mesh> Mesh::CreateCube(std::shared_ptr<Material> _material, std:
         cubeKey = _customName;
     }
 
-    // Checks if default cube exists in cache,if it does use that
-    // rather than calculating an entire new cube to save loading time.
-    auto it = mCache.find(cubeKey);
-    if (it != mCache.end())
-    {
-       // LOG("%s Loaded", cubeKey.c_str());
-        return it->second;
-    }
+    // Enable this for instance like behaviour
+    //// Checks if default cube exists in cache,if it does use that
+    //// rather than calculating an entire new cube to save loading time.
+    //auto it = mCache.find(cubeKey);
+    //if (it != mCache.end())
+    //{
+    //   // LOG("%s Loaded", cubeKey.c_str());
+    //    return it->second;
+    //}
 
     // otherwise gen vertices and indices from vector
     std::vector<Vertex> vertices = {
@@ -136,12 +143,14 @@ std::shared_ptr<Mesh> Mesh::CreateCube(std::shared_ptr<Material> _material, std:
         20, 21, 22, 20, 22, 23
     };
 
+	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(cubeKey, std::move(vertices), std::move(indices), _material);
+
     // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    mCache[cubeKey] = std::make_shared<Mesh>(cubeKey, std::move(vertices), std::move(indices), _material);
+    mCache[cubeKey] = cube;
 
     // return new default cube
     //LOG("%s created", cubeKey.c_str());
-	return mCache[cubeKey];
+	return cube;
 }
 
 std::shared_ptr<Mesh> Mesh::CreateCubeByExtent(std::shared_ptr<Mesh> _extentMesh, std::shared_ptr<Material> _material, std::string _customName)

@@ -89,6 +89,8 @@ public:
     // Makes All Shaders draw in wire-frame mode
     void ShadersDrawWireFrame(bool _b);
 
+    std::shared_ptr<Actor> LineTrace(glm::vec3 _startPos, glm::vec3 _endPosition);
+
 private:
     // ---------- Local functions --------------
     // Binds all directional light objects to the shader for light processing
