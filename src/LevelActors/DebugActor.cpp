@@ -10,7 +10,8 @@ DebugActor::DebugActor(const std::string& _name, std::vector<glm::vec3> _points)
 	: Actor(_name)
 {
 	SetShaderObjectType(ShaderObjectType::Debug);
-	mVisualMesh = Mesh::CreateDebugLine(_points);
+	if(!_points.empty())
+		mVisualMesh = Mesh::CreateDebugLine(_points);
 }
 void DebugActor::Draw(const std::shared_ptr<Shader> _shader) const
 {

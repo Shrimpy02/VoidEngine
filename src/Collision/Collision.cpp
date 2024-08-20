@@ -254,3 +254,27 @@ bool IBounded::ConvexxNotConvex(std::shared_ptr<IBounded> _otherCollider, glm::v
 {
     return false;
 }
+
+bool IBounded::AABBxPoint(glm::vec3 _pointPos)
+{
+    // calculates the difference from one center to the other
+   // and their extent sum
+    glm::vec3 diff = _pointPos - this->mCenter;
+    glm::vec3 sumExtent = this->mExtent + glm::vec3(0);
+
+    // Check each axis for non intersection
+    for (int i = 0; i < 3; i++)
+    {
+        // if the difference in length is larger then the sum extent
+        // in each axis there is no intersection.
+        if (abs(diff[i]) >= sumExtent[i])
+        {
+            return false; // no intersection for this axis
+        }
+    }
+
+
+	//return (_pointPos.x >= -this->mExtent.x && _pointPos.x <= this->mExtent.x &&
+    //    _pointPos.y >= -this->mExtent.y && _pointPos.y <= this->mExtent.y &&
+    //    _pointPos.z >= -this->mExtent.z && _pointPos.z <= this->mExtent.z);
+}

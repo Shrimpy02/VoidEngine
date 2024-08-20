@@ -57,6 +57,8 @@ public:
 
     bool ConvexxNotConvex(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
+    bool AABBxPoint(glm::vec3 _pointPos);
+
     // Returns true if this object is colliding with anything else. 
     bool GetIsColliding() { return mIsColliding; }
 

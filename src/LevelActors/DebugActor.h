@@ -30,7 +30,7 @@ public:
     // ---------- Global functions --------------
 
     // Constructor
-    DebugActor(const std::string& _name, std::vector<glm::vec3> _points);
+    DebugActor(const std::string& _name, std::vector<glm::vec3> _points = std::vector<glm::vec3> {0});
 
     // Overriden from IRender passes draw call to mesh. 
     virtual void Draw(const std::shared_ptr<Shader> _shader = nullptr) const override;
@@ -38,6 +38,7 @@ public:
     virtual void Update(float _dt) override;
 
     void UpdateVisualMesh(std::vector<glm::vec3>& _newPoints);
+
 
 private:
     // ---------- Local functions --------------
@@ -47,9 +48,8 @@ public:
     // ---------- Getters / setters / Adders --------------
 
     // Getters
+    std::shared_ptr<Mesh> GetVisualMesh() { return mVisualMesh; }
 
     // Adders
-
-    // Setters
 
 };

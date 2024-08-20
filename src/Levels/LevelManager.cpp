@@ -71,7 +71,7 @@ void LevelManager::LoadDefaultLevel()
 	std::shared_ptr<Material> cube1mat = Material::Load("cube1mat", { cube1Diffuse,cube1Specular }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
 	std::shared_ptr<BaseActor> defaultCube1 = std::make_shared<BaseActor>("DefaultCube1", Mesh::CreateCube(cube1mat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube1);
-	defaultCube1->SetGlobalPosition(glm::vec3(3.0f,2.f,0.0f));
+	defaultCube1->SetGlobalPosition(glm::vec3(1.2f,0.9f,0.9f));
 	defaultCube1->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
 	defaultCube1->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
 	defaultCube1->AddComponent<PhysicsComponent>("PhysicsComp");
@@ -85,9 +85,11 @@ void LevelManager::LoadDefaultLevel()
 	std::shared_ptr<Material> cube2mat = Material::Load("cube2mat", { cube2Diffuse,cube2Specular }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
 	std::shared_ptr<BaseActor> defaultCube2 = std::make_shared<BaseActor>("DefaultCube2", Mesh::CreateCube(cube2mat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube2);
-	defaultCube2->SetGlobalPosition(glm::vec3(-3.f, 2.f, 0.f));
+	defaultCube2->SetGlobalPosition(glm::vec3(1.f, 1.f,1.f));
+	defaultCube2->SetGlobalScale(glm::vec3(0.1f));
 	defaultCube2->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
 	defaultCube2->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
+	defaultCube2->mCollisionProperties.SetCollisionResponse(CollisionResponse::IGNORE);
 
 	std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor1");
 	mActiveLevel->AddActorToSceneGraph(graphActor);
@@ -141,6 +143,11 @@ void LevelManager::Update(float _dt)
 
 	// Then handle collision for all objects in scene
 	ProcessCollision();
+
+	std::shared_ptr<DebugActor> debugActor = std::make_shared<DebugActor>("lineTrace");
+	
+	LineTrace(glm::vec3(0), glm::vec3(10), 10, debugActor);
+	AddActorToLevel(debugActor);
 }
 
 void LevelManager::Render()
@@ -342,11 +349,58 @@ void LevelManager::ShadersDrawWireFrame(bool _b)
 	
 }
 
-std::shared_ptr<Actor> LevelManager::LineTrace(glm::vec3 _startPos, glm::vec3 _endPosition)
+std::shared_ptr<Actor> LevelManager::LineTrace(glm::vec3 _startPos, glm::vec3 _endPosition, float _resolution, std::shared_ptr<DebugActor> _debugActor)
 {
+	// Calculate direction from start to end
+	glm::vec3 startToEndDirection = _endPosition - _startPos;
+	// N = numPoints, cant be 0
+	float n = _resolution;
+	if (n == 0)
+		n = 1;
 
+	// Vector for debug visualization
+	std::vector <glm::vec3> tracePoints;
 
-	swA
+	// Get all IBounded Actors of the active level
+	std::vector<std::shared_ptr<Actor>> collisionActors;
+	mActiveLevel->mSceneGraph->Query<IBounded>(collisionActors);
+
+	// initalize return actor
+	std::shared_ptr<Actor> collidedActor{nullptr};
+	for(int i = 0; i <= n ; i += 1)
+	{
+		// calculate step
+		float step = i / n;
+
+		// Calculate point in direction
+		glm::vec3 pointInDirection = _startPos + (step * startToEndDirection);
+		// populate debug vector
+		tracePoints.push_back(pointInDirection);
+
+		// check if point collides with anything in level
+		for (int i = 0; i < collisionActors.size(); i++)
+		{
+			std::shared_ptr<IBounded> actorColliderA = std::dynamic_pointer_cast<IBounded>(collisionActors[i]);
+
+			if (actorColliderA->AABBxPoint(pointInDirection))
+				collidedActor = collisionActors[i];
+		}
+	}
+
+	if(_debugActor)
+	{
+		if(!_debugActor->GetVisualMesh())
+		{
+			_debugActor->UpdateVisualMesh(tracePoints);
+		}
+	} 
+
+	return collidedActor;
+}
+
+std::shared_ptr<Actor> LevelManager::LineTrace(glm::vec3 _startPos, glm::vec3 _direction,float _resolution, float length, std::shared_ptr<DebugActor> _debugActor)
+{
+	return nullptr;
 }
 
 void LevelManager::BindDirectionalLights(std::shared_ptr<Shader> _bindShader)

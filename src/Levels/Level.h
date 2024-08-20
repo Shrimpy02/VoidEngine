@@ -6,7 +6,7 @@
 #include <memory>
 
 // Forward Declarations
-class TagUnique;
+struct TagUnique;
 class CameraActor;
 class SceneGraph;
 class Actor;

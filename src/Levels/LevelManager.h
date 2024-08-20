@@ -15,6 +15,7 @@ class IController;
 class Actor;
 struct Transform;
 class UserInterfaceManager;
+class DebugActor;
 
 /**
  * @class LevelManager
@@ -89,7 +90,8 @@ public:
     // Makes All Shaders draw in wire-frame mode
     void ShadersDrawWireFrame(bool _b);
 
-    std::shared_ptr<Actor> LineTrace(glm::vec3 _startPos, glm::vec3 _endPosition);
+    std::shared_ptr<Actor> LineTrace(glm::vec3 _startPos, glm::vec3 _endPosition, float _resolution, std::shared_ptr<DebugActor> _debugActor = nullptr);
+    std::shared_ptr<Actor> LineTrace(glm::vec3 _startPos, glm::vec3 _direction,float _resolution, float _length, std::shared_ptr<DebugActor> _debugActor = nullptr);
 
 private:
     // ---------- Local functions --------------
