@@ -13,7 +13,6 @@
 //#include <Renderer.h>
 
 #include <Core/Shader.h>
-#include <Controllers/Controller.h>
 #include <Controllers/ActorController.h>
 #include <Components/PhysicsComponent.h>
 #include <Components/AIComponent.h>
@@ -31,11 +30,12 @@
 //#include <SkyBox/Skybox.h>
 
 // Additional Includes
+#include <ctime>
 
 LevelManager::LevelManager(std::shared_ptr<ActorController> _inController)
 	: mController(_inController)
 {
-	
+	mApplicationStartTime = time(nullptr);
 }
 
 void LevelManager::LoadContent()
@@ -53,9 +53,6 @@ void LevelManager::LoadContent()
 
 void LevelManager::LoadDefaultLevel()
 {
-	// Texture / Materials
-
-
 	// Objects
 	std::shared_ptr<Texture> ground1Diffuse = Texture::LoadWhiteTexture();
 	std::shared_ptr<Material> ground1Mat = Material::Load("ground1Mat", { ground1Diffuse }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
@@ -72,7 +69,7 @@ void LevelManager::LoadDefaultLevel()
 	std::shared_ptr<BaseActor> defaultCube1 = std::make_shared<BaseActor>("DefaultCube1", Mesh::CreateCube(cube1mat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube1);
 	defaultCube1->SetGlobalPosition(glm::vec3(1.2f,0.9f,0.9f));
-	defaultCube1->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
+	defaultCube1->mCollisionProperties.SetCollisionBase(CollisionBase::BoundingSphere);
 	defaultCube1->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
 	defaultCube1->AddComponent<PhysicsComponent>("PhysicsComp");
 	defaultCube1->GetPhysicsComponent()->SetSurfaceReference(SceneGround);
@@ -86,10 +83,9 @@ void LevelManager::LoadDefaultLevel()
 	std::shared_ptr<BaseActor> defaultCube2 = std::make_shared<BaseActor>("DefaultCube2", Mesh::CreateCube(cube2mat));
 	mActiveLevel->AddActorToSceneGraph(defaultCube2);
 	defaultCube2->SetGlobalPosition(glm::vec3(1.f, 1.f,1.f));
-	defaultCube2->SetGlobalScale(glm::vec3(0.1f));
 	defaultCube2->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
 	defaultCube2->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
-	defaultCube2->mCollisionProperties.SetCollisionResponse(CollisionResponse::IGNORE);
+	defaultCube2->mCollisionProperties.SetCollisionResponse(CollisionResponse::BLOCK);
 
 	std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor1");
 	mActiveLevel->AddActorToSceneGraph(graphActor);
@@ -144,10 +140,8 @@ void LevelManager::Update(float _dt)
 	// Then handle collision for all objects in scene
 	ProcessCollision();
 
-	std::shared_ptr<DebugActor> debugActor = std::make_shared<DebugActor>("lineTrace");
-	
-	LineTrace(glm::vec3(0), glm::vec3(10), 10, debugActor);
-	AddActorToLevel(debugActor);
+	// Handels lifetime of tempDebug actors
+	mActiveLevel->TempDebugTimerManager(difftime(time(0), mApplicationStartTime));
 }
 
 void LevelManager::Render()
@@ -207,7 +201,7 @@ void LevelManager::ProcessCollision()
 			// ------------------------------------------------
 
 			glm::vec3 mtv{ 0.f };
-			if(actorColliderA->isIntersecting(actorColliderB, &mtv))
+			if(actorColliderA->IsIntersecting(actorColliderB, &mtv))
 			{
 				// mtv vector init for each object
 				glm::vec3 mtvA(0.f), mtvB(0.f);
@@ -349,7 +343,7 @@ void LevelManager::ShadersDrawWireFrame(bool _b)
 	
 }
 
-std::shared_ptr<Actor> LevelManager::LineTrace(glm::vec3 _startPos, glm::vec3 _endPosition, float _resolution, std::shared_ptr<DebugActor> _debugActor)
+std::shared_ptr<Actor> LevelManager::LineTrace(glm::vec3 _startPos, glm::vec3 _endPosition, float _resolution, bool _createDebugActor)
 {
 	// Calculate direction from start to end
 	glm::vec3 startToEndDirection = _endPosition - _startPos;
@@ -377,30 +371,74 @@ std::shared_ptr<Actor> LevelManager::LineTrace(glm::vec3 _startPos, glm::vec3 _e
 		// populate debug vector
 		tracePoints.push_back(pointInDirection);
 
-		// check if point collides with anything in level
-		for (int i = 0; i < collisionActors.size(); i++)
-		{
-			std::shared_ptr<IBounded> actorColliderA = std::dynamic_pointer_cast<IBounded>(collisionActors[i]);
-
-			if (actorColliderA->AABBxPoint(pointInDirection))
-				collidedActor = collisionActors[i];
-		}
+		collidedActor = LineTraceCollision(collisionActors, pointInDirection);
 	}
 
-	if(_debugActor)
-	{
-		if(!_debugActor->GetVisualMesh())
-		{
-			_debugActor->UpdateVisualMesh(tracePoints);
-		}
-	} 
+	if (_createDebugActor)
+		CreateLineTraceDebugActor(tracePoints);
+
 
 	return collidedActor;
 }
 
-std::shared_ptr<Actor> LevelManager::LineTrace(glm::vec3 _startPos, glm::vec3 _direction,float _resolution, float length, std::shared_ptr<DebugActor> _debugActor)
+std::shared_ptr<Actor> LevelManager::LineTrace(glm::vec3 _startPos, glm::vec3 _direction,float _resolution, float length, bool _createDebugActor)
 {
+	// N = numPoints, cant be 0
+	float n = _resolution;
+	if (n == 0)
+		n = 1;
+
+	// Vector for debug visualization
+	std::vector <glm::vec3> tracePoints;
+
+	// Get all IBounded Actors of the active level
+	std::vector<std::shared_ptr<Actor>> collisionActors;
+	mActiveLevel->mSceneGraph->Query<IBounded>(collisionActors);
+
+	// initalize return actor
+	std::shared_ptr<Actor> collidedActor{ nullptr };
+	for (int i = 0; i <= n; i += 1)
+	{
+		// calculate step
+		float step = i / n;
+
+		// Calculate point in direction
+		glm::vec3 pointInDirection = _startPos + (step * (_direction * length));
+		// populate debug vector
+		tracePoints.push_back(pointInDirection);
+
+		if(!collidedActor)
+			collidedActor = LineTraceCollision(collisionActors, pointInDirection);
+	}
+
+	if (_createDebugActor)
+		CreateLineTraceDebugActor(tracePoints);
+
+	return collidedActor;
+}
+
+std::shared_ptr<Actor> LevelManager::LineTraceCollision(std::vector<std::shared_ptr<Actor>>& _collisionActors, glm::vec3 _point)
+{
+	// Check if point collides with anything in level
+	for (int i = 0; i < _collisionActors.size(); i++)
+	{
+		std::shared_ptr<IBounded> actorColliderA = std::dynamic_pointer_cast<IBounded>(_collisionActors[i]);
+
+		// Skip intersection if actor ignores response
+		if (actorColliderA->mCollisionProperties.IsIgnoreResponse())
+			continue;
+
+		if (actorColliderA->IsIntersectingLineTrace(_point))
+			return _collisionActors[i];
+	}
 	return nullptr;
+}
+
+void LevelManager::CreateLineTraceDebugActor(std::vector<glm::vec3> _points)
+{
+	std::shared_ptr<DebugActor> actor = std::make_shared<DebugActor>("LineTrace", true);
+	actor->UpdateVisualMesh(_points);
+	AddActorToLevel(actor);
 }
 
 void LevelManager::BindDirectionalLights(std::shared_ptr<Shader> _bindShader)
@@ -484,4 +522,9 @@ void LevelManager::BindCamera(std::shared_ptr<Shader> _bindShader)
 	_bindShader->setMat4("projection", mActiveLevel->mActiveCamera->GetProjectionMatrix());
 	_bindShader->setVec3("viewPos", mActiveLevel->mActiveCamera->GetGlobalPosition());
 
+}
+
+std::shared_ptr<CameraActor> LevelManager::GetActiveCamera()
+{
+	return mActiveLevel->mActiveCamera;
 }

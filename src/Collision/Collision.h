@@ -45,7 +45,9 @@ public:
     virtual ~IBounded() = default;
 
     // Returns true if actor collides with input actor and updates mtv vector accordingly
-    bool isIntersecting(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
+    bool IsIntersecting(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
+
+    bool IsIntersectingLineTrace(glm::vec3 _point);
 
     bool AABBx2(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
@@ -58,6 +60,8 @@ public:
     bool ConvexxNotConvex(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
     bool AABBxPoint(glm::vec3 _pointPos);
+
+    bool BoundingSpherexPoint(glm::vec3 _pointPos);
 
     // Returns true if this object is colliding with anything else. 
     bool GetIsColliding() { return mIsColliding; }

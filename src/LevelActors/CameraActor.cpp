@@ -127,8 +127,7 @@ void CameraActor::UpdateRotationFromYawPitch()
     glm::quat newRotation = yawQuat * pitchQuat;
     newRotation = glm::normalize(newRotation); // Ensure the quaternion is normalized
 
-    // Assuming SetRotation directly sets the Transform's rotation
-    this->SetGlobalRotation(newRotation);
+	SetGlobalRotation(newRotation);
 }
 
 void CameraActor::UpdateRotationFromYawPitch(const glm::vec3& rotationCenter)

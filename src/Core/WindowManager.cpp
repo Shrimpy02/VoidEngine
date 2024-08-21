@@ -187,7 +187,11 @@ void WindowManager::SetBoarderLessWindow()
     // Update state
     mWindowMode = WindowMode::WM_BoarderLess;
 
-    // Reconfigure the OpenGL viewport to match the new window size
+    // Reconfigure the OpenGL viewport to m
+    //
+
+
+    // atch the new window size
     int width, height;
     glfwGetFramebufferSize(mGLFWWindow, &width, &height);
     glViewport(0, 0, width, height);
@@ -252,6 +256,9 @@ void WindowManager::KeyCallback(GLFWwindow* _window, int _key, int _scanCode, in
 
 void WindowManager::MouseButtonCallback(GLFWwindow* _window, int _button, int _action, int _mods)
 {
+    double cursorX, cursorY;
+    glfwGetCursorPos(_window, &cursorX, &cursorY);
+
    if (mUserInterfaceManager)
-       mUserInterfaceManager->MouseButtonCallback(_window, _button, _action, _mods);
+       mUserInterfaceManager->MouseButtonCallback(_window, _button, _action, _mods, cursorX, cursorY);
 }

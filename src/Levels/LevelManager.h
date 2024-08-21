@@ -16,6 +16,8 @@ class Actor;
 struct Transform;
 class UserInterfaceManager;
 class DebugActor;
+class CameraActor;
+
 
 /**
  * @class LevelManager
@@ -40,6 +42,8 @@ private:
     std::shared_ptr<Shader> mGraphShader{ nullptr };
     std::shared_ptr<Shader> mDebugShader{ nullptr };
     std::shared_ptr<Shader> mSkyboxShader{ nullptr };
+
+    time_t mApplicationStartTime = 0;
 
 public:
     // ---------- Global functions --------------
@@ -90,8 +94,10 @@ public:
     // Makes All Shaders draw in wire-frame mode
     void ShadersDrawWireFrame(bool _b);
 
-    std::shared_ptr<Actor> LineTrace(glm::vec3 _startPos, glm::vec3 _endPosition, float _resolution, std::shared_ptr<DebugActor> _debugActor = nullptr);
-    std::shared_ptr<Actor> LineTrace(glm::vec3 _startPos, glm::vec3 _direction,float _resolution, float _length, std::shared_ptr<DebugActor> _debugActor = nullptr);
+    std::shared_ptr<Actor> LineTrace(glm::vec3 _startPos, glm::vec3 _endPosition, float _resolution, bool _createDebugActor = false);
+    std::shared_ptr<Actor> LineTrace(glm::vec3 _startPos, glm::vec3 _direction,float _resolution, float _length, bool _createDebugActor = false);
+    std::shared_ptr<Actor> LineTraceCollision(std::vector<std::shared_ptr<Actor>>& _collisionActors, glm::vec3 _point);
+    void CreateLineTraceDebugActor(std::vector<glm::vec3> _points); 
 
 private:
     // ---------- Local functions --------------
@@ -115,13 +121,12 @@ public:
     void SetController(const std::shared_ptr<ActorController> _controller) { mController = _controller; }
 
     // Getters
-
     std::shared_ptr<ActorController> GetActorController() const { return mController;  }
 
     std::shared_ptr<Level> GetActiveLevel() { return mActiveLevel; }
 
     std::shared_ptr<Shader> GetDefaultShader() { return mDefaultShader; }
 
-
+    std::shared_ptr<CameraActor> GetActiveCamera();
 };
 

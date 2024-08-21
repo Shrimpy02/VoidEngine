@@ -69,6 +69,7 @@ void UserInterfaceManager::LoadContent()
 	{
 		mLevelManager->LoadContent();
 		mDefaultShader = mLevelManager->GetDefaultShader();
+		mController->GetLevelManager(mLevelManager);
 	}
 }
 
@@ -151,10 +152,13 @@ void UserInterfaceManager::KeyCallback(GLFWwindow* _window, int _key, int _scanC
 		mController->HandleKeyboard(_key, _scanCode, _action, _mods);
 }
 
-void UserInterfaceManager::MouseButtonCallback(GLFWwindow* _window, int _button, int _action, int _mods)
+void UserInterfaceManager::MouseButtonCallback(GLFWwindow* _window, int _button, int _action, int _mods, double _cursorPosX, double _cursorPosY)
 {
 	// Passes all mouse button callbacks to ImGui and stops glfw from using them
 	ImGui_ImplGlfw_MouseButtonCallback(_window, _button, _action, _mods);
+
+	if (mController && mViewportHasFocusAndHover)
+		mController->HandleViewportClick(_button, _action, _mods, _cursorPosX, _cursorPosY);
 
 	if (mController && mViewportHasFocusAndHover)
 		mController->HandleMouseButton(_button, _action, _mods);
@@ -698,6 +702,8 @@ void UserInterfaceManager::ui_ViewPort()
 		ImVec2 uv1 = ImVec2(1.0f, 0.0f); // Bottom-right
 		ImGui::Image((void*)(intptr_t)mViewportTexture, availableSize, uv0, uv1);
 
+		mMouseCursorPosition = ImGui::GetMousePos();
+
 		if (ImGui::BeginDragDropTarget())
 		{
 			if (mIsCreateActorWindowOpen)
@@ -781,6 +787,7 @@ void UserInterfaceManager::ui_ViewPort()
 		}
 
 		mViewportHasFocusAndHover = ImGui::IsWindowFocused() && ImGui::IsWindowHovered() ? true : false;
+		mViewportHasHover = ImGui::IsWindowHovered();
 
 		mViewportPos = ImGui::GetWindowPos();
 	}
@@ -1268,7 +1275,7 @@ void UserInterfaceManager::uiSub_WorldProperties(std::shared_ptr<Actor> _inActor
 			{
 				std::string name = _inActor->GetTag() + "_BarycentricDebug";
 
-				mBarycentricDebugActor = std::make_shared<DebugActor>(name, debugMeshPoints);
+				mBarycentricDebugActor = std::make_shared<DebugActor>(name,false, debugMeshPoints);
 				mLevelManager->GetActiveLevel()->AddActorToSceneGraph(mBarycentricDebugActor);
 			}
 			else {

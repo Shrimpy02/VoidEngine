@@ -8,7 +8,7 @@
 // Additional Includes
 
 
-bool IBounded::isIntersecting(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv)
+bool IBounded::IsIntersecting(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv)
 {
 	    // Both are AABB
 	    // -----------------------------------
@@ -69,6 +69,39 @@ bool IBounded::isIntersecting(std::shared_ptr<IBounded> _otherCollider, glm::vec
 
 		// All Failed
 	LOG_ERROR("Collision Base Missmatch");
+    return false;
+}
+
+bool IBounded::IsIntersectingLineTrace(glm::vec3 _point)
+{
+	// Linetrace vs AABB
+	// -----------------------------------
+    if (mCollisionProperties.IsAABB())
+    {
+        if (AABBxPoint(_point))
+        {
+           
+            return true;
+        }
+
+        return false;
+
+        // Linetrace vs BoundingSphere
+        // -----------------------------------
+    }
+    else if (mCollisionProperties.IsBoundingSphere()) {
+
+        if (BoundingSpherexPoint(_point))
+        {
+           
+            return true;
+        }
+
+        return false;
+    }
+
+    // All Failed
+    LOG_ERROR("Collision Base Missmatch");
     return false;
 }
 
@@ -260,21 +293,29 @@ bool IBounded::AABBxPoint(glm::vec3 _pointPos)
     // calculates the difference from one center to the other
    // and their extent sum
     glm::vec3 diff = _pointPos - this->mCenter;
-    glm::vec3 sumExtent = this->mExtent + glm::vec3(0);
+    glm::vec3 sumExtent = this->mExtent;
 
     // Check each axis for non intersection
     for (int i = 0; i < 3; i++)
     {
         // if the difference in length is larger then the sum extent
         // in each axis there is no intersection.
-        if (abs(diff[i]) >= sumExtent[i])
+        if (abs(diff[i]) > sumExtent[i])
         {
             return false; // no intersection for this axis
         }
     }
+    return true;
+}
 
+bool IBounded::BoundingSpherexPoint(glm::vec3 _pointPos)
+{
+    // Calculate the vector from the center of the sphere to the point
+    glm::vec3 diff = _pointPos - mCenter;
 
-	//return (_pointPos.x >= -this->mExtent.x && _pointPos.x <= this->mExtent.x &&
-    //    _pointPos.y >= -this->mExtent.y && _pointPos.y <= this->mExtent.y &&
-    //    _pointPos.z >= -this->mExtent.z && _pointPos.z <= this->mExtent.z);
+    // Calculate the squared distance between the center and the point
+    float distanceSquared = glm::dot(diff, diff);
+
+    // Compare the squared distance with the squared radius of the sphere
+    return distanceSquared <= (mRadius * mRadius);
 }

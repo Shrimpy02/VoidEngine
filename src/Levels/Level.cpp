@@ -1,7 +1,11 @@
 
 #include <Levels/Level.h>
 #include <LevelActors/SceneGraph.h>
+#include <LevelActors/DebugActor.h>
 #include <Actor.h>
+#include <Utilities/Logger.h>
+//#include <chrono>
+#include <ctime>
 
 Level::Level(const std::string& _name)
 	: mTag(_name)
@@ -48,10 +52,36 @@ void Level::RemoveActorFromSceneGraphRecursive(const std::shared_ptr<Actor>& par
     }
 }
 
+void Level::TempDebugTimerManager(double timeSinceApplicationStart)
+{
+
+    // Get all IBounded Actors of the active level
+    std::vector<std::shared_ptr<Actor>> lifeTimeActors;
+    mSceneGraph->Query<ILifeTime>(lifeTimeActors);
+
+    if (!lifeTimeActors.empty())
+    {
+        if (std::shared_ptr<DebugActor> lifetimeActor = std::dynamic_pointer_cast<DebugActor>(lifeTimeActors[0]))
+        {
+            if(lifetimeActor->IsLifetimeEnabled())
+            {
+                double timeSinceActorInit = difftime(time(nullptr), lifetimeActor->GetLifeTime());
+
+            	if ((timeSinceActorInit) >= 3.0f)
+                {
+                    RemoveActorFromSceneGraph(lifetimeActor);
+                }
+            }
+        }
+    }
+}
+
 void Level::ClearLevel()
 {
 }
 
-void Level::GetLevelName()
+std::string Level::GetLevelName()
 {
+    return mTag.GetValue().c_str();
 }
+

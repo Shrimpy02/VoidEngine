@@ -22,6 +22,8 @@ public:
 private:
 	// ---------- Local Variables --------------
 
+    float mMovementSpeed = 10;
+
     // Settings
     float mMaxMovementSpeed;
     float mAccelerationSpeed;
@@ -101,6 +103,8 @@ public:
 
 
     // Getters
+
+    float GetMovementSpeed() { return mMovementSpeed; }
 
     // Returns the angular velocity as a vec2
     const glm::vec2& GetAngularVelocity() const { return mAngularAcceleration; }

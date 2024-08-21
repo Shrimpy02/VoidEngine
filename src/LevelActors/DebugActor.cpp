@@ -6,13 +6,17 @@
 // Additional Includes
 
 
-DebugActor::DebugActor(const std::string& _name, std::vector<glm::vec3> _points)
-	: Actor(_name)
+DebugActor::DebugActor(const std::string& _name, bool _enableLifetime, std::vector<glm::vec3> _points)
+	: Actor(_name), mEnableLifetime(_enableLifetime)
 {
 	SetShaderObjectType(ShaderObjectType::Debug);
 	if(!_points.empty())
 		mVisualMesh = Mesh::CreateDebugLine(_points);
+
+	if(mEnableLifetime)
+		InitializeLifeTime();
 }
+
 void DebugActor::Draw(const std::shared_ptr<Shader> _shader) const
 {
 	if (!mVisualMesh) return;

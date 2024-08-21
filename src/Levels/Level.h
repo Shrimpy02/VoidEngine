@@ -5,11 +5,13 @@
 // Additional Includes
 #include <memory>
 
+
 // Forward Declarations
 struct TagUnique;
 class CameraActor;
 class SceneGraph;
 class Actor;
+class DebugActor;
 
 /**
  * @struct Level
@@ -42,6 +44,7 @@ public:
 
     void RemoveActorFromSceneGraphRecursive(const std::shared_ptr<Actor>& parent, const std::shared_ptr<Actor>& _inActor);
 
+    void TempDebugTimerManager(double timeSinceApplicationStart);
 
     void ClearLevel();
 
@@ -49,6 +52,7 @@ public:
 
     // Getters ---------------
 
-    void GetLevelName();
+    std::string GetLevelName();
+    
 };
 

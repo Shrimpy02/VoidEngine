@@ -68,7 +68,7 @@ void Mesh::DrawDebugLines(const std::shared_ptr<Shader> _shader) const
     // binds VAO and draws all geometry by given indices and vertices
     glBindVertexArray(mVAO);
     glLineWidth(10.0f);
-    glDrawArrays(GL_LINES, 0,static_cast<GLsizei>(mDebugVertices.size()));
+    glDrawArrays(GL_LINE_STRIP, 0,static_cast<GLsizei>(mDebugVertices.size()));
     //glDrawElements(GL_LINES, static_cast<GLsizei>(mIndices.size()), GL_UNSIGNED_INT, 0);
 	glLineWidth(1.0f);
 	glBindVertexArray(0);

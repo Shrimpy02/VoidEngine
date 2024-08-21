@@ -89,9 +89,11 @@ private:
     GLuint mFrameBuffer = 0;
     GLuint mDepthBuffer = 0;
     ImVec2 mViewportPos = ImVec2(0,0);
-    int mViewportWidth = 960; // Set appropriate width
-    int mViewportHeight = 540; // Set appropriate height
+    ImVec2 mMouseCursorPosition = ImVec2(0, 0);
+    int mViewportWidth = 960;
+    int mViewportHeight = 540;
     bool mViewportHasFocusAndHover = false;
+    bool mViewportHasHover = false;
 
     // World Properties ------
     bool mIsWorldPropertiesWindowOpen = true;
@@ -183,7 +185,7 @@ public:
     void MouseScrollCallback(GLFWwindow* _window, double _xoffset, double _yoffset);
     void CharCallback(GLFWwindow* _window, unsigned int _codepoint);
     void KeyCallback(GLFWwindow* _window, int _key, int _scancode, int _action, int _mods);
-    void MouseButtonCallback(GLFWwindow* _window, int _button, int _action, int _mods);
+    void MouseButtonCallback(GLFWwindow* _window, int _button, int _action, int _mods, double _cursorPosX, double _cursorPosY);
 
     // Checkers --------------
 
@@ -267,10 +269,13 @@ public:
 
     // Setters
 
+    void SetContentSelectedActor(std::shared_ptr<Actor> _inActor) { mContentSelectedActor = _inActor; }
+
     // Getters
-    float GetViewportWidth() { return (float)mViewportWidth; }
-    float GetViewportHeight() { return (float)mViewportHeight; }
-    ImVec2 GetWindowPos() { return mViewportPos; }
+    int GetViewportWidth() { return mViewportWidth; }
+    int GetViewportHeight() { return mViewportHeight; }
+    ImVec2 GetViewportPosition() { return mViewportPos;  }
+    ImVec2 GetCursoPosition() { return mMouseCursorPosition; }
     std::vector<FileItem> GetDirectoryContents(const std::string& _path);
 };
 

@@ -3,9 +3,9 @@
 #include <Controllers/ActorController.h>
 #include <Core/WindowManager.h>
 #include <UserInterface/UserInterfaceManager.h>
+#include <Levels/LevelManager.h>
 #include <Components/PhysicsComponent.h>
 #include <LevelActors/CameraActor.h>
-#include <Utilities/Logger.h>
 
 // Additional Includes
 #include <GLFW/glfw3.h>
@@ -29,16 +29,25 @@ void ActorController::HandleMouseMove(double _xPos, double _yPos)
     // Only handle mouse movement if right mouse button is pressed
     if (!mRightMousePressed) return;
 
+    // Get the current window position and size of the viewport
+    ImVec2 windowPos = mUserInterfaceManager->GetViewportPosition();
+    int viewportWidth = (int)mUserInterfaceManager->GetViewportWidth();
+    int viewportHeight = (int)mUserInterfaceManager->GetViewportHeight();
+
+    // Calculate the center of the viewport
+    float centerX = windowPos.x + viewportWidth / 2.0f;
+    float centerY = windowPos.y + viewportHeight / 2.0f;
+
     // checks with last x and y for consistent mouse movement
     float xOffset = mLastX - static_cast<float>(_xPos);
     float yOffset = mLastY - static_cast<float>(_yPos);
 
-    mLastX = static_cast<float>(_xPos);
-    mLastY = static_cast<float>(_yPos);
-
     // applies mouse sensitivity 
     xOffset *= mMouseSensitivity;
     yOffset *= mMouseSensitivity;
+
+    mLastX = static_cast<float>(_xPos);
+    mLastY = static_cast<float>(_yPos);
 
     if(std::shared_ptr<CameraActor> camActor = std::dynamic_pointer_cast<CameraActor>(mControlledActor))
     {
@@ -56,6 +65,24 @@ void ActorController::HandleMouseMove(double _xPos, double _yPos)
         // Adds the acceleration to the camera for it to rotate
         mCameraForSnap->AddAngularAcceleration({ xOffset * angularSpeed, yOffset * angularSpeed });
     }
+
+    // Reposition the cursor to the center of the viewport if it reaches an edge
+    bool resetCursor = false;
+    if (_xPos <= windowPos.x || _xPos >= windowPos.x + viewportWidth)
+    {
+        resetCursor = true;
+        mLastX = centerX;
+    }
+    if (_yPos <= windowPos.y + 20 || _yPos >= windowPos.y + viewportHeight)
+    {
+        resetCursor = true;
+        mLastY = centerY;
+    }
+
+    if (resetCursor)
+    {
+        glfwSetCursorPos(mWindowManager->GetGLFWWindow(), centerX, centerY);
+    }
 }
 
 void ActorController::HandleMouseScroll(double _xOffset, double _yOffset)
@@ -71,8 +98,8 @@ void ActorController::HandleMouseButton(int _button, int _action, int _mods)
             if(mUserInterfaceManager)
             {
                 mRightMousePressed = true;
-                mLastX = mUserInterfaceManager->GetWindowPos().x + mUserInterfaceManager->GetViewportWidth() / 2;
-                mLastY = mUserInterfaceManager->GetWindowPos().y + mUserInterfaceManager->GetViewportHeight() / 2;
+                mLastX = mUserInterfaceManager->GetViewportPosition().x + mUserInterfaceManager->GetViewportWidth() / 2;
+                mLastY = mUserInterfaceManager->GetViewportPosition().y + mUserInterfaceManager->GetViewportHeight() / 2;
                 glfwSetCursorPos(mWindowManager->GetGLFWWindow(), mLastX, mLastY);
                 glfwSetInputMode(mWindowManager->GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             }
@@ -83,8 +110,8 @@ void ActorController::HandleMouseButton(int _button, int _action, int _mods)
             {
                 mRightMousePressed = false;
                 glfwSetInputMode(mWindowManager->GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                mLastX = mUserInterfaceManager->GetWindowPos().x + mUserInterfaceManager->GetViewportWidth() / 2;
-                mLastY = mUserInterfaceManager->GetWindowPos().y + mUserInterfaceManager->GetViewportHeight() / 2;
+                mLastX = mUserInterfaceManager->GetViewportPosition().x + mUserInterfaceManager->GetViewportWidth() / 2;
+                mLastY = mUserInterfaceManager->GetViewportPosition().y + mUserInterfaceManager->GetViewportHeight() / 2;
                 glfwSetCursorPos(mWindowManager->GetGLFWWindow(), mLastX, mLastY);
             }
         }
@@ -107,6 +134,70 @@ void ActorController::HandleKeyboard(int _key, int _scanCode, int _action, int _
 void ActorController::HandleChar(unsigned codePoint)
 {
 
+}
+
+void ActorController::HandleViewportClick(int _button, int _action, int _mods, double _cursorPosX, double _cursorPosY)
+{
+    std::shared_ptr<CameraActor> camera = std::dynamic_pointer_cast<CameraActor>(mControlledActor);
+    if (!camera) return;
+
+    static bool doOnce = true;
+
+    if (_button == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        if (_action == GLFW_PRESS)
+        {
+            if (mUserInterfaceManager && mLevelManager)
+            {
+               if(doOnce)
+               {
+                   // Get the viewport and cursor dimensions 
+                   int viewportWidth = mUserInterfaceManager->GetViewportWidth();
+                   int viewportHeight = mUserInterfaceManager->GetViewportHeight();
+                   ImVec2 viewportPos = mUserInterfaceManager->GetViewportPosition();
+                   ImVec2 cursorPos = mUserInterfaceManager->GetCursoPosition();
+                   ImVec2 relativeMousePos = ImVec2(cursorPos.x - viewportPos.x, cursorPos.y - viewportPos.y);
+
+               		// Convert mouse position from screen space to NDC
+                   float x = (2.0f * relativeMousePos.x) / viewportWidth - 1.0f;
+                   float y = 1.0f - (2.0f * relativeMousePos.y) / viewportHeight;
+                   glm::vec2 ndc = glm::vec2(x, y);
+
+                   // Convert NDC to clip space
+                   glm::vec4 clipSpacePos = glm::vec4(ndc, -1.0f, 1.0f);
+
+                   // Convert clip space to view space
+                   glm::mat4 invProjection = glm::inverse(camera->GetProjectionMatrix());
+                   glm::vec4 viewSpacePos = invProjection * clipSpacePos;
+                   viewSpacePos = glm::vec4(viewSpacePos.x, viewSpacePos.y, -1.0f, 0.0f);
+
+                   // Convert view space to world space (ray direction)
+                   glm::mat4 invView = glm::inverse(camera->GetViewMatrix());
+                   glm::vec3 rayDirection = glm::normalize(glm::vec3(invView * viewSpacePos));
+                   glm::vec3 rayOrigin = camera->GetGlobalPosition();
+
+					// Project ray
+                   if (std::shared_ptr<Actor> hitActor = mLevelManager->LineTrace(
+                       rayOrigin,
+                       rayDirection,
+                       500,
+                       100,
+                       true))
+                   {
+                       mUserInterfaceManager->SetContentSelectedActor(hitActor);
+                   }
+                   doOnce = false;
+               }
+            }
+        }
+        else if (_action == GLFW_RELEASE)
+        {
+            if (mUserInterfaceManager && mLevelManager)
+            {
+                doOnce = true;
+            }
+        }
+    }
 }
 
 void ActorController::SnapCameraToControlledActor(std::shared_ptr<CameraActor> _camRef)
@@ -186,26 +277,22 @@ void ActorController::CameraInput(float _dt)
 {
 	if (std::shared_ptr<CameraActor> camActor = std::dynamic_pointer_cast<CameraActor>(mControlledActor))
     {
-        // Gets the acceleration for update
-        glm::vec3 acceleration = camActor->GetAcceleration();
-        const float movementSpeed = camActor->GetAccelerationSpeed();
-        acceleration = glm::vec3(0.f);
-
-        // Update camera acceleration
-        if (mKeyStates[GLFW_KEY_W]) acceleration.z += movementSpeed;
-        if (mKeyStates[GLFW_KEY_S]) acceleration.z -= movementSpeed;
-        if (mKeyStates[GLFW_KEY_D]) acceleration.x += movementSpeed;
-        if (mKeyStates[GLFW_KEY_A]) acceleration.x -= movementSpeed;
-        if (mKeyStates[GLFW_KEY_E]) acceleration.y += movementSpeed;
-        if (mKeyStates[GLFW_KEY_Q]) acceleration.y -= movementSpeed;
+		const float movementSpeed = camActor->GetMovementSpeed();
     
-        // Sets the camera acceleration
-        camActor->SetAcceleration(acceleration);
+        // Update camera acceleration
+        if (mKeyStates[GLFW_KEY_W]) camActor->SetGlobalPosition(camActor->GetGlobalPosition() + (camActor->GetFront() * movementSpeed * _dt));
+        if (mKeyStates[GLFW_KEY_S]) camActor->SetGlobalPosition(camActor->GetGlobalPosition() - (camActor->GetFront() * movementSpeed * _dt));
+        if (mKeyStates[GLFW_KEY_D]) camActor->SetGlobalPosition(camActor->GetGlobalPosition() + (camActor->GetRight() * movementSpeed * _dt));
+        if (mKeyStates[GLFW_KEY_A]) camActor->SetGlobalPosition(camActor->GetGlobalPosition() - (camActor->GetRight() * movementSpeed * _dt));
+        if (mKeyStates[GLFW_KEY_E]) camActor->SetGlobalPosition(camActor->GetGlobalPosition() + (camActor->GetUp() * movementSpeed * _dt));
+        if (mKeyStates[GLFW_KEY_Q]) camActor->SetGlobalPosition(camActor->GetGlobalPosition() - (camActor->GetUp() * movementSpeed * _dt));
     }
 }
 
 void ActorController::ActorInput(float _dt)
 {
+    if (std::shared_ptr<CameraActor> camActor = std::dynamic_pointer_cast<CameraActor>(mControlledActor)) return;
+
     // Controlling actor that has a camera snapped to it
     // ----------------------------------------------------------------
     if(mControlledActor && mCameraForSnap) {

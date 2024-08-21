@@ -12,6 +12,7 @@
 // Forward Declarations
 class Actor;
 class WindowManager;
+class LevelManager;
 class CameraActor;
 class UserInterfaceManager;
 
@@ -38,7 +39,7 @@ private:
     std::shared_ptr<Actor> mControlledActor;
     // Window reference
     std::shared_ptr<WindowManager> mWindowManager;
-
+    std::shared_ptr<LevelManager> mLevelManager;
     std::shared_ptr<UserInterfaceManager> mUserInterfaceManager;
 
     // Control settings camera
@@ -67,6 +68,7 @@ public:
     void HandleKeyboard(int _key, int _scanCode, int _action, int _mods) override;
     // Inherited from IController, empty function
     void HandleChar(unsigned codePoint) override;
+    void HandleViewportClick(int _button, int _action, int _mods, double _cursorPosX, double _cursorPosY);
 
     void SnapCameraToControlledActor(std::shared_ptr<CameraActor> _camRef);
 
@@ -102,7 +104,7 @@ public:
     void SetWindowManager(std::shared_ptr<WindowManager> _inWindowManager) { mWindowManager = _inWindowManager; };
 
     // Getters
-
+    void GetLevelManager(std::shared_ptr<LevelManager> _inManager) { mLevelManager = _inManager; }
     std::shared_ptr<Actor> GetRefToControlledActor() { return mControlledActor; }
 
     // gets the current movement speed
