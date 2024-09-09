@@ -2,7 +2,7 @@
 51	1463	7456711923383329	CMakeFiles/3DProgEngine.dir/3DProgEngine.cpp.obj	bd84136083d2b31f
 195	3284	7388454313319884	CMakeFiles/3DProgEngine.dir/src/Material.cpp.obj	7731e4a64847636b
 150	1492	7388454295638094	CMakeFiles/3DProgEngine.dir/includes/glad.c.obj	1fa0d871a9db03e7
-2963	3432	7472362489185884	3DProgEngine.exe	e71db4a6fd9df8f5
+2315	2752	7475752455737256	3DProgEngine.exe	e71db4a6fd9df8f5
 127	2344	7340189438933046	libs/assimp/test/CMakeFiles/unit.dir/unit/Common/utAssertHandler.cpp.obj	aa3c8c4b16aa3cff
 2594	3674	7388454317497577	libs/glfw-3.3.9/src/CMakeFiles/glfw.dir/monitor.c.obj	14ec0628d656a4ff
 54	1731	7432436438390066	CMakeFiles/3DProgEngine.dir/src/Camera.cpp.obj	77f282e18328c8ae
@@ -507,7 +507,7 @@
 35	2709	7471392605151601	CMakeFiles/3DProgEngine.dir/src/Core/SMath.cpp.obj	dbdec963ad05166f
 39	2623	7471392604267321	CMakeFiles/3DProgEngine.dir/src/Components/AIComponent.cpp.obj	dfb95f43b6af2f38
 28	85	7417179381917525	CMakeFiles/3DProgEngine.dir/src/SkyBox/Skybox.cpp.obj	d9f631fb074cd986
-31	2963	7472362485034428	CMakeFiles/3DProgEngine.dir/src/Levels/LevelManager.cpp.obj	8bcc5f605da47835
+28	2315	7475752451925932	CMakeFiles/3DProgEngine.dir/src/Levels/LevelManager.cpp.obj	8bcc5f605da47835
 54	502	7417140375021045	CMakeFiles/3DProgEngine.dir/src/SceneGraph.cpp.obj	2ad6eb11833cf93e
 30	928	7457680889223142	CMakeFiles/3DProgEngine.dir/src/RenderElements/Texture.cpp.obj	ed0a8e54544a496d
 32	2850	7471428183230256	CMakeFiles/3DProgEngine.dir/src/UserInterface/UserInterfaceManager.cpp.obj	8c5afd2c174fb902
@@ -521,9 +521,3 @@
 82	2708	7471392605141592	CMakeFiles/3DProgEngine.dir/src/LevelActors/CameraActor.cpp.obj	a2e79392c8f9ef2d
 68	2671	7471392604493218	CMakeFiles/3DProgEngine.dir/src/LevelActors/DebugActor.cpp.obj	b9a1fc650ba7190c
 39	1945	7471428174173145	CMakeFiles/3DProgEngine.dir/src/Core/WindowManager.cpp.obj	722722fa5a9459a9
-28	2477	7475751244215597	CMakeFiles/3DProgEngine.dir/src/Levels/LevelManager.cpp.obj	8bcc5f605da47835
-2478	3652	7475751255107080	3DProgEngine.exe	e71db4a6fd9df8f5
-34	2622	7475751586599608	CMakeFiles/3DProgEngine.dir/src/Levels/LevelManager.cpp.obj	8bcc5f605da47835
-2622	3104	7475751590888615	3DProgEngine.exe	e71db4a6fd9df8f5
-28	2315	7475752451925932	CMakeFiles/3DProgEngine.dir/src/Levels/LevelManager.cpp.obj	8bcc5f605da47835
-2315	2752	7475752455737256	3DProgEngine.exe	e71db4a6fd9df8f5
