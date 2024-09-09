@@ -41,6 +41,8 @@ public:
 
     void UpdateVisualMesh(std::vector<glm::vec3>& _newPoints);
 
+    void UpdateVisualMesh(std::shared_ptr<Mesh> _mesh);
+
 private:
     // ---------- Local functions --------------
 

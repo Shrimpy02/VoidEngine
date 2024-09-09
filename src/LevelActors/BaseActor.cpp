@@ -8,9 +8,12 @@
 
 // Additional Includes
 
-BaseActor::BaseActor(const std::string& _name, std::shared_ptr<Mesh> _visualMesh, std::shared_ptr<Mesh> _collisionMesh)
+BaseActor::BaseActor(const std::string& _name, std::shared_ptr<Mesh> _visualMesh, CollisionBase _collisionBase, glm::vec3 _pos, glm::vec3 _scale, glm::quat _rotation, std::shared_ptr<Mesh> _collisionMesh)
     :Actor(_name)
 {
+    SetGlobalPosition(_pos);
+    SetGlobalScale(_scale);
+    SetGlobalRotation(_rotation);
 
     if (_visualMesh) {
 
@@ -21,13 +24,17 @@ BaseActor::BaseActor(const std::string& _name, std::shared_ptr<Mesh> _visualMesh
             mCustomCollisionMesh = true;
         }
         else {
-
+            if(_collisionBase != CollisionBase::Compare)
+				SetCollisionBase(_collisionBase);
+            UpdateCollisionMeshBasedOnCollisionBase();
+            UpdateExtent();
         }
-
     }
     else {
         LOG_WARNING("BaseActor `%s` has no visible mesh", _name.c_str());
     }
+
+
 
     //mCollisionMesh->SetIsVisible(false);
 
@@ -91,7 +98,9 @@ void BaseActor::UpdateExtent()
     else if (mCollisionProperties.IsBoundingSphere()) {
 
         mRadius = glm::length(((mMaxExtent - mMinExtent) * glm::vec3(0.5)) * GetGlobalScale());
-        mCenter = ((mMinExtent + mMaxExtent) * 0.5f) + GetGlobalPosition();
+        mRadius /= 2;
+        mRadius += 0.05f * glm::length(GetGlobalScale());
+    	mCenter = ((mMinExtent + mMaxExtent) * 0.5f) + GetGlobalPosition();
     }
 
 }

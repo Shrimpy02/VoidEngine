@@ -30,7 +30,7 @@ private:
 	// ---------- Local Variables --------------
 
 	std::string mWindowName;
-	int mWidth, mHeight;
+	int mWidth = 1980, mHeight = 1020;
 	const int mWindowTopBarOffset = 30;
 	int mWindowedWidth = 1980;
 	int mWindowedHeight = 1020;

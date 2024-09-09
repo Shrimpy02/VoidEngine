@@ -36,7 +36,7 @@ public:
     // ---------- Global functions --------------
 
     // Constructor
-    BaseActor(const std::string& _name, std::shared_ptr<Mesh> _visualMesh, std::shared_ptr<Mesh> _collisionMesh = nullptr);
+    BaseActor(const std::string& _name, std::shared_ptr<Mesh> _visualMesh, CollisionBase _collisionBase = CollisionBase::Compare, glm::vec3 _pos = glm::vec3(0), glm::vec3 _scale = glm::vec3(1), glm::quat _rotation = glm::quat(), std::shared_ptr<Mesh> _collisionMesh = nullptr);
 
     ~BaseActor() = default;
 

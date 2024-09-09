@@ -51,6 +51,14 @@ public:
     // Static function returns a vector of vec3 locations as an approximated parametric curve from DeCastalejau`s algorithm by the four given points.
     static std::vector<glm::vec3> DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, glm::vec3 _point4, float _step = 0.25f);
 
+    static void SeedRandTime();
+
+    static int GetRandomInt(const int& _offset, const int& _range);
+
+    static float GetRandomFloat(const float& _offset, const float& _range);
+
+    static float GetRandomFloatBetweenMinMax(const float& _min, const float& _max);
+
 private:
     // ---------- Local functions --------------
 

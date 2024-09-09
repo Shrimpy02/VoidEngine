@@ -3,12 +3,10 @@
 #include <RenderElements/Vertex.h>
 #include <RenderElements/GraphVertex.h>
 #include <RenderElements/DebugVertex.h>
+#include <RenderElements/Texture.h>
 #include <RenderElements/Material.h>
 #include <Utilities/Logger.h>
-#include <Utilities/Defines.h>
 #include <corecrt_math_defines.h>
-
-#include "Texture.h"
 
 
 // static cache of meshes
@@ -74,82 +72,81 @@ void Mesh::DrawDebugLines(const std::shared_ptr<Shader> _shader) const
 	glBindVertexArray(0);
 }
 
-std::shared_ptr<Mesh> Mesh::CreateCube(std::shared_ptr<Material> _material, std::string _customName)
+std::shared_ptr<Mesh> Mesh::CreateCube(std::shared_ptr<Material> _material, const bool _instance, std::string _customName)
 {
-    // Create default cube key
+	// Default key
     std::string cubeKey = "DefaultCube";
 
-    if(!_customName.empty()){
-        // Overwrites default key if custom name is added.
+    // Overwrite key if there is custom name
+    if (!_customName.empty())
         cubeKey = _customName;
+    
+    // If instance enabled find mesh in cache and return it
+    if(_instance)
+    {
+        auto it = mCache.find(cubeKey);
+        if (it != mCache.end())
+            return it->second;
     }
 
-    // Enable this for instance like behaviour
-    //// Checks if default cube exists in cache,if it does use that
-    //// rather than calculating an entire new cube to save loading time.
-    //auto it = mCache.find(cubeKey);
-    //if (it != mCache.end())
-    //{
-    //   // LOG("%s Loaded", cubeKey.c_str());
-    //    return it->second;
-    //}
-
-    // otherwise gen vertices and indices from vector
     std::vector<Vertex> vertices = {
-        // Front face
+        // Back face (looking towards -Z)
+        {{-0.5f, -0.5f, -0.5f}, {0.0f,  0.0f, -1.0f}, {0.0f, 0.0f}}, // Bottom-left
+        {{ 0.5f, -0.5f, -0.5f}, {0.0f,  0.0f, -1.0f}, {1.0f, 0.0f}}, // Bottom-right
+        {{ 0.5f,  0.5f, -0.5f}, {0.0f,  0.0f, -1.0f}, {1.0f, 1.0f}}, // Top-right
+        {{-0.5f,  0.5f, -0.5f}, {0.0f,  0.0f, -1.0f}, {0.0f, 1.0f}}, // Top-left
+
+        // Front face (looking towards +Z)
         {{-0.5f, -0.5f,  0.5f}, {0.0f,  0.0f,  1.0f}, {0.0f, 0.0f}}, // Bottom-left
         {{ 0.5f, -0.5f,  0.5f}, {0.0f,  0.0f,  1.0f}, {1.0f, 0.0f}}, // Bottom-right
         {{ 0.5f,  0.5f,  0.5f}, {0.0f,  0.0f,  1.0f}, {1.0f, 1.0f}}, // Top-right
         {{-0.5f,  0.5f,  0.5f}, {0.0f,  0.0f,  1.0f}, {0.0f, 1.0f}}, // Top-left
-        // Back face
-        {{-0.5f, -0.5f, -0.5f}, {0.0f,  0.0f, -1.0f}, {1.0f, 0.0f}},
-        {{ 0.5f, -0.5f, -0.5f}, {0.0f,  0.0f, -1.0f}, {0.0f, 0.0f}},
-        {{ 0.5f,  0.5f, -0.5f}, {0.0f,  0.0f, -1.0f}, {0.0f, 1.0f}},
-        {{-0.5f,  0.5f, -0.5f}, {0.0f,  0.0f, -1.0f}, {1.0f, 1.0f}},
-        // Left face
-        {{-0.5f, -0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}},
-        {{-0.5f, -0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}},
-        {{-0.5f,  0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}},
-        {{-0.5f,  0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}},
-        // Right face
-        {{ 0.5f, -0.5f, -0.5f}, {1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}},
-        {{ 0.5f, -0.5f,  0.5f}, {1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}},
-        {{ 0.5f,  0.5f,  0.5f}, {1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}},
-        {{ 0.5f,  0.5f, -0.5f}, {1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}},
-        // Top face
-        {{-0.5f,  0.5f, -0.5f}, {0.0f,  1.0f,  0.0f}, {0.0f, 1.0f}},
-        {{-0.5f,  0.5f,  0.5f}, {0.0f,  1.0f,  0.0f}, {0.0f, 0.0f}},
-        {{ 0.5f,  0.5f,  0.5f}, {0.0f,  1.0f,  0.0f}, {1.0f, 0.0f}},
-        {{ 0.5f,  0.5f, -0.5f}, {0.0f,  1.0f,  0.0f}, {1.0f, 1.0f}},
-        // Bottom face
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f,  0.0f}, {1.0f, 1.0f}},
-        {{-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f,  0.0f}, {0.0f, 1.0f}},
-        {{ 0.5f, -0.5f,  0.5f}, {0.0f, -1.0f,  0.0f}, {0.0f, 0.0f}},
-        {{ 0.5f, -0.5f, -0.5f}, {0.0f, -1.0f,  0.0f}, {1.0f, 0.0f}}
-    };
 
+        // Left face (looking towards -X)
+        {{-0.5f, -0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}}, // Bottom-right
+        {{-0.5f, -0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}}, // Bottom-left
+        {{-0.5f,  0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}}, // Top-left
+        {{-0.5f,  0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}}, // Top-right
+
+        // Right face (looking towards +X)
+        {{ 0.5f, -0.5f, -0.5f}, {1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}}, // Bottom-left
+        {{ 0.5f, -0.5f,  0.5f}, {1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}}, // Bottom-right
+        {{ 0.5f,  0.5f,  0.5f}, {1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}}, // Top-right
+        {{ 0.5f,  0.5f, -0.5f}, {1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}}, // Top-left
+
+        // Top face (looking towards +Y)
+        {{-0.5f,  0.5f, -0.5f}, {0.0f,  1.0f,  0.0f}, {0.0f, 1.0f}}, // Top-left
+        {{ 0.5f,  0.5f, -0.5f}, {0.0f,  1.0f,  0.0f}, {1.0f, 1.0f}}, // Top-right
+        {{ 0.5f,  0.5f,  0.5f}, {0.0f,  1.0f,  0.0f}, {1.0f, 0.0f}}, // Bottom-right
+        {{-0.5f,  0.5f,  0.5f}, {0.0f,  1.0f,  0.0f}, {0.0f, 0.0f}}, // Bottom-left
+
+        // Bottom face (looking towards -Y)
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f,  0.0f}, {0.0f, 1.0f}}, // Top-left
+        {{ 0.5f, -0.5f, -0.5f}, {0.0f, -1.0f,  0.0f}, {1.0f, 1.0f}}, // Top-right
+        {{ 0.5f, -0.5f,  0.5f}, {0.0f, -1.0f,  0.0f}, {1.0f, 0.0f}}, // Bottom-right
+        {{-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f,  0.0f}, {0.0f, 0.0f}}, // Bottom-left
+    };
     std::vector<Index> indices = {
-        // Front face
-        0, 1, 2, 0, 2, 3,
         // Back face
+        0, 2, 1, 0, 3, 2,
+        // Front face
         4, 5, 6, 4, 6, 7,
         // Left face
         8, 9, 10, 8, 10, 11,
         // Right face
-        12, 13, 14, 12, 14, 15,
+        12, 14, 13, 12, 15, 14,
         // Top face
-        16, 17, 18, 16, 18, 19,
+        16, 18, 17, 16, 19, 18,
         // Bottom face
         20, 21, 22, 20, 22, 23
     };
 
 	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(cubeKey, std::move(vertices), std::move(indices), _material);
 
-    // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    mCache[cubeKey] = cube;
+	// If instance enabled add object to cache
+    if(_instance)
+		mCache[cubeKey] = cube;
 
-    // return new default cube
-    //LOG("%s created", cubeKey.c_str());
 	return cube;
 }
 
@@ -223,26 +220,24 @@ std::shared_ptr<Mesh> Mesh::CreateCubeByExtent(std::shared_ptr<Mesh> _extentMesh
     return std::make_shared<Mesh>(_customName, std::move(vertices), std::move(indices), _material);
 }
 
-std::shared_ptr<Mesh> Mesh::CreatePlane(std::shared_ptr<Material> _material, std::string _customName)
+std::shared_ptr<Mesh> Mesh::CreatePlane(std::shared_ptr<Material> _material, const bool _instance, std::string _customName)
 {
-    // Create default plane key
+    // Default key
     std::string planeKey = "DefaultPlane";
 
-    if (!_customName.empty()) {
-        // Overwrites default key if custom name is added.
+    // Overwrites default key if custom name is added.
+    if (!_customName.empty())
         planeKey = _customName;
-    }
 
-    // Checks if default plane exists in cache,if it does use that
-	// rather than calculating an entire new cube to save loading time.
-    auto it = mCache.find(planeKey);
-    if (it != mCache.end())
+    // If instance enabled find mesh in cache and return it
+    if(_instance)
     {
-        //LOG("%s Loaded", planeKey.c_str());
-        return it->second;
+        auto it = mCache.find(planeKey);
+        if (it != mCache.end())
+            return it->second;
     }
 
-    // otherwise gen vertices and indices from vector
+    // Gen vertices and indices from vector
     std::vector<Vertex> vertices = {
         // Front face
         {{-0.5f, 0.0f,  -0.5f}, {0.0f,  1.0f,  0.0f}, {0.0f, 0.0f}},
@@ -252,37 +247,36 @@ std::shared_ptr<Mesh> Mesh::CreatePlane(std::shared_ptr<Material> _material, std
     };
     std::vector<Index> indices = {
         // Front face
-        0, 1, 2, 1, 2, 3
+        0, 1, 2, 1, 3, 2
     };
+    
+    std::shared_ptr<Mesh> plane = std::make_shared<Mesh>(planeKey, std::move(vertices), std::move(indices), _material);
 
-    // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    mCache[planeKey] = std::make_shared<Mesh>(planeKey, std::move(vertices), std::move(indices), _material);
+    // If instance enabled add object to cache
+	if(_instance)
+		mCache[planeKey] = plane;
 
-    // return new default plane
-   // LOG("%s Created", planeKey.c_str());
-    return mCache[planeKey];
+    return plane;
 }
 
-std::shared_ptr<Mesh> Mesh::CreatePyramid(std::shared_ptr<Material> _material, std::string _customName)
+std::shared_ptr<Mesh> Mesh::CreatePyramid(std::shared_ptr<Material> _material,const bool _instance, std::string _customName)
 {
-    // Create default pyramid key
+    // Create key
     std::string pyramidKey = "DefaultPyramid";
 
-    if (!_customName.empty()) {
-        // Overwrites default key if custom name is added.
+    // Overwrites default key if custom name is added.
+    if (!_customName.empty()) 
         pyramidKey = _customName;
-    }
 
-    // Checks if default pyramid existin cache,if it does use that
-	// rather than calculating an entire new cube to save loading time.
-    auto it = mCache.find(pyramidKey);
-    if (it != mCache.end())
+    // If instance enabled find mesh in cache and return it
+    if(_instance)
     {
-       // LOG("%s Loaded", pyramidKey.c_str());
-        return it->second;
+        auto it = mCache.find(pyramidKey);
+        if (it != mCache.end())
+            return it->second;
     }
 
-    // otherwise gen vertices and indices from vector
+    // Gen vertices and indices from vector
     std::vector<Vertex> vertices = {
         // Base
        {{-0.5f, 0.0f,  -0.5f}, {0.0f,  -1.0f,  0.0f}, {0.0f, 0.0f}},
@@ -295,23 +289,23 @@ std::shared_ptr<Mesh> Mesh::CreatePyramid(std::shared_ptr<Material> _material, s
     };
     std::vector<Index> indices = {
         // Base
-        0, 1, 2,  // Triangle 1: Base
-        1, 3, 2,  // Triangle 2: Base
+        0, 2, 1,  // Triangle 1: Base
+        1, 2, 3,  // Triangle 2: Base
 
         // Sides
-        0, 4, 1,  // Triangle 3: Side 1
-        1, 4, 3,  // Triangle 4: Side 2
-        3, 4, 2,  // Triangle 5: Side 3
-        2, 4, 0   // Triangle 6: Side 4
+        0, 1, 4,  // Triangle 3: Side 1
+        1, 3, 4,  // Triangle 4: Side 2
+        3, 2, 4,  // Triangle 5: Side 3
+        2, 0, 4   // Triangle 6: Side 4
     };
 
+     std::shared_ptr<Mesh> pyramid = std::make_shared<Mesh>(pyramidKey, std::move(vertices), std::move(indices), _material);
 
-    // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    mCache[pyramidKey] = std::make_shared<Mesh>(pyramidKey, std::move(vertices), std::move(indices), _material);
-
-    // return new default pyramid
-    //LOG("%s Created", pyramidKey.c_str());
-    return mCache[pyramidKey];
+     // If instance enabled add object to cache
+     if (_instance)
+         mCache[pyramidKey] = pyramid;
+    
+    return pyramid;
 }
 
 std::shared_ptr<Mesh> Mesh::CreateSphereByExtent(std::shared_ptr<Mesh> _extentMesh, std::shared_ptr<Material> _material, std::string _customName)
@@ -338,7 +332,9 @@ std::shared_ptr<Mesh> Mesh::CreateSphereByExtent(std::shared_ptr<Mesh> _extentMe
     } else {
         radius = glm::length(maxExtent);
     }
-    
+
+    radius /= 2;
+    radius += 0.08f;
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
     Mesh::GenSphere(vertices, indices, 2, radius);
@@ -346,26 +342,24 @@ std::shared_ptr<Mesh> Mesh::CreateSphereByExtent(std::shared_ptr<Mesh> _extentMe
     return std::make_shared<Mesh>(_customName, std::move(vertices), std::move(indices), _material);
 }
 
-std::shared_ptr<Mesh> Mesh::CreateSphere(std::shared_ptr<Material> _material, const int _subdivides, std::string _customName)
+std::shared_ptr<Mesh> Mesh::CreateSphere(std::shared_ptr<Material> _material, const int _subdivides, const bool _instance, std::string _customName)
 {
-    // Create default sphere key based on num subdivides
-    std::string sphereKey = "DefaultSphere" + std::to_string(_subdivides);
+    // Create default key based on num subdivides
+    std::string sphereKey = "DefaultSphere_" + std::to_string(_subdivides);
 
-    if (!_customName.empty()) {
-        // Overwrites default key if custom name is added.
+    // Overwrites default key if custom name is added.
+    if (!_customName.empty()) 
         sphereKey = _customName;
-    }
 
-    // Checks if default sphere exists in cache,if it does use that
-     // rather than calculating an entire new cube to save loading time.
-    auto it = mCache.find(sphereKey);
-    if (it != mCache.end())
+    // If instance enabled find mesh in cache and return it
+    if (_instance)
     {
-       // LOG("%s Loaded", sphereKey.c_str());
-        return it->second;
+        auto it = mCache.find(sphereKey);
+        if (it != mCache.end())
+            return it->second;
     }
 
-    // otherwise gen vertices and indices from vector
+    // Gen empty vertices and indices from vector
     std::vector<Vertex> vertices;
     std::vector<Index> indices; 
 
@@ -374,45 +368,45 @@ std::shared_ptr<Mesh> Mesh::CreateSphere(std::shared_ptr<Material> _material, co
     // TODO: fix textrure warping
 	GenSphere(vertices,indices,_subdivides);
 
-    // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    mCache[sphereKey] = std::make_shared<Mesh>(sphereKey, std::move(vertices), std::move(indices), _material);
+    std::shared_ptr<Mesh> sphere = std::make_shared<Mesh>(sphereKey, std::move(vertices), std::move(indices), _material);
 
-    // return new default sphere
-    //LOG("%s created", sphereKey.c_str());
-    return mCache[sphereKey];
+    // If instance enabled add object to cache
+    if (_instance)
+        mCache[sphereKey] = sphere;
+
+	return sphere;
 }
 
-std::shared_ptr<Mesh> Mesh::CreateGraphSphere(const int _subdivides, std::string _customName)
+std::shared_ptr<Mesh> Mesh::CreateGraphSphere(const int _subdivides, const bool _instance, std::string _customName)
 {
-    // Create default sphere key based on num subdivides
+    // Create default key based on num subdivides
     std::string sphereKey = "DefaultGraphSphere" + std::to_string(_subdivides);
 
-    if (!_customName.empty()) {
-        // Overwrites default key if custom name is added.
+    // Overwrites default key if custom name is added
+    if (!_customName.empty()) 
         sphereKey = _customName;
-    }
-
-    // Checks if default sphere exists in cache,if it does use that
-     // rather than calculating an entire new cube to save loading time.
-    auto it = mCache.find(sphereKey);
-    if (it != mCache.end())
+    
+    // If instance enabled find mesh in cache and return it
+    if (_instance)
     {
-        // LOG("%s Loaded", sphereKey.c_str());
-        return it->second;
+        auto it = mCache.find(sphereKey);
+        if (it != mCache.end())
+            return it->second;
     }
 
-    // otherwise gen vertices and indices from vector
+    // Gen vertices and indices from vector
     std::vector<GraphVertex> vertices;
     std::vector<Index> indices;
 
     GenSphere(vertices, indices, _subdivides);
+    
+    std::shared_ptr<Mesh> graphSphere = std::make_shared<Mesh>(sphereKey, std::move(vertices), std::move(indices));
 
-    // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    mCache[sphereKey] = std::make_shared<Mesh>(sphereKey, std::move(vertices), std::move(indices));
+    // If instance enabled add object to cache
+    if (_instance)
+        mCache[sphereKey] = graphSphere;
 
-    // return new default sphere
-    //LOG("%s created", sphereKey.c_str());
-    return mCache[sphereKey];
+    return graphSphere;
 }
 
 std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::vector<glm::vec3> _points)
@@ -425,6 +419,23 @@ std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::vector<glm::vec3> _points)
     for (glm::vec3 pointLocation : _points)
     {
         DebugVertex newVertex = DebugVertex(pointLocation);
+        vertices.push_back(newVertex);
+    }
+
+    // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
+    return std::make_shared<Mesh>(lineKey, std::move(vertices));
+}
+
+std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::shared_ptr<Mesh> _mesh)
+{
+    // Create default plane key
+    std::string lineKey = "DebugLine";
+
+    std::vector<DebugVertex> vertices;
+
+    for (const Vertex& vert : _mesh->mVertices)
+    {
+        DebugVertex newVertex = DebugVertex(vert.mPosition);
         vertices.push_back(newVertex);
     }
 

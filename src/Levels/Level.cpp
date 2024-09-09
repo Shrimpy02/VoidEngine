@@ -59,17 +59,22 @@ void Level::TempDebugTimerManager(double timeSinceApplicationStart)
     std::vector<std::shared_ptr<Actor>> lifeTimeActors;
     mSceneGraph->Query<ILifeTime>(lifeTimeActors);
 
+  
+
     if (!lifeTimeActors.empty())
     {
-        if (std::shared_ptr<DebugActor> lifetimeActor = std::dynamic_pointer_cast<DebugActor>(lifeTimeActors[0]))
+        for (std::shared_ptr<Actor> actor : lifeTimeActors)
         {
-            if(lifetimeActor->IsLifetimeEnabled())
+            if (std::shared_ptr<DebugActor> lifetimeActor = std::dynamic_pointer_cast<DebugActor>(actor))
             {
-                double timeSinceActorInit = difftime(time(nullptr), lifetimeActor->GetLifeTime());
-
-            	if ((timeSinceActorInit) >= 3.0f)
+                if (lifetimeActor->IsLifetimeEnabled())
                 {
-                    RemoveActorFromSceneGraph(lifetimeActor);
+                    double timeSinceActorInit = difftime(time(nullptr), lifetimeActor->GetLifeTime());
+
+                    if ((timeSinceActorInit) >= 3.0f)
+                    {
+                        RemoveActorFromSceneGraph(lifetimeActor);
+                    }
                 }
             }
         }

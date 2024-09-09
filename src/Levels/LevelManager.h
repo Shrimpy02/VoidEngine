@@ -13,6 +13,7 @@ class Shader;
 class ActorController;
 class IController;
 class Actor;
+class VisualActor;
 struct Transform;
 class UserInterfaceManager;
 class DebugActor;
@@ -43,6 +44,8 @@ private:
     std::shared_ptr<Shader> mDebugShader{ nullptr };
     std::shared_ptr<Shader> mSkyboxShader{ nullptr };
 
+    std::shared_ptr<VisualActor> mConformBox{ nullptr };
+         
     time_t mApplicationStartTime = 0;
 
 public:
@@ -66,6 +69,8 @@ public:
 
     void LoadDefaultLevel();
 
+    void LoadPhysicsBoxLevel();
+
 	// Deletes pointers and clears all caches for texture, mesh and material.  
     void UnloadContent();
 
@@ -78,6 +83,8 @@ public:
 
     // Scene collision handler function for all scene objects that inherit from "IBounded" (called each frame) 
     void ProcessCollision();
+
+    void ProcessCollisionWithinBoxBounds(std::shared_ptr<VisualActor> _conformBox);
 
 	// Updates the scene graph and all children if they inherit from "Actor" (called each frame) 
 	void UpdateLevelSceneGraph(std::shared_ptr<Actor> _actor, float _dt, Transform _globalTransform = Transform{});

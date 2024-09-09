@@ -122,6 +122,7 @@ void WindowManager::Update(float _dt)
 {
     if (mUserInterfaceManager)
         mUserInterfaceManager->Update(_dt);
+
 }
 
 void WindowManager::Render()
@@ -187,11 +188,7 @@ void WindowManager::SetBoarderLessWindow()
     // Update state
     mWindowMode = WindowMode::WM_BoarderLess;
 
-    // Reconfigure the OpenGL viewport to m
-    //
-
-
-    // atch the new window size
+    // Reconfigure the OpenGL viewport to match the new window size
     int width, height;
     glfwGetFramebufferSize(mGLFWWindow, &width, &height);
     glViewport(0, 0, width, height);

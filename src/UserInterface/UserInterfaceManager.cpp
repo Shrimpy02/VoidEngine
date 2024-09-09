@@ -723,25 +723,25 @@ void UserInterfaceManager::ui_ViewPort()
 						if (strcmp(mActorNames[payload_n], "Cube") == 0)
 						{
 							cubeNum++;
-							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedCube" + std::to_string(cubeNum), Mesh::CreateCube(nullptr, "CreatedCube" + std::to_string(cubeNum) + "_mat"));
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedCube" + std::to_string(cubeNum), Mesh::CreateCube(nullptr, false,"CreatedCube" + std::to_string(cubeNum) + "_mat"));
 							mLevelManager->AddActorToLevel(baseActor);
 						}
 						else if (strcmp(mActorNames[payload_n], "Pyramid") == 0)
 						{
 							pyramidNum++;
-							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPyramid" + std::to_string(pyramidNum), Mesh::CreatePyramid(nullptr, "CreatedPyramid" + std::to_string(pyramidNum) + "_mat"));
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPyramid" + std::to_string(pyramidNum), Mesh::CreatePyramid(nullptr, false,"CreatedPyramid" + std::to_string(pyramidNum) + "_mat"));
 							mLevelManager->AddActorToLevel(baseActor);
 						}
 						else if (strcmp(mActorNames[payload_n], "Plane") == 0)
 						{
 							planeNum++;
-							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPlane" + std::to_string(planeNum), Mesh::CreatePlane(nullptr, "CreatedPlane" + std::to_string(planeNum) + "_mat"));
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedPlane" + std::to_string(planeNum), Mesh::CreatePlane(nullptr, false,"CreatedPlane" + std::to_string(planeNum) + "_mat"));
 							mLevelManager->AddActorToLevel(baseActor);
 						}
 						else if (strcmp(mActorNames[payload_n], "Sphere") == 0)
 						{
 							sphereNum++;
-							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedSphere" + std::to_string(sphereNum), Mesh::CreateSphere(nullptr,2,"CreatedSphere" + std::to_string(sphereNum) + "_mat"));
+							std::shared_ptr<BaseActor> baseActor = std::make_shared<BaseActor>("CreatedSphere" + std::to_string(sphereNum), Mesh::CreateSphere(nullptr,2, false, "CreatedSphere" + std::to_string(sphereNum) + "_mat"));
 							mLevelManager->AddActorToLevel(baseActor);
 						}
 						else if (strcmp(mActorNames[payload_n], "Directional-Light") == 0)
@@ -817,6 +817,35 @@ void UserInterfaceManager::ui_WorldProperties()
 			mLevelManager->ShadersDrawWireFrame(mShouldShowWireFrame);
 
 		ImGui::Separator();
+
+		// Decides if world physics enabled
+		// ---------------------------------------------------------
+		if(ImGui::Button("Toggle world gravity", ImVec2(150, 25)))
+		{
+			// Toggle bool
+			mWorldGravityEnabled = !mWorldGravityEnabled ? true : false;
+			
+			std::vector<std::shared_ptr<Actor>> tempActors;
+			GetSceneActors(mLevelManager->GetActiveLevel()->mSceneGraph, tempActors);
+
+			for(std::shared_ptr<Actor> actor : tempActors)
+			{
+				if(actor->GetPhysicsComponent())
+				{
+					actor->GetPhysicsComponent()->SetGravityEnabled(mWorldGravityEnabled);
+					actor->GetPhysicsComponent()->ResetForces();
+				}
+			}
+		}
+
+		ImGui::SameLine();
+		if (mWorldGravityEnabled)
+			ImGui::TextColored(ImVec4(0, 1, 0, 1), "Enabled");
+		else
+			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Disabled");
+		ImGui::Separator();
+
+
 	}
 	ImGui::End();
 }

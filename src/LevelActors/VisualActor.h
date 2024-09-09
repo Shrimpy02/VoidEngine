@@ -37,7 +37,7 @@ public:
     // ---------- Global functions --------------
 
     // Constructor
-    VisualActor(const std::string& _name, std::shared_ptr<Mesh> _mesh);
+    VisualActor(const std::string& _name, std::shared_ptr<Mesh> _mesh, glm::vec3 _pos = glm::vec3(0), glm::vec3 _scale = glm::vec3(1), glm::quat _rotation = glm::quat());
 
     // Overriden from IRender passes draw call to mesh. 
     virtual void Draw(const std::shared_ptr<Shader> _shader = nullptr) const override;

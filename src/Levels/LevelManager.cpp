@@ -13,6 +13,7 @@
 //#include <Renderer.h>
 
 #include <Core/Shader.h>
+#include <Core/SSpawner.h>
 #include <Controllers/ActorController.h>
 #include <Components/PhysicsComponent.h>
 #include <Components/AIComponent.h>
@@ -48,7 +49,9 @@ void LevelManager::LoadContent()
 	mAllLevels.push_back(std::make_shared<Level>("DefaultLevel"));
 	SetActiveLevel(mAllLevels[0]);
 
-	LoadDefaultLevel();
+	//LoadDefaultLevel();
+
+	LoadPhysicsBoxLevel();
 }
 
 void LevelManager::LoadDefaultLevel()
@@ -118,6 +121,54 @@ void LevelManager::LoadDefaultLevel()
 	//defaultCube1->SetGlobalRotation(glm::quat( glm::angleAxis(45.f,glm::vec3(0.f,1.f,0.f))));
 }
 
+void LevelManager::LoadPhysicsBoxLevel()
+{
+	// Camera ------------------------
+	std::shared_ptr<CameraActor> cam1 = std::make_shared<CameraActor>("Camera1");
+	cam1->SetGlobalPosition(glm::vec3(0, 2, 15));
+	mActiveLevel->AddActorToSceneGraph(cam1);
+	mActiveLevel->mActiveCamera = cam1;
+
+	// Controller ------------------------
+	mController->SetActorToControl(cam1);
+
+	// Light ------------------------
+	std::shared_ptr<DirectionalLightActor> dla = std::make_shared<DirectionalLightActor>("DirLight1");
+	mActiveLevel->AddActorToSceneGraph(dla);
+	dla->SetGlobalPosition(glm::vec3(0, 10, 0));
+	dla->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+
+	mConformBox = std::make_shared<VisualActor>("Conform box", Mesh::CreateCube(nullptr), glm::vec3(0), glm::vec3(10.f));
+	mActiveLevel->AddActorToSceneGraph(mConformBox);
+	mConformBox->mVisualMesh->SetIsVisible(false);
+
+	std::shared_ptr<DebugActor> debugConformSquare = std::make_shared<DebugActor>("ConformDebug");
+	debugConformSquare->UpdateVisualMesh(mConformBox->GetMesh());
+	mConformBox->AddChild(debugConformSquare);
+
+	// Objects ------------------------
+	// Since instancing is enabled  we can initalize the material once and assign it to the first of the instance
+	std::shared_ptr<Texture> diffuseTex = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerDiffuse.jpg"));
+	std::shared_ptr<Texture> specularTex = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerSpecular.jpg"));
+	std::shared_ptr<Material> mat = Material::Load("cube1mat", { diffuseTex, specularTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
+
+	std::vector<std::shared_ptr<BaseActor>> temp;
+	int numSpheres = 1000;
+	for(int i = 0; i < numSpheres;i++)
+	{
+		std::shared_ptr<BaseActor> obj = std::make_shared<BaseActor>("Sphere", Mesh::CreateSphere(mat, 2, true), CollisionBase::BoundingSphere, glm::vec3(0), glm::vec3(0.3f));
+		mActiveLevel->AddActorToSceneGraph(obj);
+		obj->AddComponent<PhysicsComponent>("PhysicsComp");
+		//obj->SetGlobalPosition(glm::vec3(i * 2,0,0));
+		obj->GetPhysicsComponent()->SetGravityEnabled(false);
+		obj->SetCollisionType(CollisionType::DYNAMIC);
+		obj->SetCollisionResponse(CollisionResponse::BLOCK);
+		temp.push_back(obj);
+	}
+	SSpawner::SetAllObjectLocationWithinBoundsRandomly(temp,mConformBox);
+
+}
+
 void LevelManager::UnloadContent()
 {
 	Mesh::ClearCache();
@@ -135,10 +186,14 @@ void LevelManager::SetActiveLevel(std::shared_ptr<Level> _activeLevel)
 void LevelManager::Update(float _dt)
 {
 	// Update the scene graph -> all objects in scene
-	UpdateLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
+	//UpdateLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
 
+	// Handle collision within bounding box
+	//if(mConformBox)
+	//	ProcessCollisionWithinBoxBounds(mConformBox);
+	
 	// Then handle collision for all objects in scene
-	ProcessCollision();
+	//ProcessCollision();
 
 	// Handels lifetime of tempDebug actors
 	mActiveLevel->TempDebugTimerManager(difftime(time(0), mApplicationStartTime));
@@ -233,6 +288,47 @@ void LevelManager::ProcessCollision()
 
 			}
 		}
+	}
+}
+
+void LevelManager::ProcessCollisionWithinBoxBounds(std::shared_ptr<VisualActor> _conformBox)
+{
+	// Get all IBounded Actors of the active level
+	std::vector<std::shared_ptr<Actor>> collisionActors;
+	mActiveLevel->mSceneGraph->Query<IBounded>(collisionActors);
+
+	// For each actor that can bound check it against all others
+	for (int i = 0; i < collisionActors.size(); i++)
+	{
+		std::shared_ptr<IBounded> actorColliderA = std::dynamic_pointer_cast<IBounded>(collisionActors[i]);
+
+		// Skip intersection if object ignore response
+		if (actorColliderA->mCollisionProperties.IsIgnoreResponse())
+			continue;
+
+		// Skip intersection if object is static
+		if (actorColliderA->mCollisionProperties.IsStatic())
+			continue;
+
+		// Check intersection
+		// ------------------------------------------------
+
+		glm::vec3 mtv{ 0.f };
+		if (actorColliderA->IsIntersectingConstrictingBoxGeometry(_conformBox, &mtv))
+		{
+			// mtv vector init for each object
+			glm::vec3 mtvA(0.f);
+
+			// If only actor A is dynamic, apply the full MTV to A
+			if (actorColliderA->mCollisionProperties.IsDynamic())
+				mtvA = -mtv;
+
+			// No adjustment for static objects
+			// Apply MTV adjustments to objects it has effected
+			if (actorColliderA->mCollisionProperties.IsDynamic())
+				collisionActors[i]->SetGlobalPosition(collisionActors[i]->GetGlobalPosition() + mtv);
+
+		} 
 	}
 }
 

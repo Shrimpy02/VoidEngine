@@ -6,9 +6,13 @@
 
 // Additional Includes
 
-VisualActor::VisualActor(const std::string& _name, std::shared_ptr<Mesh> _mesh)
+VisualActor::VisualActor(const std::string& _name, std::shared_ptr<Mesh> _mesh, glm::vec3 _pos, glm::vec3 _scale, glm::quat _rotation)
     : Actor(_name), mVisualMesh(_mesh)
 {
+    SetGlobalPosition(_pos);
+    SetGlobalScale(_scale);
+    SetGlobalRotation(_rotation);
+
     SetMinMaxExtent();
     UpdateExtent();
     LOG("VisualActor Created: %s", _name.c_str());

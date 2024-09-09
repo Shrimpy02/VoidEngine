@@ -55,7 +55,7 @@ void ActorController::HandleMouseMove(double _xPos, double _yPos)
         auto angularSpeed = camActor->GetAngularAccelerationSpeed();
 
         // Adds the acceleration to the camera for it to rotate
-        camActor->AddAngularAcceleration({ xOffset * angularSpeed, yOffset * angularSpeed });
+        camActor->AddAngularAcceleration({ xOffset * angularSpeed, yOffset * angularSpeed});
 
     } else if(mCameraForSnap) {
 
@@ -63,7 +63,7 @@ void ActorController::HandleMouseMove(double _xPos, double _yPos)
         auto angularSpeed = mCameraForSnap->GetAngularAccelerationSpeed();
 
         // Adds the acceleration to the camera for it to rotate
-        mCameraForSnap->AddAngularAcceleration({ xOffset * angularSpeed, yOffset * angularSpeed });
+        mCameraForSnap->AddAngularAcceleration({ xOffset * angularSpeed, yOffset * angularSpeed});
     }
 
     // Reposition the cursor to the center of the viewport if it reaches an edge
@@ -302,7 +302,7 @@ void ActorController::ActorInput(float _dt)
         if (mKeyStates[GLFW_KEY_D]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (mCameraForSnap->GetRight() * _dt * mMovementSpeed));
         if (mKeyStates[GLFW_KEY_A]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (mCameraForSnap->GetRight() * _dt * mMovementSpeed));
 
-        if (mControlledActor->GetPhysicsComponent())
+        if (mControlledActor->GetPhysicsComponent()){
             if (!mControlledActor->GetPhysicsComponent()->IsGravityEnabled())
             {
                 if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (mCameraForSnap->GetUp() * _dt * mMovementSpeed));
@@ -314,7 +314,10 @@ void ActorController::ActorInput(float _dt)
                 if (mKeyStates[GLFW_KEY_SPACE])
                     mControlledActor->GetPhysicsComponent()->Jump();
             }
-
+        } else {
+            if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
+            if (mKeyStates[GLFW_KEY_E]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
+        }
 
         // Only controlling actor
         // ----------------------------------------------------------------
@@ -326,6 +329,7 @@ void ActorController::ActorInput(float _dt)
         if (mKeyStates[GLFW_KEY_A]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (glm::vec3(1.0f, 0.f, 0.f) * _dt * mMovementSpeed));
 
         if (mControlledActor->GetPhysicsComponent())
+        {
             if (!mControlledActor->GetPhysicsComponent()->IsGravityEnabled())
             {
                 if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
@@ -337,6 +341,12 @@ void ActorController::ActorInput(float _dt)
                 if (mKeyStates[GLFW_KEY_SPACE])
                     mControlledActor->GetPhysicsComponent()->Jump();
             }
+        } else {
+            if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
+            if (mKeyStates[GLFW_KEY_E]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
+        }
+        
+
     }
 
 

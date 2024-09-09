@@ -2,6 +2,7 @@
 // Include
 #include <Core/Application.h>
 #include <Core/WindowManager.h>
+#include <Core/SMath.h>
 
 // Additional include
 #include <glad/glad.h>
@@ -19,6 +20,9 @@ int Application::Run()
 
     InitializeGLFW();
     InitializeWindow();
+    SMath::SeedRandTime();
+    glEnable(GL_CULL_FACE);
+    //glCullFace(GL_FRONT);
 
     // Render/Update loop -----------
     float lastFrame = 0.f;

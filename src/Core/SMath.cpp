@@ -10,6 +10,11 @@
 // Additional includes
 #include <stdexcept>
 
+void SMath::SeedRandTime()
+{
+    srand((unsigned)time(NULL));
+}
+
 bool SMath::ConformCurveToGeometry(std::vector<std::shared_ptr<Actor>>& _points, std::shared_ptr<VisualActor> _surface, float _offsettHeight)
 {
     bool isInContact = false;
@@ -272,6 +277,23 @@ std::vector<glm::vec3> SMath::DeCastParametricCurveFromPoints(glm::vec3 _point1,
         temp.push_back(c03);
     }
     return temp;
+}
+
+int SMath::GetRandomInt(const int& _offset, const int& _range)
+{
+    return _offset + rand() % _range;
+}
+
+float SMath::GetRandomFloat(const float& _offset, const float& _range)
+{
+    return  _offset + static_cast <float>(rand()) / (static_cast <float> (RAND_MAX / _range));
+}
+
+float SMath::GetRandomFloatBetweenMinMax(const float& _min, const float& _max)
+{
+    float randomFraction = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+
+    return _min + randomFraction * (_max - _min);
 }
 
 // ------------------------------------- Private -------------------------------------------------

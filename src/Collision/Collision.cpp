@@ -2,8 +2,7 @@
 // Includes
 #include <Collision/Collision.h>
 #include <Utilities/Logger.h>
-
-#include "glm/ext/quaternion_geometric.hpp"
+#include <LevelActors/VisualActor.h>
 
 // Additional Includes
 
@@ -34,7 +33,6 @@ bool IBounded::IsIntersecting(std::shared_ptr<IBounded> _otherCollider, glm::vec
                    return true;
                }
 
-              
            }
 
             return true;
@@ -102,6 +100,16 @@ bool IBounded::IsIntersectingLineTrace(glm::vec3 _point)
 
     // All Failed
     LOG_ERROR("Collision Base Missmatch");
+    return false;
+}
+
+bool IBounded::IsIntersectingConstrictingBoxGeometry(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv)
+{
+	if (mCollisionProperties.IsBoundingSphere()) {
+
+        return BoundingSpherexConstrictingBox(_boxCollider, _mtv);
+    }
+
     return false;
 }
 
@@ -194,6 +202,9 @@ bool IBounded::BoundingSpherex2(std::shared_ptr<IBounded> _otherCollider, glm::v
 
         // Calculate the direction of the MTV
         glm::vec3 direction = glm::normalize(diff);
+
+        if (direction.x != direction.x)
+            direction = glm::vec3(-1);
 
         // Multiply the direction by the penetration to get the MTV
         *_mtv = direction * penetration;
@@ -290,8 +301,8 @@ bool IBounded::ConvexxNotConvex(std::shared_ptr<IBounded> _otherCollider, glm::v
 
 bool IBounded::AABBxPoint(glm::vec3 _pointPos)
 {
-    // calculates the difference from one center to the other
-   // and their extent sum
+	// calculates the difference from one center to the other
+    // and their extent sum
     glm::vec3 diff = _pointPos - this->mCenter;
     glm::vec3 sumExtent = this->mExtent;
 
@@ -318,4 +329,76 @@ bool IBounded::BoundingSpherexPoint(glm::vec3 _pointPos)
 
     // Compare the squared distance with the squared radius of the sphere
     return distanceSquared <= (mRadius * mRadius);
+}
+
+bool IBounded::BoundingSpherexConstrictingBox(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv)
+{
+    // Get the closest point on the AABB to the sphere's center
+    glm::vec3 clampedAABB = glm::clamp(mCenter, _boxCollider->mCenter - _boxCollider->mExtent, _boxCollider->mCenter + _boxCollider->mExtent);
+
+    // Compute the vector between the sphere's center and the closest point on the AABB
+    glm::vec3 diff = clampedAABB - mCenter;
+
+    // Calculate the square of the distance between the sphere's center and the closest point
+    float distanceSquared = glm::dot(diff, diff);
+
+    // Check if the sphere is inside the AABB (i.e., distance from the center to the closest point is less than the sphere's radius)
+    bool inside = distanceSquared <= (mRadius * mRadius);
+
+    // Early out: if the sphere is inside the AABB, return false
+    if (inside)
+    {
+        return false;
+    }
+
+    // If the sphere is outside the AABB, calculate the minimum translation vector (MTV)
+    if (_mtv)
+    {
+        // Calculate the actual distance between the sphere's center and the closest point on the AABB
+        float distance = glm::sqrt(distanceSquared);
+
+        // Calculate the penetration depth (how much the sphere is penetrating the AABB)
+        float penetration = mRadius - distance;
+
+        // Calculate the direction of the MTV by normalizing the difference vector
+        glm::vec3 direction = glm::normalize(diff);
+
+        // Compute the MTV by multiplying the direction by the penetration depth
+        *_mtv = direction * -penetration;
+    }
+
+    // Return true since the sphere is outside the AABB and the MTV has been calculated
+    return true;
+
+
+
+
+ //   bool isInside = false;
+ //   for (int i = 0; i < 3; i++)
+ //   {
+ //       float boxMin = _boxCollider->mCenter[i] - _boxCollider->mExtent[i];
+ //       float boxMax = _boxCollider->mCenter[i] + _boxCollider->mExtent[i];
+ //  
+ //      
+ //       if (mCenter[i] - mRadius < boxMin)
+ //       {
+ //           // Calculate how much to move the sphere to bring it back inside the box
+ //           float penetrationDepth = boxMin - (mCenter[i] - mRadius);
+ //           (*_mtv)[i] = penetrationDepth;
+ //           isInside = true;
+ //       }
+ //  
+ //       // Check if the sphere is outside the box on the positive side
+ //       if (mCenter[i] + mRadius > boxMax)
+ //       {
+ //           // Calculate how much to move the sphere to bring it back inside the box
+ //           float penetrationDepth = boxMax - (mCenter[i] + mRadius);
+ //           (*_mtv)[i] = penetrationDepth;
+ //           isInside = true;
+ //       }
+ //  
+ //   }
+ //  
+ //   // Return false if inside box
+ //   return isInside;
 }

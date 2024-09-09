@@ -98,6 +98,7 @@ private:
     // World Properties ------
     bool mIsWorldPropertiesWindowOpen = true;
     std::shared_ptr<Shader> mDefaultShader{ nullptr };
+    bool mWorldGravityEnabled = false;
 
     // Debug Properties ------
     bool mIsDebugPropertiesWindowOpen = true;
@@ -132,7 +133,7 @@ private:
     // Debug properties -----
     double mOldTime = 0;
     int numFrames = 0;
-    bool mShouldDrawCollisionDebugMesh = true;
+    bool mShouldDrawCollisionDebugMesh = false;
 
     // World properties ---
 	bool mShouldShowWireFrame = false;

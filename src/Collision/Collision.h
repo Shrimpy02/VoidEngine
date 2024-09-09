@@ -9,6 +9,7 @@
 
 // Forward Declarations
 struct CollisionProperties;
+class VisualActor;
 
 /**
  * @class IBounded
@@ -49,7 +50,9 @@ public:
 
     bool IsIntersectingLineTrace(glm::vec3 _point);
 
-    bool AABBx2(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
+    bool IsIntersectingConstrictingBoxGeometry(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv);
+
+	bool AABBx2(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
     bool BoundingSpherex2(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
@@ -62,6 +65,8 @@ public:
     bool AABBxPoint(glm::vec3 _pointPos);
 
     bool BoundingSpherexPoint(glm::vec3 _pointPos);
+
+    bool BoundingSpherexConstrictingBox(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv);
 
     // Returns true if this object is colliding with anything else. 
     bool GetIsColliding() { return mIsColliding; }

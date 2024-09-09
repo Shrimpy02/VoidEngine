@@ -32,3 +32,8 @@ void DebugActor::UpdateVisualMesh(std::vector<glm::vec3>& _newPoints)
 {
 	mVisualMesh = Mesh::CreateDebugLine(_newPoints);
 }
+
+void DebugActor::UpdateVisualMesh(std::shared_ptr<Mesh> _mesh)
+{
+	mVisualMesh = Mesh::CreateDebugLine(_mesh);
+}
