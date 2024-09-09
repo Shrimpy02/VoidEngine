@@ -1,38 +1,37 @@
 #pragma once
+
 // Includes 
-#include <Components/Component.h>
-#include <Transform.h>
-#include <Tag.h>
 #include <Components/PhysicsComponent.h>
+#include <Components/AIComponent.h>
+#include <Transform.h>
 
 // Additional includes
 #include <vector>
+#include <memory>
+
+// Forward Declarations
+
 
 /**
  * @class Actor
  * @brief The actor acts as an object in the world. It contains parent/child link,
  * components and world/local location. All things needed for existence in a scene.
  */
-class Actor
+class Actor : public std::enable_shared_from_this<Actor>
 {
 public:
 	// ---------- Global Variables --------------
 
-	// Enum for what space to transform in.
-	enum class TransformSpace{
-		Local,
-		Global
-	};
+	int mTriangleIndex = 0;
 
 private:
 	// ---------- Local Variables --------------
 
 	 // Scene graph
-	Actor* mParent = nullptr;
-	std::vector<Actor*> mChildren;
-
+	std::shared_ptr<Actor> mParent{nullptr};
+	std::vector<std::shared_ptr<Actor>> mChildren;
 	// Components
-	std::vector<Component*> mComponents;
+	std::vector<std::shared_ptr<Component>> mComponents;
 
 	// Other
 	TagUnique mTag;
@@ -59,11 +58,16 @@ public:
 	// updates all components per tick
 	void UpdateComponents(float _dt);
 
+	void UpdateExtentByRotation(glm::vec3& _extent);
+
 	// Adds a child to this actor, also sets the child`s parent to this actor
-	void AddChild(Actor* _child);
+	void AddChild(std::shared_ptr<Actor> _child);
 
 	// Removes a specific child from from this actor, also removes child`s parent reference if this actor is its parent.
-	void RemoveChild(Actor* _child);
+	void RemoveChild(std::shared_ptr<Actor> _child);
+
+	// Renames this actor
+	void RenameActor(std::string _newTag);
 
 	// Template function that takes in a class and name, if that class has component as a base it creates
 	// that object as a component and adds it to the components vector of this actor.
@@ -74,7 +78,7 @@ public:
 		static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component");
 
 		// if it does create a new one and add it to this actors component vector and run init
-		auto component = new T(_componentName, this);
+		std::shared_ptr<T> component = std::make_shared<T>(_componentName, shared_from_this());
 		component->Init();
 		mComponents.emplace_back(component);
 	}
@@ -82,11 +86,11 @@ public:
 	// Template function that recursively checks itself and its children if they are actors.
 	// If true they are added to the input vector address.
 	template <typename T>
-	void Query(std::vector<Actor*>& _actors)
+	void Query(std::vector<std::shared_ptr<Actor>>& _actors)
 	{
 		// if this derives from actor, add to vector
 		if (dynamic_cast<T*>(this))
-			_actors.emplace_back(this);
+			_actors.emplace_back(shared_from_this());
 
 		// recursively check each of this actors children
 		for (auto child : this->mChildren)
@@ -96,19 +100,17 @@ public:
 	// Template function that recursively checks itself and its children if they are appropriate component.
 	// If true they are added to the input vector address.
 	template <typename T>
-	void QueryPhysicsComponents(std::vector<class PhysicsComponent*>& physicsComponents)
+	void QueryPhysicsComponents(std::vector<std::shared_ptr<PhysicsComponent>>& physicsComponents)
 	{
-		for (auto child : mComponents)
+		for (std::shared_ptr<Component> component : mComponents)
 		{
-			PhysicsComponent* physicsComp = dynamic_cast<PhysicsComponent*>(child);
+			std::shared_ptr<PhysicsComponent> physicsComp = std::dynamic_pointer_cast<PhysicsComponent>(component);
 			if (physicsComp)
 			{
 				physicsComponents.push_back(physicsComp);
 			}
 		}
 	}
-
-
 
 private:
 	// ---------- Local functions --------------
@@ -119,29 +121,43 @@ public:
 	// Getters ---------
 	// transform getters
 
-	// Returns actors current position as vec3
-	const glm::vec3& GetPosition(Actor::TransformSpace _type) const;
-	// Returns actors current rotation as quaternion
-	const glm::quat& GetRotation(Actor::TransformSpace _type) const;
-	// Returns the actors current scale as a vec3
-	const glm::vec3& GetScale(Actor::TransformSpace _type) const;
-	// Returns the transform object of this actor as reference
-	const Transform& GetTransform() const;
-	// Returns the Transformation matrix of this actor as a mat4
-	const glm::mat4 GetTransformMatrix(Actor::TransformSpace _type) const;
+	// Returns actors current local position as vec3
+	const glm::vec3& GetLocalPosition() const;
+	// Returns actors current global position as vec3
+	const glm::vec3 GetGlobalPosition() const;
+	// Returns actors current local rotation as quaternion
+	const glm::quat& GetLocalRotation() const;
+	// Returns actors current global rotation as quaternion
+	const glm::quat GetGlobalRotation() const;
+	// Returns the actors local current scale as a vec3
+	const glm::vec3& GetLocalScale() const;
+	// Returns the actors global current scale as a vec3
+	const glm::vec3 GetGlobalScale() const;
+	// Returns the Transformation local matrix of this actor as a mat4
+	const glm::mat4 GetLocalTransformMatrix() const;
+	// Returns the Transformation global matrix of this actor as a mat4
+	const glm::mat4 GetGlobalTransformMatrix() const;
 	// Returns the transform of this actor as a Transform pointer
-	Transform* GetTransform() { return &mTransform; }
+	std::shared_ptr<Transform> GetTransform() { return std::make_shared<Transform>(mTransform); }
 	// Returns the right vector of this actor as a vec3
 	glm::vec3 GetRight() const;
 
 	// other getters
 
+	// Returns pointer to the first physics component of this actor.
+	std::shared_ptr<PhysicsComponent> GetPhysicsComponent();
+
+	int GetHierarchyLevel();
+
+	// Returns pointer to the first Ai component of this actor.
+	std::shared_ptr<AIComponent> GetAIComponent();
+
 	// Returns the name of this actor
 	const std::string& GetTag() { return mTag.GetValue(); }
 	// Returns a vector of actor pointers containing all of this actors children
-	std::vector<Actor*>& GetChildren();
+	std::vector<std::shared_ptr<Actor>>& GetChildren();
 	// Returns a vector of component pointers containing all of this actors components
-	std::vector<Component*> GetComponents() { return mComponents; }
+	std::vector<std::shared_ptr<Component>> GetComponents() { return mComponents; }
 
 
 	// Setters ---------
@@ -151,15 +167,18 @@ public:
 	void SetLocalTransformMatrix(const glm::mat4& _transformMatrix);
 	// Sets the transform object of this actor by in transform reference
 	void SetTransform(const Transform& _transform);
-	// Sets the position of this actor by in vec3 and in TransformSpace type
-	void SetPosition(const glm::vec3& _position, Actor::TransformSpace _type = Actor::TransformSpace::Local);
-	// Sets the rotation of this actor by in quaternion and in TransformSpace type
-	void SetRotation(const glm::quat& _rotation, Actor::TransformSpace _type = Actor::TransformSpace::Local);
-	// Sets the scale of this actor by in vec3 and in TransformSpace type
-	void SetScale(const glm::vec3& _scale, Actor::TransformSpace _type = Actor::TransformSpace::Local);
-
-	// other setters
-
+	// Sets the local position of this actor by in vec3 and in TransformSpace type
+	void SetLocalPosition(const glm::vec3& _position);
+	// Sets the global position of this actor by in vec3 and in TransformSpace type
+	void SetGlobalPosition(const glm::vec3& _position);
+	// Sets the local rotation of this actor by in quaternion and in TransformSpace type
+	void SetLocalRotation(const glm::quat& _rotation);
+	// Sets the global rotation of this actor by in quaternion and in TransformSpace type
+	void SetGlobalRotation(const glm::quat& _rotation);
+	// Sets the local scale of this actor by in vec3 and in TransformSpace type
+	void SetLocalScale(const glm::vec3& _scale);
+	// Sets the global scale of this actor by in vec3 and in TransformSpace type
+	void SetGlobalScale(const glm::vec3& _scale);
 	// Sets teh parent of this actor to in Actor pointer
-	void SetParent(Actor* _parent);
+	void SetParent(std::shared_ptr<Actor> _parent);
 };

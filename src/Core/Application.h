@@ -1,66 +1,58 @@
 #pragma once
 
-#include <Core/Window.h>
-#include <Scene.h>
+// Includes
+// Additional Includes
+#include <memory> 
+
+// Forward Declarations
+class WindowManager;
+class LevelManager;
+class UserInterfaceManager;
 
 /**
  * @class Application,
- * @brief Manages GLFW and the application as a whole. It contains the render loop and Init space. 
+ * @brief The Application as a whole.
+ * It Initializes the user-interface manager, by proxy the level manager and the GLFW Window.
+ * It also contains the render loop where it calculates delta-time and call the start, update,
+ * render and end frame functions found in the in the window. 
  */
 class Application
 {
 public:
     // ---------- Global Variables --------------
 
-
 private:
     // ---------- Local Variables --------------
 
-    Window mWindow{ "LearnOpenGL", 1980, 1020 };
-    Scene mScene{ "Scene", &mWindow };
+    std::shared_ptr<WindowManager> mWindowManager{ nullptr };
 
 public:
     // ---------- Global functions --------------
 
-    // Uses default constructor 
+    explicit Application() = default;
 
-    // Disable copying and deleting of this class
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
     Application(Application&&) = default;
     Application& operator=(Application&&) = default;
 
-    // Called from "Main()", create`s itself and calls run();
+    // Static function that creates itself
     static Application* Get();
 
-    // Runs everything, init then render loop.
+    // Runs everything, app initialization then render loop.
     int Run();
-    
-    // Creats Window object to manage viewport and scene focus
-    void Init();
-
-    // Init and sets window context version for GLFW
-    void InitializeGLFW();
-
-    // Let`s Window know the application has started
-    // running and can load all content for the relevant scene. 
-    void LoadContent();
-
-
 
 private:
     // ---------- Local functions --------------
 
-    Application() = default;
+	// Initialize GLFW settings
+    void InitializeGLFW();
+
+    // Initialize Window, its callbacks and its content 
+    void InitializeWindow();
 
 public:
     // ---------- Getters / setters / Adders --------------
-
-    // Adders
-
-    // Setters
-
-    // Getters
 
 };
 

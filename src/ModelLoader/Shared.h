@@ -3,7 +3,11 @@
 // Includes
 #include <filesystem>
 
-// namespace declaration
+// Additional Includes
+
+// Forward Declarations
+
+// Namespace declaration
 namespace fs = std::filesystem;
 
 // Inline function returns the relative path from in base path and in absolute path as std::string

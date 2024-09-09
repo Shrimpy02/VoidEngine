@@ -1,8 +1,10 @@
-// Classes
-#include "Application.h"
 
-// Additional libraries
-// Glad + glfw
+// Include
+#include <Core/Application.h>
+#include <Core/WindowManager.h>
+#include <Core/SMath.h>
+
+// Additional include
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -14,42 +16,32 @@ Application* Application::Get()
 
 int Application::Run()
 {
-    // Creates window class and initializes it
-    Init();
-    // Loads scene content from window
-    LoadContent();
+    mWindowManager = std::make_shared<WindowManager>("VoidEngine");
 
+    InitializeGLFW();
+    InitializeWindow();
+    SMath::SeedRandTime();
+    glEnable(GL_CULL_FACE);
+    //glCullFace(GL_FRONT);
+
+    // Render/Update loop -----------
     float lastFrame = 0.f;
-
-    // This is the entire render loop
-    while (!mWindow.IsClosed())
+    while (!mWindowManager->IsClosed())
     {
         // Calc delta time
         float currentFrame = static_cast<float>(glfwGetTime());
         float deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        mWindow.StartFrame();
-        mWindow.Update(deltaTime);
-        mWindow.Render(deltaTime);
-        mWindow.EndFrame();
+        mWindowManager->StartFrame();
+        mWindowManager->Update(deltaTime);
+        mWindowManager->Render();
+        mWindowManager->EndFrame();
     }
-
-    // Clears static cache of content
-    Mesh::ClearCache();
-    Material::ClearCache();
-    Texture::ClearCache();
 
     glfwTerminate();
 
     return 0;
-}
-
-void Application::Init()
-{
-    InitializeGLFW();
-    mWindow.Init();
-    mWindow.RegisterWindowCallbacks();
 }
 
 void Application::InitializeGLFW()
@@ -60,8 +52,9 @@ void Application::InitializeGLFW()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-void Application::LoadContent()
+void Application::InitializeWindow()
 {
-    mWindow.LoadContent(&mScene);
+    mWindowManager->Init();
+    mWindowManager->RegisterWindowCallbacks();
+    mWindowManager->LoadContent();
 }
-

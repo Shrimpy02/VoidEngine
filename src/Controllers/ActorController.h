@@ -2,7 +2,19 @@
 
 // Includes
 #include <Controllers/Controller.h>
+
+// Additional Includes
+#include <memory> 
 #include <map>
+
+#include "LevelActors/CameraActor.h"
+
+// Forward Declarations
+class Actor;
+class WindowManager;
+class LevelManager;
+class CameraActor;
+class UserInterfaceManager;
 
 /**
  * @class ActorController,
@@ -14,41 +26,67 @@ class ActorController : public IController
 public:
     // ---------- Global Variables --------------
 
+    std::shared_ptr<CameraActor> mCameraForSnap{ nullptr };
+
 private:
     // ---------- Local Variables --------------
 
     // Key map for input handeling
     std::map<int, bool> mKeyStates;
     // actor movement speed
-    float mMovementSpeed = 1;
+    float mMovementSpeed = 5;
     // assigned actor
-    class Actor* mActor;
+    std::shared_ptr<Actor> mControlledActor;
     // Window reference
-    class Window* mWindow; 
+    std::shared_ptr<WindowManager> mWindowManager;
+    std::shared_ptr<LevelManager> mLevelManager;
+    std::shared_ptr<UserInterfaceManager> mUserInterfaceManager;
+
+    // Control settings camera
+    float mLastX = 0.0, mLastY = 0.0;
+    bool mRightMousePressed = false;
+    float mMouseSensitivity = 0.8f;
+
+    glm::vec3 mCameraSnapOffset{ 0.f, 2.f, 7.f };
 
 public:
     // ---------- Global functions --------------
 
     // Constructor
-    ActorController(class Actor* _actor, class Window* _window) : mActor(_actor), mWindow(_window) {}
+    ActorController(std::shared_ptr<WindowManager> _windowManager, std::shared_ptr<UserInterfaceManager> _userInterfaceManager);
 
     // Inherited update from IController, updates all local function each tick. 
-    void Update(float _dt) override;
+    void ProcessInput(float _dt) override;
 
     // Inherited from IController, empty function
-    void HandleMouseMove(class Window* _window, double _xpos, double _ypos) override;
+    void HandleMouseMove(double _xPos, double _yPos) override;
     // Inherited from IController, empty function
-    void HandleMouseScroll(class Window* _window, double _xoffset, double _yoffset) override;
+    void HandleMouseScroll(double _xOffset, double _yOffset) override;
     // Inherited from IController, empty function
-    void HandleMouseButton(class Window* _window, int _button, int _action, int _mods) override;
+    void HandleMouseButton(int _button, int _action, int _mods) override;
     // Inherited from IController, asigness key states to the keystates maps
-    void HandleKeyboard(class Window* _window, int _key, int _scancode, int _action, int _mods) override;
+    void HandleKeyboard(int _key, int _scanCode, int _action, int _mods) override;
+    // Inherited from IController, empty function
+    void HandleChar(unsigned codePoint) override;
+    void HandleViewportClick(int _button, int _action, int _mods, double _cursorPosX, double _cursorPosY);
+
+    void SnapCameraToControlledActor(std::shared_ptr<CameraActor> _camRef);
+
+    void UnSnapCameraToControlledActor();
+
+    void ExitApplication();
 
 private:
     // ---------- Local functions --------------
 
     // Updates the assigned actor by what key has been pressed
-    void UpdateActor(float _dt);
+    void UpdateControls(float _dt);
+
+    void UIInput(float _dt);
+
+    void CameraInput(float _dt);
+
+    void ActorInput(float _dt);
 
 public:
     // ---------- Getters / setters / Adders --------------
@@ -58,13 +96,21 @@ public:
     // Setters
 
 	// Sets a new actor to control
-    void SetNewActorToControll(class Actor* _newActor) { mActor = _newActor; }
+    void SetActorToControl(std::shared_ptr<Actor> _newActor) { mControlledActor = _newActor; }
     // sets the actor movement speed
     void SetMovementSpeed(float _inMovementSpeed) { mMovementSpeed = _inMovementSpeed; }
 
+
+    void SetWindowManager(std::shared_ptr<WindowManager> _inWindowManager) { mWindowManager = _inWindowManager; };
+
     // Getters
+    void GetLevelManager(std::shared_ptr<LevelManager> _inManager) { mLevelManager = _inManager; }
+    std::shared_ptr<Actor> GetRefToControlledActor() { return mControlledActor; }
 
     // gets the current movement speed
     float GetMovementSpeed() { return mMovementSpeed; }
+
+
+
 };
 

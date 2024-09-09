@@ -4,16 +4,10 @@
 #include <assimp/scene.h>
 #include <glm/glm.hpp>
 
-// Unused and disabled --
-// Inline template function for getting the seb material properties from an ai-material? 
-//template <typename T>
-//inline T GetProperty(const std::string& key, aiMaterial* material)
-//{
-//	T value;
-//	material->Get(key.c_str(), 0, 0, value);
-//
-//	return value;
-//}
+// Additional Includes
+
+// Forward Declarations
+struct aiNode;
 
 // Inline function returns transformation matrix of an in aiNode* as an aiMatrix4x4
 inline aiMatrix4x4 GetTransformationMatrix(const aiNode* node)

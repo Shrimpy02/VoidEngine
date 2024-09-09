@@ -1,18 +1,15 @@
 // Classes
 #include <Actor.h>
-#include <Utilities/Logger.h>
 
 Actor::~Actor()
 {
 	// Remove all components and children from memory
 	for (auto component : mComponents)
 	{
-		delete component;
 		component = nullptr;
 	}
 	for (auto child : mChildren)
 	{
-		delete child;
 		child = nullptr;
 	}
 }
@@ -24,148 +21,152 @@ void Actor::Update(float _dt)
 void Actor::UpdateComponents(float _dt)
 {
 	// calls update for all components 
-	for (auto component : mComponents)
+	for (std::shared_ptr<Component> component : mComponents)
 		component->Update(_dt);
 }
 
-void Actor::AddChild(Actor* _child)
+void Actor::UpdateExtentByRotation(glm::vec3& _extent)
+{
+
+}
+
+void Actor::AddChild(std::shared_ptr<Actor> _child)
 {
 	// Adds child to this actors children array
 	// and sets this actor as its parent.
 	if(_child)
 	{
 		mChildren.push_back(_child);
-		_child->mParent = this;
+		_child->mParent = shared_from_this();
 	}
 }
 
-void Actor::RemoveChild(Actor* _child)
+void Actor::RemoveChild(std::shared_ptr<Actor> _child)
 {
 	// Iterates through child vector and removes the child that matches input.
 	auto it = std::find(mChildren.begin(),mChildren.end(), _child);
 	if(it != mChildren.end())
 	{
 		mChildren.erase(it);
-		// If this actor is the child`s parent, remove parent reference.
-		if(_child->mParent == this)
+		// If "this" is the child`s parent, remove parent reference.
+		if(_child->mParent == shared_from_this())
 		{
 			_child->mParent = nullptr;
 		}
 	}
 }
 
-const glm::vec3& Actor::GetPosition(Actor::TransformSpace _type) const
+void Actor::RenameActor(std::string _newTag)
 {
-	// gets the local position of the actor 
-	if (_type == TransformSpace::Local)
-		return mTransform.GetPosition();
+	std::string oldTag = mTag.GetValue();
+	mTag.Rename(_newTag);
+	TagUnique::RemoveTagFromCache(oldTag);
+}
 
-	// gets the global position of the actor 
-	else if (_type == TransformSpace::Global)
+std::shared_ptr<PhysicsComponent> Actor::GetPhysicsComponent()
+{
+	for(std::shared_ptr<Component> comps : mComponents)
 	{
-		// iterates through each parent to get the global position
-		glm::vec3 globalPosition = mTransform.GetPosition();
-		const Actor* current = this->mParent;
-		while (current != nullptr)
-		{
-			globalPosition = glm::rotate(current->mTransform.GetRotation(), globalPosition);
-			globalPosition += current->mTransform.GetPosition();
-			current = current->mParent;
-		}
-		return globalPosition;
+		if (std::shared_ptr<PhysicsComponent> physicsComp = std::dynamic_pointer_cast<PhysicsComponent>(comps))
+			return physicsComp;
 	}
 
-	// If nothing was found return default position.
-	LOG_ERROR("Actor %s: returned null-position", mTag.GetValue().c_str());
-	const glm::vec3 defaultPos = glm::vec3();
-
-	return defaultPos;
+	return nullptr;
 }
 
-const glm::quat& Actor::GetRotation(Actor::TransformSpace _type) const
+int Actor::GetHierarchyLevel()
 {
-	// gets the local rotation of the actor 
-	if (_type == TransformSpace::Local)
-		return mTransform.GetRotation();
+	if (mParent) {
+		return mParent->GetHierarchyLevel() + 1;
+	}
+	return 0;
+}
 
-	// gets the global rotation of the actor 
-	else if (_type == TransformSpace::Global)
+std::shared_ptr<AIComponent> Actor::GetAIComponent()
+{
+	for (std::shared_ptr<Component> comps : mComponents)
 	{
-		// iterates through each parent to get the global rotation
-		glm::quat globalRotation = mTransform.GetRotation();
-		const Actor* current = this->mParent;
-		while (current != nullptr)
-		{
-			globalRotation = current->mTransform.GetRotation() * globalRotation;
-			current = current->mParent;
-		}
-		return globalRotation;
+		if (std::shared_ptr<AIComponent> AiComp = std::dynamic_pointer_cast<AIComponent>(comps))
+			return AiComp;
 	}
 
-	// If nothing was found return default rotation.
-	LOG_ERROR("Actor %s: returned null-rotation", mTag.GetValue().c_str());
-	const glm::quat defaultRot = glm::quat();
-
-	return defaultRot;
+	return nullptr;
 }
 
-const glm::vec3& Actor::GetScale(Actor::TransformSpace _type) const
+const glm::vec3& Actor::GetLocalPosition() const
 {
-	// gets the local scale of the actor 
-	if (_type == TransformSpace::Local)
-		return mTransform.GetScale();
+	return mTransform.GetPosition();
+}
 
-	// gets the global scale of the actor 
-	else if (_type == TransformSpace::Global)
+const glm::vec3 Actor::GetGlobalPosition() const
+{
+	// iterates through each parent to get the global position
+	glm::vec3 globalPosition = mTransform.GetPosition();
+	std::shared_ptr<Actor> current = this->mParent;
+	while (current != nullptr)
 	{
-		// iterates through each parent to get the global scale
-		glm::vec3 globalScale = mTransform.GetScale();
-		const Actor* current = this->mParent;
-		while (current != nullptr)
-		{
-			globalScale *= current->mTransform.GetScale();
-			current = current->mParent;
-		}
-		return globalScale;
+		globalPosition = glm::rotate(current->mTransform.GetRotation(), globalPosition);
+		globalPosition += current->mTransform.GetPosition();
+		current = current->mParent;
 	}
-
-	// If nothing was found return default scale.
-	LOG_ERROR("Actor %s: returned null-scale", mTag.GetValue().c_str());
-	const glm::vec3 defaultScale = glm::vec3(1.f);
-
-	return defaultScale;
+	return globalPosition;
 }
 
-const Transform& Actor::GetTransform() const
+const glm::quat& Actor::GetLocalRotation() const
 {
-	return mTransform;
+	return mTransform.GetRotation();
 }
 
-const glm::mat4 Actor::GetTransformMatrix(Actor::TransformSpace _type) const
+const glm::quat Actor::GetGlobalRotation() const
 {
-	// gets the local Transform Matrix of the actor  
-	if (_type == TransformSpace::Local)
-		return mTransform.GetTransformMatrix();
-
-	// gets the global Transform Matrix of the actor 
-	else if (_type == TransformSpace::Global)
+	// iterates through each parent to get the global rotation
+	glm::quat globalRotation = mTransform.GetRotation();
+	std::shared_ptr<Actor> current = this->mParent;
+	while (current != nullptr)
 	{
-		// iterates through each parent to get the global Transform Matrix
-		glm::mat4 globalTransform = mTransform.GetTransformMatrix();
-		const Actor* current = this;
+		globalRotation = current->mTransform.GetRotation() * globalRotation;
+		current = current->mParent;
+	}
+	return globalRotation;
+}
+
+const glm::vec3& Actor::GetLocalScale() const
+{
+	return mTransform.GetScale();
+}
+
+const glm::vec3 Actor::GetGlobalScale() const
+{
+	// iterates through each parent to get the global scale
+	glm::vec3 globalScale = mTransform.GetScale();
+	std::shared_ptr<Actor> current = mParent;
+	while (current != nullptr)
+	{
+		globalScale *= current->mTransform.GetScale();
+		current = current->mParent;
+	}
+	return globalScale;
+}
+
+const glm::mat4 Actor::GetLocalTransformMatrix() const
+{
+	return mTransform.GetTransformMatrix();
+}
+
+const glm::mat4 Actor::GetGlobalTransformMatrix() const
+{
+	// iterates through each parent to get the global Transform Matrix
+	glm::mat4 globalTransform = mTransform.GetTransformMatrix();
+	std::shared_ptr<Actor> current = mParent;
+	if (mParent)
+	{
 		while (current->mParent != nullptr)
 		{
-			globalTransform = current->mParent->GetTransformMatrix(TransformSpace::Local) * globalTransform;
+			globalTransform = current->mParent->GetLocalTransformMatrix() * globalTransform;
 			current = current->mParent;
 		}
-		return globalTransform;
 	}
-
-	// If nothing was found return default Transform Matrix.
-	LOG_ERROR("Actor %s: returned null-Transform Matrix", mTag.GetValue().c_str());;
-	const glm::mat4 defaultTransMatrix = glm::mat4();
-
-	return defaultTransMatrix;
+	return globalTransform;
 }
 
 glm::vec3 Actor::GetRight() const
@@ -173,7 +174,7 @@ glm::vec3 Actor::GetRight() const
 	return mTransform.GetRight();
 }
 
-std::vector<Actor*>& Actor::GetChildren()
+std::vector<std::shared_ptr<Actor>>& Actor::GetChildren()
 {
 	return mChildren;
 }
@@ -188,85 +189,74 @@ void Actor::SetTransform(const Transform& _transform)
 	mTransform = _transform;
 }
 
-void Actor::SetPosition(const glm::vec3& _position, Actor::TransformSpace _type)
+void Actor::SetLocalPosition(const glm::vec3& _position)
 {
-	// if the transform space is local, set the local position
-	if(_type == TransformSpace::Local)
-		mTransform.SetPosition(_position);
-
-	// other wise if it`s global, set the global position
-	else if(_type == TransformSpace::Global)
-	{
-		if (mParent)
-		{
-			// Sets the global position of this actor by setting its position relative to its parents position;
-			glm::mat4 parentGlobalInverse = glm::inverse(mParent->GetTransformMatrix(TransformSpace::Global));
-			glm::vec4 localPosition = parentGlobalInverse * glm::vec4(_position, 1.0f);
-			mTransform.SetPosition(glm::vec3(localPosition));
-		}
-		// if there is no parent, set local position.
-		else
-			mTransform.SetPosition(_position);
-			
-	}
+	mTransform.SetPosition(_position);
 }
 
-void Actor::SetRotation(const glm::quat& _rotation, Actor::TransformSpace _type)
+void Actor::SetGlobalPosition(const glm::vec3& _position)
 {
-	// if the transform space is local, set the local rotation
-	if (_type == TransformSpace::Local)
-		mTransform.SetRotation(_rotation);
-
-	// other wise if it`s global, set the global rotation
-	else if (_type == TransformSpace::Global)
-	{
-		if (mParent)
-		{
-			// Sets the global rotation of this actor by setting its rotation relative to its parents rotation;
-			glm::quat parentGlobalRotationInverse = glm::inverse(glm::quat_cast(mParent->GetTransformMatrix(TransformSpace::Global)));
-			glm::quat localRotation = parentGlobalRotationInverse * _rotation;
-			mTransform.SetRotation(localRotation);
-		}
-		// if there is no parent, set local rotation
-		else
-			mTransform.SetRotation(_rotation);
-		
-	}
-}
-
-void Actor::SetScale(const glm::vec3& _scale, Actor::TransformSpace _type)
-{
-	// if the transform space is local, set the local scale
-	if (_type == TransformSpace::Local)
-		mTransform.SetScale(_scale);
-
-	// other wise if it`s global, set the global rotation
-	else if (_type == TransformSpace::Global)
-	{
-		if (mParent)
-		{
-			// Sets the global scale of this actor by setting its scale relative to its parents scale;
-			glm::vec3 parentGlobalScale = mParent->GetScale(TransformSpace::Global);
-			glm::vec3 relativeScale = _scale / parentGlobalScale;
-			mTransform.SetScale(relativeScale);
-		}
-		// if there is no parent, set local scale
-		else
-			mTransform.SetScale(_scale);
-		
-	}
-}
-
-void Actor::SetParent(Actor* _parent)
-{
-	// Removes this actor from parents children array
 	if (mParent)
-		mParent->RemoveChild(this);
+	{
+		// Sets the global position of this actor by setting its position relative to its parents position;
+		glm::mat4 parentGlobalInverse = glm::inverse(mParent->GetGlobalTransformMatrix());
+		glm::vec4 localPosition = parentGlobalInverse * glm::vec4(_position, 1.0f);
+		mTransform.SetPosition(glm::vec3(localPosition));
+	}
+	// if there is no parent, set local position.
+	else
+		mTransform.SetPosition(_position);
+}
 
-	// Sets new parent
+void Actor::SetLocalRotation(const glm::quat& _rotation)
+{
+	mTransform.SetRotation(_rotation);
+}
+
+void Actor::SetGlobalRotation(const glm::quat& _rotation)
+{
+	if (mParent)
+	{
+		// Sets the global rotation of this actor by setting its rotation relative to its parents rotation;
+		glm::quat parentGlobalRotationInverse = glm::inverse(glm::quat_cast(mParent->GetGlobalTransformMatrix()));
+		glm::quat localRotation = parentGlobalRotationInverse * _rotation;
+		mTransform.SetRotation(localRotation);
+	}
+	// if there is no parent, set local rotation
+	else
+		mTransform.SetRotation(_rotation);
+}
+
+void Actor::SetLocalScale(const glm::vec3& _scale)
+{
+
+	mTransform.SetScale(_scale);
+}
+
+void Actor::SetGlobalScale(const glm::vec3& _scale)
+{
+	if (mParent)
+	{
+		// Sets the global scale of this actor by setting its scale relative to its parents scale;
+		glm::vec3 parentGlobalScale = mParent->GetGlobalScale();
+		glm::vec3 relativeScale = _scale / parentGlobalScale;
+		mTransform.SetScale(relativeScale);
+	}
+	// if there is no parent, set local scale
+	else
+		mTransform.SetScale(_scale);
+}
+
+void Actor::SetParent(std::shared_ptr<Actor> _parent)
+{
+	// Removes this actors parent
+	if (mParent)
+		mParent->RemoveChild(shared_from_this());
+
+	// Set new parent by input
 	mParent = _parent;
 
-	// Adds this actor to new parents children array
+	// Adds "this" actor to new parents children array
 	if (mParent)
-		mParent->AddChild(this);
+		mParent->AddChild(shared_from_this());
 }

@@ -2,6 +2,11 @@
 
 // Includes
 #include <Lights/Lights.h>
+#include <Actor.h>
+
+// Additional Includes
+
+// Forward Declarations
 
 /**
  * @class DirectionalLight,
@@ -33,6 +38,6 @@ public:
 	// Inherited function returns the direction of this light source as a vec3.
 	glm::vec3 GetDirection() const override
 	{
-		return GetRotation(TransformSpace::Local) * glm::vec3(0.f, 0.f, -1.f);
+		return GetLocalRotation() * glm::vec3(0.f, 0.f, -1.f);
 	}
 };

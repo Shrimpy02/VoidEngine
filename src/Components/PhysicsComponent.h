@@ -2,7 +2,14 @@
 
 // Includes
 #include <Components/Component.h>
+
+// Additional Includes
+#include <memory>
 #include <glm/glm.hpp>
+
+// Forward Declarations
+class Actor;
+class VisualActor;
 
 /**
  * @class PhysicsComponent
@@ -12,7 +19,7 @@
 class PhysicsComponent : public Component
 {
 	// Re-iterate that Actor classes are friends, even though its called in the base component.
-	friend class Actor;
+	friend Actor;
 public:
 	// ---------- Global Variables --------------
 
@@ -23,23 +30,27 @@ private:
 	glm::vec3 mAcceleration{ 0.f };
 	float mMaxSpeed = 20.f;
 
-	class VisualActor* mGroundReference{ nullptr };
+	std::vector<glm::vec3> mDebugBarryLocations;
+
+	std::shared_ptr<VisualActor> mSurfaceReference{ nullptr };
+
 	bool inContactWithGround = true;
 
-	double mLastJumpTime;
+	bool mGravityEnabled = true;
+	double mLastJumpTime = 0.f;
 
 public:
 	// ---------- Global functions --------------
 
 	// Constructs a physics components  and attaches it to input actor
-	PhysicsComponent(const std::string& _name, class Actor* _owner, class VisualActor* _groundReference = nullptr )
-		: Component(_name, _owner) {};
+	PhysicsComponent(const std::string& _name, std::shared_ptr<Actor> _owner)
+		: Component(_name, _owner) {}
 
-	~PhysicsComponent() override;
+	~PhysicsComponent() override = default;
 
 	// Overidden Update for the component, distribution to all tick functions from here. (Called each frame)
 	void Update(float _dt) override;
-
+	
 	// Updates all forces affecting the component.
 	void UpdateForces();
 
@@ -52,8 +63,12 @@ public:
 	// Resets all physics values, typically called on collisions. (Simple solution)
 	void ResetValues();
 
+	// Resets acceleration and velocity
+	void ResetForces();
+
+
 	// This function makes sure the components owner conforms to ground geometry if mGroundReference is filled.
-	void ConformToGround(float _parentExtent);
+	void ConformToSurface();
 
 	// Adds velocity upwards to the actor
 	void Jump(float jumpStrength = 10, glm::vec3 _jumpDirection = glm::vec3(0.f, 1.f, 0.f));
@@ -66,6 +81,16 @@ private:
 public:
 	// ---------- Getters and setters --------------
 
-	void SetGroundReference(class VisualActor* _groundRef) { mGroundReference = _groundRef; }
+	bool HasSurfaceReference() { if (mSurfaceReference) return true; return false; };
+
+	std::shared_ptr<VisualActor> GetSurfaceReference() { return mSurfaceReference; }
+
+	std::vector<glm::vec3> GetDebugSurfaceBarycentricPoints() { return mDebugBarryLocations; }
+
+	void SetSurfaceReference(std::shared_ptr<VisualActor> _groundRef) { mSurfaceReference = _groundRef; }
+
+	void SetGravityEnabled(bool _b) { mGravityEnabled = _b; }
+
+	bool IsGravityEnabled() { return mGravityEnabled; }
 
 };

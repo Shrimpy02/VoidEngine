@@ -1,4 +1,15 @@
 #pragma once
+// Includes
+
+
+// Additional Includes
+#include <memory> 
+
+
+// Forward Declarations
+class Window;
+class Actor;
+class CameraActor;
 
 /**
  * @class IController,
@@ -10,9 +21,10 @@ class IController
 public:
     virtual ~IController() = default;
 
-    virtual void Update(float dt) {}
-    virtual void HandleMouseMove(class Window* window, double xpos, double ypos) = 0;
-    virtual void HandleMouseScroll(class Window* window, double xoffset, double yoffset) = 0;
-    virtual void HandleMouseButton(class Window* window, int button, int action, int mods) = 0;
-    virtual void HandleKeyboard(class Window* window, int key, int scancode, int action, int mods) = 0;
+    virtual void ProcessInput(float dt) {}
+    virtual void HandleMouseMove(double _xPos, double _yPos) = 0;
+    virtual void HandleMouseScroll(double _xOffset, double _yOffset) = 0;
+    virtual void HandleMouseButton(int _button, int _action, int _mods) = 0;
+    virtual void HandleKeyboard(int _key, int _scanCode, int _action, int _mods) = 0;
+    virtual void HandleChar(unsigned int codePoint) = 0;
 };
