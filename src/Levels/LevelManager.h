@@ -18,13 +18,14 @@ struct Transform;
 class UserInterfaceManager;
 class DebugActor;
 class CameraActor;
-
+class OctTree_Node;
 
 /**
  * @class LevelManager
  * @brief 
  */
 class LevelManager : public std::enable_shared_from_this<LevelManager>
+
 
 {
 public:
@@ -43,6 +44,8 @@ private:
     std::shared_ptr<Shader> mGraphShader{ nullptr };
     std::shared_ptr<Shader> mDebugShader{ nullptr };
     std::shared_ptr<Shader> mSkyboxShader{ nullptr };
+
+    std::shared_ptr<OctTree_Node> mRootNode;
 
     std::shared_ptr<VisualActor> mConformBox{ nullptr };
          
@@ -135,5 +138,10 @@ public:
     std::shared_ptr<Shader> GetDefaultShader() { return mDefaultShader; }
 
     std::shared_ptr<CameraActor> GetActiveCamera();
+
+    std::shared_ptr<VisualActor> GetConformBox() { return mConformBox; };
+
+    std::shared_ptr<OctTree_Node> GetRootNode() { return mRootNode; }
+
 };
 

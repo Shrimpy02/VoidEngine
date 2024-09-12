@@ -61,7 +61,7 @@ public:
 
     explicit Mesh(const std::string _name, std::vector<GraphVertex>&& _vertices, std::vector<Index>&& _indices);
 
-    explicit Mesh(const std::string _name, std::vector<DebugVertex>&& _vertices);
+    explicit Mesh(const std::string _name, std::vector<DebugVertex>&& _vertices, std::vector<Index>&& _indices);
 
     // De-constructor removes class references and gl-buffer objects.
 	virtual ~Mesh();
@@ -94,6 +94,8 @@ public:
     static std::shared_ptr<Mesh> CreateDebugLine(std::vector<glm::vec3> _points);
 
     static std::shared_ptr<Mesh> CreateDebugLine(std::shared_ptr<Mesh> _mesh);
+
+    static std::shared_ptr<Mesh> CreateDebugLine(std::pair<glm::vec3, glm::vec3> _extents);
 
     // Loads mesh from cache by key
     static std::shared_ptr<Mesh> Load(const std::string& _key);

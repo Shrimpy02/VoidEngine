@@ -25,7 +25,8 @@ private:
 public:
     // ---------- Global functions --------------
 
-    static void SetAllObjectLocationWithinBoundsRandomly(std::vector<std::shared_ptr<BaseActor>>& _objects, std::shared_ptr<VisualActor> _confineObject);
+    static void SetObjectLocationWithinBoundsRandomly(std::vector<std::shared_ptr<BaseActor>>& _objects, std::shared_ptr<VisualActor> _confineObject);
+    static void SetObjectLocationWithinBoundsRandomly(std::shared_ptr<BaseActor> _object, std::shared_ptr<VisualActor> _confineObject);
 
 private:
     // ---------- Local functions --------------

@@ -52,11 +52,15 @@ public:
 
     bool IsIntersectingConstrictingBoxGeometry(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv);
 
+    bool IsIntersectingConstrictingBoxGeometry(glm::vec3 _min, glm::vec3 _max);
+
 	bool AABBx2(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
     bool BoundingSpherex2(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
     bool AABBxBoundingSphere(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
+
+    bool AABBxBoundingSphere(std::pair <glm::vec3, glm::vec3> _extents);
 
     bool Convexx2(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
@@ -67,6 +71,10 @@ public:
     bool BoundingSpherexPoint(glm::vec3 _pointPos);
 
     bool BoundingSpherexConstrictingBox(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv);
+
+    bool BoundingSpherexConstrictingBox(glm::vec3 _minExtent, glm::vec3 _maxExtent);
+
+    bool BoundingSpherePosxConstrictingBox(glm::vec3 _minExtent, glm::vec3 _maxExtent);
 
     // Returns true if this object is colliding with anything else. 
     bool GetIsColliding() { return mIsColliding; }

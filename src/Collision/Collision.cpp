@@ -3,6 +3,7 @@
 #include <Collision/Collision.h>
 #include <Utilities/Logger.h>
 #include <LevelActors/VisualActor.h>
+#include <OctTree.h>
 
 // Additional Includes
 
@@ -108,6 +109,16 @@ bool IBounded::IsIntersectingConstrictingBoxGeometry(std::shared_ptr<VisualActor
 	if (mCollisionProperties.IsBoundingSphere()) {
 
         return BoundingSpherexConstrictingBox(_boxCollider, _mtv);
+    }
+
+    return false;
+}
+
+bool IBounded::IsIntersectingConstrictingBoxGeometry(glm::vec3 _min, glm::vec3 _max)
+{
+    if (mCollisionProperties.IsBoundingSphere()) {
+
+        return BoundingSpherexConstrictingBox(_min, _max);
     }
 
     return false;
@@ -289,6 +300,33 @@ bool IBounded::AABBxBoundingSphere(std::shared_ptr<IBounded> _otherCollider, glm
     return true; // intersection exists if function has come this far
 }
 
+bool IBounded::AABBxBoundingSphere(std::pair <glm::vec3, glm::vec3> _extents)
+{
+
+    glm::vec3 centre = glm::vec3{
+(_extents.first.x + _extents.second.x) / 2.f,
+(_extents.first.y + _extents.second.y) / 2.f,
+(_extents.first.z + _extents.second.z) / 2.f
+    };
+
+    // Gets the point along the AABB box closest to the sphere
+    glm::vec3 clampedAABB = glm::clamp(mCenter, centre - _extents.first, _extents.second);
+
+    // Gets the vector between the bounding sphere center and the AABB closest point
+    glm::vec3 diff = clampedAABB - mCenter;
+
+    // Gets the distance between these points
+    float distanceSquared = glm::dot(diff, diff);
+
+    // Is true if the distance is more than the radius squared
+    bool intersects = distanceSquared <= (mRadius * mRadius);
+
+    if (!intersects) // If check so the rest of the code does not gray out and become a pain.
+        return false; // Should only proc return false so that no more computing is done for this scenario 
+
+    return true;
+}
+
 bool IBounded::Convexx2(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv)
 {
     return false;
@@ -334,7 +372,7 @@ bool IBounded::BoundingSpherexPoint(glm::vec3 _pointPos)
 bool IBounded::BoundingSpherexConstrictingBox(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv)
 {
     // Get the closest point on the AABB to the sphere's center
-    glm::vec3 clampedAABB = glm::clamp(mCenter, _boxCollider->mCenter - _boxCollider->mExtent, _boxCollider->mCenter + _boxCollider->mExtent);
+    glm::vec3 clampedAABB = glm::clamp(mCenter, _boxCollider->mCenter - _boxCollider->mExtent+ (mRadius*2), _boxCollider->mCenter + _boxCollider->mExtent- (mRadius*2));
 
     // Compute the vector between the sphere's center and the closest point on the AABB
     glm::vec3 diff = clampedAABB - mCenter;
@@ -369,36 +407,52 @@ bool IBounded::BoundingSpherexConstrictingBox(std::shared_ptr<VisualActor> _boxC
 
     // Return true since the sphere is outside the AABB and the MTV has been calculated
     return true;
+}
+
+bool IBounded::BoundingSpherexConstrictingBox(glm::vec3 _minExtent, glm::vec3 _maxExtent)
+{
+    // Get the closest point on the AABB to the sphere's center
+    glm::vec3 clampedAABB = glm::clamp(mCenter, _minExtent, _maxExtent);
+
+    // Compute the vector between the sphere's center and the closest point on the AABB
+    glm::vec3 diff = clampedAABB - mCenter;
+
+    // Calculate the square of the distance between the sphere's center and the closest point
+    float distanceSquared = glm::dot(diff, diff);
+
+    // Check if the sphere is inside the AABB (i.e., distance from the center to the closest point is less than the sphere's radius)
+    bool inside = distanceSquared <= (mRadius * mRadius);
+
+    // Correct return: if the sphere is inside the AABB, return true
+    return inside;
+}
+
+bool IBounded::BoundingSpherePosxConstrictingBox(glm::vec3 _minExtent, glm::vec3 _maxExtent)
+{
+    glm::vec3 centre = glm::vec3{
+(_minExtent.x + _maxExtent.x) / 2.f,
+(_minExtent.y + _maxExtent.y) / 2.f,
+(_minExtent.z + _maxExtent.z) / 2.f
+    };
+
+    // Extent is the size in each dimension
+    glm::vec3 extent = _maxExtent - _minExtent;
 
 
+	// calculates the difference from one center to the other
+    // and their extent sum
+    glm::vec3 diff = mCenter - centre;
+    glm::vec3 sumExtent = extent;
 
-
- //   bool isInside = false;
- //   for (int i = 0; i < 3; i++)
- //   {
- //       float boxMin = _boxCollider->mCenter[i] - _boxCollider->mExtent[i];
- //       float boxMax = _boxCollider->mCenter[i] + _boxCollider->mExtent[i];
- //  
- //      
- //       if (mCenter[i] - mRadius < boxMin)
- //       {
- //           // Calculate how much to move the sphere to bring it back inside the box
- //           float penetrationDepth = boxMin - (mCenter[i] - mRadius);
- //           (*_mtv)[i] = penetrationDepth;
- //           isInside = true;
- //       }
- //  
- //       // Check if the sphere is outside the box on the positive side
- //       if (mCenter[i] + mRadius > boxMax)
- //       {
- //           // Calculate how much to move the sphere to bring it back inside the box
- //           float penetrationDepth = boxMax - (mCenter[i] + mRadius);
- //           (*_mtv)[i] = penetrationDepth;
- //           isInside = true;
- //       }
- //  
- //   }
- //  
- //   // Return false if inside box
- //   return isInside;
+    // Check each axis for non intersection
+    for (int i = 0; i < 3; i++)
+    {
+        // if the difference in length is larger then the sum extent
+        // in each axis there is no intersection.
+        if (abs(diff[i]) > sumExtent[i])
+        {
+            return false; // no intersection for this axis
+        }
+    }
+    return true;
 }

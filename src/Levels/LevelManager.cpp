@@ -26,15 +26,12 @@
 #include <RenderElements/Material.h>
 #include <RenderElements/Texture.h>
 #include <UserInterface/UserInterfaceManager.h>
-
+#include <OctTree.h>
 //#include <Core/SMath.h>
 //#include <SkyBox/Skybox.h>
 
 // Additional Includes
 #include <ctime>
-
-
-// Opperation oct reee
 LevelManager::LevelManager(std::shared_ptr<ActorController> _inController)
 	: mController(_inController)
 {
@@ -140,13 +137,12 @@ void LevelManager::LoadPhysicsBoxLevel()
 	dla->SetGlobalPosition(glm::vec3(0, 10, 0));
 	dla->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 
+	// Scene objects ------------------------
 	mConformBox = std::make_shared<VisualActor>("Conform box", Mesh::CreateCube(nullptr), glm::vec3(0), glm::vec3(10.f));
 	mActiveLevel->AddActorToSceneGraph(mConformBox);
 	mConformBox->mVisualMesh->SetIsVisible(false);
 
-	std::shared_ptr<DebugActor> debugConformSquare = std::make_shared<DebugActor>("ConformDebug");
-	debugConformSquare->UpdateVisualMesh(mConformBox->GetMesh());
-	mConformBox->AddChild(debugConformSquare);
+	mRootNode = std::make_shared<OctTree_Node>(NodeBounds(-mConformBox->mExtent, mConformBox->mExtent), 0, mActiveLevel);
 
 	// Objects ------------------------
 	// Since instancing is enabled  we can initalize the material once and assign it to the first of the instance
@@ -154,20 +150,19 @@ void LevelManager::LoadPhysicsBoxLevel()
 	std::shared_ptr<Texture> specularTex = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerSpecular.jpg"));
 	std::shared_ptr<Material> mat = Material::Load("cube1mat", { diffuseTex, specularTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
 
-	std::vector<std::shared_ptr<BaseActor>> temp;
-	int numSpheres = 1000;
+	int numSpheres = 1;
 	for(int i = 0; i < numSpheres;i++)
 	{
 		std::shared_ptr<BaseActor> obj = std::make_shared<BaseActor>("Sphere", Mesh::CreateSphere(mat, 2, true), CollisionBase::BoundingSphere, glm::vec3(0), glm::vec3(0.3f));
 		mActiveLevel->AddActorToSceneGraph(obj);
 		obj->AddComponent<PhysicsComponent>("PhysicsComp");
-		//obj->SetGlobalPosition(glm::vec3(i * 2,0,0));
 		obj->GetPhysicsComponent()->SetGravityEnabled(false);
 		obj->SetCollisionType(CollisionType::DYNAMIC);
 		obj->SetCollisionResponse(CollisionResponse::BLOCK);
-		temp.push_back(obj);
+		SSpawner::SetObjectLocationWithinBoundsRandomly(obj, mConformBox);
+		obj->UpdateExtent();
+		mRootNode->InsertObject(obj);
 	}
-	SSpawner::SetAllObjectLocationWithinBoundsRandomly(temp,mConformBox);
 
 }
 
@@ -188,14 +183,14 @@ void LevelManager::SetActiveLevel(std::shared_ptr<Level> _activeLevel)
 void LevelManager::Update(float _dt)
 {
 	// Update the scene graph -> all objects in scene
-	//UpdateLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
+	UpdateLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
 
 	// Handle collision within bounding box
-	//if(mConformBox)
-	//	ProcessCollisionWithinBoxBounds(mConformBox);
+	if(mConformBox)
+		ProcessCollisionWithinBoxBounds(mConformBox);
 	
 	// Then handle collision for all objects in scene
-	//ProcessCollision();
+	ProcessCollision();
 
 	// Handels lifetime of tempDebug actors
 	mActiveLevel->TempDebugTimerManager(difftime(time(0), mApplicationStartTime));
@@ -534,8 +529,8 @@ std::shared_ptr<Actor> LevelManager::LineTraceCollision(std::vector<std::shared_
 
 void LevelManager::CreateLineTraceDebugActor(std::vector<glm::vec3> _points)
 {
-	std::shared_ptr<DebugActor> actor = std::make_shared<DebugActor>("LineTrace", true);
-	actor->UpdateVisualMesh(_points);
+	std::shared_ptr<DebugActor> actor = std::make_shared<DebugActor>("LineTrace",true);
+	actor->SetVisualMesh(_points);
 	AddActorToLevel(actor);
 }
 

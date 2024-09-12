@@ -20,8 +20,10 @@
 #include <Levels/LevelManager.h>
 #include <Controllers/ActorController.h>
 #include <Core/WindowManager.h>
-
 #include <ModelLoader/AssimpLoader.h>
+#include <OctTree.h>
+
+#include "Core/SSpawner.h"
 
 // Additional Includes
 
@@ -31,6 +33,7 @@
 UserInterfaceManager::UserInterfaceManager(std::shared_ptr<WindowManager> _inWindowManager)
 	: mWindowManager(_inWindowManager)
 {
+
 }
 
 UserInterfaceManager::~UserInterfaceManager()
@@ -845,7 +848,19 @@ void UserInterfaceManager::ui_WorldProperties()
 			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Disabled");
 		ImGui::Separator();
 
+		if (ImGui::Button("Add new cube to octtree", ImVec2(300, 25)))
+		{
+			std::shared_ptr<BaseActor> obj = std::make_shared<BaseActor>("Sphere", Mesh::CreateSphere(nullptr, 2, true), CollisionBase::BoundingSphere, glm::vec3(0), glm::vec3(0.3f));
+			mLevelManager->GetActiveLevel()->AddActorToSceneGraph(obj);
+			obj->AddComponent<PhysicsComponent>("PhysicsComp");
+			obj->GetPhysicsComponent()->SetGravityEnabled(false);
+			obj->SetCollisionType(CollisionType::DYNAMIC);
+			obj->SetCollisionResponse(CollisionResponse::BLOCK);
+			SSpawner::SetObjectLocationWithinBoundsRandomly(obj, mLevelManager->GetConformBox());
+			obj->UpdateExtent();
+			mLevelManager->GetRootNode()->InsertObject(obj);
 
+		}
 	}
 	ImGui::End();
 }
@@ -1309,7 +1324,7 @@ void UserInterfaceManager::uiSub_WorldProperties(std::shared_ptr<Actor> _inActor
 			}
 			else {
 
-				mBarycentricDebugActor->UpdateVisualMesh(debugMeshPoints);
+				mBarycentricDebugActor->SetVisualMesh(debugMeshPoints);
 
 			}
 
