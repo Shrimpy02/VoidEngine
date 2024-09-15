@@ -17,11 +17,13 @@ class ILifeTime
 public:
 	// ---------- Global Variables --------------
 
+	bool mLifeTimeEnabled = false;
 
 private:
 	// ---------- Local Variables --------------
 	time_t mCurrentLifeTime = 0;
-	
+
+
 public:
 	// ---------- Global functions --------------
 
@@ -29,6 +31,8 @@ public:
 	virtual ~ILifeTime() = default;
 
 	void InitializeLifeTime();
+
+	void ReInitalizeLifeTime();
 
 private:
 	// ---------- Local functions --------------

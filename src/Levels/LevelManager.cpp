@@ -142,7 +142,8 @@ void LevelManager::LoadPhysicsBoxLevel()
 	mActiveLevel->AddActorToSceneGraph(mConformBox);
 	mConformBox->mVisualMesh->SetIsVisible(false);
 
-	mRootNode = std::make_shared<OctTree_Node>(NodeBounds(-mConformBox->mExtent, mConformBox->mExtent), 0, mActiveLevel);
+	mActiveLevel->mOctTreeRootNode = std::make_shared<OctTree_Node>(NodeBounds(-mConformBox->mExtent, mConformBox->mExtent), 0, nullptr, mActiveLevel);
+
 
 	// Objects ------------------------
 	// Since instancing is enabled  we can initalize the material once and assign it to the first of the instance
@@ -161,9 +162,8 @@ void LevelManager::LoadPhysicsBoxLevel()
 		obj->SetCollisionResponse(CollisionResponse::BLOCK);
 		SSpawner::SetObjectLocationWithinBoundsRandomly(obj, mConformBox);
 		obj->UpdateExtent();
-		mRootNode->InsertObject(obj);
+		mActiveLevel->mOctTreeRootNode->InsertObject(obj);
 	}
-
 }
 
 void LevelManager::UnloadContent()
@@ -185,6 +185,8 @@ void LevelManager::Update(float _dt)
 	// Update the scene graph -> all objects in scene
 	UpdateLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
 
+	mActiveLevel->mOctTreeRootNode->OctTreeUpdate();
+
 	// Handle collision within bounding box
 	if(mConformBox)
 		ProcessCollisionWithinBoxBounds(mConformBox);
@@ -193,7 +195,7 @@ void LevelManager::Update(float _dt)
 	ProcessCollision();
 
 	// Handels lifetime of tempDebug actors
-	mActiveLevel->TempDebugTimerManager(difftime(time(0), mApplicationStartTime));
+	mActiveLevel->LifeTimeUpdate();
 }
 
 void LevelManager::Render()

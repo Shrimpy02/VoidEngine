@@ -26,7 +26,6 @@ private:
     // ---------- Local Variables --------------
 
     std::shared_ptr<Mesh> mVisualMesh;
-    bool mEnableLifetime = false;
     glm::vec3 mDebugColor{1.f,0.f,0.f};
 
 public:
@@ -59,7 +58,7 @@ public:
     // Getters
     std::shared_ptr<Mesh> GetVisualMesh() { return mVisualMesh; }
 
-    bool IsLifetimeEnabled() { return mEnableLifetime; }
+    bool IsLifetimeEnabled() { return mLifeTimeEnabled; }
 
     // Adders
 

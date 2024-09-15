@@ -166,9 +166,8 @@
 				29,
 				30,
 				31,
-				81,
+				32,
 				83,
-				84,
 				85,
 				86,
 				87,
@@ -179,7 +178,9 @@
 				92,
 				93,
 				94,
-				95
+				95,
+				96,
+				97
 			]
 		},
 		{
@@ -223,7 +224,7 @@
 			"language" : "C",
 			"sourceIndexes" : 
 			[
-				82
+				84
 			]
 		}
 	],
@@ -295,7 +296,6 @@
 				2,
 				3,
 				4,
-				32,
 				33,
 				34,
 				35,
@@ -343,7 +343,9 @@
 				77,
 				78,
 				79,
-				80
+				80,
+				81,
+				82
 			]
 		},
 		{
@@ -377,8 +379,7 @@
 				29,
 				30,
 				31,
-				81,
-				82,
+				32,
 				83,
 				84,
 				85,
@@ -391,7 +392,9 @@
 				92,
 				93,
 				94,
-				95
+				95,
+				96,
+				97
 			]
 		}
 	],
@@ -582,6 +585,12 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/OctTree.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/SLifeTime.cpp",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -827,6 +836,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "src/OctTree.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/SLifeTime.h",
 			"sourceGroupIndex" : 0
 		},
 		{

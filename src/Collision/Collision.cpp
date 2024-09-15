@@ -412,7 +412,7 @@ bool IBounded::BoundingSpherexConstrictingBox(std::shared_ptr<VisualActor> _boxC
 bool IBounded::BoundingSpherexConstrictingBox(glm::vec3 _minExtent, glm::vec3 _maxExtent)
 {
     // Get the closest point on the AABB to the sphere's center
-    glm::vec3 clampedAABB = glm::clamp(mCenter, _minExtent, _maxExtent);
+    glm::vec3 clampedAABB = glm::clamp(mCenter, _minExtent + (mRadius * 2), _maxExtent - (mRadius * 2));
 
     // Compute the vector between the sphere's center and the closest point on the AABB
     glm::vec3 diff = clampedAABB - mCenter;

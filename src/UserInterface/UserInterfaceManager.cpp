@@ -858,7 +858,7 @@ void UserInterfaceManager::ui_WorldProperties()
 			obj->SetCollisionResponse(CollisionResponse::BLOCK);
 			SSpawner::SetObjectLocationWithinBoundsRandomly(obj, mLevelManager->GetConformBox());
 			obj->UpdateExtent();
-			mLevelManager->GetRootNode()->InsertObject(obj);
+			mLevelManager->GetActiveLevel()->mOctTreeRootNode->InsertObject(obj);
 
 		}
 	}

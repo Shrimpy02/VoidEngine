@@ -17,12 +17,6 @@ class BaseActor;
 class SSpawner
 {
 public:
-    // ---------- Global Variables --------------
-
-private:
-    // ---------- Local Variables --------------
-
-public:
     // ---------- Global functions --------------
 
     static void SetObjectLocationWithinBoundsRandomly(std::vector<std::shared_ptr<BaseActor>>& _objects, std::shared_ptr<VisualActor> _confineObject);
@@ -30,12 +24,6 @@ public:
 
 private:
     // ---------- Local functions --------------
-
-
-public:
-    // ---------- Getters / setters / Adders --------------
-
-
 
 };
 

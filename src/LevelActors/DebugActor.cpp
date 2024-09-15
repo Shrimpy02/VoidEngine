@@ -9,24 +9,24 @@
 
 
 DebugActor::DebugActor(const std::string& _name, bool _enableLifetime, std::vector<glm::vec3> _points)
-	: Actor(_name), mEnableLifetime(_enableLifetime)
+	: Actor(_name)
 {
 	SetShaderObjectType(ShaderObjectType::Debug);
 	if (!_points.empty())
 		mVisualMesh = Mesh::CreateDebugLine(_points);
 
-	if (mEnableLifetime)
+	if (_enableLifetime)
 		InitializeLifeTime();
 }
 
 DebugActor::DebugActor(const std::string& _name, glm::vec3 _color, bool _enableLifetime, std::vector<glm::vec3> _points)
-	: Actor(_name), mEnableLifetime(_enableLifetime), mDebugColor(_color)
+	: Actor(_name), mDebugColor(_color)
 {
 	SetShaderObjectType(ShaderObjectType::Debug);
 	if(!_points.empty())
 		mVisualMesh = Mesh::CreateDebugLine(_points);
 
-	if(mEnableLifetime)
+	if(_enableLifetime)
 		InitializeLifeTime();
 }
 

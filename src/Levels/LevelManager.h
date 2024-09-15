@@ -45,8 +45,6 @@ private:
     std::shared_ptr<Shader> mDebugShader{ nullptr };
     std::shared_ptr<Shader> mSkyboxShader{ nullptr };
 
-    std::shared_ptr<OctTree_Node> mRootNode;
-
     std::shared_ptr<VisualActor> mConformBox{ nullptr };
          
     time_t mApplicationStartTime = 0;
@@ -140,8 +138,6 @@ public:
     std::shared_ptr<CameraActor> GetActiveCamera();
 
     std::shared_ptr<VisualActor> GetConformBox() { return mConformBox; };
-
-    std::shared_ptr<OctTree_Node> GetRootNode() { return mRootNode; }
 
 };
 
