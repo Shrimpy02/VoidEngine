@@ -16,6 +16,12 @@ class LevelManager;
 class CameraActor;
 class UserInterfaceManager;
 
+enum class LeftClickOptions
+{
+	Select,
+    AddForce
+};
+
 /**
  * @class ActorController,
  * @brief ActorController inherits from IController giving it key input control.
@@ -34,13 +40,16 @@ private:
     // Key map for input handeling
     std::map<int, bool> mKeyStates;
     // actor movement speed
-    float mMovementSpeed = 5;
+    float mMovementSpeed = 5.f;
+    float mClickVelocity = 5.f;
+
     // assigned actor
     std::shared_ptr<Actor> mControlledActor;
     // Window reference
     std::shared_ptr<WindowManager> mWindowManager;
     std::shared_ptr<LevelManager> mLevelManager;
     std::shared_ptr<UserInterfaceManager> mUserInterfaceManager;
+    LeftClickOptions mLeftClickOptions = LeftClickOptions::Select;
 
     // Control settings camera
     float mLastX = 0.0, mLastY = 0.0;
@@ -100,8 +109,11 @@ public:
     // sets the actor movement speed
     void SetMovementSpeed(float _inMovementSpeed) { mMovementSpeed = _inMovementSpeed; }
 
+    void SetLeftClickFocus(LeftClickOptions _inOption) { mLeftClickOptions = _inOption; }
 
     void SetWindowManager(std::shared_ptr<WindowManager> _inWindowManager) { mWindowManager = _inWindowManager; };
+
+    void SetClickVelocity(float _inVelocity) { mClickVelocity = _inVelocity; }
 
     // Getters
     void GetLevelManager(std::shared_ptr<LevelManager> _inManager) { mLevelManager = _inManager; }
@@ -110,6 +122,8 @@ public:
     // gets the current movement speed
     float GetMovementSpeed() { return mMovementSpeed; }
 
+    float GetClickVelocity() { return mClickVelocity; }
+    
 
 
 };

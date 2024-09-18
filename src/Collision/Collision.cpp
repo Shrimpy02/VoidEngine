@@ -104,11 +104,11 @@ bool IBounded::IsIntersectingLineTrace(glm::vec3 _point)
     return false;
 }
 
-bool IBounded::IsIntersectingConstrictingBoxGeometry(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv)
+bool IBounded::IsIntersectingConstrictingBoxGeometry(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv, glm::vec3* _boundaryNormal)
 {
 	if (mCollisionProperties.IsBoundingSphere()) {
 
-        return BoundingSpherexConstrictingBox(_boxCollider, _mtv);
+        return BoundingSpherexConstrictingBox(_boxCollider, _mtv, _boundaryNormal);
     }
 
     return false;
@@ -118,7 +118,7 @@ bool IBounded::IsIntersectingConstrictingBoxGeometry(glm::vec3 _min, glm::vec3 _
 {
     if (mCollisionProperties.IsBoundingSphere()) {
 
-        return BoundingSpherexConstrictingBox(_min, _max);
+        return BoundingSpherexConstrictingBoxContain(_min, _max);
     }
 
     return false;
@@ -369,7 +369,7 @@ bool IBounded::BoundingSpherexPoint(glm::vec3 _pointPos)
     return distanceSquared <= (mRadius * mRadius);
 }
 
-bool IBounded::BoundingSpherexConstrictingBox(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv)
+bool IBounded::BoundingSpherexConstrictingBox(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv, glm::vec3* _boundaryNormal)
 {
     // Get the closest point on the AABB to the sphere's center
     glm::vec3 clampedAABB = glm::clamp(mCenter, _boxCollider->mCenter - _boxCollider->mExtent+ (mRadius*2), _boxCollider->mCenter + _boxCollider->mExtent- (mRadius*2));
@@ -403,13 +403,49 @@ bool IBounded::BoundingSpherexConstrictingBox(std::shared_ptr<VisualActor> _boxC
 
         // Compute the MTV by multiplying the direction by the penetration depth
         *_mtv = direction * -penetration;
+
+        //if (_boundaryNormal)
+        //{
+        //    *_boundaryNormal = -direction;  // Normal points outward from the boundary
+        //}
+
+        // TODO Must be a better way to do this::
+        if (_boundaryNormal)
+        {
+            glm::vec3 boxMin = _boxCollider->mCenter - _boxCollider->mExtent;
+            glm::vec3 boxMax = _boxCollider->mCenter + _boxCollider->mExtent;
+            glm::vec3 distances = glm::abs(clampedAABB - mCenter);  // Distances to each side of the box
+        
+            // Find the smallest difference to determine the nearest axis
+            if (distances.x > distances.y && distances.x > distances.z)
+            {
+                // Closest to X-axis boundary
+                _boundaryNormal->x = (mCenter.x > _boxCollider->mCenter.x) ? 1.0f : -1.0f;
+                _boundaryNormal->y = 0.0f;
+                _boundaryNormal->z = 0.0f;
+            }
+            else if (distances.y > distances.x && distances.y > distances.z)
+            {
+                // Closest to Y-axis boundary
+                _boundaryNormal->x = 0.0f;
+                _boundaryNormal->y = (mCenter.y > _boxCollider->mCenter.y) ? 1.0f : -1.0f;
+                _boundaryNormal->z = 0.0f;
+            }
+            else
+            {
+                // Closest to Z-axis boundary
+                _boundaryNormal->x = 0.0f;
+                _boundaryNormal->y = 0.0f;
+                _boundaryNormal->z = (mCenter.z > _boxCollider->mCenter.z) ? 1.0f : -1.0f;
+            }
+        }
     }
 
     // Return true since the sphere is outside the AABB and the MTV has been calculated
     return true;
 }
 
-bool IBounded::BoundingSpherexConstrictingBox(glm::vec3 _minExtent, glm::vec3 _maxExtent)
+bool IBounded::BoundingSpherexConstrictingBoxContain(glm::vec3 _minExtent, glm::vec3 _maxExtent)
 {
     // Get the closest point on the AABB to the sphere's center
     glm::vec3 clampedAABB = glm::clamp(mCenter, _minExtent + (mRadius * 2), _maxExtent - (mRadius * 2));
@@ -427,32 +463,64 @@ bool IBounded::BoundingSpherexConstrictingBox(glm::vec3 _minExtent, glm::vec3 _m
     return inside;
 }
 
-bool IBounded::BoundingSpherePosxConstrictingBox(glm::vec3 _minExtent, glm::vec3 _maxExtent)
+bool IBounded::BoundingSpherexConstrictingBoxIntersect(glm::vec3 _minExtent, glm::vec3 _maxExtent)
 {
-    glm::vec3 centre = glm::vec3{
-(_minExtent.x + _maxExtent.x) / 2.f,
-(_minExtent.y + _maxExtent.y) / 2.f,
-(_minExtent.z + _maxExtent.z) / 2.f
-    };
+    // Clamp the sphere's center to the nearest point on the AABB
+    glm::vec3 clampedPoint = glm::clamp(mCenter, _minExtent, _maxExtent);
 
-    // Extent is the size in each dimension
-    glm::vec3 extent = _maxExtent - _minExtent;
+    // Compute the vector between the sphere's center and the closest point on the AABB
+    glm::vec3 diff = clampedPoint - mCenter;
 
+    // Calculate the square of the distance between the sphere's center and the closest point
+    float distanceSquared = glm::dot(diff, diff);
 
-	// calculates the difference from one center to the other
-    // and their extent sum
-    glm::vec3 diff = mCenter - centre;
-    glm::vec3 sumExtent = extent;
+    // Check if the distance is less than or equal to the sphere's radius squared
+    bool intersecting = distanceSquared <= (mRadius * mRadius);
 
-    // Check each axis for non intersection
-    for (int i = 0; i < 3; i++)
-    {
-        // if the difference in length is larger then the sum extent
-        // in each axis there is no intersection.
-        if (abs(diff[i]) > sumExtent[i])
-        {
-            return false; // no intersection for this axis
-        }
-    }
-    return true;
+    return intersecting;
+}
+
+void IBounded::BoundingSpherex2PhysicsCollision(std::shared_ptr<Actor> _colliderA, std::shared_ptr<Actor> _colliderB, float _elasticityCoefficient)
+{
+    // Compute the normal vector of the collision
+    glm::vec3 collisionNormal = glm::normalize(_colliderB->GetGlobalPosition() - _colliderA->GetGlobalPosition());
+
+    // Compute the relative velocity in the direction of the collision
+    float relativeVelocity = glm::dot(_colliderB->GetPhysicsComponent()->GetVelocity() - _colliderA->GetPhysicsComponent()->GetVelocity(), collisionNormal);
+
+    // Calculate the impulse scalar
+    float inverseMassA = 1 / _colliderA->GetPhysicsComponent()->GetMass();
+    float inverseMassB = 1 / _colliderB->GetPhysicsComponent()->GetMass();
+    float totalInverseMass = inverseMassA + inverseMassB;
+    float restitutionTerm = -(1 + _elasticityCoefficient);
+    float impulse = (restitutionTerm * relativeVelocity) / totalInverseMass;
+
+    // Impulse vector applied in the direction of the collision normal
+    glm::vec3 impulseVector = impulse * collisionNormal;
+
+    _colliderA->GetPhysicsComponent()->AddVelocity(-(impulseVector / _colliderA->GetPhysicsComponent()->GetMass()));
+    _colliderB->GetPhysicsComponent()->AddVelocity(impulseVector / _colliderB->GetPhysicsComponent()->GetMass());
+}
+
+void IBounded::BoundingSpherexBoundryPhysicsCollision(std::shared_ptr<Actor> _collider, std::shared_ptr<VisualActor> _conformCollider, glm::vec3 _boundaryNormal, float _elasticityCoefficient)
+{
+    // Normalize the boundary normal to ensure it's a unit vector
+    glm::vec3 boundaryNormal = glm::normalize(_boundaryNormal);
+
+    // Get the collider's velocity
+    glm::vec3 colliderVelocity = _collider->GetPhysicsComponent()->GetVelocity();
+
+    // Project the velocity onto the boundary normal to get the velocity component along the normal
+    float velocityNormalComponent = glm::dot(colliderVelocity, boundaryNormal);
+
+    // Compute the impulse scalar for the collision with a static boundary (boundary velocity = 0)
+    float inverseMassCollider = 1 / _collider->GetPhysicsComponent()->GetMass();
+    float restitutionTerm = -(1 + _elasticityCoefficient);
+    float impulse = restitutionTerm * velocityNormalComponent / inverseMassCollider;
+
+    // Impulse vector applied along the collision normal
+    glm::vec3 impulseVector = impulse * boundaryNormal;
+
+    // Apply the impulse to the collider (only the collider is affected since the boundary is static)
+    _collider->GetPhysicsComponent()->AddVelocity(impulseVector / _collider->GetPhysicsComponent()->GetMass());
 }

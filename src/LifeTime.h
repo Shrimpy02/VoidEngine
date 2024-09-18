@@ -32,7 +32,7 @@ public:
 
 	void InitializeLifeTime();
 
-	void ReInitalizeLifeTime();
+	void ReInitializeLifeTime();
 
 private:
 	// ---------- Local functions --------------

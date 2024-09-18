@@ -57,8 +57,8 @@ void Level::LifeTimeUpdate()
     mSceneGraph->Query<ILifeTime>(lifeTimeActors);
 
     SLifeTime::ManageDebugActorLifeTime(shared_from_this(), lifeTimeActors);
-
-    SLifeTime::ManageOctTreeNodeLifeTime(shared_from_this(), mOctTreeRootNode);
+    if(mOctTreeRootNode)
+		SLifeTime::ManageOctTreeNodeLifeTime(shared_from_this(), mOctTreeRootNode);
 
 }
 

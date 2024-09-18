@@ -28,7 +28,10 @@ private:
 
 	glm::vec3 mVelocity{ 0.f };
 	glm::vec3 mAcceleration{ 0.f };
+	float mMass = 1.f;
+
 	float mMaxSpeed = 20.f;
+	
 
 	std::vector<glm::vec3> mDebugBarryLocations;
 
@@ -66,12 +69,16 @@ public:
 	// Resets acceleration and velocity
 	void ResetForces();
 
-
 	// This function makes sure the components owner conforms to ground geometry if mGroundReference is filled.
 	void ConformToSurface();
 
 	// Adds velocity upwards to the actor
 	void Jump(float jumpStrength = 10, glm::vec3 _jumpDirection = glm::vec3(0.f, 1.f, 0.f));
+
+	// Adds velocity to this actor
+	void AddVelocity(glm::vec3 _inVel);
+
+
 
 private:
 	// ---------- Local functions --------------
@@ -87,9 +94,17 @@ public:
 
 	std::vector<glm::vec3> GetDebugSurfaceBarycentricPoints() { return mDebugBarryLocations; }
 
+	glm::vec3 GetVelocity() { return mVelocity; }
+
+	float GetMass() { return mMass; }
+
 	void SetSurfaceReference(std::shared_ptr<VisualActor> _groundRef) { mSurfaceReference = _groundRef; }
 
 	void SetGravityEnabled(bool _b) { mGravityEnabled = _b; }
+
+	void SetVelocity(glm::vec3 _inVelocity) { mVelocity = _inVelocity; };
+
+	void SetMass(const float _inMass) { mMass = _inMass; }
 
 	bool IsGravityEnabled() { return mGravityEnabled; }
 

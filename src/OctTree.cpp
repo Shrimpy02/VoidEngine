@@ -3,49 +3,49 @@
 #include <OctTree.h>
 #include <Levels/Level.h>
 #include <LevelActors/BaseActor.h>
+#include <LevelActors/DebugActor.h>
 #include <Utilities/Defines.h>
 #include <Utilities/Logger.h>
-#include <LevelActors/DebugActor.h>
 
 // Additional includes
 
+// -------------------------------- Node Bounds ---------------------------------------
+// -------------------------------------------------------------------------------------
+
 NodeBounds::NodeBounds(glm::vec3 _minExtent, glm::vec3 _maxExtent)
-    : mMinExtent(_minExtent), mMaxExtent(_maxExtent)
-{
-}
+    : mMinExtent(_minExtent), mMaxExtent(_maxExtent) {}
 
 bool NodeBounds::Intersect(std::shared_ptr<BaseActor> _object)
 {
-    return _object->AABBxBoundingSphere(std::make_pair(mMinExtent, mMaxExtent));
-}
-
-bool NodeBounds::Overlaps(std::shared_ptr<BaseActor> _object)
-{
-  //  if (_object)
-  //      return _object->BoundingSpherexConstrictingBoxSoft(mMinExtent, mMaxExtent);
+    if (_object)
+        return _object->BoundingSpherexConstrictingBoxIntersect(mMinExtent, mMaxExtent);
     return false;
 }
 
-bool NodeBounds::Contains(std::shared_ptr<BaseActor> _object)
+bool NodeBounds::HardContains(std::shared_ptr<BaseActor> _object)
 {
     if (_object)
-        return _object->BoundingSpherexConstrictingBox(mMinExtent, mMaxExtent);
-
+        return _object->BoundingSpherexConstrictingBoxContain(mMinExtent, mMaxExtent);
     return false;
 }
 
+// -------------------------------- OctTree_Node ---------------------------------------
+// -------------------------------------------------------------------------------------
 
-
+// Octree todo fix:
+// todo - CreateAndInsertIntoChild -> should insert if completly contained, if not should check all neibours, not only first one.
+// todo - InsertContainedObject and InsertIntersectObject should also psuh all intersecting children when child is created
+// todo - Fix update intersect only objects not being pushed anywhere in update
+// todo -
 
 OctTree_Node::OctTree_Node(NodeBounds _nodeBounds, int _depth, std::shared_ptr<OctTree_Node> _parent, std::shared_ptr<Level> _activeLevel)
 : mNodeBounds(_nodeBounds), mCurrentDepth(_depth), mParentNode(_parent), mActiveLevel(_activeLevel)
 {
     mChildren.fill(nullptr);
 
+    // For auto deletion when node is empty
     if (mParentNode)
         InitializeLifeTime();
-    
-	
 
 #ifdef DEBUG_ENABLED
     std::shared_ptr<DebugActor> debugActor = std::make_shared<DebugActor>("OctTree_debugBounds",glm::vec3((1.f/(mCurrentDepth+1)),0.f,0.f));
@@ -61,15 +61,7 @@ OctTree_Node::OctTree_Node(NodeBounds _nodeBounds, int _depth, std::shared_ptr<O
 
 OctTree_Node::~OctTree_Node()
 {
-    if (!mNodeActors.empty())
-    {
-        //for (std::shared_ptr<BaseActor> object : mNodeActors)
-        //    InsertObjectIntoRoot(object);
-        //mNodeActors.clear();
-
-        LOG_WARNING("DeletingNode With Objects in it, moved to root");
-    }
-
+    
 #ifdef DEBUG_ENABLED 
     if (mActiveLevel)
         if (mDebugActor)
@@ -78,124 +70,170 @@ OctTree_Node::~OctTree_Node()
 #endif
 }
 
+// -------------------------------- Global Functions ------------------------------------------
+
 void OctTree_Node::OctTreeUpdate()
 {
-	// Recursively update all nodes of an oct tree
-    if(mHasChildren)
+    // Recursively move down to update all leaf nodes
+    if (mHasChildren)
     {
-	    for(std::shared_ptr<OctTree_Node> childNode : mChildren)
-	    {
-            if(childNode)
-				childNode->OctTreeUpdate();
-	    }
-        // if not subdivided it contains objects, run updates on them
-    } else {
-   
-        for(std::shared_ptr<BaseActor> object : mNodeActors)
+        for (std::shared_ptr<OctTree_Node> childNode : mChildren)
         {
-	        if(object)
-	        {
-		        if(!mNodeBounds.Contains(object))
-		        {
-                    InsertObjectIntoRoot(object);
-                    RemoveObject(object);
+            if (childNode)
+                childNode->OctTreeUpdate();
+        }
 
-                    if (mNodeActors.empty())
-                        ReInitalizeLifeTime();
-		        }
-	        }
+        // If it does not have children its a leaf-node,
+        // and if exits ig has either contained or intersect objects so update them in turn.
+    } else {
+
+        // Updates Contained objects first
+        for (std::shared_ptr<BaseActor> object : mContainedNodeActors)
+        {
+            if (object)
+            {
+                // If the object is no longer completely contained.
+                if (!mNodeBounds.HardContains(object))
+                {
+                    // then remove it from the contained object vector
+                    RemoveContainedObject(object);
+
+                    // check if it intersects the node
+                    if(mNodeBounds.Intersect(object))
+                    {
+                        // if it does insert it into intersect vector 
+                        InsertIntersectObject(object);
+                    }
+                	else
+                	{
+                        // if it does not intersect the node its somewhere unknown,
+                        // insert into root to figure out where it went.
+                        InsertObjectIntoRoot(object);
+                	}
+                }
+            }
+        }
+
+        // Updates Intersected objects second
+        for (std::shared_ptr<BaseActor> object : mIntersectingActors)
+        {
+            if (object)
+            {
+                // If it does not intersect 
+                if (!mNodeBounds.Intersect(object))
+                {
+                    // then remove if from intersect vector
+                    RemoveIntersectObject(object);
+                    //InsertObjectIntoRoot(object);
+
+                    // If it intersects and contains
+                } else if (mNodeBounds.HardContains(object))
+                {
+                    // Remove from intersect, add to contain
+                    RemoveIntersectObject(object);
+                    InsertContainedObject(object);
+                } 
+            }
         }
     }
 }
 
-//bool OctTree_Node::InsertObject(std::shared_ptr<BaseActor> _object)
-//{
-//    // 1. Check if the object is within this node, return false if it is not within
-//    //if (!mNodeBounds.Contains(_object)) return false;
-//
-//
-//    // 2. If num objects is less than max num objects or
-//    //      if depth is less than max depth, add object to this node and return true
-//    //      otherwise continue. 
-//    if (!mSubdivided && mNodeActors.size() < sMaxObjectsInNode)
-//    {
-//        mNodeActors.push_back(_object);
-//        if (mDebugActor)
-//            mDebugActor->SetColor(glm::vec3(0, 1, 0));
-//        return true;
-//    }
-//
-//
-//    // 1. Find the middle of the oct tree node
-//    glm::vec3 centre = glm::vec3{
-//        (mNodeBounds.mMinExtent.x + mNodeBounds.mMaxExtent.x) / 2.0f,
-//        (mNodeBounds.mMinExtent.y + mNodeBounds.mMaxExtent.y) / 2.0f,
-//        (mNodeBounds.mMinExtent.z + mNodeBounds.mMaxExtent.z) / 2.0f
-//    };
-//
-//	// 3. If come here the object is not yet inserted and there is no more room, so
-//    //      if not already subdivided, subdivide this node
-//    if (!mSubdivided)
-//        if (mCurrentDepth < sMaxDepth)
-//        {
-//
-//            // 3.5 If subdividing sector, move each stored object in this sector to its children,
-//        	//        Then Delete all objects in this sector since they have been moved.
-//            if (Subdivide())
-//            {
-//                for(std::shared_ptr<BaseActor> object : mNodeActors)
-//                {
-//                    for (std::shared_ptr<OctTree_Node> childNode : mChildren)
-//                    {
-//                        if(childNode)
-//                            if (childNode->InsertObject(object))
-//                            {
-//                                break;
-//                            }
-//                    }
-//                }
-//                mNodeActors.clear();
-//                if (mDebugActor)
-//                    mDebugActor->SetColor(GetDepthRedColor());
-//            }
-//        } else {
-//            LOG_ERROR("No more depth room for object in oct tree!");
-//            return false;
-//        }
-//
-//    // 4. If here this node is subdivided and there is no more space, itterate through
-//    //      each child of this node and try inserting it into each one, return true if success
-//    for (std::shared_ptr<OctTree_Node> childNode : mChildren)
-//    {
-//        if(childNode)
-//            if(childNode->InsertObject(_object))
-//		    	return true;
-//    }
-//
-//    // 5. Insert fail, return false
-//    return false;
-//}
-
-
 bool OctTree_Node::InsertObject(std::shared_ptr<BaseActor> _object)
 {
+    // Checks if hard contains first
+    if (mNodeBounds.HardContains(_object))
+        return InsertContainedObject(_object);
 
-    if (mNodeActors.size() < sMaxObjectsInNode && !mHasChildren)
+    // Then Intersect since both are true if hard contain is true.
+    else if (mNodeBounds.Intersect(_object))
+        return InsertIntersectObject(_object);
+
+    return false;
+}
+
+void OctTree_Node::InsertObjectIntoRoot(std::shared_ptr<BaseActor> _object)
+{
+    // Recursively insert _object up the tree into the root node
+    if (mParentNode)
+        mParentNode->InsertObjectIntoRoot(_object);
+    else
+        InsertObject(_object);
+}
+
+void OctTree_Node::RemoveContainedObject(std::shared_ptr<BaseActor> _object)
+{
+    // Finds the iterator to input _object in object contain vector and removes it, also updates colors of debug
+    auto it = std::find(mContainedNodeActors.begin(), mContainedNodeActors.end(), _object);
+    if (it != mContainedNodeActors.end())
     {
-        mNodeActors.push_back(_object);
+        mContainedNodeActors.erase(it);
+        if (mContainedNodeActors.empty() && !mIntersectingActors.empty())
+            SetDebugMeshYellow();
+        else if (!ContainsObjects())
+        {
+            SetDebugMeshRed();
+            ReInitializeLifeTime();
+        }
+    }
+}
+
+void OctTree_Node::RemoveIntersectObject(std::shared_ptr<BaseActor> _object)
+{
+    // Finds the iterator to input _object in object intersect vector and removes it, also updates colors of debug
+    auto it = std::find(mIntersectingActors.begin(), mIntersectingActors.end(), _object);
+    if (it != mIntersectingActors.end())
+    {
+        mIntersectingActors.erase(it);
+
+        if (mIntersectingActors.empty() && !mContainedNodeActors.empty())
+            SetDebugMeshGreen();
+        else if (!ContainsObjects())
+        {
+            SetDebugMeshRed();
+            ReInitializeLifeTime();
+        }
+    }
+}
+
+void OctTree_Node::RemoveChild(std::shared_ptr<OctTree_Node> _child)
+{
+    for (int i = 0; i < 8; i++)
+    {
+        if (mChildren[i].get() == _child.get())
+        {
+            mChildren[i] = nullptr;
+            break;  // Early exit once the child is removed
+        }
+    }
+}
+
+void OctTree_Node::Resize(NodeBounds _nodeBounds)
+{
+}
+
+// -------------------------------- Local Functions ------------------------------------------
+
+bool OctTree_Node::InsertContainedObject(std::shared_ptr<BaseActor> _object)
+{
+    // Add object to contain vector if this is leaf and max num objects not reached.
+    if (mContainedNodeActors.size() < sMaxObjectsInNode && !mHasChildren)
+    {
+        mContainedNodeActors.push_back(_object);
     	SetDebugMeshGreen();
         return true;
     }
 
+    // if cant add, make child if not at max depth
     if (mCurrentDepth < sMaxDepth)
     {
         if(CreateAndInsertIntoChildren(_object))
         {
-            for (std::shared_ptr<BaseActor> object : mNodeActors)
+            // if children created move all current contained objects to children. 
+            for (std::shared_ptr<BaseActor> object : mContainedNodeActors)
             {
                 CreateAndInsertIntoChildren(object);
             }
-            mNodeActors.clear();
+            mContainedNodeActors.clear();
             mHasChildren = true;
             SetDebugMeshRed();
         } else {
@@ -206,115 +244,201 @@ bool OctTree_Node::InsertObject(std::shared_ptr<BaseActor> _object)
     return false;
 }
 
-
-
-//void OctTree_Node::TransferObjectToNewNode(std::shared_ptr<BaseActor> _object, std::shared_ptr<OctTree_Node> _insertNode)
-//{
-//    _insertNode->InsertObject(_object);
-//    RemoveObject(_object);
-//}
-
-void OctTree_Node::RemoveObject(std::shared_ptr<BaseActor> _object)
+bool OctTree_Node::InsertIntersectObject(std::shared_ptr<BaseActor> _object)
 {
-    auto it = std::find(mNodeActors.begin(), mNodeActors.end(), _object);
-    if (it != mNodeActors.end())
+    // Add object to intersect vector if this is leaf -> does not have children
+    if (!mHasChildren)
     {
-        mNodeActors.erase(it);
-        if (mNodeActors.empty())
-            SetDebugMeshRed();
+        // Check if already intersected and processed (might not be necessary )
+        if (std::find(mIntersectingActors.begin(), mIntersectingActors.end(), _object) != mIntersectingActors.end())
+            return false;
+
+        // Add object to neighbours excluding this node 
+        if(mParentNode)
+			mParentNode->InsertIntersectIntoNeighbors(_object, shared_from_this());
+
+        mIntersectingActors.push_back(_object);
+        SetDebugMeshYellow();
+
+        return true;
     }
 
+    // if cant add, make child if not at max depth
+    if (mCurrentDepth < sMaxDepth)
+    {
+        if (CreateAndInsertIntoChildren(_object))
+        {
+            // if children created move all current intersect objects to children. 
+            for (std::shared_ptr<BaseActor> object : mContainedNodeActors)
+            {
+                CreateAndInsertIntoChildren(object);
+            }
+            mContainedNodeActors.clear();
+            mHasChildren = true;
+            SetDebugMeshRed();
+        }
+        else {
+            LOG_ERROR("No insertion room in node!");
+        }
+    }
+
+    return false;
 }
 
-void OctTree_Node::RemoveChild(std::shared_ptr<OctTree_Node> _child)
+bool OctTree_Node::InsertIntersectIntoNeighbors(std::shared_ptr<BaseActor> _object, std::shared_ptr<OctTree_Node> _excludeNode)
 {
-    for(int i = 0; i < 8; i++)
+    // this is called a node higher than initial insert
+    bool ShouldPropagateHigher = true;
+
+    for (int i = 0; i < 8; i++)
     {
-        if (mChildren[i].get() == _child.get())
+        // checks each child, excluding the child node that called this function
+        NodeBounds childBounds = GetChildBounds(mNodeBounds, i);
+        if (_excludeNode)
+            if (mChildren[i])
+                if (mChildren[i].get() == _excludeNode.get())
+                    continue;
+
+        // if any children intersects, add object as overlap, and stop propagating up
+        if (childBounds.Intersect(_object))
         {
-            mChildren[i] = nullptr;
-            break;  // Early exit once the child is removed
+            if (!mChildren[i])
+                mChildren[i] = std::make_shared<OctTree_Node>(childBounds, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
+
+            if (mChildren[i]->AddOverlapObject(_object))
+                ShouldPropagateHigher = false;
         }
+    }
+    // if this has a parent and no overlap was added, propagate to this parent excluding this node. 
+    if (mParentNode && ShouldPropagateHigher)
+        return mParentNode->InsertIntersectIntoNeighbors(_object, mParentNode);
+
+    return true;
+}
+
+bool OctTree_Node::AddOverlapObject(std::shared_ptr<BaseActor> _object)
+{
+    // Add object to intersect vector if this is leaf -> does not have children
+    if (!mHasChildren)
+    {
+        // Check if already intersected and processed
+        if (std::find(mIntersectingActors.begin(), mIntersectingActors.end(), _object) != mIntersectingActors.end())
+            return false;
+
+        //Add it without checking neighbours since this is a helper function
+        mIntersectingActors.push_back(_object);
+        SetDebugMeshYellow();
+        return true;
+    } else {
+
+        // If this has children check each child and add it there is an intersect
+        for (int i = 0; i < 8; i++)
+        {
+            NodeBounds childBounds = GetChildBounds(mNodeBounds, i);
+
+            if (childBounds.Intersect(_object))
+            {
+                if (!mChildren[i])
+                    mChildren[i] = std::make_shared<OctTree_Node>(childBounds, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
+
+                mChildren[i]->AddOverlapObject(_object);
+            }
+        }
+        return true;
     }
 }
 
 bool OctTree_Node::CreateAndInsertIntoChildren(std::shared_ptr<BaseActor> _object)
 {
-    // Find the middle of the oct tree node
-    glm::vec3 centre = glm::vec3{
-        (mNodeBounds.mMinExtent.x + mNodeBounds.mMaxExtent.x) / 2.0f,
-        (mNodeBounds.mMinExtent.y + mNodeBounds.mMaxExtent.y) / 2.0f,
-        (mNodeBounds.mMinExtent.z + mNodeBounds.mMaxExtent.z) / 2.0f
-    };
-
-    // Bottom Left Back
-    if (InsertIntoChild(_object, NodeBounds(mNodeBounds.mMinExtent, centre), 0))
+    // checks if _object is contained within any children if it is then insert and return true.
+    for(int i = 0; i < 8 ; i++)
     {
-        mChildren[0]->InsertObject(_object);
-        return true;
+        NodeBounds childBounds = GetChildBounds(mNodeBounds, i);
+
+        if(childBounds.HardContains(_object))
+        {
+            if (!mChildren[i])
+                mChildren[i] = std::make_shared<OctTree_Node>(childBounds, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
+
+            mChildren[i]->InsertContainedObject(_object);
+            return true;
+        }
     }
 
-    // Bottom Right Back
-    else if (InsertIntoChild(_object, NodeBounds(glm::vec3(centre.x, mNodeBounds.mMinExtent.y, mNodeBounds.mMinExtent.z), glm::vec3(mNodeBounds.mMaxExtent.x, centre.y, centre.z)), 1))
+    // if not it checks intersects with all children and returns true if intersects
+    for (int i = 0; i < 8; i++)
     {
-        mChildren[1]->InsertObject(_object);
-        return true;
-    }
+        NodeBounds childBounds = GetChildBounds(mNodeBounds, i);
 
-    // Top Left Back
-    else if (InsertIntoChild(_object, NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, centre.y, mNodeBounds.mMinExtent.z), glm::vec3(centre.x, mNodeBounds.mMaxExtent.y, centre.z)), 2))
-    {
-        mChildren[2]->InsertObject(_object);
-        return true;
-    }
+        if (childBounds.Intersect(_object))
+        {
+            if (!mChildren[i])
+                mChildren[i] = std::make_shared<OctTree_Node>(childBounds, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
 
-    // Top Right Back
-    else if (InsertIntoChild(_object, NodeBounds(glm::vec3(centre.x, centre.y, mNodeBounds.mMinExtent.z), glm::vec3(mNodeBounds.mMaxExtent.x, mNodeBounds.mMaxExtent.y, centre.z)), 3))
-    {
-        mChildren[3]->InsertObject(_object);
-        return true;
-    }
-
-    // Bottom Left Front
-    else if (InsertIntoChild(_object, NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, mNodeBounds.mMinExtent.y, centre.z), glm::vec3(centre.x, centre.y, mNodeBounds.mMaxExtent.z)), 4))
-    {
-        mChildren[4]->InsertObject(_object);
-        return true;
-    }
-
-    // Bottom Right Front
-    else if (InsertIntoChild(_object, NodeBounds(glm::vec3(centre.x, mNodeBounds.mMinExtent.y, centre.z), glm::vec3(mNodeBounds.mMaxExtent.x, centre.y, mNodeBounds.mMaxExtent.z)), 5))
-    {
-        mChildren[5]->InsertObject(_object);
-        return true;
-    }
-
-    // Top Left Front
-    else if (InsertIntoChild(_object, NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, centre.y, centre.z), glm::vec3(centre.x, mNodeBounds.mMaxExtent.y, mNodeBounds.mMaxExtent.z)), 6))
-    {
-        mChildren[6]->InsertObject(_object);
-        return true;
-    }
-
-    // Top Right Front
-    else if (InsertIntoChild(_object, NodeBounds(centre, mNodeBounds.mMaxExtent), 7))
-    {
-        mChildren[7]->InsertObject(_object);
-        return true;
+            mChildren[i]->InsertIntersectObject(_object);
+            return true;
+        }
     }
 
     return false;
 }
 
-bool OctTree_Node::InsertIntoChild(std::shared_ptr<BaseActor> _object, NodeBounds _childBounds, const int _childIt)
+NodeBounds OctTree_Node::GetChildBounds(NodeBounds& _parentBounds, const int _it)
 {
-    if (_childBounds.Contains(std::move(_object)))
-    {
-        if(!mChildren[_childIt])
-            mChildren[_childIt] = std::make_shared<OctTree_Node>(_childBounds, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-        return true;
-    } 
-    return false;
+    NodeBounds childBounds;
+
+    glm::vec3 centre = glm::vec3{
+      (_parentBounds.mMinExtent.x + _parentBounds.mMaxExtent.x) / 2.0f,
+      (_parentBounds.mMinExtent.y + _parentBounds.mMaxExtent.y) / 2.0f,
+      (_parentBounds.mMinExtent.z + _parentBounds.mMaxExtent.z) / 2.0f
+    };
+
+    switch (_it) {
+    case 0:
+        // Bottom Left Back
+        childBounds = NodeBounds(mNodeBounds.mMinExtent, centre);
+        return childBounds;
+    	break;
+    case 1:
+        // Bottom Right Back
+        childBounds = NodeBounds(glm::vec3(centre.x, mNodeBounds.mMinExtent.y, mNodeBounds.mMinExtent.z), glm::vec3(mNodeBounds.mMaxExtent.x, centre.y, centre.z));
+        return childBounds;
+        break;
+    case 2:
+        // Top Left Back
+        childBounds = NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, centre.y, mNodeBounds.mMinExtent.z), glm::vec3(centre.x, mNodeBounds.mMaxExtent.y, centre.z));
+        return childBounds;
+        break;
+    case 3:
+        // Top Right Back
+        childBounds = NodeBounds(glm::vec3(centre.x, centre.y, mNodeBounds.mMinExtent.z), glm::vec3(mNodeBounds.mMaxExtent.x, mNodeBounds.mMaxExtent.y, centre.z));
+        return childBounds;
+        break;
+    case 4:
+        // Bottom Left Front
+        childBounds = NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, mNodeBounds.mMinExtent.y, centre.z), glm::vec3(centre.x, centre.y, mNodeBounds.mMaxExtent.z));
+        return childBounds;
+		break;
+    case 5:
+        // Bottom Right Front
+        childBounds = NodeBounds(glm::vec3(centre.x, mNodeBounds.mMinExtent.y, centre.z), glm::vec3(mNodeBounds.mMaxExtent.x, centre.y, mNodeBounds.mMaxExtent.z));
+        return childBounds;
+        break;
+    case 6:
+        // Top Left Front
+        childBounds = NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, centre.y, centre.z), glm::vec3(centre.x, mNodeBounds.mMaxExtent.y, mNodeBounds.mMaxExtent.z));
+        return childBounds;
+        break;
+    case 7:
+        // Top Right Front
+        childBounds = NodeBounds(centre, mNodeBounds.mMaxExtent);
+        return childBounds;
+        break;
+    default:
+        LOG_ERROR("No Childbounds returned");
+        return childBounds;
+        break;
+    }
 }
 
 void OctTree_Node::SetDebugMeshRed()
@@ -329,114 +453,29 @@ void OctTree_Node::SetDebugMeshGreen()
         mDebugActor->SetColor(GetDepthGreenColor());
 }
 
-void OctTree_Node::InsertObjectIntoRoot(std::shared_ptr<BaseActor> _object)
+void OctTree_Node::SetDebugMeshYellow()
 {
-    // Recursively insert _object into root node
-    if (mParentNode)
-        mParentNode->InsertObjectIntoRoot(_object);
-    else
-        InsertObject(_object);
+    if (mDebugActor)
+        mDebugActor->SetColor(GetDepthYellowColor());
 }
-//
-//bool OctTree_Node::Subdivide()
-//{
-//    // 1. Find the middle of the oct tree node
-//    glm::vec3 centre = glm::vec3{
-//        (mNodeBounds.mMinExtent.x + mNodeBounds.mMaxExtent.x) / 2.0f,
-//		(mNodeBounds.mMinExtent.y + mNodeBounds.mMaxExtent.y) / 2.0f,
-//		(mNodeBounds.mMinExtent.z + mNodeBounds.mMaxExtent.z) / 2.0f
-//    };
-//  
-//    // 2. Create and assign each child their sector
-//    mChildren[0] = std::make_shared<OctTree_Node>(NodeBounds(mNodeBounds.mMinExtent, centre), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[1] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(centre.x, mNodeBounds.mMinExtent.y, mNodeBounds.mMinExtent.z), glm::vec3(mNodeBounds.mMaxExtent.x, centre.y, centre.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[2] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, centre.y, mNodeBounds.mMinExtent.z), glm::vec3(centre.x, mNodeBounds.mMaxExtent.y, centre.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[3] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(centre.x, centre.y, mNodeBounds.mMinExtent.z), glm::vec3(mNodeBounds.mMaxExtent.x, mNodeBounds.mMaxExtent.y, centre.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[4] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, mNodeBounds.mMinExtent.y, centre.z), glm::vec3(centre.x, centre.y, mNodeBounds.mMaxExtent.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[5] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(centre.x, mNodeBounds.mMinExtent.y, centre.z), glm::vec3(mNodeBounds.mMaxExtent.x, centre.y, mNodeBounds.mMaxExtent.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[6] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, centre.y, centre.z), glm::vec3(centre.x, mNodeBounds.mMaxExtent.y, mNodeBounds.mMaxExtent.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[7] = std::make_shared<OctTree_Node>(NodeBounds(centre, mNodeBounds.mMaxExtent), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//
-//    LOG_WARNING("SubDibide");
-//
-//	mSubdivided = true;
-//    // 3. return true for successful subdivide
-//    return true;
-//}
-//
-//bool OctTree_Node::Subdivide(std::shared_ptr<BaseActor> _object)
-//{
-//    // 1. Find the middle of the node
-//    glm::vec3 centre = glm::vec3{
-//        (mNodeBounds.mMinExtent.x + mNodeBounds.mMaxExtent.x) / 2.0f,
-//        (mNodeBounds.mMinExtent.y + mNodeBounds.mMaxExtent.y) / 2.0f,
-//        (mNodeBounds.mMinExtent.z + mNodeBounds.mMaxExtent.z) / 2.0f
-//    };
-//
-//
-//    NodeBounds childBounds0 = NodeBounds(mNodeBounds.mMinExtent, centre);
-//    if(childBounds0.Contains(_object))
-//    {
-//        mChildren[0] = std::make_shared<OctTree_Node>(childBounds0, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//        mSubdivided = true;
-//    	return true;
-//    }
-//		 
-//    NodeBounds childBounds0 = NodeBounds(mNodeBounds.mMinExtent, centre);
-//    else if (childBounds0.Contains(_object))
-//        mChildren[0] = std::make_shared<OctTree_Node>(childBounds0, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//
-//    NodeBounds childBounds0 = NodeBounds(mNodeBounds.mMinExtent, centre);
-//    if (childBounds0.Contains(_object))
-//        mChildren[0] = std::make_shared<OctTree_Node>(childBounds0, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//
-//    NodeBounds childBounds0 = NodeBounds(mNodeBounds.mMinExtent, centre);
-//    if (childBounds0.Contains(_object))
-//        mChildren[0] = std::make_shared<OctTree_Node>(childBounds0, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//
-//    NodeBounds childBounds0 = NodeBounds(mNodeBounds.mMinExtent, centre);
-//    if (childBounds0.Contains(_object))
-//        mChildren[0] = std::make_shared<OctTree_Node>(childBounds0, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//
-//    NodeBounds childBounds0 = NodeBounds(mNodeBounds.mMinExtent, centre);
-//    if (childBounds0.Contains(_object))
-//        mChildren[0] = std::make_shared<OctTree_Node>(childBounds0, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//
-//    NodeBounds childBounds0 = NodeBounds(mNodeBounds.mMinExtent, centre);
-//    if (childBounds0.Contains(_object))
-//        mChildren[0] = std::make_shared<OctTree_Node>(childBounds0, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//
-//    NodeBounds childBounds0 = NodeBounds(mNodeBounds.mMinExtent, centre);
-//    if (childBounds0.Contains(_object))
-//        mChildren[0] = std::make_shared<OctTree_Node>(childBounds0, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//
-//    NodeBounds childBounds0 = NodeBounds(mNodeBounds.mMinExtent, centre);
-//    if (childBounds0.Contains(_object))
-//        mChildren[0] = std::make_shared<OctTree_Node>(childBounds0, mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//
-//
-//	mChildren[1] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(centre.x, mNodeBounds.mMinExtent.y, mNodeBounds.mMinExtent.z), glm::vec3(mNodeBounds.mMaxExtent.x, centre.y, centre.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[2] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, centre.y, mNodeBounds.mMinExtent.z), glm::vec3(centre.x, mNodeBounds.mMaxExtent.y, centre.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[3] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(centre.x, centre.y, mNodeBounds.mMinExtent.z), glm::vec3(mNodeBounds.mMaxExtent.x, mNodeBounds.mMaxExtent.y, centre.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[4] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, mNodeBounds.mMinExtent.y, centre.z), glm::vec3(centre.x, centre.y, mNodeBounds.mMaxExtent.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[5] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(centre.x, mNodeBounds.mMinExtent.y, centre.z), glm::vec3(mNodeBounds.mMaxExtent.x, centre.y, mNodeBounds.mMaxExtent.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[6] = std::make_shared<OctTree_Node>(NodeBounds(glm::vec3(mNodeBounds.mMinExtent.x, centre.y, centre.z), glm::vec3(centre.x, mNodeBounds.mMaxExtent.y, mNodeBounds.mMaxExtent.z)), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//    mChildren[7] = std::make_shared<OctTree_Node>(NodeBounds(centre, mNodeBounds.mMaxExtent), mCurrentDepth + 1, shared_from_this(), mActiveLevel);
-//
-//    LOG_WARNING("SubDibide");
-//
-//    mSubdivided = true;
-//    // 3. return true for successful subdivide
-//    return true;
-//}
 
-std::vector<std::shared_ptr<OctTree_Node>> OctTree_Node::GetChildren()
+std::vector<std::shared_ptr<OctTree_Node>> OctTree_Node::GetActiveChildren()
 {
     std::vector<std::shared_ptr<OctTree_Node>> tempR;
     for(std::shared_ptr<OctTree_Node> child : mChildren)
     {
         if (child)
             tempR.push_back(child);
+    }
+    return tempR;
+}
+
+std::vector<std::shared_ptr<OctTree_Node>> OctTree_Node::GetAllChildren()
+{
+    std::vector<std::shared_ptr<OctTree_Node>> tempR;
+    for (std::shared_ptr<OctTree_Node> child : mChildren)
+    {
+    	tempR.push_back(child);
     }
     return tempR;
 }

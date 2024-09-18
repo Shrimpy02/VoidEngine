@@ -83,9 +83,11 @@ public:
     void Render();
 
     // Scene collision handler function for all scene objects that inherit from "IBounded" (called each frame) 
-    void ProcessCollision();
+    void CheckLevelCollision();
 
-    void ProcessCollisionWithinBoxBounds(std::shared_ptr<VisualActor> _conformBox);
+    void ProcessPhysicsCollision(std::shared_ptr<Actor> _colliderA, std::shared_ptr<Actor> _colliderB);
+
+    void CheckLevelCollisionWithinBoxBounds(std::shared_ptr<VisualActor> _conformBox);
 
 	// Updates the scene graph and all children if they inherit from "Actor" (called each frame) 
 	void UpdateLevelSceneGraph(std::shared_ptr<Actor> _actor, float _dt, Transform _globalTransform = Transform{});

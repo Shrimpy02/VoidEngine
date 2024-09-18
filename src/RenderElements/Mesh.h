@@ -65,7 +65,6 @@ public:
 
     // De-constructor removes class references and gl-buffer objects.
 	virtual ~Mesh();
-
     // Inherited from IRender, binds material and draws its self
     void Draw(const std::shared_ptr<Shader> _shader) const;
 

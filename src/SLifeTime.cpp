@@ -31,11 +31,12 @@ void SLifeTime::ManageDebugActorLifeTime(std::shared_ptr<Level> _level, std::vec
     }
 }
 
+                            
 void SLifeTime::ManageOctTreeNodeLifeTime(std::shared_ptr<Level> _level, std::shared_ptr<OctTree_Node> _octTreeNode)
 {
     if (_octTreeNode->HasChildren())
     {
-        for (std::shared_ptr<OctTree_Node> child : _octTreeNode->GetChildren())
+        for (std::shared_ptr<OctTree_Node> child : _octTreeNode->GetActiveChildren())
         {
             if (child)
                 ManageOctTreeNodeLifeTime(_level, child);
@@ -43,7 +44,7 @@ void SLifeTime::ManageOctTreeNodeLifeTime(std::shared_ptr<Level> _level, std::sh
         }
 
     }
-    else if (_octTreeNode->ContainsObjects()) {
+    else if (!_octTreeNode->ContainsObjects()) {
 
         if(_octTreeNode->mLifeTimeEnabled)
         {

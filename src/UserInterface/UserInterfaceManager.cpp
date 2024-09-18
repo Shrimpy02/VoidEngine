@@ -836,7 +836,7 @@ void UserInterfaceManager::ui_WorldProperties()
 				if(actor->GetPhysicsComponent())
 				{
 					actor->GetPhysicsComponent()->SetGravityEnabled(mWorldGravityEnabled);
-					actor->GetPhysicsComponent()->ResetForces();
+					//actor->GetPhysicsComponent()->ResetForces();
 				}
 			}
 		}
@@ -848,18 +848,72 @@ void UserInterfaceManager::ui_WorldProperties()
 			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Disabled");
 		ImGui::Separator();
 
-		if (ImGui::Button("Add new cube to octtree", ImVec2(300, 25)))
-		{
-			std::shared_ptr<BaseActor> obj = std::make_shared<BaseActor>("Sphere", Mesh::CreateSphere(nullptr, 2, true), CollisionBase::BoundingSphere, glm::vec3(0), glm::vec3(0.3f));
-			mLevelManager->GetActiveLevel()->AddActorToSceneGraph(obj);
-			obj->AddComponent<PhysicsComponent>("PhysicsComp");
-			obj->GetPhysicsComponent()->SetGravityEnabled(false);
-			obj->SetCollisionType(CollisionType::DYNAMIC);
-			obj->SetCollisionResponse(CollisionResponse::BLOCK);
-			SSpawner::SetObjectLocationWithinBoundsRandomly(obj, mLevelManager->GetConformBox());
-			obj->UpdateExtent();
-			mLevelManager->GetActiveLevel()->mOctTreeRootNode->InsertObject(obj);
 
+		ImGui::Separator();
+
+		// Decides what left click does:
+		// ---------------------------------------------------------
+		const char* items[] = { "Select level object", "Add Force"}; 
+		static int currentItem = 0;  // Currently selected item (index)
+		if (ImGui::BeginCombo(" Left-Click", items[currentItem]))  // Combo box label and current selection
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(items); n++)  // Loop through all options
+			{
+				bool isSelected = (currentItem == n);
+				if (ImGui::Selectable(items[n], isSelected))
+				{
+					currentItem = n;
+
+					// Update the enum based on the selected item
+					switch (currentItem)
+					{
+					case 0: mController->SetLeftClickFocus(LeftClickOptions::Select); break;
+					case 1: mController->SetLeftClickFocus(LeftClickOptions::AddForce); break;
+					}
+				}
+
+				// Set the initial focus when opening the combo box to navigate with arrow keys
+				if (isSelected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+
+		// Decides click velocity if left click adds force selected:
+		// ---------------------------------------------------------
+		if(currentItem == 1)
+		{
+			float clickVel = mController->GetClickVelocity();
+
+			ImGui::Text("Click Velocity multiplier: ");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(mItemWidth);
+			ImGui::InputFloat("##CV", &clickVel);
+
+			mController->SetClickVelocity(clickVel);
+		}
+
+
+
+		ImGui::Separator();
+
+		// Adds new object to oct tree
+		// ---------------------------------------------------------
+		if(mLevelManager->GetActiveLevel()->mOctTreeRootNode)
+		{
+			if (ImGui::Button("Add new object to oct-tree", ImVec2(300, 25)))
+			{
+				std::shared_ptr<BaseActor> obj = std::make_shared<BaseActor>("Sphere", Mesh::CreateSphere(nullptr, 2, true), CollisionBase::BoundingSphere, glm::vec3(0), glm::vec3(0.3f));
+				mLevelManager->GetActiveLevel()->AddActorToSceneGraph(obj);
+				obj->AddComponent<PhysicsComponent>("PhysicsComp");
+				obj->GetPhysicsComponent()->SetGravityEnabled(false);
+				obj->SetCollisionType(CollisionType::DYNAMIC);
+				obj->SetCollisionResponse(CollisionResponse::BLOCK);
+				SSpawner::SetObjectLocationWithinBoundsRandomly(obj, mLevelManager->GetConformBox());
+				obj->UpdateExtent();
+				mLevelManager->GetActiveLevel()->mOctTreeRootNode->InsertObject(obj);
+
+			}
 		}
 	}
 	ImGui::End();
@@ -1556,6 +1610,34 @@ void UserInterfaceManager::uiSub_ComponentProperties(std::shared_ptr<Actor> _inA
 			{
 				_inActor->GetPhysicsComponent()->ResetForces();
 			}
+
+
+			// Can edit the x, y, z velocity for selected actor
+			// ----------------------------------------------
+			glm::vec3 currentComponentsVelocity = _inActor->GetPhysicsComponent()->GetVelocity();
+		
+			ImGui::Text("Actor velocity");
+			ImGui::TextColored(ImVec4(1, 0, 0, 1), "X");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(mItemWidth);
+			ImGui::InputFloat("##VX", &currentComponentsVelocity.x);
+
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(0, 1, 0, 1), "Y");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(mItemWidth);
+			ImGui::InputFloat("##VY", &currentComponentsVelocity.y);
+
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(0, 0, 1, 1), "Z");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(mItemWidth);
+			ImGui::InputFloat("##VZ", &currentComponentsVelocity.z);
+		}
+
+		if (ImGui::Button("Add force x-> ", ImVec2(100, 20)))
+		{
+			_inActor->GetPhysicsComponent()->AddVelocity(glm::vec3(2, 0, 0));
 		}
 	}
 

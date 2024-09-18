@@ -6,7 +6,7 @@ void ILifeTime::InitializeLifeTime()
 	mCurrentLifeTime = time(nullptr);
 }
 
-void ILifeTime::ReInitalizeLifeTime()
+void ILifeTime::ReInitializeLifeTime()
 {
 	mCurrentLifeTime = time(nullptr);
 }
