@@ -29,8 +29,8 @@ Mesh::Mesh(const std::string _name, std::vector<GraphVertex>&& _vertices, std::v
     SetupGraphMesh();
 }
 
-Mesh::Mesh(const std::string _name, std::vector<DebugVertex>&& _vertices)
-    : mName(_name), mDebugVertices(std::move(_vertices))
+Mesh::Mesh(const std::string _name, std::vector<DebugVertex>&& _vertices, std::vector<Index>&& _indices)
+    : mName(_name), mDebugVertices(std::move(_vertices)), mIndices(std::move(_indices))
 {
     SetupDebugMesh();
 }
@@ -61,15 +61,23 @@ void Mesh::DrawDebugLines(const std::shared_ptr<Shader> _shader) const
     if (!mVisible) return;
 
     if (mMaterial)
-        mMaterial->Bind(_shader);
+    	mMaterial->Bind(_shader);
 
-    // binds VAO and draws all geometry by given indices and vertices
-    glBindVertexArray(mVAO);
-    glLineWidth(10.0f);
-    glDrawArrays(GL_LINE_STRIP, 0,static_cast<GLsizei>(mDebugVertices.size()));
-    //glDrawElements(GL_LINES, static_cast<GLsizei>(mIndices.size()), GL_UNSIGNED_INT, 0);
-	glLineWidth(1.0f);
-	glBindVertexArray(0);
+    glLineWidth(8.0f);
+
+    if(mIndices.empty())
+    {
+        // binds VAO and draws all geometry by given indices and vertices
+        glBindVertexArray(mVAO);
+        glDrawArrays(GL_LINE_STRIP, 0,static_cast<GLsizei>(mDebugVertices.size()));
+        glBindVertexArray(0);
+    } else  {
+        glBindVertexArray(mVAO);
+        glDrawElements(GL_LINE_STRIP, static_cast<GLsizei>(mIndices.size()), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+    }
+   
+    glLineWidth(1.0f);
 }
 
 std::shared_ptr<Mesh> Mesh::CreateCube(std::shared_ptr<Material> _material, const bool _instance, std::string _customName)
@@ -411,10 +419,11 @@ std::shared_ptr<Mesh> Mesh::CreateGraphSphere(const int _subdivides, const bool 
 
 std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::vector<glm::vec3> _points)
 {
-    // Create default plane key
+    // Create default line key
     std::string lineKey = "DebugLine";
 
     std::vector<DebugVertex> vertices;
+    std::vector<Index> indices;
 
     for (glm::vec3 pointLocation : _points)
     {
@@ -423,15 +432,16 @@ std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::vector<glm::vec3> _points)
     }
 
     // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    return std::make_shared<Mesh>(lineKey, std::move(vertices));
+    return std::make_shared<Mesh>(lineKey, std::move(vertices), std::move(indices));
 }
 
 std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::shared_ptr<Mesh> _mesh)
 {
-    // Create default plane key
+    // Create default line key
     std::string lineKey = "DebugLine";
 
     std::vector<DebugVertex> vertices;
+    std::vector<Index> indices;
 
     for (const Vertex& vert : _mesh->mVertices)
     {
@@ -439,8 +449,71 @@ std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::shared_ptr<Mesh> _mesh)
         vertices.push_back(newVertex);
     }
 
+    for(const Index& index : _mesh->mIndices)
+    {
+        Index ind = index;
+        indices.push_back(ind);
+    }
+
     // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    return std::make_shared<Mesh>(lineKey, std::move(vertices));
+    return std::make_shared<Mesh>(lineKey, std::move(vertices), std::move(indices));
+}
+
+std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::pair<glm::vec3, glm::vec3> _extents)
+{
+    // Create default line key
+    std::string lineKey = "DebugLine";
+
+    std::vector<DebugVertex> vertices;
+    std::vector<Index> indices; 
+
+    const float point1x = _extents.first.x;
+    const float point1y = _extents.first.y;
+    const float point1z = _extents.first.z;
+    const float point2x = _extents.second.x;
+    const float point2y = _extents.second.y;
+    const float point2z = _extents.second.z;
+
+    // Back 4 corners 
+	vertices.push_back(glm::vec3(point1x, point1y, point1z)); //back left lower corner
+    vertices.push_back(glm::vec3(point1x, point2y, point1z)); //back left top corner
+    vertices.push_back(glm::vec3(point2x, point2y, point1z)); //back right top corner
+    vertices.push_back(glm::vec3(point2x, point1y, point1z)); //back right lower corner
+
+    // Front 4 corners
+    vertices.push_back(glm::vec3(point1x, point1y, point2z)); //back left lower corner
+    vertices.push_back(glm::vec3(point1x, point2y, point2z)); //back left top corner
+    vertices.push_back(glm::vec3(point2x, point2y, point2z)); //back right top corner
+    vertices.push_back(glm::vec3(point2x, point1y, point2z)); //back right lower corner
+
+    // Back Square
+    indices.push_back(0);
+    indices.push_back(1);
+    indices.push_back(2);
+    indices.push_back(3);
+    indices.push_back(0);
+
+    // Front Square
+    indices.push_back(4);
+    indices.push_back(5);
+    indices.push_back(6);
+    indices.push_back(7);
+    indices.push_back(4);
+
+    // right square
+    indices.push_back(7);
+    indices.push_back(3);
+    indices.push_back(2);
+    indices.push_back(6);
+
+    // Left Square
+    indices.push_back(5);
+    indices.push_back(1);
+
+    // bottom and top done by proxy
+
+	//Generate mesh moveing the vertices and indices into new object along with input material and add it to cache
+    return std::make_shared<Mesh>(lineKey, std::move(vertices),std::move(indices));
 }
 
 std::shared_ptr<Mesh> Mesh::Load(const std::string& _key)
@@ -528,6 +601,15 @@ void Mesh::SetupDebugMesh()
     glGenBuffers(1, &mVBO);
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
     glBufferData(GL_ARRAY_BUFFER, mDebugVertices.size() * sizeof(DebugVertex), mDebugVertices.data(), GL_STATIC_DRAW);
+
+    if(!mIndices.empty())
+    {
+        // Gen EBO and assign mesh indices to the buffer.
+        glGenBuffers(1, &mEBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size() * sizeof(Index), mIndices.data(), GL_STATIC_DRAW);
+
+    }
 
     // setts upp the vertex attributes
     DebugVertex::SetupAttributes();

@@ -26,13 +26,12 @@
 #include <RenderElements/Material.h>
 #include <RenderElements/Texture.h>
 #include <UserInterface/UserInterfaceManager.h>
-
+#include <OctTree.h>
 //#include <Core/SMath.h>
 //#include <SkyBox/Skybox.h>
 
 // Additional Includes
 #include <ctime>
-
 LevelManager::LevelManager(std::shared_ptr<ActorController> _inController)
 	: mController(_inController)
 {
@@ -138,13 +137,19 @@ void LevelManager::LoadPhysicsBoxLevel()
 	dla->SetGlobalPosition(glm::vec3(0, 10, 0));
 	dla->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 
+	// Scene objects ------------------------
 	mConformBox = std::make_shared<VisualActor>("Conform box", Mesh::CreateCube(nullptr), glm::vec3(0), glm::vec3(10.f));
 	mActiveLevel->AddActorToSceneGraph(mConformBox);
 	mConformBox->mVisualMesh->SetIsVisible(false);
 
-	std::shared_ptr<DebugActor> debugConformSquare = std::make_shared<DebugActor>("ConformDebug");
-	debugConformSquare->UpdateVisualMesh(mConformBox->GetMesh());
-	mConformBox->AddChild(debugConformSquare);
+	//mActiveLevel->mOctTreeRootNode = std::make_shared<OctTree_Node>(NodeBounds(-mConformBox->mExtent, mConformBox->mExtent), 0, nullptr, mActiveLevel);
+	if(!mActiveLevel->mOctTreeRootNode)
+	{
+		std::shared_ptr<DebugActor> debugActor = std::make_shared<DebugActor>("OctTree_debugBounds");
+		std::pair<glm::vec3, glm::vec3> temp = std::make_pair(-mConformBox->mExtent, mConformBox->mExtent);
+		debugActor->SetVisualMesh(temp);
+		mActiveLevel->AddActorToSceneGraph(debugActor);
+	}
 
 	// Objects ------------------------
 	// Since instancing is enabled  we can initalize the material once and assign it to the first of the instance
@@ -152,21 +157,22 @@ void LevelManager::LoadPhysicsBoxLevel()
 	std::shared_ptr<Texture> specularTex = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerSpecular.jpg"));
 	std::shared_ptr<Material> mat = Material::Load("cube1mat", { diffuseTex, specularTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
 
-	std::vector<std::shared_ptr<BaseActor>> temp;
-	int numSpheres = 1000;
-	for(int i = 0; i < numSpheres;i++)
+	int numSpheres = 50;
+	for(int i = 1; i <= numSpheres;i++)
 	{
-		std::shared_ptr<BaseActor> obj = std::make_shared<BaseActor>("Sphere", Mesh::CreateSphere(mat, 2, true), CollisionBase::BoundingSphere, glm::vec3(0), glm::vec3(0.3f));
+		float randomSize = SMath::GetRandomFloatBetweenMinMax(0.2, 0.8);
+		std::shared_ptr<BaseActor> obj = std::make_shared<BaseActor>("Sphere", Mesh::CreateSphere(mat, 2, true), CollisionBase::BoundingSphere, glm::vec3(0.0f), glm::vec3(randomSize));
 		mActiveLevel->AddActorToSceneGraph(obj);
 		obj->AddComponent<PhysicsComponent>("PhysicsComp");
-		//obj->SetGlobalPosition(glm::vec3(i * 2,0,0));
 		obj->GetPhysicsComponent()->SetGravityEnabled(false);
+		obj->GetPhysicsComponent()->SetMass(randomSize);
 		obj->SetCollisionType(CollisionType::DYNAMIC);
 		obj->SetCollisionResponse(CollisionResponse::BLOCK);
-		temp.push_back(obj);
+		SSpawner::SetObjectLocationWithinBoundsRandomly(obj, mConformBox);
+		obj->UpdateExtent();
+		if(mActiveLevel->mOctTreeRootNode)
+			mActiveLevel->mOctTreeRootNode->InsertObject(obj);
 	}
-	SSpawner::SetAllObjectLocationWithinBoundsRandomly(temp,mConformBox);
-
 }
 
 void LevelManager::UnloadContent()
@@ -186,17 +192,20 @@ void LevelManager::SetActiveLevel(std::shared_ptr<Level> _activeLevel)
 void LevelManager::Update(float _dt)
 {
 	// Update the scene graph -> all objects in scene
-	//UpdateLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
+	UpdateLevelSceneGraph(mActiveLevel->mSceneGraph, _dt);
+
+	if(mActiveLevel->mOctTreeRootNode)
+		mActiveLevel->mOctTreeRootNode->OctTreeUpdate();
 
 	// Handle collision within bounding box
-	//if(mConformBox)
-	//	ProcessCollisionWithinBoxBounds(mConformBox);
+	if(mConformBox)
+		CheckLevelCollisionWithinBoxBounds(mConformBox);
 	
 	// Then handle collision for all objects in scene
-	//ProcessCollision();
+	CheckLevelCollision();
 
 	// Handels lifetime of tempDebug actors
-	mActiveLevel->TempDebugTimerManager(difftime(time(0), mApplicationStartTime));
+	mActiveLevel->LifeTimeUpdate();
 }
 
 void LevelManager::Render()
@@ -208,7 +217,6 @@ void LevelManager::Render()
 	BindDirectionalLights(mDefaultShader);
 	BindPointLights(mDefaultShader);
 	BindCamera(mDefaultShader);
-
 	BindCamera(mGraphShader);
 	BindCamera(mDebugShader);
 	BindCamera(mSkyboxShader);
@@ -220,7 +228,7 @@ void LevelManager::Render()
 	glDepthFunc(GL_LEQUAL);
 }
 
-void LevelManager::ProcessCollision()
+void LevelManager::CheckLevelCollision()
 {
 	// Get all IBounded Actors of the active level
 	std::vector<std::shared_ptr<Actor>> collisionActors;
@@ -231,13 +239,13 @@ void LevelManager::ProcessCollision()
 	{
 		// Get first objects collision
 		std::shared_ptr<IBounded> actorColliderA = std::dynamic_pointer_cast<IBounded>(collisionActors[i]);
-		actorColliderA->SetIsColliding(false);
+			bool actorACollided = false;
 
 		for (int j = i + 1; j < collisionActors.size(); j++)
 		{
 			// Get second objects collision
 			std::shared_ptr<IBounded> actorColliderB = std::dynamic_pointer_cast<IBounded>(collisionActors[j]);
-			actorColliderB->SetIsColliding(false);
+			bool actorBCollided = false;
 
 			// Skip intersection
 			// ------------------------------------------------
@@ -258,6 +266,17 @@ void LevelManager::ProcessCollision()
 			glm::vec3 mtv{ 0.f };
 			if(actorColliderA->IsIntersecting(actorColliderB, &mtv))
 			{
+				// check if both actors have physics components, if true do physics collision
+				if(collisionActors[i]->GetPhysicsComponent() && collisionActors[j]->GetPhysicsComponent())
+				{
+					if(!actorACollided && !actorBCollided)
+					{
+						IBounded::BoundingSpherex2PhysicsCollision(collisionActors[i], collisionActors[j]);
+						actorACollided = actorBCollided = true;
+						continue;
+					}
+				}
+
 				// mtv vector init for each object
 				glm::vec3 mtvA(0.f), mtvB(0.f);
 
@@ -283,15 +302,19 @@ void LevelManager::ProcessCollision()
 				if (actorColliderB->mCollisionProperties.IsDynamic())
 					collisionActors[j]->SetGlobalPosition(collisionActors[j]->GetGlobalPosition() + mtvB);
 
-				actorColliderA->SetIsColliding(true);
-				actorColliderB->SetIsColliding(true);
-
+				actorACollided = true;
+				actorBCollided = true;
+				continue;
 			}
+			actorColliderA->SetIsColliding(actorACollided);
+			actorColliderB->SetIsColliding(actorBCollided);
 		}
 	}
+
+
 }
 
-void LevelManager::ProcessCollisionWithinBoxBounds(std::shared_ptr<VisualActor> _conformBox)
+void LevelManager::CheckLevelCollisionWithinBoxBounds(std::shared_ptr<VisualActor> _conformBox)
 {
 	// Get all IBounded Actors of the active level
 	std::vector<std::shared_ptr<Actor>> collisionActors;
@@ -314,8 +337,15 @@ void LevelManager::ProcessCollisionWithinBoxBounds(std::shared_ptr<VisualActor> 
 		// ------------------------------------------------
 
 		glm::vec3 mtv{ 0.f };
-		if (actorColliderA->IsIntersectingConstrictingBoxGeometry(_conformBox, &mtv))
+		glm::vec3 boundaryNormal{ 0.f };
+		if (actorColliderA->IsIntersectingConstrictingBoxGeometry(_conformBox, &mtv, &boundaryNormal))
 		{
+			// check if both actors have physics components, if true do physics collision
+			if (collisionActors[i]->GetPhysicsComponent())
+			{
+				IBounded::BoundingSpherexBoundryPhysicsCollision(collisionActors[i], _conformBox, -boundaryNormal);
+				continue;
+			}
 			// mtv vector init for each object
 			glm::vec3 mtvA(0.f);
 
@@ -328,7 +358,7 @@ void LevelManager::ProcessCollisionWithinBoxBounds(std::shared_ptr<VisualActor> 
 			if (actorColliderA->mCollisionProperties.IsDynamic())
 				collisionActors[i]->SetGlobalPosition(collisionActors[i]->GetGlobalPosition() + mtv);
 
-		} 
+		}
 	}
 }
 
@@ -532,8 +562,8 @@ std::shared_ptr<Actor> LevelManager::LineTraceCollision(std::vector<std::shared_
 
 void LevelManager::CreateLineTraceDebugActor(std::vector<glm::vec3> _points)
 {
-	std::shared_ptr<DebugActor> actor = std::make_shared<DebugActor>("LineTrace", true);
-	actor->UpdateVisualMesh(_points);
+	std::shared_ptr<DebugActor> actor = std::make_shared<DebugActor>("LineTrace",true);
+	actor->SetVisualMesh(_points);
 	AddActorToLevel(actor);
 }
 

@@ -184,7 +184,13 @@ void ActorController::HandleViewportClick(int _button, int _action, int _mods, d
                        100,
                        true))
                    {
-                       mUserInterfaceManager->SetContentSelectedActor(hitActor);
+                       if (mLeftClickOptions == LeftClickOptions::Select)
+                           mUserInterfaceManager->SetContentSelectedActor(hitActor);
+
+                       else if (mLeftClickOptions == LeftClickOptions::AddForce)
+                           if (hitActor->GetPhysicsComponent())
+                               hitActor->GetPhysicsComponent()->AddVelocity(mClickVelocity * rayDirection);
+
                    }
                    doOnce = false;
                }

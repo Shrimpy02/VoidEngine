@@ -83,3 +83,8 @@ void PhysicsComponent::Jump(float jumpStrength, glm::vec3 _jumpDirection)
 
 }
 
+void PhysicsComponent::AddVelocity(glm::vec3 _inVel)
+{
+	mVelocity += _inVel;
+}
+

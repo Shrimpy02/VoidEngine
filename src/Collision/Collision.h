@@ -10,6 +10,7 @@
 // Forward Declarations
 struct CollisionProperties;
 class VisualActor;
+class Actor;
 
 /**
  * @class IBounded
@@ -45,18 +46,25 @@ public:
     // De-constructor
     virtual ~IBounded() = default;
 
+    // Collision Checkers
     // Returns true if actor collides with input actor and updates mtv vector accordingly
     bool IsIntersecting(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
     bool IsIntersectingLineTrace(glm::vec3 _point);
 
-    bool IsIntersectingConstrictingBoxGeometry(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv);
+    bool IsIntersectingConstrictingBoxGeometry(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv, glm::vec3* _boundaryNormal);
+
+    bool IsIntersectingConstrictingBoxGeometry(glm::vec3 _min, glm::vec3 _max);
+
+    // Collision Proccesors
 
 	bool AABBx2(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
     bool BoundingSpherex2(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
     bool AABBxBoundingSphere(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
+
+    bool AABBxBoundingSphere(std::pair <glm::vec3, glm::vec3> _extents);
 
     bool Convexx2(std::shared_ptr<IBounded> _otherCollider, glm::vec3* _mtv);
 
@@ -66,7 +74,18 @@ public:
 
     bool BoundingSpherexPoint(glm::vec3 _pointPos);
 
-    bool BoundingSpherexConstrictingBox(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv);
+    bool BoundingSpherexConstrictingBox(std::shared_ptr<VisualActor> _boxCollider, glm::vec3* _mtv, glm::vec3* _boundaryNormal);
+
+    bool BoundingSpherexConstrictingBoxContain(glm::vec3 _minExtent, glm::vec3 _maxExtent);
+
+    bool BoundingSpherexConstrictingBoxIntersect(glm::vec3 _minExtent, glm::vec3 _maxExtent);
+
+    // _elasticityCoefficient = 1 is completly elastic collision.
+    static void BoundingSpherex2PhysicsCollision(std::shared_ptr<Actor> _colliderA, std::shared_ptr<Actor> _colliderB, float _elasticityCoefficient = 1.0f);
+
+    // _elasticityCoefficient = 1 is completly elastic collision.
+    static void BoundingSpherexBoundryPhysicsCollision(std::shared_ptr<Actor> _collider, std::shared_ptr<VisualActor> _conformCollider, glm::vec3 _boundaryNormal, float _elasticityCoefficient = 1.0f);
+
 
     // Returns true if this object is colliding with anything else. 
     bool GetIsColliding() { return mIsColliding; }

@@ -165,11 +165,9 @@
 				28,
 				29,
 				30,
-				79,
-				81,
-				82,
+				31,
+				32,
 				83,
-				84,
 				85,
 				86,
 				87,
@@ -178,7 +176,11 @@
 				90,
 				91,
 				92,
-				93
+				93,
+				94,
+				95,
+				96,
+				97
 			]
 		},
 		{
@@ -222,7 +224,7 @@
 			"language" : "C",
 			"sourceIndexes" : 
 			[
-				80
+				84
 			]
 		}
 	],
@@ -234,11 +236,11 @@
 		},
 		{
 			"backtrace" : 3,
-			"id" : "zlibstatic::@142f1425b4d57e544353"
+			"id" : "assimp::@c18b53e73a5197b875a6"
 		},
 		{
 			"backtrace" : 3,
-			"id" : "assimp::@c18b53e73a5197b875a6"
+			"id" : "zlibstatic::@142f1425b4d57e544353"
 		}
 	],
 	"id" : "3DProgEngine::@6890427a1f51a3e7e1df",
@@ -294,8 +296,6 @@
 				2,
 				3,
 				4,
-				31,
-				32,
 				33,
 				34,
 				35,
@@ -341,7 +341,11 @@
 				75,
 				76,
 				77,
-				78
+				78,
+				79,
+				80,
+				81,
+				82
 			]
 		},
 		{
@@ -374,10 +378,8 @@
 				28,
 				29,
 				30,
-				79,
-				80,
-				81,
-				82,
+				31,
+				32,
 				83,
 				84,
 				85,
@@ -388,7 +390,11 @@
 				90,
 				91,
 				92,
-				93
+				93,
+				94,
+				95,
+				96,
+				97
 			]
 		}
 	],
@@ -573,6 +579,18 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/Core/SSpawner.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/OctTree.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/SLifeTime.cpp",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -813,6 +831,16 @@
 		{
 			"backtrace" : 1,
 			"path" : "src/Core/SSpawner.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/OctTree.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/SLifeTime.h",
 			"sourceGroupIndex" : 0
 		},
 		{
