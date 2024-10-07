@@ -3,6 +3,7 @@
 #include <Core/Application.h>
 #include <Core/WindowManager.h>
 #include <Core/SMath.h>
+#include <Utilities/Logger.h>
 
 // Additional include
 #include <glad/glad.h>
@@ -21,7 +22,8 @@ int Application::Run()
     InitializeGLFW();
     InitializeWindow();
     SMath::SeedRandTime();
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
+    LOG_WARNING("Faceculling turened off");
     //glCullFace(GL_FRONT);
 
     // Render/Update loop -----------

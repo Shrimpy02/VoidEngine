@@ -50,7 +50,27 @@ void LevelManager::LoadContent()
 
 	//LoadDefaultLevel();
 
-	LoadPhysicsBoxLevel();
+	LoadGraphDisplayLevel();
+
+	//LoadPhysicsBoxLevel();
+}
+
+void LevelManager::BaseLevelRequiredObjects()
+{
+	// Camera
+	std::shared_ptr<CameraActor> cam1 = std::make_shared<CameraActor>("Camera1");
+	cam1->SetGlobalPosition(glm::vec3(0, 0, 5));
+	mActiveLevel->AddActorToSceneGraph(cam1);
+	mActiveLevel->mActiveCamera = cam1;
+
+	// Controller
+	mController->SetActorToControl(cam1);
+
+	// Lights
+	std::shared_ptr<DirectionalLightActor> dla = std::make_shared<DirectionalLightActor>("DirLight1");
+	mActiveLevel->AddActorToSceneGraph(dla);
+	dla->SetGlobalPosition(glm::vec3(0, 10, 0));
+	dla->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 }
 
 void LevelManager::LoadDefaultLevel()
@@ -89,60 +109,36 @@ void LevelManager::LoadDefaultLevel()
 	defaultCube2->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
 	defaultCube2->mCollisionProperties.SetCollisionResponse(CollisionResponse::BLOCK);
 
-	std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor1");
-	mActiveLevel->AddActorToSceneGraph(graphActor);
-	graphActor->SetGlobalPosition(glm::vec3(0.f, 5.f, 0.f));
-	graphActor->SetPoints(SMath::DeCastParametricCurveFromPoints(glm::vec3(0, 0, 0), glm::vec3(3, 0, 0), glm::vec3(3, 0, 3)));
-	SMath::ConformCurveToGeometry(graphActor->GetChildren(), SceneGround, 3);
+	//std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor1");
+	//mActiveLevel->AddActorToSceneGraph(graphActor);
+	//graphActor->SetGlobalPosition(glm::vec3(0.f, 5.f, 0.f));
+	//graphActor->SetPoints(SMath::DeCastParametricCurveFromPoints(glm::vec3(0, 0, 0), glm::vec3(3, 0, 0), glm::vec3(3, 0, 3)));
+	//SMath::ConformCurveToGeometry(graphActor->GetChildren(), SceneGround, 3);
 	//defaultCube1->AddChild(graphActor);
 
 	//std::shared_ptr<Actor> Model = std::make_shared<Actor>("DefaultModel");
 	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Ground/UneavenPlane.fbx"), Model);
 	//mActiveLevel->AddActorToSceneGraph(Model);
 
-	// Camera
-	std::shared_ptr<CameraActor> cam1 = std::make_shared<CameraActor>("Camera1");
-	cam1->SetGlobalPosition(glm::vec3(0, 2, 5));
-	mActiveLevel->AddActorToSceneGraph(cam1);
-	mActiveLevel->mActiveCamera = cam1;
+	BaseLevelRequiredObjects();
 
 	std::shared_ptr<CameraActor> cam2 = std::make_shared<CameraActor>("Camera2");
 	cam2->SetGlobalPosition(glm::vec3(2, 2, 5));
 	mActiveLevel->AddActorToSceneGraph(cam2);
 
-	// Lights
-	std::shared_ptr<DirectionalLightActor> dla = std::make_shared<DirectionalLightActor>("DirLight1");
-	mActiveLevel->AddActorToSceneGraph(dla);
-	dla->SetGlobalPosition(glm::vec3(0,10,0));
-	dla->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
-
-	mController->SetActorToControl(cam1);
 	//defaultCube1->SetGlobalRotation(glm::quat( glm::angleAxis(45.f,glm::vec3(0.f,1.f,0.f))));
 }
 
 void LevelManager::LoadPhysicsBoxLevel()
 {
-	// Camera ------------------------
-	std::shared_ptr<CameraActor> cam1 = std::make_shared<CameraActor>("Camera1");
-	cam1->SetGlobalPosition(glm::vec3(0, 2, 15));
-	mActiveLevel->AddActorToSceneGraph(cam1);
-	mActiveLevel->mActiveCamera = cam1;
-
-	// Controller ------------------------
-	mController->SetActorToControl(cam1);
-
-	// Light ------------------------
-	std::shared_ptr<DirectionalLightActor> dla = std::make_shared<DirectionalLightActor>("DirLight1");
-	mActiveLevel->AddActorToSceneGraph(dla);
-	dla->SetGlobalPosition(glm::vec3(0, 10, 0));
-	dla->SetGlobalRotation(glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+	BaseLevelRequiredObjects();
 
 	// Scene objects ------------------------
 	mConformBox = std::make_shared<VisualActor>("Conform box", Mesh::CreateCube(nullptr), glm::vec3(0), glm::vec3(10.f));
 	mActiveLevel->AddActorToSceneGraph(mConformBox);
 	mConformBox->mVisualMesh->SetIsVisible(false);
 
-	//mActiveLevel->mOctTreeRootNode = std::make_shared<OctTree_Node>(NodeBounds(-mConformBox->mExtent, mConformBox->mExtent), 0, nullptr, mActiveLevel);
+	mActiveLevel->mOctTreeRootNode = std::make_shared<OctTree_Node>(NodeBounds(-mConformBox->mExtent, mConformBox->mExtent), 0, nullptr, mActiveLevel);
 	if(!mActiveLevel->mOctTreeRootNode)
 	{
 		std::shared_ptr<DebugActor> debugActor = std::make_shared<DebugActor>("OctTree_debugBounds");
@@ -157,7 +153,7 @@ void LevelManager::LoadPhysicsBoxLevel()
 	std::shared_ptr<Texture> specularTex = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerSpecular.jpg"));
 	std::shared_ptr<Material> mat = Material::Load("cube1mat", { diffuseTex, specularTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
 
-	int numSpheres = 50;
+	int numSpheres = 1;
 	for(int i = 1; i <= numSpheres;i++)
 	{
 		float randomSize = SMath::GetRandomFloatBetweenMinMax(0.2, 0.8);
@@ -173,6 +169,44 @@ void LevelManager::LoadPhysicsBoxLevel()
 		if(mActiveLevel->mOctTreeRootNode)
 			mActiveLevel->mOctTreeRootNode->InsertObject(obj);
 	}
+}
+
+void LevelManager::LoadGraphDisplayLevel()
+{
+	BaseLevelRequiredObjects();
+
+	//std::vector<glm::vec3> controlPointsGraph = {
+	//	glm::vec3(4, -2, 0),
+	//	glm::vec3(0, 2, 0),
+	//	glm::vec3(-4, -2, 0)
+	//};
+	//
+	//std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor", glm::vec3(0), glm::vec3(0.6f));
+	//mActiveLevel->AddActorToSceneGraph(graphActor);
+	//graphActor->SetControlPoints(controlPointsGraph);
+	//graphActor->CreateGraph(GraphMethod::Neville, GraphType::Interpolated);
+
+	// Define degrees
+	int Du = 2;
+	int Dv = 2;
+
+	// Define resolution
+	int UResolution = 20;
+	int VResolution = 20;
+
+	// Define knot vectors
+	std::vector<float> uKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 };
+	std::vector<float> vKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 }; 
+
+	// Define control points (2D grid)
+	std::vector<std::vector<glm::vec3>> controlPoints = {
+		{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(2.0f, 0.0f, 0.0f)},
+		{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(1.0f, 2.0f, 1.0f), glm::vec3(2.0f, 1.0f, 1.0f)},
+		{glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(1.0f, 1.0f, 2.0f), glm::vec3(2.0f, 0.0f, 2.0f)}
+	};
+
+	std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
+	AddActorToLevel(BSplineSurface);
 }
 
 void LevelManager::UnloadContent()
@@ -383,7 +417,11 @@ void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, Transfor
 	if (!_actor) return;
 
 	// Set transform matrix
-	_globalTransform.SetTransformMatrix(_globalTransform.GetTransformMatrix() * _actor->GetGlobalTransformMatrix());
+	//_globalTransform.SetTransformMatrix(_globalTransform.GetTransformMatrix() * _actor->GetGlobalTransformMatrix());
+
+	Transform actorGlobalTransform;
+	actorGlobalTransform.SetTransformMatrix(_globalTransform.GetTransformMatrix() * _actor->GetLocalTransformMatrix());
+
 
 	// Cast to actor to se if they inherit from IRender,
 	// if they do call their inherited draw function and bind the model matrix
@@ -392,25 +430,25 @@ void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, Transfor
 		if(iRender->GetShaderObjectType() == ShaderObjectType::Default){
 
 			mDefaultShader->use();
-			mDefaultShader->setMat4("model", _globalTransform.GetTransformMatrix());
+			mDefaultShader->setMat4("model", actorGlobalTransform.GetTransformMatrix());
 			iRender->Draw(mDefaultShader);
 
 		} else if(iRender->GetShaderObjectType() == ShaderObjectType::Graph) {
 
 			mGraphShader->use();
-			mGraphShader->setMat4("model", _globalTransform.GetTransformMatrix());
+			mGraphShader->setMat4("model", actorGlobalTransform.GetTransformMatrix());
 			iRender->Draw(mGraphShader);
 
 		} else if (iRender->GetShaderObjectType() == ShaderObjectType::Debug) {
 
 			mDebugShader->use();
-			mDebugShader->setMat4("model", _globalTransform.GetTransformMatrix());
+			mDebugShader->setMat4("model", actorGlobalTransform.GetTransformMatrix());
 			iRender->Draw(mDebugShader);
 
 		} else if (iRender->GetShaderObjectType() == ShaderObjectType::Skybox) {
 
 			mSkyboxShader->use();
-			mDebugShader->setMat4("model", _globalTransform.GetTransformMatrix());
+			mDebugShader->setMat4("model", actorGlobalTransform.GetTransformMatrix());
 			iRender->Draw(mSkyboxShader);
 		}
 	}
@@ -419,7 +457,7 @@ void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, Transfor
 	const auto& children = _actor->GetChildren();
 	for (std::shared_ptr<Actor> child : children)
 	{
-		RenderLevelSceneGraph(child, _globalTransform);
+		RenderLevelSceneGraph(child, actorGlobalTransform);
 	}
 }
 

@@ -17,6 +17,8 @@ struct DebugVertex;
 class Material;
 class Shader;
 
+// TODO: make new inherit classes for each mesh type.
+
 /**
  * @class Mesh
  * @brief Contains all logic for creating and maintaining geometry in openGL.
@@ -35,9 +37,9 @@ private:
 
     // Mesh vertexes
     std::vector<Vertex> mVertices;
-    // Mesh vertexes
+    // Mesh vertexes graph type
     std::vector<GraphVertex> mGraphVertices;
-    // Mesh vertexes
+    // Mesh vertexes debug type
     std::vector<DebugVertex> mDebugVertices;
 
     // Mesh indices
@@ -47,6 +49,14 @@ private:
     // Mesh name
     const std::string mName;
 
+    // Reguarding BSpline Surface mesh type
+    float mUResolution{2};
+    float mVResolution{ 2 };
+    int mUDimension{ 2 };
+    int mVDimension{ 2 };
+    std::vector<float> mUKnot;
+    std::vector<float> mVKnot;
+    std::vector<std::vector<glm::vec3>> mControlPoints;
     bool mVisible = true;
 
     // gl buffer objects
@@ -59,8 +69,10 @@ public:
     // Explicit constructor, calls settup mesh
     explicit Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector<Index>&& _indices, std::shared_ptr<Material> _material);
 
-    explicit Mesh(const std::string _name, std::vector<GraphVertex>&& _vertices, std::vector<Index>&& _indices);
+    explicit Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector<Index>&& _indices, std::shared_ptr<Material> _material,float _uRes, float _vRes, int _uDim, int _vDim, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints);
 
+    explicit Mesh(const std::string _name, std::vector<GraphVertex>&& _vertices, std::vector<Index>&& _indices);
+                                         
     explicit Mesh(const std::string _name, std::vector<DebugVertex>&& _vertices, std::vector<Index>&& _indices);
 
     // De-constructor removes class references and gl-buffer objects.
@@ -87,6 +99,8 @@ public:
 
     // Creates a default sphere using a sphere key
     static std::shared_ptr<Mesh> CreateSphere(std::shared_ptr<Material> _material, const int _subdivides = 2, const bool _instance = false, std::string _customName = std::string());
+
+    static std::shared_ptr<Mesh> CreateBSplineSurface(std::shared_ptr<Material> _material, int _UResolution, int _VResolution,  int _du, int _dv, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints, std::string _customName = std::string());
 
     static std::shared_ptr<Mesh> CreateGraphSphere(const int _subdivides = 1, const bool _instance = true, std::string _customName = std::string());
 
@@ -158,12 +172,21 @@ public:
     // Returns this meshes visibility as a bool
     bool GetIsVisible() { return mVisible; }
 
+    float* GetBSplineUResolution() { return &mUResolution; }
+    float* GetBSplineVResolution() { return &mVResolution; }
+    int* GetBSplineUDimension() { return &mUDimension; }
+    int* GetBSplineVDimension() { return &mVDimension; }
+    std::vector<float> GetBSplineUKnot() { return mUKnot; }
+    std::vector<float> GetBSplineVKnot() { return mVKnot; }
+    std::vector<std::vector<glm::vec3>> GetBSplineControlPoints() { return mControlPoints; }
+
+
     // Setters
 
     // Sets the material this mesh should use
     void SetMaterial(std::shared_ptr<Material> _material) { mMaterial = _material; }
     void SetIsVisible(bool _b) { mVisible = _b; }
-    
+
 };
 
 

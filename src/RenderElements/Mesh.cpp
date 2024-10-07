@@ -6,6 +6,7 @@
 #include <RenderElements/Texture.h>
 #include <RenderElements/Material.h>
 #include <Utilities/Logger.h>
+#include <Core/SMath.h>
 #include <corecrt_math_defines.h>
 
 
@@ -20,7 +21,16 @@ Mesh::Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector
 
     if(!mMaterial)
         mMaterial = Material::Load(mName, {Texture::LoadWhiteTexture()}, {});
+}
 
+Mesh::Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector<Index>&& _indices, std::shared_ptr<Material> _material, float _uRes, float _vRes, int _uDim, int _vDim, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints)
+    : mName(_name), mVertices(std::move(_vertices)), mIndices(std::move(_indices)), mMaterial(_material), mUResolution(_uRes), mVResolution(_vRes), mUDimension(_uDim), mVDimension(_vDim), mUKnot(_uKnot), mVKnot(_vKnot), mControlPoints(_controlPoints)
+{
+    // generates gl specific buffers for mesh init.
+    SetupMesh();
+
+    if (!mMaterial)
+        mMaterial = Material::Load(mName, { Texture::LoadWhiteTexture() }, {});
 }
 
 Mesh::Mesh(const std::string _name, std::vector<GraphVertex>&& _vertices, std::vector<Index>&& _indices)
@@ -34,6 +44,7 @@ Mesh::Mesh(const std::string _name, std::vector<DebugVertex>&& _vertices, std::v
 {
     SetupDebugMesh();
 }
+
 
 Mesh::~Mesh()
 {
@@ -383,6 +394,63 @@ std::shared_ptr<Mesh> Mesh::CreateSphere(std::shared_ptr<Material> _material, co
         mCache[sphereKey] = sphere;
 
 	return sphere;
+}
+
+std::shared_ptr<Mesh> Mesh::CreateBSplineSurface(std::shared_ptr<Material> _material, int _UResolution, int _VResolution,  int _du,
+	int _dv, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot,
+	const std::vector<std::vector<glm::vec3>>& _controlPoints, std::string _customName)
+{
+    // Create key
+    std::string surfaceKey = "DefaultSurface";
+
+    // Overwrites default key if custom name is added.
+    if (!_customName.empty())
+        surfaceKey = _customName;
+
+    // Gen vertices and indices from vector
+    std::vector<Vertex> vertices;
+    std::vector<Index> indices;
+
+    // Gen spline surface ----
+    for (int i = 0; i < _UResolution; ++i) {
+        // Compute normalized u parameter in the [0, 1] range
+        double u = (double)i / (_UResolution - 1);
+
+        for (int j = 0; j < _VResolution; ++j) {
+            // Compute normalized v parameter in the [0, 1] range
+            double v = (double)j / (_VResolution - 1);
+
+            // Evaluate the surface at (u, v)
+            glm::vec3 surfacePoint = SMath::EvaluateBSplineSurface(u, v, _du, _dv, _uKnot, _vKnot, _controlPoints);
+
+            // Store the surface point
+            vertices.push_back(Vertex(surfacePoint,glm::vec3(0),glm::vec3(0)));
+        }
+    }
+
+
+    for (int i = 0; i < _UResolution - 1; ++i) {
+        for (int j = 0; j < _VResolution - 1; ++j) {
+            // Compute indices of the four vertices of the current grid cell
+            int topLeft = i * _VResolution + j;
+            int topRight = topLeft + 1;
+            int bottomLeft = (i + 1) * _VResolution + j;
+            int bottomRight = bottomLeft + 1;
+
+            // Create two triangles for this quad (top-left triangle and bottom-right triangle)
+            indices.push_back(topLeft);
+            indices.push_back(bottomLeft);
+            indices.push_back(topRight);
+
+            indices.push_back(topRight);
+            indices.push_back(bottomLeft);
+            indices.push_back(bottomRight);
+        }
+    }
+
+    std::shared_ptr<Mesh> surface = std::make_shared<Mesh>(surfaceKey, std::move(vertices), std::move(indices), _material, _UResolution, _VResolution,_du,_dv, _uKnot,_vKnot,_controlPoints);
+
+	return surface;
 }
 
 std::shared_ptr<Mesh> Mesh::CreateGraphSphere(const int _subdivides, const bool _instance, std::string _customName)

@@ -302,17 +302,19 @@ void ActorController::ActorInput(float _dt)
     // Controlling actor that has a camera snapped to it
     // ----------------------------------------------------------------
     if(mControlledActor && mCameraForSnap) {
-        // Updates actor position if any of these keys are pressed
-        if (mKeyStates[GLFW_KEY_W]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (mCameraForSnap->GetFront() *_dt * mMovementSpeed));
-        if (mKeyStates[GLFW_KEY_S]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (mCameraForSnap->GetFront() * _dt * mMovementSpeed));
-        if (mKeyStates[GLFW_KEY_D]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (mCameraForSnap->GetRight() * _dt * mMovementSpeed));
-        if (mKeyStates[GLFW_KEY_A]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (mCameraForSnap->GetRight() * _dt * mMovementSpeed));
+
+
+    	// Updates actor position if any of these keys are pressed
+        if (mKeyStates[GLFW_KEY_W]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() + (mCameraForSnap->GetFront() *_dt * mMovementSpeed));
+        if (mKeyStates[GLFW_KEY_S]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() - (mCameraForSnap->GetFront() * _dt * mMovementSpeed));
+        if (mKeyStates[GLFW_KEY_D]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() + (mCameraForSnap->GetRight() * _dt * mMovementSpeed));
+        if (mKeyStates[GLFW_KEY_A]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() - (mCameraForSnap->GetRight() * _dt * mMovementSpeed));
 
         if (mControlledActor->GetPhysicsComponent()){
             if (!mControlledActor->GetPhysicsComponent()->IsGravityEnabled())
             {
-                if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (mCameraForSnap->GetUp() * _dt * mMovementSpeed));
-                if (mKeyStates[GLFW_KEY_E]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (mCameraForSnap->GetUp() * _dt * mMovementSpeed));
+                if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() + (mCameraForSnap->GetUp() * _dt * mMovementSpeed));
+                if (mKeyStates[GLFW_KEY_E]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() - (mCameraForSnap->GetUp() * _dt * mMovementSpeed));
 
             }
             else {
@@ -321,25 +323,25 @@ void ActorController::ActorInput(float _dt)
                     mControlledActor->GetPhysicsComponent()->Jump();
             }
         } else {
-            if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
-            if (mKeyStates[GLFW_KEY_E]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
+            if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() + (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
+            if (mKeyStates[GLFW_KEY_E]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() - (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
         }
 
         // Only controlling actor
         // ----------------------------------------------------------------
     } else if (mControlledActor) {
         // Updates actor position if any of these keys are pressed
-        if (mKeyStates[GLFW_KEY_W]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (glm::vec3(0.f, 0.f, -1.0f) * _dt * mMovementSpeed));
-        if (mKeyStates[GLFW_KEY_S]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (glm::vec3(0.0f, 0.f, -1.0f) * _dt * mMovementSpeed));
-        if (mKeyStates[GLFW_KEY_D]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (glm::vec3(1.0f, 0.f, 0.f) * _dt * mMovementSpeed));
-        if (mKeyStates[GLFW_KEY_A]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (glm::vec3(1.0f, 0.f, 0.f) * _dt * mMovementSpeed));
+        if (mKeyStates[GLFW_KEY_W]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() + (glm::vec3(0.f, 0.f, -1.0f) * _dt * mMovementSpeed));
+        if (mKeyStates[GLFW_KEY_S]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() - (glm::vec3(0.0f, 0.f, -1.0f) * _dt * mMovementSpeed));
+        if (mKeyStates[GLFW_KEY_D]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() + (glm::vec3(1.0f, 0.f, 0.f) * _dt * mMovementSpeed));
+        if (mKeyStates[GLFW_KEY_A]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() - (glm::vec3(1.0f, 0.f, 0.f) * _dt * mMovementSpeed));
 
         if (mControlledActor->GetPhysicsComponent())
         {
             if (!mControlledActor->GetPhysicsComponent()->IsGravityEnabled())
             {
-                if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
-                if (mKeyStates[GLFW_KEY_E]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
+                if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() + (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
+                if (mKeyStates[GLFW_KEY_E]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() - (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
 
             }
             else {
@@ -348,8 +350,8 @@ void ActorController::ActorInput(float _dt)
                     mControlledActor->GetPhysicsComponent()->Jump();
             }
         } else {
-            if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() + (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
-            if (mKeyStates[GLFW_KEY_E]) mControlledActor->SetGlobalPosition(mControlledActor->GetGlobalPosition() - (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
+            if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() + (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
+            if (mKeyStates[GLFW_KEY_E]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() - (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
         }
         
 

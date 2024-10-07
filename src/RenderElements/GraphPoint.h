@@ -11,6 +11,12 @@
 class Shader;
 class Mesh;
 
+enum PointType
+{
+    ControlPoint,
+    RegularPoint
+};
+
 /**
  * @class GraphPoint
  * @brief Represents each point on a graph.
@@ -25,11 +31,15 @@ private:
 
     std::shared_ptr<Mesh> mVisualPointMesh{ nullptr };
 
+    PointType mPointType;
+
+    glm::vec3 mColor = glm::vec3(0, 0, 1);
+
 public:
     // ---------- Global functions --------------
 
     // Constructor
-    GraphPoint(const std::string& _name);
+    GraphPoint(const std::string& _name, PointType _inType);
 
     // Overriden from IRender passes draw call to mesh. 
     virtual void Draw(const std::shared_ptr<Shader> _shader = nullptr) const override;

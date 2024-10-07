@@ -1248,8 +1248,7 @@ void UserInterfaceManager::uiSub_WorldProperties(std::shared_ptr<Actor> _inActor
 
 	// Can edit the x, y, z position for selected actor
 	// ----------------------------------------------
-	glm::vec3 currentActorsPosition = _inActor->GetGlobalPosition();
-
+	glm::vec3 currentActorsPosition = _inActor->GetLocalPosition();
 	ImGui::Text("World Position: ");
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), "X");
 	ImGui::SameLine();
@@ -1268,7 +1267,7 @@ void UserInterfaceManager::uiSub_WorldProperties(std::shared_ptr<Actor> _inActor
 	ImGui::SetNextItemWidth(mItemWidth);
 	ImGui::InputFloat("##PZ", &currentActorsPosition.z);
 
-	_inActor->SetGlobalPosition(currentActorsPosition);
+	_inActor->SetLocalPosition(currentActorsPosition);
 
 	// Can edit the x, y, z rotation for selected actor
 	// ----------------------------------------------
@@ -1577,6 +1576,16 @@ void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 		ImGui::Image((void*)(intptr_t)mJPGIcon->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 		DrawBoarderAroundImage();
 	}
+
+	// Slider for B-Spline surface resolution
+		// -----------------------------------
+	ImGui::SliderFloat("Surface Resolution U", _inMesh->GetBSplineUResolution(), 2.0f, 100.0f, "%.1f");
+	ImGui::SliderFloat("Surface Resolution V", _inMesh->GetBSplineVResolution(), 2.0f, 100.0f, "%.1f");
+	ImGui::SliderInt("Surface Dimension U", _inMesh->GetBSplineUDimension(), 0, 3, "%.1f");
+	ImGui::SliderInt("Surface Dimension V", _inMesh->GetBSplineVDimension(), 0, 3, "%.1f");
+
+
+
 
 }
 

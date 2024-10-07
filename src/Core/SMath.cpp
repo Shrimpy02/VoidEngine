@@ -6,6 +6,7 @@
 #include <RenderElements/Mesh.h>
 #include <RenderElements/Vertex.h>
 #include <Utilities/Logger.h>
+#include <RenderElements/GraphPoint.h>
 
 // Additional includes
 #include <stdexcept>
@@ -227,55 +228,40 @@ bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::
     return false;
 }
 
-
-std::vector<glm::vec3> SMath::NevillParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, float _step)
+std::vector<glm::vec3> SMath::NevillInterpolatedPoints(const std::vector<std::shared_ptr<GraphPoint>>& _controlPoints, const float _step)
 {
     std::vector<glm::vec3> temp;
-    for (float t = 0; t < 2; t += _step)
-    {
-        glm::vec3 point = ((((1 / 2) * (t * t)) - ((3 / 2) * t) + 1) * _point1) + (((2 * t) - (t * t)) * _point2) + ((((1 / 2) * (t * t)) - ((1 / 2) * t)) * _point3);
-        temp.push_back(point);
+    switch (_controlPoints.size()) {
+
+    case 3:
+        temp = NevillInterpolatedParametricCurveFromPoints(_controlPoints[0]->GetLocalPosition(), _controlPoints[1]->GetLocalPosition(), _controlPoints[2]->GetLocalPosition(), _step);
+        break;
+    default:
+        LOG_ERROR("Inncorect number of control points");
+        break;
     }
+
     return temp;
 }
 
-std::vector<glm::vec3> SMath::DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, float _step)
+std::vector<glm::vec3> SMath::DeCastApproximationPoints(const std::vector<std::shared_ptr<GraphPoint>>& _controlPoints, const float _step)
 {
     std::vector<glm::vec3> temp;
-    for (float t = 0; t <= 1; t += _step)
-    {
-        glm::vec3 c01 = (1 - t) * _point1 + t * (_point2);
-        temp.push_back(c01);
+    switch (_controlPoints.size()) {
+    case 2:
+        temp = DeCastParametricCurveFromPoints(_controlPoints[0]->GetLocalPosition(), _controlPoints[1]->GetLocalPosition(), _step);
+        break;
+    case 3:
+        temp = DeCastParametricCurveFromPoints(_controlPoints[0]->GetLocalPosition(), _controlPoints[1]->GetLocalPosition(), _controlPoints[2]->GetLocalPosition(), _step);
+        break;
+    case 4:
+        temp = DeCastParametricCurveFromPoints(_controlPoints[0]->GetLocalPosition(), _controlPoints[1]->GetLocalPosition(), _controlPoints[2]->GetLocalPosition(), _controlPoints[3]->GetLocalPosition(), _step);
+        break;
+    default:
+        LOG_ERROR("Inncorect number of control points");
+        break;
     }
-    return temp;
-}
 
-std::vector<glm::vec3> SMath::DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, float _step)
-{
-    std::vector<glm::vec3> temp;
-    for (float t = 0; t <= 1; t += _step)
-    {
-        glm::vec3 c01 = (1 - t) * _point1 + t * (_point2);
-        glm::vec3 c11 = (1 - t) * _point2 + t * (_point3);
-        glm::vec3 c02 = (1 - t) * c01 + t * (c11);
-        temp.push_back(c02);
-    }
-    return temp;
-}
-
-std::vector<glm::vec3> SMath::DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, glm::vec3 _point4, float _step)
-{
-    std::vector<glm::vec3> temp;
-    for (float t = 0; t < 1; t += _step)
-    {
-        glm::vec3 c01 = (1 - t) * _point1 + t * (_point2);
-        glm::vec3 c11 = (1 - t) * _point2 + t * (_point3);
-        glm::vec3 c21 = (1 - t) * _point3 + t * (_point4);
-        glm::vec3 c02 = (1 - t) * c01 + t * (c11);
-        glm::vec3 c12 = (1 - t) * c11 + t * (c21);
-        glm::vec3 c03 = (1 - t) * c02 + t * (c12);
-        temp.push_back(c03);
-    }
     return temp;
 }
 
@@ -296,7 +282,115 @@ float SMath::GetRandomFloatBetweenMinMax(const float& _min, const float& _max)
     return _min + randomFraction * (_max - _min);
 }
 
+
 // ------------------------------------- Private -------------------------------------------------
+
+std::vector<glm::vec3> SMath::DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, float _step)
+{
+    std::vector<glm::vec3> temp;
+    for (float t = 0; t <= 1; t += _step)
+    {
+        glm::vec3 c01 = (1.f - t) * _point1 + t * (_point2);
+        temp.push_back(c01);
+    }
+    return temp;
+}
+
+std::vector<glm::vec3> SMath::DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, float _step)
+{
+    std::vector<glm::vec3> temp;
+    for (float t = 0; t <= 1; t += _step)
+    {
+        glm::vec3 c01 = (1.f - t) * _point1 + t * (_point2);
+        glm::vec3 c11 = (1.f - t) * _point2 + t * (_point3);
+        glm::vec3 c02 = (1.f - t) * c01 + t * (c11);
+        temp.push_back(c02);
+    }
+    return temp;
+}
+
+std::vector<glm::vec3> SMath::DeCastParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, glm::vec3 _point4, float _step)
+{
+    std::vector<glm::vec3> temp;
+    for (float t = 0; t < 1; t += _step)
+    {
+        glm::vec3 c01 = (1.f - t) * _point1 + t * (_point2);
+        glm::vec3 c11 = (1.f - t) * _point2 + t * (_point3);
+        glm::vec3 c21 = (1.f - t) * _point3 + t * (_point4);
+        glm::vec3 c02 = (1.f - t) * c01 + t * (c11);
+        glm::vec3 c12 = (1.f - t) * c11 + t * (c21);
+        glm::vec3 c03 = (1.f - t) * c02 + t * (c12);
+        temp.push_back(c03);
+    }
+    return temp;
+}
+
+std::vector<glm::vec3> SMath::NevillInterpolatedParametricCurveFromPoints(glm::vec3 _point1, glm::vec3 _point2, glm::vec3 _point3, float _step)
+{
+    std::vector<glm::vec3> temp;
+    for (float t = 0; t < 2; t += _step)
+    {
+        glm::vec3 p1 = (((0.5f * (t * t)) - (1.5f * t) + 1.f) * _point1);
+        glm::vec p2 = (((2.f * t) - (t * t)) * _point2);
+        glm::vec p3 = (((0.5f * (t * t)) - (0.5f * t)) * _point3);
+        glm::vec3 point = p1 + p2 + p3;
+        temp.push_back(point);
+    }
+    return temp;
+}
+
+float SMath::CoxDeBoorRecursive(int _i, int _d, float _uv, const std::vector<float>& _knotVector)
+{
+    if (_d == 0) {
+        // If dimension is 0 compare knot vectors and return value
+        return (_knotVector[_i] <= _uv && _uv < _knotVector[_i + 1]) ? 1.0f : 0.0f;
+    }
+    else {
+        // Otherwise sum the left and right basis formula for the total influence of control point at p.
+        float left = 0.0f;
+        float right = 0.0f;
+
+        // Left basis function term: Check for division by zero
+        float denominatorLeft = _knotVector[_i + _d] - _knotVector[_i];
+        if (denominatorLeft != 0.0f) {
+            left = (_uv - _knotVector[_i]) / denominatorLeft * CoxDeBoorRecursive(_i, _d - 1, _uv, _knotVector);
+        }
+
+        // Right basis function term: Check for division by zero
+        float denominatorRight = _knotVector[_i + _d + 1] - _knotVector[_i + 1];
+        if (denominatorRight != 0.0f) {
+            right = (_knotVector[_i + _d + 1] - _uv) / denominatorRight * CoxDeBoorRecursive(_i + 1, _d - 1, _uv, _knotVector);
+        }
+
+        return left + right;
+
+    }
+}
+
+
+glm::vec3 SMath::EvaluateBSplineSurface(float _u, float _v, int _du, int _dv, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints)
+{
+    glm::vec3 surfacePoint(0.0f);
+    const int numControlPointsU = _controlPoints.size() - 1;
+    const int numControlPointsV = _controlPoints[0].size() - 1;
+
+    // Loop through all control points
+    for (int i = 0; i <= numControlPointsU; ++i) {
+        for (int j = 0; j <= numControlPointsV; ++j) {
+            
+            // Evaluates influence of control point i in u direction (basis function)
+            float Coxi = CoxDeBoorRecursive(i, _du, _u, _uKnot);
+            // Evaluates influence of control point j in v direction (basis function)
+            float Coxj = CoxDeBoorRecursive(j, _dv, _v, _vKnot);
+            // Sum weight * control point with the surfacePoint
+        	glm::vec3 controlPointWight = Coxi * Coxj * _controlPoints[i][j];
+            surfacePoint += controlPointWight;
+        }
+    }
+
+    // Return the point on the surface at (u, v)
+    return surfacePoint;
+}
 
 glm::vec3 SMath::GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3, glm::vec3 _objectPos)
 {

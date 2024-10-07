@@ -181,4 +181,7 @@ public:
 	void SetGlobalScale(const glm::vec3& _scale);
 	// Sets teh parent of this actor to in Actor pointer
 	void SetParent(std::shared_ptr<Actor> _parent);
+
+
+	bool HasParent() { return mParent != nullptr; }
 };

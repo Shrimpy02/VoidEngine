@@ -28,6 +28,22 @@ void VisualActor::Draw(const std::shared_ptr<Shader> _shader) const
 void VisualActor::Update(float _dt)
 {
     UpdateExtent();
+
+
+    // TODO fix this so that it works properly and is apart of bespline mesh type
+    if(*mVisualMesh->GetBSplineUResolution() != mOldURes || 
+       *mVisualMesh->GetBSplineVResolution() != mOldVRes ||
+       *mVisualMesh->GetBSplineUDimension() != mOldUDim ||
+       *mVisualMesh->GetBSplineVDimension() != mOldVDim)
+    {
+        std::shared_ptr<Mesh> newMesh = Mesh::CreateBSplineSurface(mVisualMesh->GetMaterial(), *mVisualMesh->GetBSplineUResolution(), *mVisualMesh->GetBSplineVResolution(), *mVisualMesh->GetBSplineUDimension(), *mVisualMesh->GetBSplineVDimension(), mVisualMesh->GetBSplineUKnot(), mVisualMesh->GetBSplineVKnot(), mVisualMesh->GetBSplineControlPoints());
+        mVisualMesh = newMesh;
+    }
+
+    //*mVisualMesh->GetBSplineUResolution() = mOldURes;
+    //*mVisualMesh->GetBSplineVResolution() = mOldVRes;
+    //*mVisualMesh->GetBSplineUDimension() = mOldUDim;
+    //*mVisualMesh->GetBSplineVDimension() = mOldVDim;
 }
 
 void VisualActor::SetMinMaxExtent()

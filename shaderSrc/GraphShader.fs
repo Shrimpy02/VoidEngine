@@ -1,11 +1,11 @@
 #version 330 core
 out vec4 FragColor;
 
-const vec3 graphColor = vec3(0,0,1);
+uniform vec3 GraphColor;
+
 
 void main()
 {
-   
-    FragColor = vec4(graphColor, 1);    
-   
+    FragColor = vec4(GraphColor, 1);    
+ 
 }

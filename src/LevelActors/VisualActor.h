@@ -30,6 +30,11 @@ public:
     glm::vec3 mMaxExtent{ 0.f,0.f,0.f };
     glm::vec3 mExtent{ 0.f,0.f,0.f };
 
+    float mOldURes;
+    float mOldVRes;
+    int mOldUDim;
+    int mOldVDim;
+
 private:
     // ---------- Local Variables --------------
 

@@ -68,9 +68,13 @@ public:
     // receive update and render calls if they inherit from the correct classes.
     void LoadContent();
 
+    void BaseLevelRequiredObjects();
+
     void LoadDefaultLevel();
 
     void LoadPhysicsBoxLevel();
+
+    void LoadGraphDisplayLevel();
 
 	// Deletes pointers and clears all caches for texture, mesh and material.  
     void UnloadContent();
