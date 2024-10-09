@@ -15,6 +15,9 @@ include_directories(includes)
 include_directories(includes/imgui)
 include_directories(src)
 include_directories(libs/assimp/include)
+include_directories("${CMAKE_SOURCE_DIR}/libs/LASzip/dll")
+include_directories("${CMAKE_SOURCE_DIR}/libs/LASzip/include/laszip")
+include_directories("${CMAKE_SOURCE_DIR}/libs/LASzip/src")
 
 #Add IMGUI headers
 set( IMGUI_HEADERS
@@ -52,7 +55,7 @@ set (HEADER_FILES
   src/Utilities/Types.h
   src/Transform.h
   "src/Core/Tag.h"
-  "src/RenderElements/Vertex.h"
+  "src/RenderElements/VertexTypes/DefaultVertex.h"
   src/Controllers/Controller.h
   "src/OutDated/CameraController.h"
   src/Collision/Collision.h 
@@ -69,7 +72,7 @@ set (HEADER_FILES
   src/Components/PhysicsComponent.h
   src/Components/Component.h
   "src/OutDated/SceneActors.h"
-   "src/Core/SMath.h" "src/Components/AIComponent.h" "src/SkyBox/Skybox.h"  "src/Levels/LevelManager.h" "src/Levels/Level.h" "src/LevelActors/SceneGraph.h" "src/UserInterface/UserInterfaceManager.h"   "src/Collision/CollisionProperties.h"  "src/LevelActors/BaseActor.h" "src/LevelActors/VisualActor.h"  "src/LevelActors/GraphActor.h" "src/RenderElements/GraphPoint.h" "src/RenderElements/GraphVertex.h" "src/LevelActors/DebugActor.h" "src/RenderElements/DebugVertex.h" "src/OutDated/UIController.h" "src/LifeTime.h" "src/Core/SSpawner.h" "src/OctTree.h" "src/SLifeTime.h")
+   "src/Core/SMath.h" "src/Components/AIComponent.h" "src/SkyBox/Skybox.h"  "src/Levels/LevelManager.h" "src/Levels/Level.h" "src/LevelActors/SceneGraph.h" "src/UserInterface/UserInterfaceManager.h"   "src/Collision/CollisionProperties.h"  "src/LevelActors/BaseActor.h" "src/LevelActors/VisualActor.h"  "src/LevelActors/GraphActor.h" "src/RenderElements/GraphPoint.h" "src/RenderElements/VertexTypes/GraphVertex.h" "src/LevelActors/DebugActor.h" "src/RenderElements/VertexTypes/DebugVertex.h" "src/OutDated/UIController.h" "src/LifeTime.h" "src/Core/SSpawner.h" "src/OctTree.h" "src/SLifeTime.h" "src/RenderElements/VertexTypes/TerrainVertex.h")
 
 set (SRC_FILES
   3DProgEngine.cpp
@@ -99,6 +102,7 @@ add_executable (3DProgEngine ${IMGUI_HEADERS} ${IMGUI_SOURCE} ${HEADER_FILES} ${
 
 #target_link_libraries(3DProg-Main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Libs/glfw3.lib)
 target_link_libraries(3DProgEngine glfw)
+target_link_libraries(3DProgEngine "${CMAKE_SOURCE_DIR}/libs/LASzip/lib/laszip3.lib")
 target_link_libraries(3DProgEngine assimp)
 #target_link_libraries(3DProgEngine fbx)
 

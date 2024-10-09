@@ -6,7 +6,7 @@
 #include <RenderElements/Mesh.h>
 #include <RenderElements/Material.h>
 #include <RenderElements/Texture.h>
-#include <RenderElements/Vertex.h>
+#include <RenderElements/VertexTypes/DefaultVertex.h>
 #include <Lights/PointLight.h>
 #include <LevelActors/BaseActor.h>
 #include <LevelActors/VisualActor.h>

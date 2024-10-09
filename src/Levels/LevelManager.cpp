@@ -32,6 +32,7 @@
 
 // Additional Includes
 #include <ctime>
+
 LevelManager::LevelManager(std::shared_ptr<ActorController> _inController)
 	: mController(_inController)
 {
@@ -175,38 +176,43 @@ void LevelManager::LoadGraphDisplayLevel()
 {
 	BaseLevelRequiredObjects();
 
-	//std::vector<glm::vec3> controlPointsGraph = {
-	//	glm::vec3(4, -2, 0),
-	//	glm::vec3(0, 2, 0),
-	//	glm::vec3(-4, -2, 0)
-	//};
-	//
-	//std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor", glm::vec3(0), glm::vec3(0.6f));
-	//mActiveLevel->AddActorToSceneGraph(graphActor);
-	//graphActor->SetControlPoints(controlPointsGraph);
-	//graphActor->CreateGraph(GraphMethod::Neville, GraphType::Interpolated);
-
-	// Define degrees
-	int Du = 2;
-	int Dv = 2;
-
-	// Define resolution
-	int UResolution = 20;
-	int VResolution = 20;
-
-	// Define knot vectors
-	std::vector<float> uKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 };
-	std::vector<float> vKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 }; 
-
-	// Define control points (2D grid)
-	std::vector<std::vector<glm::vec3>> controlPoints = {
-		{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(2.0f, 0.0f, 0.0f)},
-		{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(1.0f, 2.0f, 1.0f), glm::vec3(2.0f, 1.0f, 1.0f)},
-		{glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(1.0f, 1.0f, 2.0f), glm::vec3(2.0f, 0.0f, 2.0f)}
+	std::vector<glm::vec3> controlPointsGraph = {
+		glm::vec3(4, -2, 0),
+		glm::vec3(0, 2, 0),
+		glm::vec3(-4, -2, 0)
 	};
+	
+	std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor", glm::vec3(0), glm::vec3(0.6f));
+	mActiveLevel->AddActorToSceneGraph(graphActor);
+	graphActor->SetControlPoints(controlPointsGraph);
+	graphActor->CreateGraph(GraphMethod::Neville, GraphType::Interpolated);
 
-	std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
-	AddActorToLevel(BSplineSurface);
+	//// Define degrees
+	//int Du = 2;
+	//int Dv = 2;
+
+	//// Define resolution
+	//int UResolution = 20;
+	//int VResolution = 20;
+
+	//// Define knot vectors
+	//std::vector<float> uKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 };
+	//std::vector<float> vKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 }; 
+
+	//// Define control points (2D grid)
+	//std::vector<std::vector<glm::vec3>> controlPoints = {
+	//	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(2.0f, 0.0f, 0.0f)},
+	//	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(1.0f, 2.0f, 1.0f), glm::vec3(2.0f, 1.0f, 1.0f)},
+	//	{glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(1.0f, 1.0f, 2.0f), glm::vec3(2.0f, 0.0f, 2.0f)}
+	//};
+
+	//std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
+	//AddActorToLevel(BSplineSurface);
+
+	std::string fileDirectory = SOURCE_DIRECTORY("EngineAssets/HightData/32-1-498-99-32.laz");
+	const char* LASDirectory = fileDirectory.c_str();
+	std::shared_ptr<VisualActor> HoveTerrain = std::make_shared<VisualActor>("HoveTerrain", Mesh::CreatePointCloudFromLASFileSurface(LASDirectory),glm::vec3(2,-2,28));
+	AddActorToLevel(HoveTerrain);
 }
 
 void LevelManager::UnloadContent()

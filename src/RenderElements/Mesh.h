@@ -57,6 +57,10 @@ private:
     std::vector<float> mUKnot;
     std::vector<float> mVKnot;
     std::vector<std::vector<glm::vec3>> mControlPoints;
+    bool mIsBSpline = false;
+    bool mIsPointCloud = false;
+
+
     bool mVisible = true;
 
     // gl buffer objects
@@ -95,18 +99,20 @@ public:
     static std::shared_ptr<Mesh> CreatePyramid(std::shared_ptr<Material> _material, const bool _instance = false, std::string _customName = std::string());
 
     // Creates a default cube using a cube key
-    static  std::shared_ptr<Mesh> CreateSphereByExtent(std::shared_ptr<Mesh> _extentMesh, std::shared_ptr<Material> _material, std::string _customName = std::string());
+    static std::shared_ptr<Mesh> CreateSphereByExtent(std::shared_ptr<Mesh> _extentMesh, std::shared_ptr<Material> _material, std::string _customName = std::string());
 
     // Creates a default sphere using a sphere key
     static std::shared_ptr<Mesh> CreateSphere(std::shared_ptr<Material> _material, const int _subdivides = 2, const bool _instance = false, std::string _customName = std::string());
 
     static std::shared_ptr<Mesh> CreateBSplineSurface(std::shared_ptr<Material> _material, int _UResolution, int _VResolution,  int _du, int _dv, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints, std::string _customName = std::string());
 
+    static std::shared_ptr<Mesh> CreatePointCloudFromLASFileSurface(const char* _fileDirectory);
+
     static std::shared_ptr<Mesh> CreateGraphSphere(const int _subdivides = 1, const bool _instance = true, std::string _customName = std::string());
 
     static std::shared_ptr<Mesh> CreateDebugLine(std::vector<glm::vec3> _points);
 
-    static std::shared_ptr<Mesh> CreateDebugLine(std::shared_ptr<Mesh> _mesh);
+	static std::shared_ptr<Mesh> CreateDebugLine(std::shared_ptr<Mesh> _mesh);
 
     static std::shared_ptr<Mesh> CreateDebugLine(std::pair<glm::vec3, glm::vec3> _extents);
 
@@ -179,8 +185,10 @@ public:
     std::vector<float> GetBSplineUKnot() { return mUKnot; }
     std::vector<float> GetBSplineVKnot() { return mVKnot; }
     std::vector<std::vector<glm::vec3>> GetBSplineControlPoints() { return mControlPoints; }
-
-
+    void SetIsBSpline(bool _b) { mIsBSpline = _b; }
+    bool IsBSpline() { return mIsBSpline; }
+    void SetIsPointCloud(bool _b) { mIsPointCloud = _b; }
+    bool IsPointCloud() { return mIsPointCloud; }
     // Setters
 
     // Sets the material this mesh should use

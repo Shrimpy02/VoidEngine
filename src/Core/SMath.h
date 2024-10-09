@@ -41,6 +41,12 @@ public:
     // Static function returns true if _object is within the barycentric coordinates of _surface
     static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, std::vector<glm::vec3>& _debugSurfacePoints);
 
+    // File reading
+
+    static void LASFileReadingExample(const char* _fileNameIn, const char* _fileNameOut);
+
+    static std::vector<glm::vec3> LASFileToPoints(const char* _fileDirectory);
+
     // Surface ---
 
     // The recursive basis function for B-Spline

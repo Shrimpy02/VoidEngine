@@ -1,14 +1,16 @@
 // Includes
 #include <RenderElements/Mesh.h>
-#include <RenderElements/Vertex.h>
-#include <RenderElements/GraphVertex.h>
-#include <RenderElements/DebugVertex.h>
+#include <RenderElements/VertexTypes/DefaultVertex.h>
+#include <RenderElements/VertexTypes/GraphVertex.h>
+#include <RenderElements/VertexTypes/DebugVertex.h>
+#include <RenderElements/VertexTypes/TerrainVertex.h>
 #include <RenderElements/Texture.h>
 #include <RenderElements/Material.h>
 #include <Utilities/Logger.h>
 #include <Core/SMath.h>
 #include <corecrt_math_defines.h>
 
+#include "laszip_api.h"
 
 // static cache of meshes
 std::unordered_map<std::string, std::shared_ptr<Mesh>> Mesh::mCache;
@@ -26,7 +28,6 @@ Mesh::Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector
 Mesh::Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector<Index>&& _indices, std::shared_ptr<Material> _material, float _uRes, float _vRes, int _uDim, int _vDim, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints)
     : mName(_name), mVertices(std::move(_vertices)), mIndices(std::move(_indices)), mMaterial(_material), mUResolution(_uRes), mVResolution(_vRes), mUDimension(_uDim), mVDimension(_vDim), mUKnot(_uKnot), mVKnot(_vKnot), mControlPoints(_controlPoints)
 {
-    // generates gl specific buffers for mesh init.
     SetupMesh();
 
     if (!mMaterial)
@@ -58,13 +59,23 @@ void Mesh::Draw(const std::shared_ptr<Shader> _shader) const
 {
     if (!mVisible) return;
 
-    if(mMaterial)
-        mMaterial->Bind(_shader);
-    
-    // binds VAO and draws all geometry by given indices and vertices
-    glBindVertexArray(mVAO);
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mIndices.size()), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    if (mIsPointCloud)
+    {
+        // binds VAO and draws all geometry by given indices and vertices
+        glBindVertexArray(mVAO);
+        glDrawElements(GL_POINTS, static_cast<GLsizei>(mIndices.size()), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+
+    } else {
+
+        if (mMaterial)
+            mMaterial->Bind(_shader);
+
+        // binds VAO and draws all geometry by given indices and vertices
+        glBindVertexArray(mVAO);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mIndices.size()), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+    }
 }
 
 void Mesh::DrawDebugLines(const std::shared_ptr<Shader> _shader) const
@@ -449,7 +460,94 @@ std::shared_ptr<Mesh> Mesh::CreateBSplineSurface(std::shared_ptr<Material> _mate
     }
 
     std::shared_ptr<Mesh> surface = std::make_shared<Mesh>(surfaceKey, std::move(vertices), std::move(indices), _material, _UResolution, _VResolution,_du,_dv, _uKnot,_vKnot,_controlPoints);
+    surface->SetIsBSpline(true);
+	return surface;
+}
 
+std::shared_ptr<Mesh> Mesh::CreatePointCloudFromLASFileSurface(const char* _fileDirectory)
+{
+    // create the reader
+    laszip_POINTER laszip_reader;
+    if (laszip_create(&laszip_reader))
+        LOG_ERROR("DLL ERROR: creating laszip reader");
+
+    // open the reader
+    laszip_BOOL is_compressed = true;
+    if (laszip_open_reader(laszip_reader, _fileDirectory, &is_compressed))
+        LOG_ERROR("DLL ERROR: opening laszip reader for '%s'", _fileDirectory);
+
+    // get a pointer to the header of the reader that was just populated
+    laszip_header* header;
+    if (laszip_get_header_pointer(laszip_reader, &header))
+        LOG_ERROR("DLL ERROR: getting header pointer from laszip reader");
+
+    // get a pointer to the points that will be read
+    laszip_point* point;
+    if (laszip_get_point_pointer(laszip_reader, &point))
+        LOG_ERROR("DLL ERROR: getting point pointer from laszip reader");
+
+    // how many points does the file have
+    laszip_I64 numTotalPoints = (header->number_of_point_records ? header->number_of_point_records : header->extended_number_of_point_records);
+
+    // report how many points the file has
+    //LOG("file '%s' contains %I64d points", numTotalPoints);
+
+    LOG("Calculating Points, might take some time...");
+
+    float scalingFactor = 0.001f;
+    std::vector<Vertex> vertices;
+    glm::vec3 centroid = glm::vec3(0);
+    for(int i = 0; i < numTotalPoints; i++)
+    {
+        if (laszip_read_point(laszip_reader))
+            LOG_ERROR("DLL ERROR: reading points");
+
+        // Apply scaling when reading point coordinates
+        float x = (float)(point->X * header->x_scale_factor + header->x_offset) * scalingFactor;
+        float y = (float)(point->Y * header->y_scale_factor + header->y_offset) * scalingFactor;
+        float z = (float)(point->Z * header->z_scale_factor + header->z_offset) * scalingFactor;
+
+        laszip_U16* color = point->rgb;
+        //glm::vec3 colorf = *color;
+
+    	glm::vec3 vertPos = glm::vec3(x, z, y);
+        vertices.push_back(Vertex(vertPos,glm::vec3(0), glm::vec3(0)));
+
+        // Accumulate the scaled points to calculate centroid
+        centroid += vertPos;
+    }
+
+    // Calculate the centroid of the scaled points
+    centroid /= static_cast<float>(vertices.size());
+
+    // Center the points around (0, 0, 0)
+    for (Vertex& point : vertices) {
+        point.mPosition -= centroid;
+        //point.mPosition *= scalingFactor;
+    }
+
+    //float inverseScalingFactor = 1 / scalingFactor;
+    //float inverseScalingFactor = 2;
+    //for (Vertex& point : vertices) {
+    //    point.mPosition *= inverseScalingFactor;
+    //}
+
+    std::vector<Index> indices;
+    for (int i = 0; i < vertices.size(); i++)
+    {
+        indices.push_back(i);
+        //indices.push_back(i+1);
+    }
+
+    // Clean up the LASzip reader
+    if (laszip_close_reader(laszip_reader))
+        LOG_ERROR("DLL ERROR: closing laszip reader");
+    if (laszip_destroy(laszip_reader))
+        LOG_ERROR("DLL ERROR: destroying laszip reader");
+
+    // TODO Make terrain vertexes?
+    std::shared_ptr<Mesh> surface = std::make_shared<Mesh>("Surface", std::move(vertices), std::move(indices),nullptr);
+    surface->SetIsPointCloud(true);
 	return surface;
 }
 
@@ -583,6 +681,7 @@ std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::pair<glm::vec3, glm::vec3> _ext
 	//Generate mesh moveing the vertices and indices into new object along with input material and add it to cache
     return std::make_shared<Mesh>(lineKey, std::move(vertices),std::move(indices));
 }
+
 
 std::shared_ptr<Mesh> Mesh::Load(const std::string& _key)
 {

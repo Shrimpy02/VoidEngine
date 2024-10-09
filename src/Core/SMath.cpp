@@ -4,12 +4,13 @@
 #include <LevelActors/BaseActor.h>
 #include <LevelActors/VisualActor.h>
 #include <RenderElements/Mesh.h>
-#include <RenderElements/Vertex.h>
+#include <RenderElements/VertexTypes/DefaultVertex.h>
 #include <Utilities/Logger.h>
 #include <RenderElements/GraphPoint.h>
 
 // Additional includes
 #include <stdexcept>
+#include <laszip_api.h>
 
 void SMath::SeedRandTime()
 {
@@ -226,6 +227,135 @@ bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::
 	}
 
     return false;
+}
+
+void SMath::LASFileReadingExample(const char* _fileNameIn, const char* _fileNameOut)
+{
+
+    //Trying to read point from .laz file 
+    const laszip_CHAR* fileName_inn = _fileNameIn;
+    const laszip_CHAR* fileName_out = _fileNameOut;
+
+    // create the reader
+    laszip_POINTER laszip_reader;
+    if (laszip_create(&laszip_reader))
+        LOG_ERROR("DLL ERROR: creating laszip reader");
+
+    // open the reader
+    laszip_BOOL is_compressed = true; // true for .laz files false for .las files
+    if (laszip_open_reader(laszip_reader, fileName_inn, &is_compressed))
+        LOG_ERROR("DLL ERROR: opening laszip reader for '%s'", fileName_inn);
+
+    // get a pointer to the header of the reader that was just populated
+    laszip_header* header;
+    if (laszip_get_header_pointer(laszip_reader, &header))
+        LOG_ERROR("DLL ERROR: getting header pointer from laszip reader");
+
+    // how many points does the file have
+    laszip_I64 npoints = (header->number_of_point_records ? header->number_of_point_records : header->extended_number_of_point_records);
+
+    // report how many points the file has
+    LOG("file '%s' contains %I64d points", npoints);
+
+    // get a pointer to the points that will be read
+    laszip_point* point;
+    if (laszip_get_point_pointer(laszip_reader, &point))
+        LOG_ERROR("DLL ERROR: getting point pointer from laszip reader");
+
+    // create the writer
+    laszip_POINTER laszip_writer;
+    if (laszip_create(&laszip_writer))
+        LOG_ERROR("DLL ERROR: creating laszip writer");
+
+    // initialize the header for the writer using the header of the reader
+    if (laszip_set_header(laszip_writer, header))
+        LOG_ERROR("DLL ERROR: setting header for laszip writer");
+
+    // open the writer
+
+    laszip_BOOL compress = (strstr(fileName_out, ".laz") != 0);
+    if (laszip_open_writer(laszip_writer, fileName_out, compress))
+        LOG_ERROR("DLL ERROR: opening laszip writer for '%s'", fileName_out);
+
+    // read the points
+    laszip_I64 numPoints = 0;
+    while (numPoints < npoints)
+    {
+        // read a point
+
+        if (laszip_read_point(laszip_reader))
+            LOG_ERROR("DLL ERROR: reading point %I64d\n", numPoints);
+
+
+        // copy the point
+        if (laszip_set_point(laszip_writer, point))
+            LOG_ERROR("DLL ERROR: setting point %I64d\n", numPoints);
+
+        // write the point
+        if (laszip_write_point(laszip_writer))
+            LOG_WARNING("DLL ERROR: writing point %I64d\n", numPoints);
+
+        numPoints++;
+    }
+}
+
+std::vector<glm::vec3> SMath::LASFileToPoints(const char* _fileDirectory)
+{
+    // create the reader
+    laszip_POINTER laszip_reader;
+    if (laszip_create(&laszip_reader))
+        LOG_ERROR("DLL ERROR: creating laszip reader");
+
+    // open the reader
+    laszip_BOOL is_compressed = true;
+    if (laszip_open_reader(laszip_reader, _fileDirectory, &is_compressed))
+        LOG_ERROR("DLL ERROR: opening laszip reader for '%s'", _fileDirectory);
+
+    // get a pointer to the header of the reader that was just populated
+    laszip_header* header;
+    if (laszip_get_header_pointer(laszip_reader, &header))
+        LOG_ERROR("DLL ERROR: getting header pointer from laszip reader");
+    
+    // get a pointer to the points that will be read
+    laszip_point* point;
+    if (laszip_get_point_pointer(laszip_reader, &point))
+        LOG_ERROR("DLL ERROR: getting point pointer from laszip reader");
+
+    // how many points does the file have
+    laszip_I64 numTotalPoints = (header->number_of_point_records ? header->number_of_point_records : header->extended_number_of_point_records);
+
+    // report how many points the file has
+    //LOG("file '%s' contains %I64d points", numTotalPoints);
+
+    LOG("Calculating Points, might take some time...");
+
+    // read the points
+    std::vector<glm::vec3> rPoints;
+    laszip_I64 numCurrentPoints = 0;
+    while (numCurrentPoints < numTotalPoints)
+    {
+        // Read the next point
+        if (laszip_read_point(laszip_reader))
+            LOG_ERROR("DLL ERROR: reading point %I64d\n", numCurrentPoints);
+
+        // Apply the scaling factors from the LAS header to get actual coordinates
+        float x = (float)(point->X * header->x_scale_factor + header->x_offset);
+        float y = (float)(point->Y * header->y_scale_factor + header->y_offset);
+        float z = (float)(point->Z * header->z_scale_factor + header->z_offset);
+
+        glm::vec3 glmPoint = glm::vec3(x, y, z);
+        rPoints.push_back(glmPoint);
+
+        numCurrentPoints += 20;
+    }
+
+    // Clean up the LASzip reader
+    if (laszip_close_reader(laszip_reader))
+        LOG_ERROR("DLL ERROR: closing laszip reader");
+    if (laszip_destroy(laszip_reader))
+        LOG_ERROR("DLL ERROR: destroying laszip reader");
+
+    return rPoints;
 }
 
 std::vector<glm::vec3> SMath::NevillInterpolatedPoints(const std::vector<std::shared_ptr<GraphPoint>>& _controlPoints, const float _step)

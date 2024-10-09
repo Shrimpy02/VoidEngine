@@ -1587,6 +1587,8 @@ void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 
 
 
+
+
 }
 
 void UserInterfaceManager::uiSub_ComponentProperties(std::shared_ptr<Actor> _inActor)
