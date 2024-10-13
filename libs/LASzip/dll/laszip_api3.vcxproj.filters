@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\SebsStuff\Projects\Void Engine\3DProgEngine\libs\temp2\LASzip\dll\laszip_api.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\SebsStuff\Projects\Void Engine\3DProgEngine\libs\temp2\LASzip\dll\laszip_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\SebsStuff\Projects\Void Engine\3DProgEngine\libs\temp2\LASzip\dll\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{DA8C8E15-DFEF-396B-A8A8-D99DB069A853}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{F78E79AA-FC1B-3132-8ADB-BD41915D855C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

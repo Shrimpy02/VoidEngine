@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\SebsStuff\Projects\Void Engine\3DProgEngine\libs\temp2\LASzip\CMakeFiles\51f46cb71398a3ab0d13e4c90a7cfbf6\PACKAGE_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{8812F327-0194-3462-8628-796AD88DAF8B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
