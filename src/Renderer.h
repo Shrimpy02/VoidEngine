@@ -11,6 +11,7 @@ enum ShaderObjectType
 	Default,
 	Graph,
 	Debug,
+	PointCloud,
 	Skybox
 };
 

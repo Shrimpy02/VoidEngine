@@ -2,6 +2,7 @@
 // Includes
 #include <LevelActors/VisualActor.h>
 #include <RenderElements/Mesh.h>
+#include <RenderElements/MeshTypes/DefaultMesh.h>
 #include <Utilities/Logger.h>
 
 // Additional Includes
@@ -31,21 +32,23 @@ void VisualActor::Update(float _dt)
 
 
     // TODO fix this so that it works properly and is apart of bespline mesh type
-    if(mVisualMesh->IsBSpline())
+    if(std::shared_ptr<DefaultMesh> defMes = std::dynamic_pointer_cast<DefaultMesh>(mVisualMesh))
     {
-        if (*mVisualMesh->GetBSplineUResolution() != mOldURes ||
-            *mVisualMesh->GetBSplineVResolution() != mOldVRes ||
-            *mVisualMesh->GetBSplineUDimension() != mOldUDim ||
-            *mVisualMesh->GetBSplineVDimension() != mOldVDim)
-        {
-            std::shared_ptr<Mesh> newMesh = Mesh::CreateBSplineSurface(mVisualMesh->GetMaterial(), *mVisualMesh->GetBSplineUResolution(), *mVisualMesh->GetBSplineVResolution(), *mVisualMesh->GetBSplineUDimension(), *mVisualMesh->GetBSplineVDimension(), mVisualMesh->GetBSplineUKnot(), mVisualMesh->GetBSplineVKnot(), mVisualMesh->GetBSplineControlPoints());
-            mVisualMesh = newMesh;
-        }
+        if (defMes->IsBSpline())
+        ////{
+            if (*defMes->GetBSplineUResolution() != mOldURes ||
+                *defMes->GetBSplineVResolution() != mOldVRes ||
+                *defMes->GetBSplineUDimension() != mOldUDim ||
+                *defMes->GetBSplineVDimension() != mOldVDim)
+            {
+                std::shared_ptr<Mesh> newMesh = Mesh::CreateBSplineSurface(defMes->GetMaterial(), *defMes->GetBSplineUResolution(), *defMes->GetBSplineVResolution(), *defMes->GetBSplineUDimension(), *defMes->GetBSplineVDimension(), defMes->GetBSplineUKnot(), defMes->GetBSplineVKnot(), defMes->GetBSplineControlPoints());
+                mVisualMesh = newMesh;
+            }
 
-        //*mVisualMesh->GetBSplineUResolution() = mOldURes;
-        //*mVisualMesh->GetBSplineVResolution() = mOldVRes;
-        //*mVisualMesh->GetBSplineUDimension() = mOldUDim;
-        //*mVisualMesh->GetBSplineVDimension() = mOldVDim;
+            //*mVisualMesh->GetBSplineUResolution() = mOldURes;
+            //*mVisualMesh->GetBSplineVResolution() = mOldVRes;
+            //*mVisualMesh->GetBSplineUDimension() = mOldUDim;
+            //*mVisualMesh->GetBSplineVDimension() = mOldVDim;
     }
 }
 
@@ -53,7 +56,7 @@ void VisualActor::SetMinMaxExtent()
 {
     if (!mVisualMesh) return;
 
-    std::pair<glm::vec3, glm::vec3> extents = Mesh::GetMeshMinMaxExtent(mVisualMesh);
+    std::pair<glm::vec3, glm::vec3> extents = mVisualMesh->GetMeshMinMaxExtent();
 
     mMinExtent = extents.first;
     mMaxExtent = extents.second;

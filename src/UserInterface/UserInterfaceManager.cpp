@@ -10,6 +10,7 @@
 #include <LevelActors/GraphActor.h>
 #include <LevelActors/DebugActor.h>
 #include <RenderElements/Mesh.h>
+#include <RenderElements/MeshTypes/DefaultMesh.h>
 #include <RenderElements/Texture.h>
 #include <RenderElements/Material.h>
 #include <Actor.h>
@@ -49,7 +50,7 @@ UserInterfaceManager::~UserInterfaceManager()
 void UserInterfaceManager::Init(GLFWwindow* _glfwWindow)
 {
 	mController = std::make_shared<ActorController>(mWindowManager,shared_from_this());
-	mLevelManager = std::make_shared<LevelManager>(mController);
+	mLevelManager = std::make_shared<LevelManager>(mController,shared_from_this());
 	ImGuiInit(_glfwWindow);
 	InitImages();
 
@@ -1579,16 +1580,14 @@ void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 
 	// Slider for B-Spline surface resolution
 		// -----------------------------------
-	ImGui::SliderFloat("Surface Resolution U", _inMesh->GetBSplineUResolution(), 2.0f, 100.0f, "%.1f");
-	ImGui::SliderFloat("Surface Resolution V", _inMesh->GetBSplineVResolution(), 2.0f, 100.0f, "%.1f");
-	ImGui::SliderInt("Surface Dimension U", _inMesh->GetBSplineUDimension(), 0, 3, "%.1f");
-	ImGui::SliderInt("Surface Dimension V", _inMesh->GetBSplineVDimension(), 0, 3, "%.1f");
+	if(std::shared_ptr<DefaultMesh> defMesh = std::dynamic_pointer_cast<DefaultMesh>(_inMesh))
+	{
+		ImGui::SliderFloat("Surface Resolution U", defMesh->GetBSplineUResolution(), 2.0f, 100.0f, "%.1f");
+		ImGui::SliderFloat("Surface Resolution V", defMesh->GetBSplineVResolution(), 2.0f, 100.0f, "%.1f");
+		ImGui::SliderInt("Surface Dimension U", defMesh->GetBSplineUDimension(), 0, 3, "%.1f");
+		ImGui::SliderInt("Surface Dimension V", defMesh->GetBSplineVDimension(), 0, 3, "%.1f");
 
-
-
-
-
-
+	}
 }
 
 void UserInterfaceManager::uiSub_ComponentProperties(std::shared_ptr<Actor> _inActor)

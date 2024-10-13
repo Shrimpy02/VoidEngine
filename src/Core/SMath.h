@@ -36,7 +36,7 @@ public:
     static bool ConformObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, std::vector<glm::vec3>& _debugSurfacePoints, float _offsettHeight = 0.f);
 
     // Static function returns true if _object is within the barycentric coordinates of _surface
-    static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height);
+	static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height);
 
     // Static function returns true if _object is within the barycentric coordinates of _surface
     static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, std::vector<glm::vec3>& _debugSurfacePoints);
@@ -46,6 +46,12 @@ public:
     static void LASFileReadingExample(const char* _fileNameIn, const char* _fileNameOut);
 
     static std::vector<glm::vec3> LASFileToPoints(const char* _fileDirectory);
+
+    static void LASFileToCustomFileOfPoints(const char* _fileDirectoryInn, const char* _fileDirectoryOut);
+
+    static void CenterPointCloudStructureToWorldZero(std::shared_ptr<Actor> _terrainParent);
+
+    static void MovePointCloudPoints(std::shared_ptr<VisualActor> _terrain, glm::vec3 _moveBy);
 
     // Surface ---
 
@@ -59,7 +65,7 @@ public:
     // Arg7: controlPoints = control points. 
     static glm::vec3 EvaluateBSplineSurface(float _u, float _v, int _du, int _dv, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints);
 
-
+    static glm::vec3 EvaluateBSplineNormal(float _u, float _v, int _du, int _dv, int _UResolution, int _VResolution, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints);
     // Curves ------
 
     static std::vector<glm::vec3> NevillInterpolatedPoints(const std::vector<std::shared_ptr<GraphPoint>>& _controlPoints, const float _step = 0.25f);

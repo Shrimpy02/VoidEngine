@@ -100,9 +100,7 @@ void WindowManager::RegisterWindowCallbacks()
 void WindowManager::LoadContent()
 {
     // Loads scene and scene content
-    LOG_INFO("----- Default level & UI loading started ----- ");
     mUserInterfaceManager->LoadContent();
-    LOG_INFO("----- Default level & UI loading complete ----- ");
 }
 
 void WindowManager::StartFrame()

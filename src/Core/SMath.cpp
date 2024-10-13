@@ -4,13 +4,17 @@
 #include <LevelActors/BaseActor.h>
 #include <LevelActors/VisualActor.h>
 #include <RenderElements/Mesh.h>
-#include <RenderElements/VertexTypes/DefaultVertex.h>
+#include <RenderElements/MeshTypes/PointCloudMesh.h>
+#include <RenderElements/VertexTypes/PointCloudVertex.h>
 #include <Utilities/Logger.h>
 #include <RenderElements/GraphPoint.h>
 
 // Additional includes
 #include <stdexcept>
 #include <laszip_api.h>
+#include <iostream>
+#include <fstream>
+#include <string>
 
 void SMath::SeedRandTime()
 {
@@ -84,148 +88,149 @@ bool SMath::ConformObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_
     return isInContact;
 }
 
-
 bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height)
 {
-    // --------------- Stage 1, Check if object is within extent --------
-    if (IsWithinTerrainXZExtent(_object, _surface))
-    {
-        std::shared_ptr<Mesh> groundPlane = _surface->GetActorVisualMesh();
-
-        std::vector<Vertex>& planeVertices = groundPlane->GetVertices();
-        std::vector<Index>& planeIndices = groundPlane->GetIndices();
-
-        glm::vec3 actorPos(_object->GetGlobalPosition());
-
-        // --------------- Stage 2, Get surface global transform --------
-
-        glm::vec3 globalPosition = _surface->GetGlobalPosition();
-        glm::vec3 globalScale = _surface->GetGlobalScale();
-        glm::quat globalRotation = _surface->GetGlobalRotation();
-
-        glm::mat4 transformMatrix = glm::translate(
-            glm::mat4(1.0f), globalPosition) *
-            glm::mat4_cast(globalRotation) *
-            glm::scale(glm::mat4(1.0f), globalScale);
-
-        // --------------- Stage 3, Iterate through surface in pairs of 3 --------
-        for (int i = 0; i < planeIndices.size() - 2; i += 3)
-        {
-            unsigned int index1 = planeIndices[i];
-            unsigned int index2 = planeIndices[i + 1];
-            unsigned int index3 = planeIndices[i + 2];
-
-            glm::vec3 point1Pos(planeVertices[index1].mPosition);
-            glm::vec3 point2Pos(planeVertices[index2].mPosition);
-            glm::vec3 point3Pos(planeVertices[index3].mPosition);
-
-            // Apply the transform
-            point1Pos = glm::vec3(transformMatrix * glm::vec4(point1Pos, 1.0f));
-            point2Pos = glm::vec3(transformMatrix * glm::vec4(point2Pos, 1.0f));
-            point3Pos = glm::vec3(transformMatrix * glm::vec4(point3Pos, 1.0f));
-
-            glm::vec3 baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
-
-            // If object is on edge move object slightly and re-calculate
-            if (baryCoords.x == 0 || baryCoords.y == 0 || baryCoords.z == 0)
-            {
-                _object->SetGlobalPosition(_object->GetGlobalPosition() + glm::vec3(0.01f, 0.f, 0.01f));
-                actorPos = _object->GetGlobalPosition();
-                baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
-            }
-
-            // --------------- Stage 4, if object in triangle, update height --------
-            if (baryCoords.x > 0 && baryCoords.x < 1 &&
-                baryCoords.y > 0 && baryCoords.y < 1 &&
-                baryCoords.z > 0 && baryCoords.z < 1)
-            {
-                // Log triangle index
-                //std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
-
-                // Calculates and updates height from the barycentric coordinates
-                _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
-
-                return true;
-            }
-        }
-    }
-
+   // // --------------- Stage 1, Check if object is within extent --------
+   // if (IsWithinTerrainXZExtent(_object, _surface))
+   // {
+   //     std::shared_ptr<Mesh> groundPlane = _surface->GetActorVisualMesh();
+   // 
+   // 	std::vector<Vertex>& planeVertices = Mesh::GetVertices<Mesh,Vertex>(groundPlane);
+   //     std::vector<Index>& planeIndices = groundPlane->GetIndices();
+   // 
+   //     glm::vec3 actorPos(_object->GetGlobalPosition());
+   // 
+   //     // --------------- Stage 2, Get surface global transform --------
+   // 
+   //     glm::vec3 globalPosition = _surface->GetGlobalPosition();
+   //     glm::vec3 globalScale = _surface->GetGlobalScale();
+   //     glm::quat globalRotation = _surface->GetGlobalRotation();
+   // 
+   //     glm::mat4 transformMatrix = glm::translate(
+   //         glm::mat4(1.0f), globalPosition) *
+   //         glm::mat4_cast(globalRotation) *
+   //         glm::scale(glm::mat4(1.0f), globalScale);
+   // 
+   //     // --------------- Stage 3, Iterate through surface in pairs of 3 --------
+   //     for (int i = 0; i < planeIndices.size() - 2; i += 3)
+   //     {
+   //         unsigned int index1 = planeIndices[i];
+   //         unsigned int index2 = planeIndices[i + 1];
+   //         unsigned int index3 = planeIndices[i + 2];
+   // 
+   //         glm::vec3 point1Pos(planeVertices[index1].mPosition);
+   //         glm::vec3 point2Pos(planeVertices[index2].mPosition);
+   //         glm::vec3 point3Pos(planeVertices[index3].mPosition);
+   // 
+   //         // Apply the transform
+   //         point1Pos = glm::vec3(transformMatrix * glm::vec4(point1Pos, 1.0f));
+   //         point2Pos = glm::vec3(transformMatrix * glm::vec4(point2Pos, 1.0f));
+   //         point3Pos = glm::vec3(transformMatrix * glm::vec4(point3Pos, 1.0f));
+   // 
+   //         glm::vec3 baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
+   // 
+   //         // If object is on edge move object slightly and re-calculate
+   //         if (baryCoords.x == 0 || baryCoords.y == 0 || baryCoords.z == 0)
+   //         {
+   //             _object->SetGlobalPosition(_object->GetGlobalPosition() + glm::vec3(0.01f, 0.f, 0.01f));
+   //             actorPos = _object->GetGlobalPosition();
+   //             baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
+   //         }
+   // 
+   //         // --------------- Stage 4, if object in triangle, update height --------
+   //         if (baryCoords.x > 0 && baryCoords.x < 1 &&
+   //             baryCoords.y > 0 && baryCoords.y < 1 &&
+   //             baryCoords.z > 0 && baryCoords.z < 1)
+   //         {
+   //             // Log triangle index
+   //             //std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
+   // 
+   //             // Calculates and updates height from the barycentric coordinates
+   //             _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
+   // 
+   //             return true;
+   //         }
+   //     }
+   // }
+   //
+   // return false;
     return false;
 }
 
 bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, std::vector<glm::vec3>& _debugSurfacePoints)
 {
-    // --------------- Stage 1, Check if object is within extent --------
-	if (IsWithinTerrainXZExtent(_object, _surface))
-	{
-        std::shared_ptr<Mesh> groundPlane = _surface->GetActorVisualMesh();
-
-        std::vector<Vertex>& planeVertices = groundPlane->GetVertices();
-        std::vector<Index>& planeIndices = groundPlane->GetIndices();
-
-        glm::vec3 actorPos(_object->GetGlobalPosition());
-
-        // --------------- Stage 2, Get surface global transform --------
-
-        glm::vec3 globalPosition = _surface->GetGlobalPosition();
-        glm::vec3 globalScale = _surface->GetGlobalScale();
-        glm::quat globalRotation = _surface->GetGlobalRotation();
-
-        glm::mat4 transformMatrix = glm::translate(
-                                                   glm::mat4(1.0f), globalPosition) * 
-                                                    glm::mat4_cast(globalRotation) * 
-                                                    glm::scale(glm::mat4(1.0f), globalScale);
-
-        // --------------- Stage 3, Iterate through surface in pairs of 3 --------
-        for (int i = 0; i < planeIndices.size() - 2; i += 3)
-        {
-            unsigned int index1 = planeIndices[i];
-            unsigned int index2 = planeIndices[i + 1];
-            unsigned int index3 = planeIndices[i + 2];
-
-            glm::vec3 point1Pos(planeVertices[index1].mPosition);
-            glm::vec3 point2Pos(planeVertices[index2].mPosition);
-            glm::vec3 point3Pos(planeVertices[index3].mPosition);
-
-            // Apply the transform
-            point1Pos = glm::vec3(transformMatrix * glm::vec4(point1Pos, 1.0f));
-            point2Pos = glm::vec3(transformMatrix * glm::vec4(point2Pos, 1.0f));
-            point3Pos = glm::vec3(transformMatrix * glm::vec4(point3Pos, 1.0f));
-
-            // Push locations for debug drawing
-            _debugSurfacePoints.push_back(point1Pos);
-            _debugSurfacePoints.push_back(point2Pos);
-            _debugSurfacePoints.push_back(point1Pos);
-            _debugSurfacePoints.push_back(point3Pos);
-            _debugSurfacePoints.push_back(point2Pos);
-            _debugSurfacePoints.push_back(point3Pos);
-
-            glm::vec3 baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
-
-            // If object is on edge move object slightly and re-calculate
-            if (baryCoords.x == 0 || baryCoords.y == 0 || baryCoords.z == 0)
-            {
-                _object->SetGlobalPosition(_object->GetGlobalPosition() + glm::vec3(0.01f, 0.f, 0.01f));
-                actorPos = _object->GetGlobalPosition();
-            	baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
-            }
-
-            // --------------- Stage 4, if object in triangle, update height --------
-            if (baryCoords.x > 0 && baryCoords.x < 1 &&
-                baryCoords.y > 0 && baryCoords.y < 1 &&
-                baryCoords.z > 0 && baryCoords.z < 1)
-            {
-                // Log triangle index
-                //std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
-
-                // Calculates and updates height from the barycentric coordinates
-                _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
-
-                return true;
-            }
-        }
-	}
-
+   // // --------------- Stage 1, Check if object is within extent --------
+	//if (IsWithinTerrainXZExtent(_object, _surface))
+	//{
+   //     std::shared_ptr<Mesh> groundPlane = _surface->GetActorVisualMesh();
+   // 
+   //     std::vector<Vertex>& planeVertices = Mesh::GetVertices<Mesh, Vertex>(groundPlane);
+   //     std::vector<Index>& planeIndices = groundPlane->GetIndices();
+   // 
+   //     glm::vec3 actorPos(_object->GetGlobalPosition());
+   // 
+   //     // --------------- Stage 2, Get surface global transform --------
+   // 
+   //     glm::vec3 globalPosition = _surface->GetGlobalPosition();
+   //     glm::vec3 globalScale = _surface->GetGlobalScale();
+   //     glm::quat globalRotation = _surface->GetGlobalRotation();
+   // 
+   //     glm::mat4 transformMatrix = glm::translate(
+   //                                                glm::mat4(1.0f), globalPosition) * 
+   //                                                 glm::mat4_cast(globalRotation) * 
+   //                                                 glm::scale(glm::mat4(1.0f), globalScale);
+   // 
+   //     // --------------- Stage 3, Iterate through surface in pairs of 3 --------
+   //     for (int i = 0; i < planeIndices.size() - 2; i += 3)
+   //     {
+   //         unsigned int index1 = planeIndices[i];
+   //         unsigned int index2 = planeIndices[i + 1];
+   //         unsigned int index3 = planeIndices[i + 2];
+   // 
+   //         glm::vec3 point1Pos(planeVertices[index1].mPosition);
+   //         glm::vec3 point2Pos(planeVertices[index2].mPosition);
+   //         glm::vec3 point3Pos(planeVertices[index3].mPosition);
+   // 
+   //         // Apply the transform
+   //         point1Pos = glm::vec3(transformMatrix * glm::vec4(point1Pos, 1.0f));
+   //         point2Pos = glm::vec3(transformMatrix * glm::vec4(point2Pos, 1.0f));
+   //         point3Pos = glm::vec3(transformMatrix * glm::vec4(point3Pos, 1.0f));
+   // 
+   //         // Push locations for debug drawing
+   //         _debugSurfacePoints.push_back(point1Pos);
+   //         _debugSurfacePoints.push_back(point2Pos);
+   //         _debugSurfacePoints.push_back(point1Pos);
+   //         _debugSurfacePoints.push_back(point3Pos);
+   //         _debugSurfacePoints.push_back(point2Pos);
+   //         _debugSurfacePoints.push_back(point3Pos);
+   // 
+   //         glm::vec3 baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
+   // 
+   //         // If object is on edge move object slightly and re-calculate
+   //         if (baryCoords.x == 0 || baryCoords.y == 0 || baryCoords.z == 0)
+   //         {
+   //             _object->SetGlobalPosition(_object->GetGlobalPosition() + glm::vec3(0.01f, 0.f, 0.01f));
+   //             actorPos = _object->GetGlobalPosition();
+   //         	baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
+   //         }
+   // 
+   //         // --------------- Stage 4, if object in triangle, update height --------
+   //         if (baryCoords.x > 0 && baryCoords.x < 1 &&
+   //             baryCoords.y > 0 && baryCoords.y < 1 &&
+   //             baryCoords.z > 0 && baryCoords.z < 1)
+   //         {
+   //             // Log triangle index
+   //             //std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
+   // 
+   //             // Calculates and updates height from the barycentric coordinates
+   //             _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
+   // 
+   //             return true;
+   //         }
+   //     }
+	//}
+   //
+   // return false;
     return false;
 }
 
@@ -324,19 +329,13 @@ std::vector<glm::vec3> SMath::LASFileToPoints(const char* _fileDirectory)
     // how many points does the file have
     laszip_I64 numTotalPoints = (header->number_of_point_records ? header->number_of_point_records : header->extended_number_of_point_records);
 
-    // report how many points the file has
-    //LOG("file '%s' contains %I64d points", numTotalPoints);
-
-    LOG("Calculating Points, might take some time...");
-
     // read the points
     std::vector<glm::vec3> rPoints;
-    laszip_I64 numCurrentPoints = 0;
-    while (numCurrentPoints < numTotalPoints)
+    for (int i = 0; i < numTotalPoints; i++)
     {
         // Read the next point
         if (laszip_read_point(laszip_reader))
-            LOG_ERROR("DLL ERROR: reading point %I64d\n", numCurrentPoints);
+            LOG_ERROR("DLL ERROR: reading point %I64d\n", i);
 
         // Apply the scaling factors from the LAS header to get actual coordinates
         float x = (float)(point->X * header->x_scale_factor + header->x_offset);
@@ -345,8 +344,6 @@ std::vector<glm::vec3> SMath::LASFileToPoints(const char* _fileDirectory)
 
         glm::vec3 glmPoint = glm::vec3(x, y, z);
         rPoints.push_back(glmPoint);
-
-        numCurrentPoints += 20;
     }
 
     // Clean up the LASzip reader
@@ -356,6 +353,88 @@ std::vector<glm::vec3> SMath::LASFileToPoints(const char* _fileDirectory)
         LOG_ERROR("DLL ERROR: destroying laszip reader");
 
     return rPoints;
+}
+
+void SMath::LASFileToCustomFileOfPoints(const char* _fileDirectoryInn, const char* _fileDirectoryOut)
+{
+    std::vector<glm::vec3> filePointCloudPoints = std::move(LASFileToPoints(_fileDirectoryInn));
+
+    std::ofstream fileOut(_fileDirectoryOut);
+
+    if(fileOut.is_open())
+    {
+        // Reset file
+        fileOut.clear();
+
+        // First line is number of points
+        fileOut << filePointCloudPoints.size() << "\n";
+
+        // The rest is the points
+        for (int i = 0; i < filePointCloudPoints.size(); i++)
+        {
+            fileOut << filePointCloudPoints[i].x << ", " << filePointCloudPoints[i].z << ", " << filePointCloudPoints[i].y << "\n";
+        }
+
+        fileOut.close();
+    } else {
+        LOG_ERROR("Error opening file for custom LAS conversion");
+    }
+}
+
+void SMath::CenterPointCloudStructureToWorldZero(std::shared_ptr<Actor> _terrainParent)
+{
+    glm::vec3 centroid{ glm::vec3(0) };
+    int div = 0;
+
+    // Calculate the centroid
+    for(std::shared_ptr<Actor> actor : _terrainParent->GetChildren())
+    {
+        if(std::shared_ptr<VisualActor> terrainSector = std::dynamic_pointer_cast<VisualActor>(actor))
+        {
+            if(std::shared_ptr<PointCloudMesh> pntcloudMesh = std::dynamic_pointer_cast<PointCloudMesh>(terrainSector->GetMesh()))
+            {
+                div += pntcloudMesh->GetIndices().size();
+                for (PointCloudVertex& vertex : pntcloudMesh->mVertices)
+                {
+                    centroid += vertex.mPosition;
+                }
+            }
+        }
+    }
+
+    if (div == 0) {
+        LOG_ERROR("No vertices found in point cloud, div = 0");
+        return;
+    }
+
+    // divide centroid by total points
+    centroid /= div;
+
+    // Apply the centroid
+    for (std::shared_ptr<Actor> actor : _terrainParent->GetChildren())
+    {
+        if (std::shared_ptr<VisualActor> terrainSector = std::dynamic_pointer_cast<VisualActor>(actor))
+        {
+            if (std::shared_ptr<PointCloudMesh> pntcloudMesh = std::dynamic_pointer_cast<PointCloudMesh>(terrainSector->GetMesh()))
+            {
+                for (PointCloudVertex& vertex : pntcloudMesh->mVertices)
+                {
+                    vertex.mPosition -= centroid;
+                }
+            }
+        }
+    }
+}
+
+void SMath::MovePointCloudPoints(std::shared_ptr<VisualActor> _terrain, glm::vec3 _moveBy)
+{
+    if (std::shared_ptr<PointCloudMesh> pntcloudMesh = std::dynamic_pointer_cast<PointCloudMesh>(_terrain->GetMesh()))
+    {
+        for (PointCloudVertex& vertex : pntcloudMesh->mVertices)
+        {
+            vertex.mPosition += _moveBy;
+        }
+    }
 }
 
 std::vector<glm::vec3> SMath::NevillInterpolatedPoints(const std::vector<std::shared_ptr<GraphPoint>>& _controlPoints, const float _step)
@@ -520,6 +599,24 @@ glm::vec3 SMath::EvaluateBSplineSurface(float _u, float _v, int _du, int _dv, co
 
     // Return the point on the surface at (u, v)
     return surfacePoint;
+}
+
+glm::vec3 SMath::EvaluateBSplineNormal(float _u, float _v, int _du, int _dv, int _UResolution, int _VResolution, const std::vector<float>& _uKnot,
+	const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints)
+{
+
+    glm::vec3 P = SMath::EvaluateBSplineSurface(_u, _v, _du, _dv, _uKnot, _vKnot, _controlPoints);
+    glm::vec3 P_u = SMath::EvaluateBSplineSurface(_u + 1.0 / _UResolution, _v, _du, _dv, _uKnot, _vKnot, _controlPoints);
+    glm::vec3 P_v = SMath::EvaluateBSplineSurface(_u, _v + 1.0 / _VResolution, _du, _dv, _uKnot, _vKnot, _controlPoints);
+
+    // Tangents
+    glm::vec3 T_u = P_u - P;
+    glm::vec3 T_v = P_v - P;
+
+    // Normal (cross product of tangents)
+    glm::vec3 N = glm::normalize(cross(T_u, T_v));
+
+    return N;
 }
 
 glm::vec3 SMath::GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3, glm::vec3 _objectPos)

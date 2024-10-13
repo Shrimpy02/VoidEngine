@@ -1,105 +1,32 @@
 // Includes
 #include <RenderElements/Mesh.h>
+#include <RenderElements/MeshTypes/DefaultMesh.h>
+#include <RenderElements/MeshTypes/DebugMesh.h>
+#include <RenderElements/MeshTypes/GraphMesh.h>
+#include <RenderElements/MeshTypes/PointCloudMesh.h>
 #include <RenderElements/VertexTypes/DefaultVertex.h>
 #include <RenderElements/VertexTypes/GraphVertex.h>
 #include <RenderElements/VertexTypes/DebugVertex.h>
-#include <RenderElements/VertexTypes/TerrainVertex.h>
+#include <RenderElements/VertexTypes/PointCloudVertex.h>
 #include <RenderElements/Texture.h>
 #include <RenderElements/Material.h>
-#include <Utilities/Logger.h>
-#include <Core/SMath.h>
-#include <corecrt_math_defines.h>
 
-#include "laszip_api.h"
+#include <Core/SMath.h>
+#include <Utilities/Logger.h>
+#include <corecrt_math_defines.h>
+#include <laszip_api.h>
 
 // static cache of meshes
 std::unordered_map<std::string, std::shared_ptr<Mesh>> Mesh::mCache;
 
-Mesh::Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector<Index>&& _indices, std::shared_ptr<Material> material)
-    : mName(_name), mVertices(std::move(_vertices)), mIndices(std::move(_indices)), mMaterial(material)
+Mesh::Mesh(const std::string _name)
+	:mName(_name)
 {
-    // generates gl specific buffers for mesh init.
-    SetupMesh();
-
-    if(!mMaterial)
-        mMaterial = Material::Load(mName, {Texture::LoadWhiteTexture()}, {});
-}
-
-Mesh::Mesh(const std::string _name, std::vector<Vertex>&& _vertices, std::vector<Index>&& _indices, std::shared_ptr<Material> _material, float _uRes, float _vRes, int _uDim, int _vDim, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints)
-    : mName(_name), mVertices(std::move(_vertices)), mIndices(std::move(_indices)), mMaterial(_material), mUResolution(_uRes), mVResolution(_vRes), mUDimension(_uDim), mVDimension(_vDim), mUKnot(_uKnot), mVKnot(_vKnot), mControlPoints(_controlPoints)
-{
-    SetupMesh();
-
-    if (!mMaterial)
-        mMaterial = Material::Load(mName, { Texture::LoadWhiteTexture() }, {});
-}
-
-Mesh::Mesh(const std::string _name, std::vector<GraphVertex>&& _vertices, std::vector<Index>&& _indices)
-    : mName(_name), mGraphVertices(std::move(_vertices)), mIndices(std::move(_indices))
-{
-    SetupGraphMesh();
-}
-
-Mesh::Mesh(const std::string _name, std::vector<DebugVertex>&& _vertices, std::vector<Index>&& _indices)
-    : mName(_name), mDebugVertices(std::move(_vertices)), mIndices(std::move(_indices))
-{
-    SetupDebugMesh();
-}
-
-
-Mesh::~Mesh()
-{
-    // deletes gl mesh buffers
-    glDeleteVertexArrays(1, &mVAO);
-    glDeleteBuffers(1, &mVBO);
-    glDeleteBuffers(1, &mEBO);
 }
 
 void Mesh::Draw(const std::shared_ptr<Shader> _shader) const
 {
-    if (!mVisible) return;
 
-    if (mIsPointCloud)
-    {
-        // binds VAO and draws all geometry by given indices and vertices
-        glBindVertexArray(mVAO);
-        glDrawElements(GL_POINTS, static_cast<GLsizei>(mIndices.size()), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-
-    } else {
-
-        if (mMaterial)
-            mMaterial->Bind(_shader);
-
-        // binds VAO and draws all geometry by given indices and vertices
-        glBindVertexArray(mVAO);
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mIndices.size()), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-    }
-}
-
-void Mesh::DrawDebugLines(const std::shared_ptr<Shader> _shader) const
-{
-    if (!mVisible) return;
-
-    if (mMaterial)
-    	mMaterial->Bind(_shader);
-
-    glLineWidth(8.0f);
-
-    if(mIndices.empty())
-    {
-        // binds VAO and draws all geometry by given indices and vertices
-        glBindVertexArray(mVAO);
-        glDrawArrays(GL_LINE_STRIP, 0,static_cast<GLsizei>(mDebugVertices.size()));
-        glBindVertexArray(0);
-    } else  {
-        glBindVertexArray(mVAO);
-        glDrawElements(GL_LINE_STRIP, static_cast<GLsizei>(mIndices.size()), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-    }
-   
-    glLineWidth(1.0f);
 }
 
 std::shared_ptr<Mesh> Mesh::CreateCube(std::shared_ptr<Material> _material, const bool _instance, std::string _customName)
@@ -171,7 +98,7 @@ std::shared_ptr<Mesh> Mesh::CreateCube(std::shared_ptr<Material> _material, cons
         20, 21, 22, 20, 22, 23
     };
 
-	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(cubeKey, std::move(vertices), std::move(indices), _material);
+	std::shared_ptr<DefaultMesh> cube = std::make_shared<DefaultMesh>(cubeKey, std::move(vertices), std::move(indices), _material);
 
 	// If instance enabled add object to cache
     if(_instance)
@@ -182,53 +109,41 @@ std::shared_ptr<Mesh> Mesh::CreateCube(std::shared_ptr<Material> _material, cons
 
 std::shared_ptr<Mesh> Mesh::CreateCubeByExtent(std::shared_ptr<Mesh> _extentMesh, std::shared_ptr<Material> _material, std::string _customName)
 {
-    // Calculate the bounding box (min and max extents) of the existing mesh
-    glm::vec3 maxExtent = _extentMesh->mVertices[0].mPosition;
-    glm::vec3 minExtent = _extentMesh->mVertices[0].mPosition;
-
-    for (Vertex& vertex : _extentMesh->mVertices)
-    {
-        minExtent = glm::min(minExtent, vertex.mPosition);
-        maxExtent = glm::max(maxExtent, vertex.mPosition);
-    }
-
-    // Slight offsett
-    maxExtent += 0.001f;
-    minExtent -= 0.001f;
+    std::pair minMax = _extentMesh->GetMeshMinMaxExtent();
 
     // Then create the collision mesh using these extents (Mesh as cube for AABB object)
     // generate a cube using extents
     std::vector<Vertex> vertices = {
         // Front face
-        {{minExtent.x, minExtent.y,  maxExtent.z}, {0.0f,  0.0f,  1.0f}, {0.0f, 0.0f}}, // Bottom-left
-        {{ maxExtent.x, minExtent.y,  maxExtent.z}, {0.0f,  0.0f,  1.0f}, {1.0f, 0.0f}}, // Bottom-right
-        {{ maxExtent.x,  maxExtent.y,  maxExtent.z}, {0.0f,  0.0f,  1.0f}, {1.0f, 1.0f}}, // Top-right
-        {{minExtent.x,  maxExtent.y,  maxExtent.z}, {0.0f,  0.0f,  1.0f}, {0.0f, 1.0f}}, // Top-left
+        {{minMax.first.x, minMax.first.y,  minMax.second.z}, {0.0f,  0.0f,  1.0f}, {0.0f, 0.0f}}, // Bottom-left
+        {{ minMax.second.x, minMax.first.y,  minMax.second.z}, {0.0f,  0.0f,  1.0f}, {1.0f, 0.0f}}, // Bottom-right
+        {{ minMax.second.x,  minMax.second.y,  minMax.second.z}, {0.0f,  0.0f,  1.0f}, {1.0f, 1.0f}}, // Top-right
+        {{minMax.first.x,  minMax.second.y,  minMax.second.z}, {0.0f,  0.0f,  1.0f}, {0.0f, 1.0f}}, // Top-left
         // Back face
-        {{minExtent.x, minExtent.y, minExtent.z}, {0.0f,  0.0f, -1.0f}, {1.0f, 0.0f}},
-        {{ maxExtent.x, minExtent.y, minExtent.z}, {0.0f,  0.0f, -1.0f}, {0.0f, 0.0f}},
-        {{ maxExtent.x,  maxExtent.y, minExtent.z}, {0.0f,  0.0f, -1.0f}, {0.0f, 1.0f}},
-        {{minExtent.x,  maxExtent.y, minExtent.z}, {0.0f,  0.0f, -1.0f}, {1.0f, 1.0f}},
+        {{minMax.first.x, minMax.first.y, minMax.first.z}, {0.0f,  0.0f, -1.0f}, {1.0f, 0.0f}},
+        {{ minMax.second.x, minMax.first.y, minMax.first.z}, {0.0f,  0.0f, -1.0f}, {0.0f, 0.0f}},
+        {{ minMax.second.x,  minMax.second.y, minMax.first.z}, {0.0f,  0.0f, -1.0f}, {0.0f, 1.0f}},
+        {{minMax.first.x,  minMax.second.y, minMax.first.z}, {0.0f,  0.0f, -1.0f}, {1.0f, 1.0f}},
         // Left face
-        {{minExtent.x, minExtent.y, minExtent.z}, {-1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}},
-        {{minExtent.x, minExtent.y,  maxExtent.z}, {-1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}},
-        {{minExtent.x,  maxExtent.y,  maxExtent.z}, {-1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}},
-        {{minExtent.x,  maxExtent.y, minExtent.z}, {-1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}},
+        {{minMax.first.x, minMax.first.y, minMax.first.z}, {-1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}},
+        {{minMax.first.x, minMax.first.y,  minMax.second.z}, {-1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}},
+        {{minMax.first.x,  minMax.second.y,  minMax.second.z}, {-1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}},
+        {{minMax.first.x,  minMax.second.y, minMax.first.z}, {-1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}},
         // Right face
-        {{ maxExtent.x, minExtent.y, minExtent.z}, {1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}},
-        {{ maxExtent.x, minExtent.y,  maxExtent.z}, {1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}},
-        {{ maxExtent.x,  maxExtent.y,  maxExtent.z}, {1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}},
-        {{ maxExtent.x,  maxExtent.y, minExtent.z}, {1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}},
+        {{ minMax.second.x, minMax.first.y, minMax.first.z}, {1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}},
+        {{ minMax.second.x, minMax.first.y,  minMax.second.z}, {1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}},
+        {{ minMax.second.x,  minMax.second.y,  minMax.second.z}, {1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}},
+        {{ minMax.second.x,  minMax.second.y, minMax.first.z}, {1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}},
         // Top face
-        {{minExtent.x,  maxExtent.y, minExtent.z}, {0.0f,  1.0f,  0.0f}, {0.0f, 1.0f}},
-        {{minExtent.x,  maxExtent.y,  maxExtent.z}, {0.0f,  1.0f,  0.0f}, {0.0f, 0.0f}},
-        {{ maxExtent.x,  maxExtent.y,  maxExtent.z}, {0.0f,  1.0f,  0.0f}, {1.0f, 0.0f}},
-        {{ maxExtent.x,  maxExtent.y, minExtent.z}, {0.0f,  1.0f,  0.0f}, {1.0f, 1.0f}},
+        {{minMax.first.x,  minMax.second.y, minMax.first.z}, {0.0f,  1.0f,  0.0f}, {0.0f, 1.0f}},
+        {{minMax.first.x,  minMax.second.y,  minMax.second.z}, {0.0f,  1.0f,  0.0f}, {0.0f, 0.0f}},
+        {{ minMax.second.x,  minMax.second.y,  minMax.second.z}, {0.0f,  1.0f,  0.0f}, {1.0f, 0.0f}},
+        {{ minMax.second.x,  minMax.second.y, minMax.first.z}, {0.0f,  1.0f,  0.0f}, {1.0f, 1.0f}},
         // Bottom face
-        {{minExtent.x, minExtent.y, minExtent.z}, {0.0f, -1.0f,  0.0f}, {1.0f, 1.0f}},
-        {{minExtent.x, minExtent.y,  maxExtent.z}, {0.0f, -1.0f,  0.0f}, {0.0f, 1.0f}},
-        {{ maxExtent.x, minExtent.y,  maxExtent.z}, {0.0f, -1.0f,  0.0f}, {0.0f, 0.0f}},
-        {{ maxExtent.x, minExtent.y, minExtent.z}, {0.0f, -1.0f,  0.0f}, {1.0f, 0.0f}}
+        {{minMax.first.x, minMax.first.y, minMax.first.z}, {0.0f, -1.0f,  0.0f}, {1.0f, 1.0f}},
+        {{minMax.first.x, minMax.first.y,  minMax.second.z}, {0.0f, -1.0f,  0.0f}, {0.0f, 1.0f}},
+        {{ minMax.second.x, minMax.first.y,  minMax.second.z}, {0.0f, -1.0f,  0.0f}, {0.0f, 0.0f}},
+        {{ minMax.second.x, minMax.first.y, minMax.first.z}, {0.0f, -1.0f,  0.0f}, {1.0f, 0.0f}}
     };
 
     // Generate cube indices
@@ -247,7 +162,7 @@ std::shared_ptr<Mesh> Mesh::CreateCubeByExtent(std::shared_ptr<Mesh> _extentMesh
         20, 21, 22, 20, 22, 23
     };
 
-    return std::make_shared<Mesh>(_customName, std::move(vertices), std::move(indices), _material);
+    return std::make_shared<DefaultMesh>(_customName, std::move(vertices), std::move(indices), _material);
 }
 
 std::shared_ptr<Mesh> Mesh::CreatePlane(std::shared_ptr<Material> _material, const bool _instance, std::string _customName)
@@ -280,7 +195,7 @@ std::shared_ptr<Mesh> Mesh::CreatePlane(std::shared_ptr<Material> _material, con
         0, 1, 2, 1, 3, 2
     };
     
-    std::shared_ptr<Mesh> plane = std::make_shared<Mesh>(planeKey, std::move(vertices), std::move(indices), _material);
+    std::shared_ptr<DefaultMesh> plane = std::make_shared<DefaultMesh>(planeKey, std::move(vertices), std::move(indices), _material);
 
     // If instance enabled add object to cache
 	if(_instance)
@@ -317,6 +232,7 @@ std::shared_ptr<Mesh> Mesh::CreatePyramid(std::shared_ptr<Material> _material,co
         // Top
          {{0.0f,  0.5f,  0.0f}, {0.0f,  1.0f,  0.0f}, {0.5f, 0.5f}},
     };
+
     std::vector<Index> indices = {
         // Base
         0, 2, 1,  // Triangle 1: Base
@@ -329,7 +245,7 @@ std::shared_ptr<Mesh> Mesh::CreatePyramid(std::shared_ptr<Material> _material,co
         2, 0, 4   // Triangle 6: Side 4
     };
 
-     std::shared_ptr<Mesh> pyramid = std::make_shared<Mesh>(pyramidKey, std::move(vertices), std::move(indices), _material);
+     std::shared_ptr<DefaultMesh> pyramid = std::make_shared<DefaultMesh>(pyramidKey, std::move(vertices), std::move(indices), _material);
 
      // If instance enabled add object to cache
      if (_instance)
@@ -340,27 +256,15 @@ std::shared_ptr<Mesh> Mesh::CreatePyramid(std::shared_ptr<Material> _material,co
 
 std::shared_ptr<Mesh> Mesh::CreateSphereByExtent(std::shared_ptr<Mesh> _extentMesh, std::shared_ptr<Material> _material, std::string _customName)
 {
-    // Calculate the bounding box (min and max extents) of the existing mesh
-    glm::vec3 maxExtent = _extentMesh->mVertices[0].mPosition;
-    glm::vec3 minExtent = _extentMesh->mVertices[0].mPosition;
-
-    for (Vertex& vertex : _extentMesh->mVertices)
-    {
-        minExtent = glm::min(minExtent, vertex.mPosition);
-        maxExtent = glm::max(maxExtent, vertex.mPosition);
-    }
-
-    // Slight offsett
-    maxExtent += 0.001f;
-    minExtent -= 0.001f;
-
+    std::pair minMax = _extentMesh->GetMeshMinMaxExtent();
+    
     float radius = 0.0f;
 
-    if(glm::length(minExtent) > glm::length(maxExtent))
+    if(glm::length(minMax.first) > glm::length(minMax.second))
     {
-        radius = glm::length(minExtent);
+        radius = glm::length(minMax.first);
     } else {
-        radius = glm::length(maxExtent);
+        radius = glm::length(minMax.second);
     }
 
     radius /= 2;
@@ -369,7 +273,7 @@ std::shared_ptr<Mesh> Mesh::CreateSphereByExtent(std::shared_ptr<Mesh> _extentMe
     std::vector<Index> indices;
     Mesh::GenSphere(vertices, indices, 2, radius);
 
-    return std::make_shared<Mesh>(_customName, std::move(vertices), std::move(indices), _material);
+    return std::make_shared<DefaultMesh>(_customName, std::move(vertices), std::move(indices), _material);
 }
 
 std::shared_ptr<Mesh> Mesh::CreateSphere(std::shared_ptr<Material> _material, const int _subdivides, const bool _instance, std::string _customName)
@@ -398,7 +302,7 @@ std::shared_ptr<Mesh> Mesh::CreateSphere(std::shared_ptr<Material> _material, co
     // TODO: fix textrure warping
 	GenSphere(vertices,indices,_subdivides);
 
-    std::shared_ptr<Mesh> sphere = std::make_shared<Mesh>(sphereKey, std::move(vertices), std::move(indices), _material);
+    std::shared_ptr<DefaultMesh> sphere = std::make_shared<DefaultMesh>(sphereKey, std::move(vertices), std::move(indices), _material);
 
     // If instance enabled add object to cache
     if (_instance)
@@ -433,12 +337,13 @@ std::shared_ptr<Mesh> Mesh::CreateBSplineSurface(std::shared_ptr<Material> _mate
 
             // Evaluate the surface at (u, v)
             glm::vec3 surfacePoint = SMath::EvaluateBSplineSurface(u, v, _du, _dv, _uKnot, _vKnot, _controlPoints);
+            glm::vec3 surfacePointNormal = SMath::EvaluateBSplineNormal(u,v, _du, _dv, _UResolution, _VResolution, _uKnot, _vKnot, _controlPoints);
+            glm::vec2 surfacePointTexCords = glm::vec2(u,v);
 
             // Store the surface point
-            vertices.push_back(Vertex(surfacePoint,glm::vec3(0),glm::vec3(0)));
+            vertices.push_back(Vertex(surfacePoint, surfacePointNormal, surfacePointTexCords));
         }
     }
-
 
     for (int i = 0; i < _UResolution - 1; ++i) {
         for (int j = 0; j < _VResolution - 1; ++j) {
@@ -459,12 +364,12 @@ std::shared_ptr<Mesh> Mesh::CreateBSplineSurface(std::shared_ptr<Material> _mate
         }
     }
 
-    std::shared_ptr<Mesh> surface = std::make_shared<Mesh>(surfaceKey, std::move(vertices), std::move(indices), _material, _UResolution, _VResolution,_du,_dv, _uKnot,_vKnot,_controlPoints);
+    std::shared_ptr<DefaultMesh> surface = std::make_shared<DefaultMesh>(surfaceKey, std::move(vertices), std::move(indices), _material, _UResolution, _VResolution,_du,_dv, _uKnot,_vKnot,_controlPoints);
     surface->SetIsBSpline(true);
 	return surface;
 }
 
-std::shared_ptr<Mesh> Mesh::CreatePointCloudFromLASFileSurface(const char* _fileDirectory)
+std::shared_ptr<Mesh> Mesh::CreatePointCloudFromLASFileSurface(const char* _fileDirectory, float _scaleFactor)
 {
     // create the reader
     laszip_POINTER laszip_reader;
@@ -490,53 +395,27 @@ std::shared_ptr<Mesh> Mesh::CreatePointCloudFromLASFileSurface(const char* _file
     laszip_I64 numTotalPoints = (header->number_of_point_records ? header->number_of_point_records : header->extended_number_of_point_records);
 
     // report how many points the file has
-    //LOG("file '%s' contains %I64d points", numTotalPoints);
+    LOG("Calculating %i points for TerrainSector", numTotalPoints);
 
-    LOG("Calculating Points, might take some time...");
-
-    float scalingFactor = 0.001f;
-    std::vector<Vertex> vertices;
+    std::vector<PointCloudVertex> vertices;
+    std::vector<Index> indices;
     glm::vec3 centroid = glm::vec3(0);
+
     for(int i = 0; i < numTotalPoints; i++)
     {
         if (laszip_read_point(laszip_reader))
             LOG_ERROR("DLL ERROR: reading points");
 
         // Apply scaling when reading point coordinates
-        float x = (float)(point->X * header->x_scale_factor + header->x_offset) * scalingFactor;
-        float y = (float)(point->Y * header->y_scale_factor + header->y_offset) * scalingFactor;
-        float z = (float)(point->Z * header->z_scale_factor + header->z_offset) * scalingFactor;
+        float x = (float)(point->X * header->x_scale_factor + header->x_offset) * _scaleFactor;
+        float y = (float)(point->Y * header->y_scale_factor + header->y_offset) * _scaleFactor;
+        float z = (float)(point->Z * header->z_scale_factor + header->z_offset) * _scaleFactor;
 
-        laszip_U16* color = point->rgb;
-        //glm::vec3 colorf = *color;
+        glm::vec3 colorf = glm::vec3(0);
+        glm::vec3 vertPos = glm::vec3(x, z, y);
 
-    	glm::vec3 vertPos = glm::vec3(x, z, y);
-        vertices.push_back(Vertex(vertPos,glm::vec3(0), glm::vec3(0)));
-
-        // Accumulate the scaled points to calculate centroid
-        centroid += vertPos;
-    }
-
-    // Calculate the centroid of the scaled points
-    centroid /= static_cast<float>(vertices.size());
-
-    // Center the points around (0, 0, 0)
-    for (Vertex& point : vertices) {
-        point.mPosition -= centroid;
-        //point.mPosition *= scalingFactor;
-    }
-
-    //float inverseScalingFactor = 1 / scalingFactor;
-    //float inverseScalingFactor = 2;
-    //for (Vertex& point : vertices) {
-    //    point.mPosition *= inverseScalingFactor;
-    //}
-
-    std::vector<Index> indices;
-    for (int i = 0; i < vertices.size(); i++)
-    {
+        vertices.push_back(PointCloudVertex(vertPos, colorf));
         indices.push_back(i);
-        //indices.push_back(i+1);
     }
 
     // Clean up the LASzip reader
@@ -545,9 +424,7 @@ std::shared_ptr<Mesh> Mesh::CreatePointCloudFromLASFileSurface(const char* _file
     if (laszip_destroy(laszip_reader))
         LOG_ERROR("DLL ERROR: destroying laszip reader");
 
-    // TODO Make terrain vertexes?
-    std::shared_ptr<Mesh> surface = std::make_shared<Mesh>("Surface", std::move(vertices), std::move(indices),nullptr);
-    surface->SetIsPointCloud(true);
+    std::shared_ptr<PointCloudMesh> surface = std::make_shared<PointCloudMesh>("TerrainSector", std::move(vertices), std::move(indices));
 	return surface;
 }
 
@@ -574,7 +451,7 @@ std::shared_ptr<Mesh> Mesh::CreateGraphSphere(const int _subdivides, const bool 
 
     GenSphere(vertices, indices, _subdivides);
     
-    std::shared_ptr<Mesh> graphSphere = std::make_shared<Mesh>(sphereKey, std::move(vertices), std::move(indices));
+    std::shared_ptr<GraphMesh> graphSphere = std::make_shared<GraphMesh>(sphereKey, std::move(vertices), std::move(indices));
 
     // If instance enabled add object to cache
     if (_instance)
@@ -597,32 +474,33 @@ std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::vector<glm::vec3> _points)
         vertices.push_back(newVertex);
     }
 
-    // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    return std::make_shared<Mesh>(lineKey, std::move(vertices), std::move(indices));
+	return std::make_shared<DebugMesh>(lineKey, std::move(vertices), std::move(indices));
 }
 
 std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::shared_ptr<Mesh> _mesh)
 {
-    // Create default line key
-    std::string lineKey = "DebugLine";
-
-    std::vector<DebugVertex> vertices;
-    std::vector<Index> indices;
-
-    for (const Vertex& vert : _mesh->mVertices)
-    {
-        DebugVertex newVertex = DebugVertex(vert.mPosition);
-        vertices.push_back(newVertex);
-    }
-
-    for(const Index& index : _mesh->mIndices)
-    {
-        Index ind = index;
-        indices.push_back(ind);
-    }
-
-    // Create mesh moveing the vertices and indices into new object along with input material and add it to cache
-    return std::make_shared<Mesh>(lineKey, std::move(vertices), std::move(indices));
+   // // Create default line key
+   // std::string lineKey = "DebugLine";
+   //
+   // std::vector<DebugVertex> vertices;
+   // std::vector<Index> indices;
+   // std::vector<Vertex> verts = Mesh::GetVertices<Mesh, Vertex>(_mesh);
+   //
+   // for (const Vertex& vert : verts)
+   // {
+   //     DebugVertex newVertex = DebugVertex(vert.mPosition);
+   //     vertices.push_back(newVertex);
+   // }
+   //
+   // std::vector<Index> inds = _mesh->GetIndices();
+   // for(const Index& index : inds)
+   // {
+   //     Index ind = index;
+   //     indices.push_back(ind);
+   // }
+   //
+   // return std::make_shared<DebugMesh>(lineKey, std::move(vertices), std::move(indices));
+    return nullptr;
 }
 
 std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::pair<glm::vec3, glm::vec3> _extents)
@@ -679,7 +557,7 @@ std::shared_ptr<Mesh> Mesh::CreateDebugLine(std::pair<glm::vec3, glm::vec3> _ext
     // bottom and top done by proxy
 
 	//Generate mesh moveing the vertices and indices into new object along with input material and add it to cache
-    return std::make_shared<Mesh>(lineKey, std::move(vertices),std::move(indices));
+    return std::make_shared<DebugMesh>(lineKey, std::move(vertices),std::move(indices));
 }
 
 
@@ -709,80 +587,6 @@ void Mesh::Unload(const std::string& _key)
 void Mesh::ClearCache()
 {
     mCache.clear();
-}
-
-void Mesh::SetupMesh()
-{
-    // Generates VAO
-    glGenVertexArrays(1, &mVAO);
-    glBindVertexArray(mVAO);
-
-    // Gen VBO and assign mesh vertices to the buffer.
-    glGenBuffers(1, &mVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-    glBufferData(GL_ARRAY_BUFFER, mVertices.size() * sizeof(Vertex), mVertices.data(), GL_STATIC_DRAW);
-
-    // Gen EBO and assign mesh indices to the buffer.
-    glGenBuffers(1, &mEBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size() * sizeof(Index), mIndices.data(), GL_STATIC_DRAW);
-
-    // setts upp the vertex attributes
-    Vertex::SetupAttributes();
-
-    // unbinds the VAO once finished
-    glBindVertexArray(0);
-}
-
-void Mesh::SetupGraphMesh()
-{
-    // Generates VAO
-    glGenVertexArrays(1, &mVAO);
-    glBindVertexArray(mVAO);
-
-    // Gen VBO and assign mesh vertices to the buffer.
-    glGenBuffers(1, &mVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-    glBufferData(GL_ARRAY_BUFFER, mGraphVertices.size() * sizeof(GraphVertex), mGraphVertices.data(), GL_STATIC_DRAW);
-
-    // Gen EBO and assign mesh indices to the buffer.
-    glGenBuffers(1, &mEBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size() * sizeof(Index), mIndices.data(), GL_STATIC_DRAW);
-
-    // setts upp the vertex attributes
-    GraphVertex::SetupAttributes();
-
-    // unbinds the VAO once finished
-    glBindVertexArray(0);
-}
-
-
-void Mesh::SetupDebugMesh()
-{
-    // Generates VAO
-    glGenVertexArrays(1, &mVAO);
-    glBindVertexArray(mVAO);
-
-    // Gen VBO and assign mesh vertices to the buffer.
-    glGenBuffers(1, &mVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-    glBufferData(GL_ARRAY_BUFFER, mDebugVertices.size() * sizeof(DebugVertex), mDebugVertices.data(), GL_STATIC_DRAW);
-
-    if(!mIndices.empty())
-    {
-        // Gen EBO and assign mesh indices to the buffer.
-        glGenBuffers(1, &mEBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size() * sizeof(Index), mIndices.data(), GL_STATIC_DRAW);
-
-    }
-
-    // setts upp the vertex attributes
-    DebugVertex::SetupAttributes();
-
-    // unbinds the VAO once finished
-    glBindVertexArray(0);
 }
 
 void Mesh::GenSphere(std::vector<Vertex>& _vertices, std::vector<Index>& _indices, const int _numSubdivides, float _radius)
@@ -924,23 +728,47 @@ glm::vec2 Mesh::CalculateTexCoord(const glm::vec3& _vec)
     return glm::vec2(u, v);
 }
 
-std::pair<glm::vec3, glm::vec3> Mesh::GetMeshMinMaxExtent(std::shared_ptr<Mesh> _mesh)
-{
-    // Calculate the bounding box (min and max extents) of the existing mesh
-    std::vector<Vertex>& collisionMeshVertices = _mesh->GetVertices();
-    glm::vec3 maxExtent = collisionMeshVertices[0].mPosition;
-    glm::vec3 minExtent = collisionMeshVertices[0].mPosition;
+//std::vector<K>& Mesh::GetVertices(std::shared_ptr<T> _mesh)
+//{
+   // if (auto defmesh = std::dynamic_pointer_cast<DefaultMesh>(_mesh)) {
+   //     return defmesh->GetVertices();  
+   // }
+   // else if (auto grmesh = std::dynamic_pointer_cast<GraphMesh>(_mesh)) {
+   //     return grmesh->GetVertices();  
+   // }
+   // else if (auto debmesh = std::dynamic_pointer_cast<DebugMesh>(_mesh)) {
+   //     return debmesh->GetVertices();  
+   // }
+   // else if (auto pcmesh = std::dynamic_pointer_cast<PointCloudMesh>(_mesh)) {
+   //     return pcmesh->GetVertices();  
+   // }
+   //
+   // LOG_ERROR("Type mismatch in GetVertices");
+   // throw std::runtime_error("Type mismatch in GetVertices");  // Ensure you return something in all cases
+//}
 
-    for (Vertex& vertex : collisionMeshVertices)
-    {
-        minExtent = glm::min(minExtent, vertex.mPosition);
-        maxExtent = glm::max(maxExtent, vertex.mPosition);
-    }
 
-    // Slight offsett
-    maxExtent += 0.001f;
-    minExtent -= 0.001f;
-
-	return std::make_pair(minExtent,maxExtent);
-}
+//template <typename T>
+//std::pair<glm::vec3, glm::vec3> Mesh::GetMeshMinMaxExtent(std::shared_ptr<T> _mesh)
+//{
+//    // Deduce the vertex type from the return type of GetVertices()
+//    using K = typename std::decay<decltype(_mesh->GetVertices()[0])>::type;
+//
+//    // Calculate the bounding box (min and max extents) of the existing mesh
+//    std::vector<K>& collisionMeshVertices = _mesh->GetVertices();
+//    glm::vec3 maxExtent = collisionMeshVertices[0].mPosition;
+//    glm::vec3 minExtent = collisionMeshVertices[0].mPosition;
+//
+//    for (K& vertex : collisionMeshVertices)
+//    {
+//        minExtent = glm::min(minExtent, vertex.mPosition);
+//        maxExtent = glm::max(maxExtent, vertex.mPosition);
+//    }
+//
+//    // Slight offset
+//    maxExtent += 0.001f;
+//    minExtent -= 0.001f;
+//
+//	return std::make_pair(minExtent,maxExtent);
+//}
 

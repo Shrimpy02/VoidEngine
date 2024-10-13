@@ -12,6 +12,8 @@
 #include <LevelActors/VisualActor.h>
 #include <Utilities/Logger.h>
 
+#include "RenderElements/MeshTypes/DefaultMesh.h"
+
 // Static Variables
 std::string AssimpLoader::msBasePath = "";
 long long AssimpLoader::msNameIndex = 0;
@@ -192,7 +194,7 @@ std::shared_ptr<Mesh> AssimpLoader::ProcessMesh(aiMesh* _mesh)
 	}
 
 	// Create a new mesh and return it.
-	return std::make_shared<Mesh>(std::string(_mesh->mName.C_Str()), std::move(vertices), std::move(indices), nullptr);
+	return std::make_shared<DefaultMesh>(std::string(_mesh->mName.C_Str()), std::move(vertices), std::move(indices), nullptr);
 }
 
 std::shared_ptr<Material> AssimpLoader::ProcessMaterial(aiMaterial* _material)

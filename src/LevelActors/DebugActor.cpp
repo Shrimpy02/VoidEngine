@@ -2,6 +2,7 @@
 // Includes
 #include <LevelActors/DebugActor.h>
 #include <RenderElements/Mesh.h>
+#include <RenderElements/MeshTypes/DebugMesh.h>
 
 #include "Core/Shader.h"
 
@@ -34,7 +35,7 @@ void DebugActor::Draw(const std::shared_ptr<Shader> _shader) const
 {
 	if (!mVisualMesh) return;
 	_shader->setVec3("DebugColor", mDebugColor);
-	mVisualMesh->DrawDebugLines(_shader);
+	mVisualMesh->Draw(_shader);
 }
 
 void DebugActor::Update(float _dt)

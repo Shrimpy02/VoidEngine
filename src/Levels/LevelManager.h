@@ -35,6 +35,8 @@ public:
 private:
     // ---------- Local Variables --------------
 
+    std::shared_ptr<UserInterfaceManager> mUserInterfaceManager{nullptr};
+
     std::vector<std::shared_ptr<Level>> mAllLevels;
     std::shared_ptr<Level> mActiveLevel{ nullptr }; 
 
@@ -43,6 +45,7 @@ private:
     std::shared_ptr<Shader> mDefaultShader{ nullptr };
     std::shared_ptr<Shader> mGraphShader{ nullptr };
     std::shared_ptr<Shader> mDebugShader{ nullptr };
+    std::shared_ptr<Shader> mPointCloudShader{ nullptr };
     std::shared_ptr<Shader> mSkyboxShader{ nullptr };
 
     std::shared_ptr<VisualActor> mConformBox{ nullptr };
@@ -51,7 +54,7 @@ private:
 
 public:
     // ---------- Global functions --------------
-    explicit LevelManager(std::shared_ptr<ActorController> _inController);
+    explicit LevelManager(std::shared_ptr<ActorController> _inController, std::shared_ptr<UserInterfaceManager> _userIManager);
 
     // Removes the ability to:    
     LevelManager(const LevelManager&) = delete;           // Copy

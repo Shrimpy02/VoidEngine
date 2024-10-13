@@ -63,7 +63,7 @@ void BaseActor::Update(float _dt)
 
 void BaseActor::SetMinMaxExtent()
 {
-    std::pair<glm::vec3, glm::vec3> extents = Mesh::GetMeshMinMaxExtent(mVisualMesh);
+    std::pair<glm::vec3, glm::vec3> extents = mVisualMesh->GetMeshMinMaxExtent();
 
     mMinExtent = extents.first;
     mMaxExtent = extents.second;

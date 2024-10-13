@@ -5,11 +5,11 @@
 #include <glm/glm.hpp>
 
 /**
- * @struct TerrainVertex,
+ * @struct PointCloudVertex,
  * @brief A struct containing vertex information for terrain related meshes.
  * Also holds the attribute setup for this vertex kind in case there are multiple variants.
  */
-struct TerrainVertex
+struct PointCloudVertex
 {
     // ----------- Variables ---------------
 
@@ -19,18 +19,18 @@ struct TerrainVertex
     // ----------- Functions ---------------
 
     // Constructor
-    TerrainVertex(const glm::vec3& _position, const glm::vec3& _color)
+    PointCloudVertex(const glm::vec3& _position, const glm::vec3& _color)
         : mPosition(_position), mColor(_color) {}
 
     // Custom setup of attributes for this vertex type that contains position, normals and texture coordinates
     static void SetupAttributes()
     {
         // position
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (void*)offsetof(TerrainVertex, mPosition));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, mPosition));
         glEnableVertexAttribArray(0);
 
         // Color
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (void*)offsetof(TerrainVertex, mColor));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, mColor));
         glEnableVertexAttribArray(1);
     }
 };

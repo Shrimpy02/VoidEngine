@@ -258,8 +258,7 @@ private:
 
     void DrawBoarderAroundImage(const ImVec4 _color = ImVec4(0.5f, 0.0f, 0.5f, 1.0f));
 
-    std::string GetFilePath();
-    std::string GetCoreFilePath();
+
 
     void GetSceneActors(std::shared_ptr<Actor> _sceneGraph, std::vector<std::shared_ptr<Actor>>& _actorHolder);
 
@@ -273,6 +272,8 @@ public:
     void SetContentSelectedActor(std::shared_ptr<Actor> _inActor) { mContentSelectedActor = _inActor; }
 
     // Getters
+    std::string GetFilePath();
+    std::string GetCoreFilePath();
     int GetViewportWidth() { return mViewportWidth; }
     int GetViewportHeight() { return mViewportHeight; }
     ImVec2 GetViewportPosition() { return mViewportPos;  }

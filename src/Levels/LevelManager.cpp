@@ -33,8 +33,8 @@
 // Additional Includes
 #include <ctime>
 
-LevelManager::LevelManager(std::shared_ptr<ActorController> _inController)
-	: mController(_inController)
+LevelManager::LevelManager(std::shared_ptr<ActorController> _inController, std::shared_ptr<UserInterfaceManager> _userIManager)
+	: mController(_inController), mUserInterfaceManager(_userIManager)
 {
 	mApplicationStartTime = time(nullptr);
 }
@@ -44,6 +44,7 @@ void LevelManager::LoadContent()
 	mDefaultShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/DefaultShader.vs"), SOURCE_DIRECTORY("shaderSrc/DefaultShader.fs"));
 	mGraphShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/GraphShader.vs"), SOURCE_DIRECTORY("shaderSrc/GraphShader.fs"));
 	mDebugShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/DebugShader.vs"), SOURCE_DIRECTORY("shaderSrc/DebugShader.fs"));
+	mPointCloudShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/PointCloudShader.vs"), SOURCE_DIRECTORY("shaderSrc/PointCloudShader.fs"));
 	mSkyboxShader = std::make_shared<Shader>(SOURCE_DIRECTORY("shaderSrc/SkyboxShader.vs"), SOURCE_DIRECTORY("shaderSrc/SkyboxShader.fs"));
 
 	mAllLevels.push_back(std::make_shared<Level>("DefaultLevel"));
@@ -76,39 +77,44 @@ void LevelManager::BaseLevelRequiredObjects()
 
 void LevelManager::LoadDefaultLevel()
 {
-	// Objects
-	std::shared_ptr<Texture> ground1Diffuse = Texture::LoadWhiteTexture();
-	std::shared_ptr<Material> ground1Mat = Material::Load("ground1Mat", { ground1Diffuse }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
-	std::shared_ptr<VisualActor> SceneGround = std::make_shared<VisualActor>("SceneGround", Mesh::CreatePlane(ground1Mat));
-	mActiveLevel->AddActorToSceneGraph(SceneGround);
-	SceneGround->SetGlobalPosition(glm::vec3(0.f, -1.f, 0.f));
-	SceneGround->SetGlobalRotation(glm::quat(glm::angleAxis(60.f, glm::vec3(0.f, 0.f, 1.f))));
-	SceneGround->SetGlobalScale(glm::vec3(10.f));
-	SceneGround->UpdateExtent();
+	BaseLevelRequiredObjects();
 
-	std::shared_ptr<Texture> cube1Diffuse = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerDiffuse.jpg"));
-	std::shared_ptr<Texture> cube1Specular = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerSpecular.jpg"));
-	std::shared_ptr<Material> cube1mat = Material::Load("cube1mat", { cube1Diffuse,cube1Specular }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
-	std::shared_ptr<BaseActor> defaultCube1 = std::make_shared<BaseActor>("DefaultCube1", Mesh::CreateCube(cube1mat));
+	std::shared_ptr<BaseActor> defaultCube1 = std::make_shared<BaseActor>("DefaultCube", Mesh::CreateCube(nullptr));
 	mActiveLevel->AddActorToSceneGraph(defaultCube1);
-	defaultCube1->SetGlobalPosition(glm::vec3(1.2f,0.9f,0.9f));
-	defaultCube1->mCollisionProperties.SetCollisionBase(CollisionBase::BoundingSphere);
-	defaultCube1->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
-	defaultCube1->AddComponent<PhysicsComponent>("PhysicsComp");
-	defaultCube1->GetPhysicsComponent()->SetSurfaceReference(SceneGround);
-	defaultCube1->GetPhysicsComponent()->SetGravityEnabled(true);
-	defaultCube1->AddComponent<AIComponent>("AiComp");
-	//defaultCube1->SetShaderObjectType(ShaderObjectType::Default);
 
-	std::shared_ptr<Texture> cube2Diffuse = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerDiffuse.jpg"));
-	std::shared_ptr<Texture> cube2Specular = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerSpecular.jpg"));
-	std::shared_ptr<Material> cube2mat = Material::Load("cube2mat", { cube2Diffuse,cube2Specular }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
-	std::shared_ptr<BaseActor> defaultCube2 = std::make_shared<BaseActor>("DefaultCube2", Mesh::CreateCube(cube2mat));
-	mActiveLevel->AddActorToSceneGraph(defaultCube2);
-	defaultCube2->SetGlobalPosition(glm::vec3(1.f, 1.f,1.f));
-	defaultCube2->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
-	defaultCube2->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
-	defaultCube2->mCollisionProperties.SetCollisionResponse(CollisionResponse::BLOCK);
+	// Objects
+	//std::shared_ptr<Texture> ground1Diffuse = Texture::LoadWhiteTexture();
+	//std::shared_ptr<Material> ground1Mat = Material::Load("ground1Mat", { ground1Diffuse }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
+	//std::shared_ptr<VisualActor> SceneGround = std::make_shared<VisualActor>("SceneGround", Mesh::CreatePlane(ground1Mat));
+	//mActiveLevel->AddActorToSceneGraph(SceneGround);
+	//SceneGround->SetGlobalPosition(glm::vec3(0.f, -1.f, 0.f));
+	//SceneGround->SetGlobalRotation(glm::quat(glm::angleAxis(60.f, glm::vec3(0.f, 0.f, 1.f))));
+	//SceneGround->SetGlobalScale(glm::vec3(10.f));
+	//SceneGround->UpdateExtent();
+	//
+	//std::shared_ptr<Texture> cube1Diffuse = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerDiffuse.jpg"));
+	//std::shared_ptr<Texture> cube1Specular = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerSpecular.jpg"));
+	//std::shared_ptr<Material> cube1mat = Material::Load("cube1mat", { cube1Diffuse,cube1Specular }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
+	//std::shared_ptr<BaseActor> defaultCube1 = std::make_shared<BaseActor>("DefaultCube1", Mesh::CreateCube(cube1mat));
+	//mActiveLevel->AddActorToSceneGraph(defaultCube1);
+	//defaultCube1->SetGlobalPosition(glm::vec3(1.2f,0.9f,0.9f));
+	//defaultCube1->mCollisionProperties.SetCollisionBase(CollisionBase::BoundingSphere);
+	//defaultCube1->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
+	//defaultCube1->AddComponent<PhysicsComponent>("PhysicsComp");
+	//defaultCube1->GetPhysicsComponent()->SetSurfaceReference(SceneGround);
+	//defaultCube1->GetPhysicsComponent()->SetGravityEnabled(true);
+	//defaultCube1->AddComponent<AIComponent>("AiComp");
+	////defaultCube1->SetShaderObjectType(ShaderObjectType::Default);
+	//
+	//std::shared_ptr<Texture> cube2Diffuse = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerDiffuse.jpg"));
+	//std::shared_ptr<Texture> cube2Specular = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerSpecular.jpg"));
+	//std::shared_ptr<Material> cube2mat = Material::Load("cube2mat", { cube2Diffuse,cube2Specular }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
+	//std::shared_ptr<BaseActor> defaultCube2 = std::make_shared<BaseActor>("DefaultCube2", Mesh::CreateCube(cube2mat));
+	//mActiveLevel->AddActorToSceneGraph(defaultCube2);
+	//defaultCube2->SetGlobalPosition(glm::vec3(1.f, 1.f,1.f));
+	//defaultCube2->mCollisionProperties.SetCollisionBase(CollisionBase::AABB);
+	//defaultCube2->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
+	//defaultCube2->mCollisionProperties.SetCollisionResponse(CollisionResponse::BLOCK);
 
 	//std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor1");
 	//mActiveLevel->AddActorToSceneGraph(graphActor);
@@ -120,8 +126,6 @@ void LevelManager::LoadDefaultLevel()
 	//std::shared_ptr<Actor> Model = std::make_shared<Actor>("DefaultModel");
 	//AssimpLoader::Load(SOURCE_DIRECTORY("assets/Models/Ground/UneavenPlane.fbx"), Model);
 	//mActiveLevel->AddActorToSceneGraph(Model);
-
-	BaseLevelRequiredObjects();
 
 	std::shared_ptr<CameraActor> cam2 = std::make_shared<CameraActor>("Camera2");
 	cam2->SetGlobalPosition(glm::vec3(2, 2, 5));
@@ -174,8 +178,13 @@ void LevelManager::LoadPhysicsBoxLevel()
 
 void LevelManager::LoadGraphDisplayLevel()
 {
+	LOG_INFO("Loading `Graph Display Level`");
+	std::chrono::time_point<std::chrono::steady_clock> loadingStart = std::chrono::high_resolution_clock::now();
 	BaseLevelRequiredObjects();
 
+	// --------------- General Graph object ----------------------
+
+	LOG("Loading `Graph Actor` example");
 	std::vector<glm::vec3> controlPointsGraph = {
 		glm::vec3(4, -2, 0),
 		glm::vec3(0, 2, 0),
@@ -185,9 +194,13 @@ void LevelManager::LoadGraphDisplayLevel()
 	std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor", glm::vec3(0), glm::vec3(0.6f));
 	mActiveLevel->AddActorToSceneGraph(graphActor);
 	graphActor->SetControlPoints(controlPointsGraph);
-	graphActor->CreateGraph(GraphMethod::Neville, GraphType::Interpolated);
+	graphActor->CreateGraph(GraphMethod::DeCasteljau, GraphType::Approximated);
+	LOG("Finished loading `Graph Actor` example");
 
-	//// Define degrees
+	// --------------- Bi-Quadratic B-spline tensor product surface ----------------------
+
+	//LOG("Loading `Bi-Quadratic B-spline tensor product surface` example");
+	//// Define degrees 2 = Bi-Quadratic
 	//int Du = 2;
 	//int Dv = 2;
 
@@ -208,11 +221,57 @@ void LevelManager::LoadGraphDisplayLevel()
 
 	//std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
 	//AddActorToLevel(BSplineSurface);
+	//LOG("Finished loading `Bi-Quadratic B-spline tensor product surface` example");
 
-	std::string fileDirectory = SOURCE_DIRECTORY("EngineAssets/HightData/32-1-498-99-32.laz");
-	const char* LASDirectory = fileDirectory.c_str();
-	std::shared_ptr<VisualActor> HoveTerrain = std::make_shared<VisualActor>("HoveTerrain", Mesh::CreatePointCloudFromLASFileSurface(LASDirectory),glm::vec3(2,-2,28));
-	AddActorToLevel(HoveTerrain);
+	// -------------------- Point cloud from LAS to render --------------------------------
+
+	//LOG("Loading `Point Cloud` example, might take some time...");
+	//// Creating base actor as point cloud root 
+	//std::shared_ptr<Actor> terrainRoot = std::make_shared<Actor>("Terrain");
+	//AddActorToLevel(terrainRoot);
+
+	//const std::string sourceFile = SOURCE_DIRECTORY("UserAssets/HightData/Hove");
+	//std::vector<FileItem> regionDirectories = mUserInterfaceManager->GetDirectoryContents(sourceFile);
+
+	//LOG("Starting point cloud conversion to custom file");
+	//// Reading and converting points into custom txt file 
+	//std::string fullPathToFileForConversionInn = sourceFile + "/" + regionDirectories[0].mName;
+	//std::string fullPathToFileForConversionOut = SOURCE_DIRECTORY("/Output") + std::string("/CustomOutputFile.txt");
+	//SMath::LASFileToCustomFileOfPoints(fullPathToFileForConversionInn.c_str(), fullPathToFileForConversionOut.c_str());
+	//LOG("Finished point cloud conversion to custom `txt` file found in /output", regionDirectories.size());
+
+	//LOG("Starting point cloud import of `%i` files", regionDirectories.size());
+	//// Reading all height data files for complete terrain
+	//bool doOnce = true;
+	//glm::vec3 centre = glm::vec3(0);
+	//glm::vec3 diff = glm::vec3(0);
+	//for(int i = 0; i < regionDirectories.size(); i++)
+	//{
+	//	std::string fullPath = sourceFile + "/" + regionDirectories[i].mName;
+	//	const char* regionFileName = fullPath.c_str();
+
+	//	std::string objectName = terrainRoot->GetTag() + "_" + std::to_string(i);
+	//	std::shared_ptr<VisualActor> terrainSector = std::make_shared<VisualActor>(objectName, Mesh::CreatePointCloudFromLASFileSurface(regionFileName,0.01f));
+	//	terrainSector->SetShaderObjectType(ShaderObjectType::PointCloud);
+	//	terrainRoot->AddChild(terrainSector);
+
+	//	if(doOnce == true)
+	//	{
+	//		centre = terrainSector->GetCentre();
+	//		diff = glm::vec3(0) - centre;
+	//		doOnce = false;
+	//	}
+	//
+	//	terrainSector->SetGlobalPosition(diff);
+	//	//if (i >= 0) break;
+	//}
+	//LOG("Finished importing all point cloud files");
+	//LOG("Finished loading `Point Cloud` example");
+	//// Calculate time diff from start to finish for print
+	//std::chrono::time_point<std::chrono::steady_clock> loadEnd = std::chrono::high_resolution_clock::now();
+	//double elapsedTimeMs = std::chrono::duration<double, std::milli>(loadEnd - loadingStart).count();
+	//double elapsedTimeS = elapsedTimeMs / 1000.0;
+	//LOG_INFO("Finished loading `Graph Display Level`, time elapsed `%.2f` seconds", elapsedTimeS);
 }
 
 void LevelManager::UnloadContent()
@@ -259,6 +318,7 @@ void LevelManager::Render()
 	BindCamera(mDefaultShader);
 	BindCamera(mGraphShader);
 	BindCamera(mDebugShader);
+	BindCamera(mPointCloudShader);
 	BindCamera(mSkyboxShader);
 
 	RenderLevelSceneGraph(mActiveLevel->mSceneGraph);
@@ -450,6 +510,12 @@ void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, Transfor
 			mDebugShader->use();
 			mDebugShader->setMat4("model", actorGlobalTransform.GetTransformMatrix());
 			iRender->Draw(mDebugShader);
+
+		} else if (iRender->GetShaderObjectType() == ShaderObjectType::PointCloud) {
+
+			mPointCloudShader->use();
+			mPointCloudShader->setMat4("model", actorGlobalTransform.GetTransformMatrix());
+			iRender->Draw(mPointCloudShader);
 
 		} else if (iRender->GetShaderObjectType() == ShaderObjectType::Skybox) {
 

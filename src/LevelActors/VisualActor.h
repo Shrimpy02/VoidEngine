@@ -67,6 +67,11 @@ public:
     // Returns the mesh for this actor as Mesh
     std::shared_ptr<Mesh> GetActorVisualMesh() { return mVisualMesh; }
 
+    glm::vec3 GetCentre() { return mCenter; }
+
+    glm::vec3 GetExtent() { return mExtent; }
+
+
     // Adders
 
     // Setters
