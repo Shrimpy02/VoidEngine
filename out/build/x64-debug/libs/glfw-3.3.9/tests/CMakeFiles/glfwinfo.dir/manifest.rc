@@ -1,2 +1,2 @@
 #pragma code_page(65001)
-1 /* CREATEPROCESS_MANIFEST_RESOURCE_ID */ 24 /* RT_MANIFEST */ "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/glfw-3.3.9/tests/CMakeFiles/glfwinfo.dir/embed.manifest"
+1 /* CREATEPROCESS_MANIFEST_RESOURCE_ID */ 24 /* RT_MANIFEST */ "C:/SebsStuff/Projects/VoidEngine/out/build/x64-debug/libs/glfw-3.3.9/tests/CMakeFiles/glfwinfo.dir/embed.manifest"

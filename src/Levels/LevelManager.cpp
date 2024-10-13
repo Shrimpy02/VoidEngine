@@ -184,18 +184,18 @@ void LevelManager::LoadGraphDisplayLevel()
 
 	// --------------- General Graph object ----------------------
 
-	LOG("Loading `Graph Actor` example");
-	std::vector<glm::vec3> controlPointsGraph = {
-		glm::vec3(4, -2, 0),
-		glm::vec3(0, 2, 0),
-		glm::vec3(-4, -2, 0)
-	};
-	
-	std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor", glm::vec3(0), glm::vec3(0.6f));
-	mActiveLevel->AddActorToSceneGraph(graphActor);
-	graphActor->SetControlPoints(controlPointsGraph);
-	graphActor->CreateGraph(GraphMethod::DeCasteljau, GraphType::Approximated);
-	LOG("Finished loading `Graph Actor` example");
+	//LOG("Loading `Graph Actor` example");
+	//std::vector<glm::vec3> controlPointsGraph = {
+	//	glm::vec3(4, -2, 0),
+	//	glm::vec3(0, 2, 0),
+	//	glm::vec3(-4, -2, 0)
+	//};
+	//
+	//std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor", glm::vec3(0), glm::vec3(0.6f));
+	//mActiveLevel->AddActorToSceneGraph(graphActor);
+	//graphActor->SetControlPoints(controlPointsGraph);
+	//graphActor->CreateGraph(GraphMethod::DeCasteljau, GraphType::Approximated);
+	//LOG("Finished loading `Graph Actor` example");
 
 	// --------------- Bi-Quadratic B-spline tensor product surface ----------------------
 
@@ -225,53 +225,55 @@ void LevelManager::LoadGraphDisplayLevel()
 
 	// -------------------- Point cloud from LAS to render --------------------------------
 
-	//LOG("Loading `Point Cloud` example, might take some time...");
-	//// Creating base actor as point cloud root 
-	//std::shared_ptr<Actor> terrainRoot = std::make_shared<Actor>("Terrain");
-	//AddActorToLevel(terrainRoot);
+	LOG("Loading `Point Cloud` example, might take some time...");
+	// Creating base actor as point cloud root 
+	std::shared_ptr<Actor> terrainRoot = std::make_shared<Actor>("Terrain");
+	AddActorToLevel(terrainRoot);
 
-	//const std::string sourceFile = SOURCE_DIRECTORY("UserAssets/HightData/Hove");
-	//std::vector<FileItem> regionDirectories = mUserInterfaceManager->GetDirectoryContents(sourceFile);
+	const std::string sourceFile = SOURCE_DIRECTORY("UserAssets/HightData/Hove");
+	std::vector<FileItem> regionDirectories = mUserInterfaceManager->GetDirectoryContents(sourceFile);
 
-	//LOG("Starting point cloud conversion to custom file");
-	//// Reading and converting points into custom txt file 
-	//std::string fullPathToFileForConversionInn = sourceFile + "/" + regionDirectories[0].mName;
-	//std::string fullPathToFileForConversionOut = SOURCE_DIRECTORY("/Output") + std::string("/CustomOutputFile.txt");
-	//SMath::LASFileToCustomFileOfPoints(fullPathToFileForConversionInn.c_str(), fullPathToFileForConversionOut.c_str());
-	//LOG("Finished point cloud conversion to custom `txt` file found in /output", regionDirectories.size());
+	LOG("Starting point cloud conversion to custom file");
+	// Reading and converting points into custom txt file 
+	std::string fullPathToFileForConversionInn = sourceFile + "/" + regionDirectories[0].mName;
+	std::string fullPathToFileForConversionOut = SOURCE_DIRECTORY("/Output") + std::string("/CustomOutputFile.txt");
+	SMath::LASFileToCustomFileOfPoints(fullPathToFileForConversionInn.c_str(), fullPathToFileForConversionOut.c_str());
+	LOG("Finished point cloud conversion to custom `txt` file found in /output", regionDirectories.size());
 
-	//LOG("Starting point cloud import of `%i` files", regionDirectories.size());
-	//// Reading all height data files for complete terrain
-	//bool doOnce = true;
-	//glm::vec3 centre = glm::vec3(0);
-	//glm::vec3 diff = glm::vec3(0);
-	//for(int i = 0; i < regionDirectories.size(); i++)
-	//{
-	//	std::string fullPath = sourceFile + "/" + regionDirectories[i].mName;
-	//	const char* regionFileName = fullPath.c_str();
+	LOG("Starting point cloud import of `%i` files", regionDirectories.size());
+	// Reading all height data files for complete terrain
+	bool doOnce = true;
+	glm::vec3 centre = glm::vec3(0);
+	glm::vec3 diff = glm::vec3(0);
+	for(int i = 0; i < regionDirectories.size(); i++)
+	{
+		std::string fullPath = sourceFile + "/" + regionDirectories[i].mName;
+		const char* regionFileName = fullPath.c_str();
 
-	//	std::string objectName = terrainRoot->GetTag() + "_" + std::to_string(i);
-	//	std::shared_ptr<VisualActor> terrainSector = std::make_shared<VisualActor>(objectName, Mesh::CreatePointCloudFromLASFileSurface(regionFileName,0.01f));
-	//	terrainSector->SetShaderObjectType(ShaderObjectType::PointCloud);
-	//	terrainRoot->AddChild(terrainSector);
+		std::string objectName = terrainRoot->GetTag() + "_" + std::to_string(i);
+		std::shared_ptr<VisualActor> terrainSector = std::make_shared<VisualActor>(objectName, Mesh::CreatePointCloudFromLASFileSurface(regionFileName,0.01f));
+		terrainSector->SetShaderObjectType(ShaderObjectType::PointCloud);
+		terrainRoot->AddChild(terrainSector);
 
-	//	if(doOnce == true)
-	//	{
-	//		centre = terrainSector->GetCentre();
-	//		diff = glm::vec3(0) - centre;
-	//		doOnce = false;
-	//	}
-	//
-	//	terrainSector->SetGlobalPosition(diff);
-	//	//if (i >= 0) break;
-	//}
-	//LOG("Finished importing all point cloud files");
-	//LOG("Finished loading `Point Cloud` example");
-	//// Calculate time diff from start to finish for print
-	//std::chrono::time_point<std::chrono::steady_clock> loadEnd = std::chrono::high_resolution_clock::now();
-	//double elapsedTimeMs = std::chrono::duration<double, std::milli>(loadEnd - loadingStart).count();
-	//double elapsedTimeS = elapsedTimeMs / 1000.0;
-	//LOG_INFO("Finished loading `Graph Display Level`, time elapsed `%.2f` seconds", elapsedTimeS);
+		if(doOnce == true)
+		{
+			centre = terrainSector->GetCentre();
+			diff = glm::vec3(0) - centre;
+			doOnce = false;
+		}
+	
+		terrainSector->SetGlobalPosition(diff);
+		//if (i >= 0) break;
+	}
+	LOG("Finished importing all point cloud files");
+	LOG("Finished loading `Point Cloud` example");
+
+
+	// Calculate time diff from start to finish for print
+	std::chrono::time_point<std::chrono::steady_clock> loadEnd = std::chrono::high_resolution_clock::now();
+	double elapsedTimeMs = std::chrono::duration<double, std::milli>(loadEnd - loadingStart).count();
+	double elapsedTimeS = elapsedTimeMs / 1000.0;
+	LOG_INFO("Finished loading `Graph Display Level`, time elapsed `%.2f` seconds", elapsedTimeS);
 }
 
 void LevelManager::UnloadContent()

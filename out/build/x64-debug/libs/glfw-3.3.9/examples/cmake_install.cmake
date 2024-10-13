@@ -1,8 +1,8 @@
-# Install script for directory: C:/SebsStuff/Projects/Void Engine/3DProgEngine/libs/glfw-3.3.9/examples
+# Install script for directory: C:/SebsStuff/Projects/VoidEngine/libs/glfw-3.3.9/examples
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/install/x64-debug")
+  set(CMAKE_INSTALL_PREFIX "C:/SebsStuff/Projects/VoidEngine/out/install/x64-debug")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

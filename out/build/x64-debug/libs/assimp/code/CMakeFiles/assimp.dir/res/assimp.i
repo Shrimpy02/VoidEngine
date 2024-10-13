@@ -1,5 +1,5 @@
-#line 1 "C:\\SebsStuff\\Projects\\Void Engine\\3DProgEngine\\libs\\assimp\\code\\res\\assimp.rc"
-#line 1 "C:\\SebsStuff\\Projects\\Void Engine\\3DProgEngine\\out\\build\\x64-debug\\libs\\assimp\\revision.h"
+#line 1 "C:\\SebsStuff\\Projects\\VoidEngine\\libs\\assimp\\code\\res\\assimp.rc"
+#line 1 "C:\\SebsStuff\\Projects\\VoidEngine\\out\\build\\x64-debug\\libs\\assimp\\revision.h"
 
 
 
@@ -17,19 +17,19 @@
 
 
 
-#line 19 "C:\\SebsStuff\\Projects\\Void Engine\\3DProgEngine\\out\\build\\x64-debug\\libs\\assimp\\revision.h"
+#line 19 "C:\\SebsStuff\\Projects\\VoidEngine\\out\\build\\x64-debug\\libs\\assimp\\revision.h"
 
-#line 21 "C:\\SebsStuff\\Projects\\Void Engine\\3DProgEngine\\out\\build\\x64-debug\\libs\\assimp\\revision.h"
-
-
+#line 21 "C:\\SebsStuff\\Projects\\VoidEngine\\out\\build\\x64-debug\\libs\\assimp\\revision.h"
 
 
 
 
-#line 28 "C:\\SebsStuff\\Projects\\Void Engine\\3DProgEngine\\out\\build\\x64-debug\\libs\\assimp\\revision.h"
 
-#line 30 "C:\\SebsStuff\\Projects\\Void Engine\\3DProgEngine\\out\\build\\x64-debug\\libs\\assimp\\revision.h"
-#line 2 "C:\\SebsStuff\\Projects\\Void Engine\\3DProgEngine\\libs\\assimp\\code\\res\\assimp.rc"
+
+#line 28 "C:\\SebsStuff\\Projects\\VoidEngine\\out\\build\\x64-debug\\libs\\assimp\\revision.h"
+
+#line 30 "C:\\SebsStuff\\Projects\\VoidEngine\\out\\build\\x64-debug\\libs\\assimp\\revision.h"
+#line 2 "C:\\SebsStuff\\Projects\\VoidEngine\\libs\\assimp\\code\\res\\assimp.rc"
 
 
 
@@ -8851,8 +8851,8 @@
 
 
 
-#line 6 "C:\\SebsStuff\\Projects\\Void Engine\\3DProgEngine\\libs\\assimp\\code\\res\\assimp.rc"
-#line 7 "C:\\SebsStuff\\Projects\\Void Engine\\3DProgEngine\\libs\\assimp\\code\\res\\assimp.rc"
+#line 6 "C:\\SebsStuff\\Projects\\VoidEngine\\libs\\assimp\\code\\res\\assimp.rc"
+#line 7 "C:\\SebsStuff\\Projects\\VoidEngine\\libs\\assimp\\code\\res\\assimp.rc"
 
 LANGUAGE 0x00, 0x00
 #pragma code_page(1252)
@@ -8863,7 +8863,7 @@ LANGUAGE 0x00, 0x00
  FILEFLAGSMASK 0x00000001L
 
  FILEFLAGS 0x00000001L
-#line 18 "C:\\SebsStuff\\Projects\\Void Engine\\3DProgEngine\\libs\\assimp\\code\\res\\assimp.rc"
+#line 18 "C:\\SebsStuff\\Projects\\VoidEngine\\libs\\assimp\\code\\res\\assimp.rc"
  FILEOS 0x00040000L
  FILETYPE 0x00000002L
 BEGIN
@@ -8874,12 +8874,12 @@ BEGIN
             VALUE "Comments", "Licensed under a 3-clause BSD license"
             VALUE "CompanyName", "ASSIMP Team"
             VALUE "FileDescription", "Open Asset Import Library"
-            VALUE "FileVersion", "5" "." "3" "." "0" "." "0" " (Commit 8a216632)"
+            VALUE "FileVersion", "5" "." "3" "." "0" "." "0" " (Commit 4130331e)"
             VALUE "InternalName", "assimp"
             VALUE "LegalCopyright", "\xA9 2006-2023"
             VALUE "OriginalFilename", "assimp-vc143-mtd.dll"
             VALUE "ProductName", "Open Asset Import Library"
-            VALUE "ProductVersion", "5" "." "3" "." "0" "." "0" " (Commit 8a216632)"
+            VALUE "ProductVersion", "5" "." "3" "." "0" "." "0" " (Commit 4130331e)"
         END
     END
     BLOCK "VarFileInfo"

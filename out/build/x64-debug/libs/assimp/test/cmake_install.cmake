@@ -1,8 +1,8 @@
-# Install script for directory: C:/SebsStuff/Projects/Void Engine/3DProgEngine/libs/assimp/test
+# Install script for directory: C:/SebsStuff/Projects/VoidEngine/libs/assimp/test
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/install/x64-debug")
+  set(CMAKE_INSTALL_PREFIX "C:/SebsStuff/Projects/VoidEngine/out/install/x64-debug")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/assimp/test/headercheck/cmake_install.cmake")
+  include("C:/SebsStuff/Projects/VoidEngine/out/build/x64-debug/libs/assimp/test/headercheck/cmake_install.cmake")
 
 endif()
 

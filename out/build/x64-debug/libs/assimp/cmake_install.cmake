@@ -1,8 +1,8 @@
-# Install script for directory: C:/SebsStuff/Projects/Void Engine/3DProgEngine/libs/assimp
+# Install script for directory: C:/SebsStuff/Projects/VoidEngine/libs/assimp
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/install/x64-debug")
+  set(CMAKE_INSTALL_PREFIX "C:/SebsStuff/Projects/VoidEngine/out/install/x64-debug")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -34,8 +34,8 @@ endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "libassimp5.3.0-dev" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/assimp-5.3" TYPE FILE FILES
-    "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/assimp/generated/assimpConfig.cmake"
-    "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/assimp/generated/assimpConfigVersion.cmake"
+    "C:/SebsStuff/Projects/VoidEngine/out/build/x64-debug/libs/assimp/generated/assimpConfig.cmake"
+    "C:/SebsStuff/Projects/VoidEngine/out/build/x64-debug/libs/assimp/generated/assimpConfigVersion.cmake"
     )
 endif()
 
@@ -43,7 +43,7 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "libassimp5.3.0-dev" OR NOT CMAKE_INSTALL_CO
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/assimp-5.3/assimpTargets.cmake")
     file(DIFFERENT _cmake_export_file_changed FILES
          "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/assimp-5.3/assimpTargets.cmake"
-         "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/assimp/CMakeFiles/Export/276191b64e4aaa7fa3bf193da4658da2/assimpTargets.cmake")
+         "C:/SebsStuff/Projects/VoidEngine/out/build/x64-debug/libs/assimp/CMakeFiles/Export/276191b64e4aaa7fa3bf193da4658da2/assimpTargets.cmake")
     if(_cmake_export_file_changed)
       file(GLOB _cmake_old_config_files "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/assimp-5.3/assimpTargets-*.cmake")
       if(_cmake_old_config_files)
@@ -56,21 +56,21 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "libassimp5.3.0-dev" OR NOT CMAKE_INSTALL_CO
     endif()
     unset(_cmake_export_file_changed)
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/assimp-5.3" TYPE FILE FILES "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/assimp/CMakeFiles/Export/276191b64e4aaa7fa3bf193da4658da2/assimpTargets.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/assimp-5.3" TYPE FILE FILES "C:/SebsStuff/Projects/VoidEngine/out/build/x64-debug/libs/assimp/CMakeFiles/Export/276191b64e4aaa7fa3bf193da4658da2/assimpTargets.cmake")
   if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/assimp-5.3" TYPE FILE FILES "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/assimp/CMakeFiles/Export/276191b64e4aaa7fa3bf193da4658da2/assimpTargets-debug.cmake")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/assimp-5.3" TYPE FILE FILES "C:/SebsStuff/Projects/VoidEngine/out/build/x64-debug/libs/assimp/CMakeFiles/Export/276191b64e4aaa7fa3bf193da4658da2/assimpTargets-debug.cmake")
   endif()
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "libassimp5.3.0-dev" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/assimp/assimp.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "C:/SebsStuff/Projects/VoidEngine/out/build/x64-debug/libs/assimp/assimp.pc")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/assimp/contrib/zlib/cmake_install.cmake")
-  include("C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/assimp/code/cmake_install.cmake")
-  include("C:/SebsStuff/Projects/Void Engine/3DProgEngine/out/build/x64-debug/libs/assimp/test/cmake_install.cmake")
+  include("C:/SebsStuff/Projects/VoidEngine/out/build/x64-debug/libs/assimp/contrib/zlib/cmake_install.cmake")
+  include("C:/SebsStuff/Projects/VoidEngine/out/build/x64-debug/libs/assimp/code/cmake_install.cmake")
+  include("C:/SebsStuff/Projects/VoidEngine/out/build/x64-debug/libs/assimp/test/cmake_install.cmake")
 
 endif()
 
