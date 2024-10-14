@@ -64,6 +64,13 @@ void ActorController::HandleMouseMove(double _xPos, double _yPos)
 
         // Adds the acceleration to the camera for it to rotate
         mCameraForSnap->AddAngularAcceleration({ xOffset * angularSpeed, yOffset * angularSpeed});
+
+        // Rotate controlled actor with camera rotation
+    	if(mControlledActor)
+        {
+	        
+        }
+
     }
 
     // Reposition the cursor to the center of the viewport if it reaches an edge

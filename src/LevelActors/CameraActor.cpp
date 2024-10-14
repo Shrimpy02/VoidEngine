@@ -94,6 +94,13 @@ void CameraActor::UpdateRotation(float dt)
         AddYawDegrees(mAngularVelocity.x * dt, mSnappedToActor->GetGlobalPosition());
         AddPitchDegrees(mAngularVelocity.y * dt, mSnappedToActor->GetGlobalPosition());
 
+        // Set snaped actors pitch to the same as the cameras
+        glm::quat currentRotation = mSnappedToActor->GetGlobalRotation();
+        glm::quat cameraRotation = GetGlobalRotation();
+        float pitchAngle = glm::degrees(atan2(2.0f * (cameraRotation.y * cameraRotation.w - cameraRotation.x * cameraRotation.z), 1.0f - 2.0f * (cameraRotation.y * cameraRotation.y + cameraRotation.z * cameraRotation.z)));
+        glm::quat pitchRotation = glm::quat(glm::angleAxis(glm::radians(pitchAngle), glm::vec3(0.f, 1.f, 0.f)));
+        mSnappedToActor->SetGlobalRotation(pitchRotation);
+
     } else {
         // updates rotation each tick by the angular velocity
         AddYawDegrees(mAngularVelocity.x * dt);

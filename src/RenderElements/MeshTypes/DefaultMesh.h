@@ -18,11 +18,11 @@ class DefaultMesh : public Mesh
 {
 public:
     // ---------- Global Variables --------------
-
+    std::vector<Vertex> mVertices;
 private:
     // ---------- Local Variables --------------
 
-    std::vector<Vertex> mVertices;
+
     std::vector<Index> mIndices;
     std::shared_ptr<Material> mMaterial{ nullptr };
 

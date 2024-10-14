@@ -52,9 +52,12 @@ void LevelManager::LoadContent()
 
 	//LoadDefaultLevel();
 
-	LoadGraphDisplayLevel();
+	//LoadGraphDisplayLevel();
 
 	//LoadPhysicsBoxLevel();
+
+	LoadTestGame();
+
 }
 
 void LevelManager::BaseLevelRequiredObjects()
@@ -184,44 +187,44 @@ void LevelManager::LoadGraphDisplayLevel()
 
 	// --------------- General Graph object ----------------------
 
-	//LOG("Loading `Graph Actor` example");
-	//std::vector<glm::vec3> controlPointsGraph = {
-	//	glm::vec3(4, -2, 0),
-	//	glm::vec3(0, 2, 0),
-	//	glm::vec3(-4, -2, 0)
-	//};
-	//
-	//std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor", glm::vec3(0), glm::vec3(0.6f));
-	//mActiveLevel->AddActorToSceneGraph(graphActor);
-	//graphActor->SetControlPoints(controlPointsGraph);
-	//graphActor->CreateGraph(GraphMethod::DeCasteljau, GraphType::Approximated);
-	//LOG("Finished loading `Graph Actor` example");
+	LOG("Loading `Graph Actor` example");
+	std::vector<glm::vec3> controlPointsGraph = {
+		glm::vec3(4, -2, 0),
+		glm::vec3(0, 2, 0),
+		glm::vec3(-4, -2, 0)
+	};
+	
+	std::shared_ptr<GraphActor> graphActor = std::make_shared<GraphActor>("GraphActor", glm::vec3(0), glm::vec3(0.6f));
+	mActiveLevel->AddActorToSceneGraph(graphActor);
+	graphActor->SetControlPoints(controlPointsGraph);
+	graphActor->CreateGraph(GraphMethod::DeCasteljau, GraphType::Approximated);
+	LOG("Finished loading `Graph Actor` example");
 
 	// --------------- Bi-Quadratic B-spline tensor product surface ----------------------
 
-	//LOG("Loading `Bi-Quadratic B-spline tensor product surface` example");
-	//// Define degrees 2 = Bi-Quadratic
-	//int Du = 2;
-	//int Dv = 2;
+	LOG("Loading `Bi-Quadratic B-spline tensor product surface` example");
+	// Define degrees 2 = Bi-Quadratic
+	int Du = 2;
+	int Dv = 2;
 
-	//// Define resolution
-	//int UResolution = 20;
-	//int VResolution = 20;
+	// Define resolution
+	int UResolution = 20;
+	int VResolution = 20;
 
-	//// Define knot vectors
-	//std::vector<float> uKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 };
-	//std::vector<float> vKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 }; 
+	// Define knot vectors
+	std::vector<float> uKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 };
+	std::vector<float> vKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 }; 
 
-	//// Define control points (2D grid)
-	//std::vector<std::vector<glm::vec3>> controlPoints = {
-	//	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(2.0f, 0.0f, 0.0f)},
-	//	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(1.0f, 2.0f, 1.0f), glm::vec3(2.0f, 1.0f, 1.0f)},
-	//	{glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(1.0f, 1.0f, 2.0f), glm::vec3(2.0f, 0.0f, 2.0f)}
-	//};
+	// Define control points (2D grid)
+	std::vector<std::vector<glm::vec3>> controlPoints = {
+		{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(2.0f, 0.0f, 0.0f)},
+		{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(1.0f, 2.0f, 1.0f), glm::vec3(2.0f, 1.0f, 1.0f)},
+		{glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(1.0f, 1.0f, 2.0f), glm::vec3(2.0f, 0.0f, 2.0f)}
+	};
 
-	//std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
-	//AddActorToLevel(BSplineSurface);
-	//LOG("Finished loading `Bi-Quadratic B-spline tensor product surface` example");
+	std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
+	AddActorToLevel(BSplineSurface);
+	LOG("Finished loading `Bi-Quadratic B-spline tensor product surface` example");
 
 	// -------------------- Point cloud from LAS to render --------------------------------
 
@@ -276,6 +279,25 @@ void LevelManager::LoadGraphDisplayLevel()
 	LOG_INFO("Finished loading `Graph Display Level`, time elapsed `%.2f` seconds", elapsedTimeS);
 }
 
+void LevelManager::LoadTestGame()
+{
+	BaseLevelRequiredObjects();
+
+	std::shared_ptr<VisualActor> surface = std::make_shared<VisualActor>("Surface", Mesh::CreatePlane(nullptr),glm::vec3(0,-4,0),glm::vec3(40,40,40));
+	AddActorToLevel(surface);
+
+	// The player
+	std::shared_ptr<BaseActor> player = std::make_shared<BaseActor>("Player", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(0,2,0), glm::vec3(1, 2, 1));
+	AddActorToLevel(player);
+	player->AddComponent<PhysicsComponent>("PhyComp");
+	player->GetPhysicsComponent()->SetGravityEnabled(true);
+	player->GetPhysicsComponent()->SetSurfaceReference(surface);
+	//player->AddComponent<InventoryComponent>("InvComp");
+
+	std::shared_ptr<BaseActor> testEnemy = std::make_shared<BaseActor>("Enemy", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(0, 2, 0), glm::vec3(1, 2, 1));
+	AddActorToLevel(testEnemy);
+}
+
 void LevelManager::UnloadContent()
 {
 	Mesh::ClearCache();
@@ -305,7 +327,7 @@ void LevelManager::Update(float _dt)
 	// Then handle collision for all objects in scene
 	CheckLevelCollision();
 
-	// Handels lifetime of tempDebug actors
+	// Handles lifetime of level objects
 	mActiveLevel->LifeTimeUpdate();
 }
 

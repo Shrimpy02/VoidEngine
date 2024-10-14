@@ -1164,7 +1164,6 @@ void UserInterfaceManager::ui_ContentProperties()
 				
 			} else
 			{
-
 				// Decides if a camera should snap to selected actor
 				// ----------------------------------------------
 				ImGui::Checkbox("Snap camera to actor", &mSnapCameraToActor);

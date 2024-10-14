@@ -4,8 +4,10 @@
 #include <LevelActors/BaseActor.h>
 #include <LevelActors/VisualActor.h>
 #include <RenderElements/Mesh.h>
+#include <RenderElements/MeshTypes/DefaultMesh.h>
 #include <RenderElements/MeshTypes/PointCloudMesh.h>
 #include <RenderElements/VertexTypes/PointCloudVertex.h>
+#include <RenderElements/VertexTypes/DefaultVertex.h>
 #include <Utilities/Logger.h>
 #include <RenderElements/GraphPoint.h>
 
@@ -90,147 +92,145 @@ bool SMath::ConformObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_
 
 bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height)
 {
-   // // --------------- Stage 1, Check if object is within extent --------
-   // if (IsWithinTerrainXZExtent(_object, _surface))
-   // {
-   //     std::shared_ptr<Mesh> groundPlane = _surface->GetActorVisualMesh();
-   // 
-   // 	std::vector<Vertex>& planeVertices = Mesh::GetVertices<Mesh,Vertex>(groundPlane);
-   //     std::vector<Index>& planeIndices = groundPlane->GetIndices();
-   // 
-   //     glm::vec3 actorPos(_object->GetGlobalPosition());
-   // 
-   //     // --------------- Stage 2, Get surface global transform --------
-   // 
-   //     glm::vec3 globalPosition = _surface->GetGlobalPosition();
-   //     glm::vec3 globalScale = _surface->GetGlobalScale();
-   //     glm::quat globalRotation = _surface->GetGlobalRotation();
-   // 
-   //     glm::mat4 transformMatrix = glm::translate(
-   //         glm::mat4(1.0f), globalPosition) *
-   //         glm::mat4_cast(globalRotation) *
-   //         glm::scale(glm::mat4(1.0f), globalScale);
-   // 
-   //     // --------------- Stage 3, Iterate through surface in pairs of 3 --------
-   //     for (int i = 0; i < planeIndices.size() - 2; i += 3)
-   //     {
-   //         unsigned int index1 = planeIndices[i];
-   //         unsigned int index2 = planeIndices[i + 1];
-   //         unsigned int index3 = planeIndices[i + 2];
-   // 
-   //         glm::vec3 point1Pos(planeVertices[index1].mPosition);
-   //         glm::vec3 point2Pos(planeVertices[index2].mPosition);
-   //         glm::vec3 point3Pos(planeVertices[index3].mPosition);
-   // 
-   //         // Apply the transform
-   //         point1Pos = glm::vec3(transformMatrix * glm::vec4(point1Pos, 1.0f));
-   //         point2Pos = glm::vec3(transformMatrix * glm::vec4(point2Pos, 1.0f));
-   //         point3Pos = glm::vec3(transformMatrix * glm::vec4(point3Pos, 1.0f));
-   // 
-   //         glm::vec3 baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
-   // 
-   //         // If object is on edge move object slightly and re-calculate
-   //         if (baryCoords.x == 0 || baryCoords.y == 0 || baryCoords.z == 0)
-   //         {
-   //             _object->SetGlobalPosition(_object->GetGlobalPosition() + glm::vec3(0.01f, 0.f, 0.01f));
-   //             actorPos = _object->GetGlobalPosition();
-   //             baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
-   //         }
-   // 
-   //         // --------------- Stage 4, if object in triangle, update height --------
-   //         if (baryCoords.x > 0 && baryCoords.x < 1 &&
-   //             baryCoords.y > 0 && baryCoords.y < 1 &&
-   //             baryCoords.z > 0 && baryCoords.z < 1)
-   //         {
-   //             // Log triangle index
-   //             //std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
-   // 
-   //             // Calculates and updates height from the barycentric coordinates
-   //             _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
-   // 
-   //             return true;
-   //         }
-   //     }
-   // }
-   //
-   // return false;
+    // --------------- Stage 1, Check if object is within extent --------
+    if (IsWithinTerrainXZExtent(_object, _surface))
+    {
+        std::shared_ptr<DefaultMesh> groundPlane = std::dynamic_pointer_cast<DefaultMesh>(_surface->GetActorVisualMesh());
+
+    	std::vector<Vertex>& planeVertices = groundPlane->mVertices;
+        std::vector<Index>& planeIndices = groundPlane->GetIndices();
+    
+        glm::vec3 actorPos(_object->GetGlobalPosition());
+    
+        // --------------- Stage 2, Get surface global transform --------
+    
+        glm::vec3 globalPosition = _surface->GetGlobalPosition();
+        glm::vec3 globalScale = _surface->GetGlobalScale();
+        glm::quat globalRotation = _surface->GetGlobalRotation();
+    
+        glm::mat4 transformMatrix = glm::translate(
+            glm::mat4(1.0f), globalPosition) *
+            glm::mat4_cast(globalRotation) *
+            glm::scale(glm::mat4(1.0f), globalScale);
+    
+        // --------------- Stage 3, Iterate through surface in pairs of 3 --------
+        for (int i = 0; i < planeIndices.size() - 2; i += 3)
+        {
+            unsigned int index1 = planeIndices[i];
+            unsigned int index2 = planeIndices[i + 1];
+            unsigned int index3 = planeIndices[i + 2];
+    
+            glm::vec3 point1Pos(planeVertices[index1].mPosition);
+            glm::vec3 point2Pos(planeVertices[index2].mPosition);
+            glm::vec3 point3Pos(planeVertices[index3].mPosition);
+    
+            // Apply the transform
+            point1Pos = glm::vec3(transformMatrix * glm::vec4(point1Pos, 1.0f));
+            point2Pos = glm::vec3(transformMatrix * glm::vec4(point2Pos, 1.0f));
+            point3Pos = glm::vec3(transformMatrix * glm::vec4(point3Pos, 1.0f));
+    
+            glm::vec3 baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
+    
+            // If object is on edge move object slightly and re-calculate
+            if (baryCoords.x == 0 || baryCoords.y == 0 || baryCoords.z == 0)
+            {
+                _object->SetGlobalPosition(_object->GetGlobalPosition() + glm::vec3(0.01f, 0.f, 0.01f));
+                actorPos = _object->GetGlobalPosition();
+                baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
+            }
+    
+            // --------------- Stage 4, if object in triangle, update height --------
+            if (baryCoords.x > 0 && baryCoords.x < 1 &&
+                baryCoords.y > 0 && baryCoords.y < 1 &&
+                baryCoords.z > 0 && baryCoords.z < 1)
+            {
+                // Log triangle index
+                //std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
+    
+                // Calculates and updates height from the barycentric coordinates
+                _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
+    
+                return true;
+            }
+        }
+    }
+
     return false;
 }
 
 bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, std::vector<glm::vec3>& _debugSurfacePoints)
 {
-   // // --------------- Stage 1, Check if object is within extent --------
-	//if (IsWithinTerrainXZExtent(_object, _surface))
-	//{
-   //     std::shared_ptr<Mesh> groundPlane = _surface->GetActorVisualMesh();
-   // 
-   //     std::vector<Vertex>& planeVertices = Mesh::GetVertices<Mesh, Vertex>(groundPlane);
-   //     std::vector<Index>& planeIndices = groundPlane->GetIndices();
-   // 
-   //     glm::vec3 actorPos(_object->GetGlobalPosition());
-   // 
-   //     // --------------- Stage 2, Get surface global transform --------
-   // 
-   //     glm::vec3 globalPosition = _surface->GetGlobalPosition();
-   //     glm::vec3 globalScale = _surface->GetGlobalScale();
-   //     glm::quat globalRotation = _surface->GetGlobalRotation();
-   // 
-   //     glm::mat4 transformMatrix = glm::translate(
-   //                                                glm::mat4(1.0f), globalPosition) * 
-   //                                                 glm::mat4_cast(globalRotation) * 
-   //                                                 glm::scale(glm::mat4(1.0f), globalScale);
-   // 
-   //     // --------------- Stage 3, Iterate through surface in pairs of 3 --------
-   //     for (int i = 0; i < planeIndices.size() - 2; i += 3)
-   //     {
-   //         unsigned int index1 = planeIndices[i];
-   //         unsigned int index2 = planeIndices[i + 1];
-   //         unsigned int index3 = planeIndices[i + 2];
-   // 
-   //         glm::vec3 point1Pos(planeVertices[index1].mPosition);
-   //         glm::vec3 point2Pos(planeVertices[index2].mPosition);
-   //         glm::vec3 point3Pos(planeVertices[index3].mPosition);
-   // 
-   //         // Apply the transform
-   //         point1Pos = glm::vec3(transformMatrix * glm::vec4(point1Pos, 1.0f));
-   //         point2Pos = glm::vec3(transformMatrix * glm::vec4(point2Pos, 1.0f));
-   //         point3Pos = glm::vec3(transformMatrix * glm::vec4(point3Pos, 1.0f));
-   // 
-   //         // Push locations for debug drawing
-   //         _debugSurfacePoints.push_back(point1Pos);
-   //         _debugSurfacePoints.push_back(point2Pos);
-   //         _debugSurfacePoints.push_back(point1Pos);
-   //         _debugSurfacePoints.push_back(point3Pos);
-   //         _debugSurfacePoints.push_back(point2Pos);
-   //         _debugSurfacePoints.push_back(point3Pos);
-   // 
-   //         glm::vec3 baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
-   // 
-   //         // If object is on edge move object slightly and re-calculate
-   //         if (baryCoords.x == 0 || baryCoords.y == 0 || baryCoords.z == 0)
-   //         {
-   //             _object->SetGlobalPosition(_object->GetGlobalPosition() + glm::vec3(0.01f, 0.f, 0.01f));
-   //             actorPos = _object->GetGlobalPosition();
-   //         	baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
-   //         }
-   // 
-   //         // --------------- Stage 4, if object in triangle, update height --------
-   //         if (baryCoords.x > 0 && baryCoords.x < 1 &&
-   //             baryCoords.y > 0 && baryCoords.y < 1 &&
-   //             baryCoords.z > 0 && baryCoords.z < 1)
-   //         {
-   //             // Log triangle index
-   //             //std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
-   // 
-   //             // Calculates and updates height from the barycentric coordinates
-   //             _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
-   // 
-   //             return true;
-   //         }
-   //     }
-	//}
-   //
-   // return false;
+    // --------------- Stage 1, Check if object is within extent --------
+	if (IsWithinTerrainXZExtent(_object, _surface))
+	{
+        std::shared_ptr<DefaultMesh> groundPlane = std::dynamic_pointer_cast<DefaultMesh>(_surface->GetActorVisualMesh());
+
+        std::vector<Vertex>& planeVertices = groundPlane->mVertices;
+        std::vector<Index>& planeIndices = groundPlane->GetIndices();
+    
+        glm::vec3 actorPos(_object->GetGlobalPosition());
+    
+        // --------------- Stage 2, Get surface global transform --------
+    
+        glm::vec3 globalPosition = _surface->GetGlobalPosition();
+        glm::vec3 globalScale = _surface->GetGlobalScale();
+        glm::quat globalRotation = _surface->GetGlobalRotation();
+    
+        glm::mat4 transformMatrix = glm::translate(
+                                                   glm::mat4(1.0f), globalPosition) * 
+                                                    glm::mat4_cast(globalRotation) * 
+                                                    glm::scale(glm::mat4(1.0f), globalScale);
+    
+        // --------------- Stage 3, Iterate through surface in pairs of 3 --------
+        for (int i = 0; i < planeIndices.size() - 2; i += 3)
+        {
+            unsigned int index1 = planeIndices[i];
+            unsigned int index2 = planeIndices[i + 1];
+            unsigned int index3 = planeIndices[i + 2];
+    
+            glm::vec3 point1Pos(planeVertices[index1].mPosition);
+            glm::vec3 point2Pos(planeVertices[index2].mPosition);
+            glm::vec3 point3Pos(planeVertices[index3].mPosition);
+    
+            // Apply the transform
+            point1Pos = glm::vec3(transformMatrix * glm::vec4(point1Pos, 1.0f));
+            point2Pos = glm::vec3(transformMatrix * glm::vec4(point2Pos, 1.0f));
+            point3Pos = glm::vec3(transformMatrix * glm::vec4(point3Pos, 1.0f));
+    
+            // Push locations for debug drawing
+            _debugSurfacePoints.push_back(point1Pos);
+            _debugSurfacePoints.push_back(point2Pos);
+            _debugSurfacePoints.push_back(point1Pos);
+            _debugSurfacePoints.push_back(point3Pos);
+            _debugSurfacePoints.push_back(point2Pos);
+            _debugSurfacePoints.push_back(point3Pos);
+    
+            glm::vec3 baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
+    
+            // If object is on edge move object slightly and re-calculate
+            if (baryCoords.x == 0 || baryCoords.y == 0 || baryCoords.z == 0)
+            {
+                _object->SetGlobalPosition(_object->GetGlobalPosition() + glm::vec3(0.01f, 0.f, 0.01f));
+                actorPos = _object->GetGlobalPosition();
+            	baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
+            }
+    
+            // --------------- Stage 4, if object in triangle, update height --------
+            if (baryCoords.x > 0 && baryCoords.x < 1 &&
+                baryCoords.y > 0 && baryCoords.y < 1 &&
+                baryCoords.z > 0 && baryCoords.z < 1)
+            {
+                // Log triangle index
+                //std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
+    
+                // Calculates and updates height from the barycentric coordinates
+                _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
+    
+                return true;
+            }
+        }
+	}
+   
     return false;
 }
 
