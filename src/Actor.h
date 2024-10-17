@@ -3,6 +3,7 @@
 // Includes 
 #include <Components/PhysicsComponent.h>
 #include <Components/AIComponent.h>
+#include <Components/HealthComponent.h>
 #include <Transform.h>
 
 // Additional includes
@@ -72,7 +73,7 @@ public:
 	// Template function that takes in a class and name, if that class has component as a base it creates
 	// that object as a component and adds it to the components vector of this actor.
 	template <typename T>
-	void AddComponent(const std::string& _componentName)
+	std::shared_ptr<T> AddComponent(const std::string& _componentName)
 	{
 		// check if this component derives from component class
 		static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component");
@@ -81,6 +82,7 @@ public:
 		std::shared_ptr<T> component = std::make_shared<T>(_componentName, shared_from_this());
 		component->Init();
 		mComponents.emplace_back(component);
+		return component;
 	}
 
 	// Template function that recursively checks itself and its children if they are actors.
@@ -146,6 +148,9 @@ public:
 
 	// Returns pointer to the first physics component of this actor.
 	std::shared_ptr<PhysicsComponent> GetPhysicsComponent();
+
+	// 
+	std::shared_ptr<HealthComponent> GetHealthComponent();
 
 	int GetHierarchyLevel();
 

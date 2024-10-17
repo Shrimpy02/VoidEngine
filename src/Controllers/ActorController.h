@@ -19,7 +19,8 @@ class UserInterfaceManager;
 enum class LeftClickOptions
 {
 	Select,
-    AddForce
+    AddForce,
+    ShootBall
 };
 
 /**
@@ -96,6 +97,9 @@ private:
     void CameraInput(float _dt);
 
     void ActorInput(float _dt);
+
+    // temp
+	void ShootBullet(glm::vec3 shootingPos, glm::vec3 shootingDirection);
 
 public:
     // ---------- Getters / setters / Adders --------------

@@ -29,6 +29,12 @@ public:
     bool mCustomCollisionMesh = false;
     bool doOnce = true; // used
 
+    // tmp
+    glm::vec3 direction = glm::vec3(0);
+    bool shouldMove = false;
+    float bulletSpeed = 20.f;
+    bool visualizeCollisionMesh = false;
+
 private:
     // ---------- Local Variables --------------
 

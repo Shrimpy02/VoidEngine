@@ -16,13 +16,11 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
-
 struct FileItem
 {
     std::string mName;
     bool mIsDirectory;
 };
-
 
 // Forward Declarations
 class WindowManager;

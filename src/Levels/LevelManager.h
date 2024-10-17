@@ -19,6 +19,10 @@ class UserInterfaceManager;
 class DebugActor;
 class CameraActor;
 class OctTree_Node;
+class BaseActor;
+class AISystem;
+class HealthSystem;
+class PhysicsSystem;
 
 /**
  * @class LevelManager
@@ -31,6 +35,8 @@ class LevelManager : public std::enable_shared_from_this<LevelManager>
 public:
     // ---------- Global Variables --------------
 
+        //tmp
+    std::shared_ptr<BaseActor> PLayer{ nullptr };
 
 private:
     // ---------- Local Variables --------------
@@ -52,6 +58,12 @@ private:
          
     time_t mApplicationStartTime = 0;
 
+
+    // Component Systems
+    std::shared_ptr<AISystem> mAiSystem;
+    std::shared_ptr<HealthSystem> mHealthSystem;
+    std::shared_ptr<PhysicsSystem> mPhysicsSystem;
+ 
 public:
     // ---------- Global functions --------------
     explicit LevelManager(std::shared_ptr<ActorController> _inController, std::shared_ptr<UserInterfaceManager> _userIManager);

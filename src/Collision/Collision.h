@@ -28,6 +28,12 @@ public:
     glm::vec3 mExtent{ 0.f,0.f,0.f };
     float mRadius{ 0.5f };
 
+    //tmp
+    bool isWeapon = false;
+    bool isPlayer = false;
+    bool isBullet = false;
+    bool isEnemy = false;
+
     // objects collision properties
     CollisionProperties mCollisionProperties = { CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::AABB };
 

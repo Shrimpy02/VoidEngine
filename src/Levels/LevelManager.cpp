@@ -12,6 +12,10 @@
 //#include <Material.h>
 //#include <Renderer.h>
 
+#include <Components/AISystem.h>
+#include <Components/HealthSystem.h>
+#include <Components/PhysicsSystem.h>
+
 #include <Core/Shader.h>
 #include <Core/SSpawner.h>
 #include <Controllers/ActorController.h>
@@ -57,7 +61,6 @@ void LevelManager::LoadContent()
 	//LoadPhysicsBoxLevel();
 
 	LoadTestGame();
-
 }
 
 void LevelManager::BaseLevelRequiredObjects()
@@ -240,7 +243,7 @@ void LevelManager::LoadGraphDisplayLevel()
 	// Reading and converting points into custom txt file 
 	std::string fullPathToFileForConversionInn = sourceFile + "/" + regionDirectories[0].mName;
 	std::string fullPathToFileForConversionOut = SOURCE_DIRECTORY("/Output") + std::string("/CustomOutputFile.txt");
-	SMath::LASFileToCustomFileOfPoints(fullPathToFileForConversionInn.c_str(), fullPathToFileForConversionOut.c_str());
+	//SMath::LASFileToCustomFileOfPoints(fullPathToFileForConversionInn.c_str(), fullPathToFileForConversionOut.c_str());
 	LOG("Finished point cloud conversion to custom `txt` file found in /output", regionDirectories.size());
 
 	LOG("Starting point cloud import of `%i` files", regionDirectories.size());
@@ -283,19 +286,72 @@ void LevelManager::LoadTestGame()
 {
 	BaseLevelRequiredObjects();
 
-	std::shared_ptr<VisualActor> surface = std::make_shared<VisualActor>("Surface", Mesh::CreatePlane(nullptr),glm::vec3(0,-4,0),glm::vec3(40,40,40));
+	std::shared_ptr<Texture> enemyTex = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/DefaultTextures/RedTexture.jpg"));
+	std::shared_ptr<Material> enemyMat = Material::Load("EnemyTexture", { enemyTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
+
+	std::shared_ptr<Texture> groundTex = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Fabric/GrayFabic.jpg"));
+	std::shared_ptr<Material> groundMat = Material::Load("GroundTexture", { groundTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
+
+	std::shared_ptr<VisualActor> surface = std::make_shared<VisualActor>("Surface", Mesh::CreatePlane(groundMat),glm::vec3(0,-4,0),glm::vec3(40,40,40));
 	AddActorToLevel(surface);
+
+	// Systems
+	mAiSystem = std::make_shared<AISystem>(AiFT_FollowObject);
+	mHealthSystem = std::make_shared<HealthSystem>();
+	mPhysicsSystem = std::make_shared<PhysicsSystem>();
 
 	// The player
 	std::shared_ptr<BaseActor> player = std::make_shared<BaseActor>("Player", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(0,2,0), glm::vec3(1, 2, 1));
+	PLayer = player;
 	AddActorToLevel(player);
+	player->isPlayer = true;
+	player->SetCollisionResponse(CollisionResponse::BLOCK);
+	player->SetCollisionType(CollisionType::DYNAMIC);
 	player->AddComponent<PhysicsComponent>("PhyComp");
-	player->GetPhysicsComponent()->SetGravityEnabled(true);
 	player->GetPhysicsComponent()->SetSurfaceReference(surface);
 	//player->AddComponent<InventoryComponent>("InvComp");
+	std::shared_ptr<HealthComponent> healthComp = player->AddComponent<HealthComponent>("HealthComp");
+	mHealthSystem->AddComponent(healthComp);
+	mHealthSystem->SetHealth(healthComp, 3);
 
-	std::shared_ptr<BaseActor> testEnemy = std::make_shared<BaseActor>("Enemy", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(0, 2, 0), glm::vec3(1, 2, 1));
+	// Weapon
+	std::shared_ptr<BaseActor> weapon = std::make_shared<BaseActor>("Player-Weapon", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(0.5, 0.2, -1.0), glm::vec3(0.1, 0.1, 2));
+	player->AddChild(weapon);
+	weapon->SetCollisionResponse(CollisionResponse::IGNORE);
+
+
+	// Test enemy
+	std::shared_ptr<BaseActor> testEnemy = std::make_shared<BaseActor>("Enemy", Mesh::CreateCube(enemyMat), CollisionBase::AABB, glm::vec3(0, 2, -5), glm::vec3(1, 2, 1));
 	AddActorToLevel(testEnemy);
+	testEnemy->isEnemy = true;
+	testEnemy->SetCollisionResponse(CollisionResponse::BLOCK);
+	testEnemy->SetCollisionType(CollisionType::DYNAMIC);
+	testEnemy->AddComponent<PhysicsComponent>("PhyComp");
+	testEnemy->GetPhysicsComponent()->SetSurfaceReference(surface);
+
+	std::shared_ptr<AIComponent> aiComp = testEnemy->AddComponent<AIComponent>("AIComp");
+	mAiSystem->AddComponent(aiComp);
+	mAiSystem->SetTarget(aiComp,player);
+
+	std::shared_ptr<HealthComponent> healthComp2 = testEnemy->AddComponent<HealthComponent>("HealthComp");
+	mHealthSystem->AddComponent(healthComp2);
+	mHealthSystem->SetHealth(healthComp2, 1);
+	// Test enemy
+	std::shared_ptr<BaseActor> testEnemy2 = std::make_shared<BaseActor>("Enemy", Mesh::CreateCube(enemyMat), CollisionBase::AABB, glm::vec3(0, 2, 5), glm::vec3(1, 2, 1));
+	AddActorToLevel(testEnemy2);
+	testEnemy2->isEnemy = true;
+	testEnemy2->SetCollisionResponse(CollisionResponse::BLOCK);
+	testEnemy2->SetCollisionType(CollisionType::DYNAMIC);
+	testEnemy2->AddComponent<PhysicsComponent>("PhyComp");
+	testEnemy2->GetPhysicsComponent()->SetSurfaceReference(surface);
+
+	std::shared_ptr<AIComponent> aiComp2 = testEnemy2->AddComponent<AIComponent>("AIComp");
+	mAiSystem->AddComponent(aiComp2);
+	mAiSystem->SetTarget(aiComp2, player);
+
+	std::shared_ptr<HealthComponent> healthComp3 = testEnemy2->AddComponent<HealthComponent>("HealthComp");
+	mHealthSystem->AddComponent(healthComp3);
+	mHealthSystem->SetHealth(healthComp3, 1);
 }
 
 void LevelManager::UnloadContent()
@@ -323,7 +379,11 @@ void LevelManager::Update(float _dt)
 	// Handle collision within bounding box
 	if(mConformBox)
 		CheckLevelCollisionWithinBoxBounds(mConformBox);
-	
+
+	// Component System Updates
+	mAiSystem->Update(_dt);
+	mHealthSystem->Update(_dt);
+
 	// Then handle collision for all objects in scene
 	CheckLevelCollision();
 
@@ -374,6 +434,12 @@ void LevelManager::CheckLevelCollision()
 			// Skip intersection
 			// ------------------------------------------------
 
+			if(actorColliderA->isBullet && actorColliderB->isPlayer || actorColliderA->isPlayer && actorColliderB->isBullet)
+			{
+				continue;
+			}
+
+
 			// Skip intersection if either ignore response
 			if (actorColliderA->mCollisionProperties.IsIgnoreResponse() ||
 				actorColliderB->mCollisionProperties.IsIgnoreResponse())
@@ -383,6 +449,7 @@ void LevelManager::CheckLevelCollision()
 			if (actorColliderA->mCollisionProperties.IsStatic() &&
 				actorColliderB->mCollisionProperties.IsStatic())
 				continue;
+
 			
 			// Check intersection
 			// ------------------------------------------------
@@ -390,16 +457,43 @@ void LevelManager::CheckLevelCollision()
 			glm::vec3 mtv{ 0.f };
 			if(actorColliderA->IsIntersecting(actorColliderB, &mtv))
 			{
-				// check if both actors have physics components, if true do physics collision
-				if(collisionActors[i]->GetPhysicsComponent() && collisionActors[j]->GetPhysicsComponent())
+				// Eneables Physics component
+				//// check if both actors have physics components, if true do physics collision
+				//if(collisionActors[i]->GetPhysicsComponent() && collisionActors[j]->GetPhysicsComponent())
+				//{
+				//	if(!actorACollided && !actorBCollided)
+				//	{
+				//		IBounded::BoundingSpherex2PhysicsCollision(collisionActors[i], collisionActors[j]);
+				//		actorACollided = actorBCollided = true;
+				//		continue;
+				//	}
+				//}
+
+				if(actorColliderA->isBullet && actorColliderB->isEnemy || actorColliderA->isEnemy && actorColliderB->isBullet)
 				{
-					if(!actorACollided && !actorBCollided)
+					if (collisionActors[i]->GetHealthComponent())
 					{
-						IBounded::BoundingSpherex2PhysicsCollision(collisionActors[i], collisionActors[j]);
-						actorACollided = actorBCollided = true;
-						continue;
+						mHealthSystem->DoDamage(collisionActors[i]->GetHealthComponent(), 1);
+
+						if(mHealthSystem->IsDead(collisionActors[i]))
+						{
+							RemoveActorFromLevel(collisionActors[i]);
+						}
 					}
+
+					if (collisionActors[j]->GetHealthComponent())
+					{
+						mHealthSystem->DoDamage(collisionActors[j]->GetHealthComponent(), 1);
+
+						if (mHealthSystem->IsDead(collisionActors[j]))
+						{
+							RemoveActorFromLevel(collisionActors[j]);
+						}
+
+					}
+					continue;
 				}
+			
 
 				// mtv vector init for each object
 				glm::vec3 mtvA(0.f), mtvB(0.f);

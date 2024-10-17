@@ -49,6 +49,8 @@ void BaseActor::Draw(const std::shared_ptr<Shader> _shader) const
 
     // Then collision mesh
     if (!mCollisionMesh) return;
+
+    if (!visualizeCollisionMesh) return;
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     mCollisionMesh->Draw(_shader);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -56,6 +58,15 @@ void BaseActor::Draw(const std::shared_ptr<Shader> _shader) const
 
 void BaseActor::Update(float _dt)
 {
+    // temp
+    if(shouldMove)
+    {
+        glm::vec3 currentPos = GetGlobalPosition();
+        glm::vec3 newPos = currentPos + direction * _dt * bulletSpeed;
+        SetGlobalPosition(newPos);
+    }
+    // temp
+
     UpdateCollisionMeshBasedOnCollisionBase();
 
     UpdateExtent();

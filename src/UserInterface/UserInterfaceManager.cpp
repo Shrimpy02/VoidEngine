@@ -23,7 +23,7 @@
 #include <Core/WindowManager.h>
 #include <ModelLoader/AssimpLoader.h>
 #include <OctTree.h>
-
+#include <Components/AIComponent.h>
 #include "Core/SSpawner.h"
 
 // Additional Includes
@@ -854,7 +854,7 @@ void UserInterfaceManager::ui_WorldProperties()
 
 		// Decides what left click does:
 		// ---------------------------------------------------------
-		const char* items[] = { "Select level object", "Add Force"}; 
+		const char* items[] = { "Select level object", "Add Force", "Shoot Ball"};
 		static int currentItem = 0;  // Currently selected item (index)
 		if (ImGui::BeginCombo(" Left-Click", items[currentItem]))  // Combo box label and current selection
 		{
@@ -870,6 +870,7 @@ void UserInterfaceManager::ui_WorldProperties()
 					{
 					case 0: mController->SetLeftClickFocus(LeftClickOptions::Select); break;
 					case 1: mController->SetLeftClickFocus(LeftClickOptions::AddForce); break;
+					case 2: mController->SetLeftClickFocus(LeftClickOptions::ShootBall); break;
 					}
 				}
 
@@ -1657,12 +1658,12 @@ void UserInterfaceManager::uiSub_ComponentProperties(std::shared_ptr<Actor> _inA
 
 			// Edit movement speed of Ai actor
 			// ----------------------------------------------
-			float currentActorsAIMovementSpeed = _inActor->GetAIComponent()->GetMovementSpeed();
+			float currentActorsAIMovementSpeed = _inActor->GetAIComponent()->mMovementSpeed;
 			ImGui::Text("AI MovementSpeed: ");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(mItemWidth);
 			ImGui::InputFloat("##AIX", &currentActorsAIMovementSpeed);
-			_inActor->GetAIComponent()->SetMovementSpeed(currentActorsAIMovementSpeed);
+			_inActor->GetAIComponent()->mMovementSpeed = currentActorsAIMovementSpeed;
 		}
 	}
 }

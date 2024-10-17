@@ -7,11 +7,17 @@
 #include <Components/PhysicsComponent.h>
 #include <LevelActors/CameraActor.h>
 
+//tmp
+#include <LevelActors/BaseActor.h>
+
 // Additional Includes
 #include <GLFW/glfw3.h>
 
+#include "Levels/Level.h"
+#include "RenderElements/Mesh.h"
+
 ActorController::ActorController(std::shared_ptr<WindowManager> _windowManager,
-	std::shared_ptr<UserInterfaceManager> _userInterfaceManager)
+                                 std::shared_ptr<UserInterfaceManager> _userInterfaceManager)
 		: mWindowManager(_windowManager), mUserInterfaceManager(_userInterfaceManager)
 {
 }
@@ -146,7 +152,15 @@ void ActorController::HandleChar(unsigned codePoint)
 void ActorController::HandleViewportClick(int _button, int _action, int _mods, double _cursorPosX, double _cursorPosY)
 {
     std::shared_ptr<CameraActor> camera = std::dynamic_pointer_cast<CameraActor>(mControlledActor);
-    if (!camera) return;
+    if (!camera) {
+        // TEMP ___
+        if (mLeftClickOptions == LeftClickOptions::ShootBall && mCameraForSnap)
+        {
+            ShootBullet(mLevelManager->PLayer->GetChildren()[0]->GetGlobalPosition(), mCameraForSnap->GetFront());
+        }
+        // TEMP End ___
+        return;
+    }
 
     static bool doOnce = true;
 
@@ -191,13 +205,19 @@ void ActorController::HandleViewportClick(int _button, int _action, int _mods, d
                        100,
                        true))
                    {
+
                        if (mLeftClickOptions == LeftClickOptions::Select)
+                       {
                            mUserInterfaceManager->SetContentSelectedActor(hitActor);
+                       }
 
                        else if (mLeftClickOptions == LeftClickOptions::AddForce)
+                       {
                            if (hitActor->GetPhysicsComponent())
+                           {
                                hitActor->GetPhysicsComponent()->AddVelocity(mClickVelocity * rayDirection);
-
+                           }
+                       }
                    }
                    doOnce = false;
                }
@@ -360,10 +380,16 @@ void ActorController::ActorInput(float _dt)
             if (mKeyStates[GLFW_KEY_Q]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() + (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
             if (mKeyStates[GLFW_KEY_E]) mControlledActor->SetLocalPosition(mControlledActor->GetLocalPosition() - (glm::vec3(0.0f, 1.f, 0.0f) * _dt * mMovementSpeed));
         }
-        
-
     }
+}
 
-
-	
+// temp
+void ActorController::ShootBullet(glm::vec3 shootingPos, glm::vec3 shootingDirection)
+{
+    std::shared_ptr<BaseActor> bullet = std::make_shared<BaseActor>("bullet", Mesh::CreateSphere(nullptr),CollisionBase::BoundingSphere);
+    bullet->SetGlobalPosition(shootingPos);
+    bullet->direction = shootingDirection;
+    bullet->shouldMove = true;
+    bullet->isBullet = true;
+    mLevelManager->AddActorToLevel(bullet);
 }

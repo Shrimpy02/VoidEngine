@@ -74,6 +74,17 @@ std::shared_ptr<PhysicsComponent> Actor::GetPhysicsComponent()
 	return nullptr;
 }
 
+std::shared_ptr<HealthComponent> Actor::GetHealthComponent()
+{
+	for (std::shared_ptr<Component> comps : mComponents)
+	{
+		if (std::shared_ptr<HealthComponent> helthComp = std::dynamic_pointer_cast<HealthComponent>(comps))
+			return helthComp;
+	}
+
+	return nullptr;
+}
+
 int Actor::GetHierarchyLevel()
 {
 	if (mParent) {
