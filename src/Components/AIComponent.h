@@ -32,7 +32,7 @@ public:
 	// The path index for the active path
 	int mPathIndex = 1;
 	// The movement speed this components owner will move with
-	float mMovementSpeed = 5;
+	float mMovementSpeed = 1.5f;
 	// The range the owner must be within in order to have reached a point
 	float mTargetReachedThreshold = 0.1f;
 

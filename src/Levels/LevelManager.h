@@ -23,6 +23,7 @@ class BaseActor;
 class AISystem;
 class HealthSystem;
 class PhysicsSystem;
+class Material;
 
 /**
  * @class LevelManager
@@ -37,9 +38,19 @@ public:
 
         //tmp
     std::shared_ptr<BaseActor> PLayer{ nullptr };
+    std::shared_ptr<VisualActor> Surface{ nullptr };
+    std::shared_ptr<Material> enemyMat{ nullptr };
+    
+    // Component Systems
+    std::shared_ptr<AISystem> mAiSystem;
+    std::shared_ptr<HealthSystem> mHealthSystem;
+    std::shared_ptr<PhysicsSystem> mPhysicsSystem;
+
+    void SpawnWave();
 
 private:
-    // ---------- Local Variables --------------
+    // ---------- Local Variables -------------
+
 
     std::shared_ptr<UserInterfaceManager> mUserInterfaceManager{nullptr};
 
@@ -59,10 +70,7 @@ private:
     time_t mApplicationStartTime = 0;
 
 
-    // Component Systems
-    std::shared_ptr<AISystem> mAiSystem;
-    std::shared_ptr<HealthSystem> mHealthSystem;
-    std::shared_ptr<PhysicsSystem> mPhysicsSystem;
+
  
 public:
     // ---------- Global functions --------------

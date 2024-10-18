@@ -15,6 +15,7 @@
 #include <Components/AISystem.h>
 #include <Components/HealthSystem.h>
 #include <Components/PhysicsSystem.h>
+#include <Components/InventoryComponent.h>
 
 #include <Core/Shader.h>
 #include <Core/SSpawner.h>
@@ -36,6 +37,34 @@
 
 // Additional Includes
 #include <ctime>
+
+void LevelManager::SpawnWave()
+{
+
+	for(int i = 0; i < 10 ; i++)
+	{
+		
+		std::shared_ptr<BaseActor> testEnemy = std::make_shared<BaseActor>("Enemy", Mesh::CreateCube(enemyMat), CollisionBase::AABB, glm::vec3(0, 2, -10), glm::vec3(1, 2, 1));
+		AddActorToLevel(testEnemy);
+		testEnemy->isEnemy = true;
+		testEnemy->SetCollisionResponse(CollisionResponse::BLOCK);
+		testEnemy->SetCollisionType(CollisionType::DYNAMIC);
+		testEnemy->AddComponent<PhysicsComponent>("PhyComp");
+		testEnemy->GetPhysicsComponent()->SetSurfaceReference(Surface);
+
+		std::shared_ptr<AIComponent> aiComp = testEnemy->AddComponent<AIComponent>("AIComp");
+		mAiSystem->AddComponent(aiComp);
+		mAiSystem->SetTarget(aiComp, PLayer);
+
+		std::shared_ptr<HealthComponent> healthComp2 = testEnemy->AddComponent<HealthComponent>("HealthComp");
+		mHealthSystem->AddComponent(healthComp2);
+		mHealthSystem->SetHealth(healthComp2, 1);
+
+		SSpawner::SetObjectLocationWithinBoundsRandomlyIgnoreY(testEnemy, Surface);
+
+	}
+
+}
 
 LevelManager::LevelManager(std::shared_ptr<ActorController> _inController, std::shared_ptr<UserInterfaceManager> _userIManager)
 	: mController(_inController), mUserInterfaceManager(_userIManager)
@@ -286,19 +315,30 @@ void LevelManager::LoadTestGame()
 {
 	BaseLevelRequiredObjects();
 
+	// ECS Implementation:
+	// ECS is implemented by adding components to whatever actor is created.
+	// It is also added to each component system to so that their data is managed in a DOD method.
+	// Some components does not have DOD or a system to managed it like the physics component, this comes from me wanting
+	// to experament and compate the two approaches side by side.
+	// The UI for the game is done through the UI Interface, the collision detection and managing of the level and its
+	// Entities is done here in the level manager.
+	// The comments above code sections are sparse because the functions are self explanitory, if there are any questions consult the design document.
+
+	// Creates textures and materials for world objects
 	std::shared_ptr<Texture> enemyTex = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/DefaultTextures/RedTexture.jpg"));
-	std::shared_ptr<Material> enemyMat = Material::Load("EnemyTexture", { enemyTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
+	enemyMat = Material::Load("EnemyTexture", { enemyTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
 
 	std::shared_ptr<Texture> groundTex = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Fabric/GrayFabic.jpg"));
 	std::shared_ptr<Material> groundMat = Material::Load("GroundTexture", { groundTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {16} });
-
-	std::shared_ptr<VisualActor> surface = std::make_shared<VisualActor>("Surface", Mesh::CreatePlane(groundMat),glm::vec3(0,-4,0),glm::vec3(40,40,40));
-	AddActorToLevel(surface);
 
 	// Systems
 	mAiSystem = std::make_shared<AISystem>(AiFT_FollowObject);
 	mHealthSystem = std::make_shared<HealthSystem>();
 	mPhysicsSystem = std::make_shared<PhysicsSystem>();
+
+	// The surface of the game
+	Surface = std::make_shared<VisualActor>("Surface", Mesh::CreatePlane(groundMat),glm::vec3(0,-4,0),glm::vec3(40,40,40));
+	AddActorToLevel(Surface);
 
 	// The player
 	std::shared_ptr<BaseActor> player = std::make_shared<BaseActor>("Player", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(0,2,0), glm::vec3(1, 2, 1));
@@ -307,28 +347,33 @@ void LevelManager::LoadTestGame()
 	player->isPlayer = true;
 	player->SetCollisionResponse(CollisionResponse::BLOCK);
 	player->SetCollisionType(CollisionType::DYNAMIC);
+	player->AddComponent<InventoryComponent>("PhyComp");
 	player->AddComponent<PhysicsComponent>("PhyComp");
-	player->GetPhysicsComponent()->SetSurfaceReference(surface);
-	//player->AddComponent<InventoryComponent>("InvComp");
+	player->GetPhysicsComponent()->SetSurfaceReference(Surface);
 	std::shared_ptr<HealthComponent> healthComp = player->AddComponent<HealthComponent>("HealthComp");
 	mHealthSystem->AddComponent(healthComp);
 	mHealthSystem->SetHealth(healthComp, 3);
 
-	// Weapon
+	// Player weapon
 	std::shared_ptr<BaseActor> weapon = std::make_shared<BaseActor>("Player-Weapon", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(0.5, 0.2, -1.0), glm::vec3(0.1, 0.1, 2));
 	player->AddChild(weapon);
 	weapon->SetCollisionResponse(CollisionResponse::IGNORE);
 
+	// Default item
+	std::shared_ptr<BaseActor> testItem = std::make_shared<BaseActor>("testItem", Mesh::CreatePyramid(nullptr), CollisionBase::AABB, glm::vec3(-3, 0.5, -3), glm::vec3(0.5, 0.5, 0.5));
+	AddActorToLevel(testItem);
+	testItem->isItem = true;
 
-	// Test enemy
-	std::shared_ptr<BaseActor> testEnemy = std::make_shared<BaseActor>("Enemy", Mesh::CreateCube(enemyMat), CollisionBase::AABB, glm::vec3(0, 2, -5), glm::vec3(1, 2, 1));
+	// Default Enemy
+	std::shared_ptr<BaseActor> testEnemy = std::make_shared<BaseActor>("Enemy", Mesh::CreateCube(enemyMat), CollisionBase::AABB, glm::vec3(0, 2, -10), glm::vec3(1, 2, 1));
 	AddActorToLevel(testEnemy);
 	testEnemy->isEnemy = true;
 	testEnemy->SetCollisionResponse(CollisionResponse::BLOCK);
 	testEnemy->SetCollisionType(CollisionType::DYNAMIC);
 	testEnemy->AddComponent<PhysicsComponent>("PhyComp");
-	testEnemy->GetPhysicsComponent()->SetSurfaceReference(surface);
+	testEnemy->GetPhysicsComponent()->SetSurfaceReference(Surface);
 
+	// Component settupp
 	std::shared_ptr<AIComponent> aiComp = testEnemy->AddComponent<AIComponent>("AIComp");
 	mAiSystem->AddComponent(aiComp);
 	mAiSystem->SetTarget(aiComp,player);
@@ -336,22 +381,6 @@ void LevelManager::LoadTestGame()
 	std::shared_ptr<HealthComponent> healthComp2 = testEnemy->AddComponent<HealthComponent>("HealthComp");
 	mHealthSystem->AddComponent(healthComp2);
 	mHealthSystem->SetHealth(healthComp2, 1);
-	// Test enemy
-	std::shared_ptr<BaseActor> testEnemy2 = std::make_shared<BaseActor>("Enemy", Mesh::CreateCube(enemyMat), CollisionBase::AABB, glm::vec3(0, 2, 5), glm::vec3(1, 2, 1));
-	AddActorToLevel(testEnemy2);
-	testEnemy2->isEnemy = true;
-	testEnemy2->SetCollisionResponse(CollisionResponse::BLOCK);
-	testEnemy2->SetCollisionType(CollisionType::DYNAMIC);
-	testEnemy2->AddComponent<PhysicsComponent>("PhyComp");
-	testEnemy2->GetPhysicsComponent()->SetSurfaceReference(surface);
-
-	std::shared_ptr<AIComponent> aiComp2 = testEnemy2->AddComponent<AIComponent>("AIComp");
-	mAiSystem->AddComponent(aiComp2);
-	mAiSystem->SetTarget(aiComp2, player);
-
-	std::shared_ptr<HealthComponent> healthComp3 = testEnemy2->AddComponent<HealthComponent>("HealthComp");
-	mHealthSystem->AddComponent(healthComp3);
-	mHealthSystem->SetHealth(healthComp3, 1);
 }
 
 void LevelManager::UnloadContent()
@@ -383,6 +412,7 @@ void LevelManager::Update(float _dt)
 	// Component System Updates
 	mAiSystem->Update(_dt);
 	mHealthSystem->Update(_dt);
+	mPhysicsSystem->Update(_dt);
 
 	// Then handle collision for all objects in scene
 	CheckLevelCollision();
@@ -477,6 +507,14 @@ void LevelManager::CheckLevelCollision()
 
 						if(mHealthSystem->IsDead(collisionActors[i]))
 						{
+							int randomInt = SMath::GetRandomInt(0, 3);
+							if (randomInt == 2)
+							{
+								// Test item
+								std::shared_ptr<BaseActor> item = std::make_shared<BaseActor>("ItemDrop", Mesh::CreatePyramid(nullptr), CollisionBase::AABB, collisionActors[i]->GetGlobalPosition(), glm::vec3(0.5, 0.5, 0.5));
+								AddActorToLevel(item);
+								item->isItem = true;
+							}
 							RemoveActorFromLevel(collisionActors[i]);
 						}
 					}
@@ -487,13 +525,41 @@ void LevelManager::CheckLevelCollision()
 
 						if (mHealthSystem->IsDead(collisionActors[j]))
 						{
+				
+
+							int randomInt = SMath::GetRandomInt(0, 3);;
+							if(randomInt == 3)
+							{
+								// Test item
+								std::shared_ptr<BaseActor> item = std::make_shared<BaseActor>("ItemDrop", Mesh::CreatePyramid(nullptr), CollisionBase::AABB, collisionActors[j]->GetGlobalPosition(), glm::vec3(0.5, 0.5, 0.5));
+								AddActorToLevel(item);
+								item->isItem = true;
+							}
+
 							RemoveActorFromLevel(collisionActors[j]);
 						}
-
 					}
 					continue;
 				}
-			
+
+
+				if (actorColliderA->isPlayer && actorColliderB->isEnemy)
+				{
+					mHealthSystem->DoDamage(collisionActors[i]->GetHealthComponent(), 1);
+
+					if (mHealthSystem->IsDead(collisionActors[i]))
+					{
+						RemoveActorFromLevel(collisionActors[i]);
+					}
+					RemoveActorFromLevel(collisionActors[j]);
+				}
+
+
+				if (actorColliderA->isPlayer && actorColliderB->isItem)
+				{
+					collisionActors[i]->GetInventoryComponent()->AddItem(std::make_shared<Item>(1, "HealthPotion"));
+					RemoveActorFromLevel(collisionActors[j]);
+				}
 
 				// mtv vector init for each object
 				glm::vec3 mtvA(0.f), mtvB(0.f);

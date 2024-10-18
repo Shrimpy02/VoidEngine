@@ -33,6 +33,7 @@ public:
     bool isPlayer = false;
     bool isBullet = false;
     bool isEnemy = false;
+    bool isItem = false;
 
     // objects collision properties
     CollisionProperties mCollisionProperties = { CollisionType::STATIC, CollisionResponse::BLOCK, CollisionBase::AABB };

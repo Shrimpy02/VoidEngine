@@ -26,6 +26,8 @@
 #include <Components/AIComponent.h>
 #include "Core/SSpawner.h"
 
+#include <Components/HealthSystem.h>
+
 // Additional Includes
 
 
@@ -245,6 +247,9 @@ void UserInterfaceManager::RenderUI()
 	ui_ContentProperties();
 	ui_Log();
 	ui_Console();
+
+	ui_tempGame();
+
 }
 
 void UserInterfaceManager::RenderLevelToTexture()
@@ -1780,6 +1785,69 @@ void UserInterfaceManager::ui_Console()
 	{
 		ImGui::Text("tmp - Console");
 
+	}
+	ImGui::End();
+}
+
+void UserInterfaceManager::ui_tempGame()
+{
+
+	if (ImGui::Begin("Game"))
+	{
+		if(mContentSelectedActor)
+		{
+			if(mContentSelectedActor->GetHealthComponent() && mLevelManager->mHealthSystem)
+			{
+				ImGui::Text("Current Health: ");
+				ImGui::SameLine();
+				int health = mLevelManager->mHealthSystem->GetHealth(mContentSelectedActor->GetHealthComponent());
+				std::string he = std::to_string(health);
+				const char* healthtxt = he.c_str();
+				ImGui::Text(healthtxt);
+			}
+
+			if (mContentSelectedActor->GetInventoryComponent())
+			{
+				if(mContentSelectedActor->GetInventoryComponent()->mItems.size() > 0)
+				{
+
+					std::vector<std::shared_ptr<Item>> items = mContentSelectedActor->GetInventoryComponent()->mItems;
+
+					static std::shared_ptr<Item> SelectedActor = nullptr;
+
+					// Use BeginListBox to create a resizable list box
+					if (ImGui::BeginListBox("##LBI")) {
+
+						for (std::shared_ptr<Item> item : items)
+						{
+							if (ImGui::Selectable(item->mName.c_str()))
+							{
+								SelectedActor = item;
+							}
+						}
+					}
+					ImGui::EndListBox();
+
+					if(ImGui::Button("Use Potion"))
+					{
+						// Iterates through child vector and removes the child that matches input.
+						auto it = std::find(mContentSelectedActor->GetInventoryComponent()->mItems.begin(), mContentSelectedActor->GetInventoryComponent()->mItems.end(), SelectedActor);
+						if (it != mContentSelectedActor->GetInventoryComponent()->mItems.end())
+						{
+							mContentSelectedActor->GetInventoryComponent()->mItems.erase(it);
+							
+							mLevelManager->mHealthSystem->AddHealth(mContentSelectedActor->GetHealthComponent(), 1);
+						}
+					}
+
+				}
+			}
+		}
+
+		if (ImGui::Button("Spawn Wave"))
+		{
+			mLevelManager->SpawnWave();
+		}
 	}
 	ImGui::End();
 }

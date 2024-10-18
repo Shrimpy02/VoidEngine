@@ -4,6 +4,7 @@
 #include <Components/PhysicsComponent.h>
 #include <Components/AIComponent.h>
 #include <Components/HealthComponent.h>
+#include <Components/InventoryComponent.h>
 #include <Transform.h>
 
 // Additional includes
@@ -151,6 +152,9 @@ public:
 
 	// 
 	std::shared_ptr<HealthComponent> GetHealthComponent();
+
+	// 
+	std::shared_ptr<InventoryComponent> GetInventoryComponent();
 
 	int GetHierarchyLevel();
 

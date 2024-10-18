@@ -64,3 +64,16 @@ void SSpawner::SetObjectLocationWithinBoundsRandomly(std::shared_ptr<BaseActor> 
 
 	_object->SetGlobalPosition(glm::vec3(posX, posY, posZ));
 }
+
+void SSpawner::SetObjectLocationWithinBoundsRandomlyIgnoreY(std::shared_ptr<BaseActor> _object,
+	std::shared_ptr<VisualActor> _confineObject)
+{
+	// Gets the extent of the confine box
+	glm::vec3 boxMin = _confineObject->mCenter - _confineObject->mExtent;
+	glm::vec3 boxMax = _confineObject->mCenter + _confineObject->mExtent;
+
+	float posX = SMath::GetRandomFloatBetweenMinMax(boxMin.x, boxMax.x);
+	float posZ = SMath::GetRandomFloatBetweenMinMax(boxMin.z, boxMax.z);
+
+	_object->SetGlobalPosition(glm::vec3(posX, 1, posZ));
+}

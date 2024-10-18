@@ -39,6 +39,8 @@ public:
 
 	void DoDamage(std::shared_ptr<HealthComponent> _comp, int _damage);
 
+	void AddHealth(std::shared_ptr<HealthComponent> _comp, int _health);
+
 	bool IsDead(std::shared_ptr<HealthComponent> _comp);
 
 	bool IsDead(std::shared_ptr<Actor> _actor);
@@ -55,4 +57,5 @@ public:
 
 	void SetHealth(std::shared_ptr<HealthComponent> _inComp, int _health);
 
+	int GetHealth(std::shared_ptr<HealthComponent> _inComp);
 };

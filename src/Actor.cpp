@@ -85,6 +85,17 @@ std::shared_ptr<HealthComponent> Actor::GetHealthComponent()
 	return nullptr;
 }
 
+std::shared_ptr<InventoryComponent> Actor::GetInventoryComponent()
+{
+	for (std::shared_ptr<Component> comps : mComponents)
+	{
+		if (std::shared_ptr<InventoryComponent> invComp = std::dynamic_pointer_cast<InventoryComponent>(comps))
+			return invComp;
+	}
+
+	return nullptr;
+}
+
 int Actor::GetHierarchyLevel()
 {
 	if (mParent) {
