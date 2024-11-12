@@ -59,6 +59,8 @@ public:
     // Creates a default plane using a plane key
     static std::shared_ptr<Mesh> CreatePlane(std::shared_ptr<Material> _material, const bool _instance = false, std::string _customName = std::string());
 
+    static std::shared_ptr<Mesh> CreatePlane(std::vector<glm::vec3> planePoints, std::shared_ptr<Material> _material, const bool _instance = false, std::string _customName = std::string());
+
     // Creates a default pyramid using a pyramid key
     static std::shared_ptr<Mesh> CreatePyramid(std::shared_ptr<Material> _material, const bool _instance = false, std::string _customName = std::string());
 

@@ -248,8 +248,6 @@ private:
 
     void ui_Console();
 
-    void ui_tempGame();
-
     // ----
 
     void ui_Element_Image(std::shared_ptr<Texture> _image, ImVec2 _imageSize, ImVec2 _uv0 = ImVec2(1.0f, 1.0f), ImVec2 _uv1 = ImVec2(0.0f, 0.0f),bool _centreVertically = true);

@@ -12,6 +12,7 @@ class VisualActor;
 class Actor;
 class Mesh;
 class GraphPoint;
+class PointCloudMesh;
 
 /**
  * @class SMath
@@ -66,7 +67,10 @@ public:
     static glm::vec3 EvaluateBSplineSurface(float _u, float _v, int _du, int _dv, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints);
 
     static glm::vec3 EvaluateBSplineNormal(float _u, float _v, int _du, int _dv, int _UResolution, int _VResolution, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints);
-    // Curves ------
+
+    static void AdjustVertexCoordinates(std::shared_ptr<PointCloudMesh> _pcm, glm::vec3 _offsett);
+
+	// Curves ------
 
     static std::vector<glm::vec3> NevillInterpolatedPoints(const std::vector<std::shared_ptr<GraphPoint>>& _controlPoints, const float _step = 0.25f);
     static std::vector<glm::vec3> DeCastApproximationPoints(const std::vector<std::shared_ptr<GraphPoint>>& _controlPoints, const float _step = 0.25f);

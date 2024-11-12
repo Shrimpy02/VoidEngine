@@ -84,6 +84,13 @@ std::pair<glm::vec3, glm::vec3> PointCloudMesh::GetMeshMinMaxExtent()
     return std::make_pair(minExtent, maxExtent);
 }
 
+void PointCloudMesh::UpdateMesh()
+{
+    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(mVertices.size() * sizeof(PointCloudVertex)), mVertices.data(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 std::vector<PointCloudVertex>& PointCloudMesh::GetVertices()
 {
     return mVertices;

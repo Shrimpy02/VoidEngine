@@ -248,8 +248,6 @@ void UserInterfaceManager::RenderUI()
 	ui_Log();
 	ui_Console();
 
-	ui_tempGame();
-
 }
 
 void UserInterfaceManager::RenderLevelToTexture()
@@ -1427,7 +1425,7 @@ void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 	ImGui::Text("Material textures: ");
 
 	// Diffuse texture --------
-	if(_inMesh->GetMaterial()->GetTexture(Material::DIFFUSE))
+	if(_inMesh && _inMesh->GetMaterial()->GetTexture(Material::DIFFUSE))
 	{
 		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::DIFFUSE)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 		DrawBoarderAroundImage();
@@ -1467,7 +1465,7 @@ void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 	
 
 	// Specular texture --------
-	if(_inMesh->GetMaterial()->GetTexture(Material::SPECULAR))
+	if(_inMesh && _inMesh->GetMaterial()->GetTexture(Material::SPECULAR))
 	{
 		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::SPECULAR)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 		DrawBoarderAroundImage();
@@ -1508,7 +1506,7 @@ void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 	
 
 	// Normal texture --------
-	if(_inMesh->GetMaterial()->GetTexture(Material::NORMAL))
+	if(_inMesh && _inMesh->GetMaterial()->GetTexture(Material::NORMAL))
 	{
 		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::NORMAL)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 		DrawBoarderAroundImage();
@@ -1547,7 +1545,7 @@ void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 	}
 	
 	// Alpha texture --------
-	if(_inMesh->GetMaterial()->GetTexture(Material::ALPHA))
+	if(_inMesh && _inMesh->GetMaterial()->GetTexture(Material::ALPHA))
 	{
 		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::ALPHA)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 		DrawBoarderAroundImage();
@@ -1785,69 +1783,6 @@ void UserInterfaceManager::ui_Console()
 	{
 		ImGui::Text("tmp - Console");
 
-	}
-	ImGui::End();
-}
-
-void UserInterfaceManager::ui_tempGame()
-{
-
-	if (ImGui::Begin("Game"))
-	{
-		if(mContentSelectedActor)
-		{
-			if(mContentSelectedActor->GetHealthComponent() && mLevelManager->mHealthSystem)
-			{
-				ImGui::Text("Current Health: ");
-				ImGui::SameLine();
-				int health = mLevelManager->mHealthSystem->GetHealth(mContentSelectedActor->GetHealthComponent());
-				std::string he = std::to_string(health);
-				const char* healthtxt = he.c_str();
-				ImGui::Text(healthtxt);
-			}
-
-			if (mContentSelectedActor->GetInventoryComponent())
-			{
-				if(mContentSelectedActor->GetInventoryComponent()->mItems.size() > 0)
-				{
-
-					std::vector<std::shared_ptr<Item>> items = mContentSelectedActor->GetInventoryComponent()->mItems;
-
-					static std::shared_ptr<Item> SelectedActor = nullptr;
-
-					// Use BeginListBox to create a resizable list box
-					if (ImGui::BeginListBox("##LBI")) {
-
-						for (std::shared_ptr<Item> item : items)
-						{
-							if (ImGui::Selectable(item->mName.c_str()))
-							{
-								SelectedActor = item;
-							}
-						}
-					}
-					ImGui::EndListBox();
-
-					if(ImGui::Button("Use Potion"))
-					{
-						// Iterates through child vector and removes the child that matches input.
-						auto it = std::find(mContentSelectedActor->GetInventoryComponent()->mItems.begin(), mContentSelectedActor->GetInventoryComponent()->mItems.end(), SelectedActor);
-						if (it != mContentSelectedActor->GetInventoryComponent()->mItems.end())
-						{
-							mContentSelectedActor->GetInventoryComponent()->mItems.erase(it);
-							
-							mLevelManager->mHealthSystem->AddHealth(mContentSelectedActor->GetHealthComponent(), 1);
-						}
-					}
-
-				}
-			}
-		}
-
-		if (ImGui::Button("Spawn Wave"))
-		{
-			mLevelManager->SpawnWave();
-		}
 	}
 	ImGui::End();
 }

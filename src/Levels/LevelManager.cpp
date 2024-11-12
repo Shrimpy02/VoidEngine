@@ -30,6 +30,8 @@
 #include <RenderElements/Mesh.h>
 #include <RenderElements/Material.h>
 #include <RenderElements/Texture.h>
+#include <RenderElements/MeshTypes/PointCloudMesh.h>
+#include <RenderElements/VertexTypes/PointCloudVertex.h>
 #include <UserInterface/UserInterfaceManager.h>
 #include <OctTree.h>
 //#include <Core/SMath.h>
@@ -89,7 +91,9 @@ void LevelManager::LoadContent()
 
 	//LoadPhysicsBoxLevel();
 
-	LoadTestGame();
+	//LoadTestGame();
+
+	LoadFolderLevel();
 }
 
 void LevelManager::BaseLevelRequiredObjects()
@@ -382,6 +386,231 @@ void LevelManager::LoadTestGame()
 	mHealthSystem->AddComponent(healthComp2);
 	mHealthSystem->SetHealth(healthComp2, 1);
 }
+
+void LevelManager::LoadFolderLevel()
+{
+	LOG_INFO("Loading `Folder Level`");
+	std::chrono::time_point<std::chrono::steady_clock> loadingStart = std::chrono::high_resolution_clock::now();
+
+	// Base requirements for level
+	BaseLevelRequiredObjects();
+
+	// Folder Assignment 1.1 --------------------------------
+
+	std::string InputHeightData = SOURCE_DIRECTORY("/UserAssets/HightData/Folder/32-1-498-99-22.laz");
+	std::string OutputHeightData = SOURCE_DIRECTORY("/UserAssets/HightData/Folder/Output.txt");
+
+	//SMath::LASFileToCustomFileOfPoints(InputHeightData.c_str(), OutputHeightData.c_str());
+	LOG("Finished Assignment 1.1, custom file written to:");
+	LOG("%s", OutputHeightData.c_str());
+	// Folder Assignment 1.2 --------------------------------
+
+	// Creating base actor as point cloud root 
+	std::shared_ptr<Actor> terrainRoot = std::make_shared<Actor>("Terrain");
+	AddActorToLevel(terrainRoot);
+
+	// Init object
+	std::shared_ptr<VisualActor> terrainSector = std::make_shared<VisualActor>("TerrainSector", Mesh::CreatePointCloudFromLASFileSurface(InputHeightData.c_str(), 0.01f));
+	terrainSector->SetShaderObjectType(ShaderObjectType::PointCloud);
+	terrainRoot->AddChild(terrainSector);
+
+	// Adjust terrain position
+	glm::vec3 centre = terrainSector->GetCentre();
+	glm::vec3 diff = glm::vec3(0) - centre;
+
+	// Update the vertex position by applying the offset
+	if (std::shared_ptr<PointCloudMesh> pCM = std::dynamic_pointer_cast<PointCloudMesh>(terrainSector->GetMesh()))
+	{
+		SMath::AdjustVertexCoordinates(pCM, diff);
+		pCM->UpdateMesh();
+	}
+	LOG("Finished Assignment 1.2, point cloud generated and adjusted to viewport");
+
+	// Folder Assignment 1.3 --------------------------------
+	// Make a plane based on the height data.
+
+	// Get extents for pointCloud mesh
+	glm::vec3 minExtent = glm::vec3(0);
+	glm::vec3 maxExtent = glm::vec3(0);
+	if (std::shared_ptr<PointCloudMesh> pCM = std::dynamic_pointer_cast<PointCloudMesh>(terrainSector->GetMesh()))
+	{
+		for (PointCloudVertex& vertex : pCM->mVertices)
+		{
+			minExtent = glm::min(minExtent, vertex.mPosition);
+			maxExtent = glm::max(maxExtent, vertex.mPosition);
+		}
+	}
+	glm::vec3 extent = (maxExtent - minExtent);
+
+	// Changeable variables for mesh generation
+	int chunkResolution = 3;
+	float sectorOffsetSizePercent = 0.05f;
+	int vertexResolution = 4;
+	bool enableDebug = true;
+
+	// Initialize Storage vectors
+	std::vector<std::shared_ptr<DebugActor>> debugActors;
+	std::vector<glm::vec3> pointsForNewMesh;
+
+	// Initialize extent division based on resolution and position
+	glm::vec3 sectorFar = maxExtent;
+	glm::vec3 sectorClose;
+	glm::vec3 sectorExtent;
+	glm::vec3 sectorOffsetFar;
+	glm::vec3 sectorOffsetClose;
+	float sectorDivX = extent.x / chunkResolution;
+	float sectorDivZ = extent.z / chunkResolution;
+	float sectorFarZ = sectorFar.z;
+
+	for (int i = 1; i <= chunkResolution; i++)
+	{
+		// Reset Z spacing each x iteration
+		sectorFar.z = sectorFarZ;
+
+		for (int j = 1; j <= chunkResolution; j++)
+		{
+			// Update sector close for each z
+			sectorClose = sectorFar - glm::vec3(sectorDivX, sectorFar.y * 2, sectorDivZ);
+			sectorExtent = (sectorFar - sectorClose);
+			// Calc sector extent with offset size
+			sectorOffsetFar = glm::vec3(sectorFar.x + sectorDivX * sectorOffsetSizePercent, sectorFar.y, sectorFar.z + sectorDivZ * sectorOffsetSizePercent);
+			sectorOffsetClose = glm::vec3(sectorClose.x - sectorDivX * sectorOffsetSizePercent, sectorClose.y, sectorClose.z - sectorDivZ * sectorOffsetSizePercent);
+
+			// Optionally creates debug actors for visualization
+			if (enableDebug)
+			{
+				std::shared_ptr<DebugActor> debug = std::make_shared<DebugActor>("DebugSector");
+				std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(sectorOffsetFar, sectorOffsetClose);
+				debug->SetVisualMesh(pairExtent);
+				debug->SetGlobalPosition(terrainSector->GetGlobalPosition());
+				debugActors.push_back(debug);
+			}
+
+			// Adds all points within current section extent to a vector for processing
+			std::vector<glm::vec3> pointsWithinSection;
+			if (std::shared_ptr<PointCloudMesh> pCM = std::dynamic_pointer_cast<PointCloudMesh>(terrainSector->GetMesh()))
+			{
+				for (PointCloudVertex& vertex : pCM->mVertices)
+				{
+					glm::vec3 localExtent = (sectorOffsetFar - sectorOffsetClose) * glm::vec3(0.5);
+					glm::vec3 localCentre = (sectorOffsetClose + sectorOffsetFar) * glm::vec3(0.5);
+					glm::vec3 localdiff = vertex.mPosition - localCentre;
+					bool isWithinSection = true;
+
+					// Check each axis for non intersection
+					for (int i = 0; i < 3; i++)
+					{
+						// if the difference in length is larger then the sum extent
+						// in each axis there is no intersection.
+						if (abs(localdiff[i]) > localExtent[i])
+						{
+							// Vertex not within section
+							isWithinSection = false;
+							break;
+						}
+					}
+
+					// If point is within section, add and calc average vertex position in section
+					if (isWithinSection)
+					{
+						pointsWithinSection.push_back(vertex.mPosition);
+						// Vertex is in target location
+					}
+				}
+			}
+
+
+			// Divide current section into vertices
+
+			glm::vec3 vertexFar = sectorFar;
+			vertexFar.y = 0;
+			glm::vec3 vertexClose;
+			vertexClose.y = 0;
+			float vertexDivX = sectorExtent.x / vertexResolution;
+			float vertexDivZ = sectorExtent.z / vertexResolution;
+			float vertexFarZ = vertexFar.z;
+
+			for (int k = 1; k <= vertexResolution; k++)
+			{
+				// Reset Z spacing each x iteration
+				vertexFar.z = vertexFarZ;
+
+				for (int l = 1; l <= vertexResolution; l++)
+				{
+					vertexClose = vertexFar - glm::vec3(vertexDivX, 0, vertexDivZ);
+
+					// Optionally creates debug actors for visualization
+					if (enableDebug)
+					{
+						std::shared_ptr<DebugActor> debug = std::make_shared<DebugActor>("DebugVertexSector");
+						std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(vertexFar, vertexClose);
+						debug->SetVisualMesh(pairExtent);
+						debug->SetColor(glm::vec3(0, 1, 0));
+						debug->SetGlobalPosition(terrainSector->GetGlobalPosition());
+						debugActors.push_back(debug);
+					}
+
+					// Gen vertices from each vertex chunk
+
+					
+
+
+						// Update sector far for each z
+						vertexFar.z = vertexClose.z;
+				}
+				// Update sector far for each x
+				vertexFar.x = vertexClose.x;
+			}
+
+			//// Instead of getting the average location of the entire chunk,
+			//// get the average location in an era around pre defined vertices (new res)
+			//glm::vec3 averageLocation = glm::vec3(0);
+			//for(glm::vec3 point : pointsWithinSection)
+			//	averageLocation += point;
+			//
+			//averageLocation /= pointsWithinSection.size();
+			//pointsForNewMesh.push_back(averageLocation);
+
+			// Update sector far for each z
+			sectorFar.z = sectorClose.z;
+
+			if (enableDebug)
+				std::cout << "Finished Iteration X:" << i << "/" << chunkResolution << " Y:" << j << "/" << chunkResolution << "\n";
+		}
+
+		// Update sector far for each x
+		sectorFar.x = sectorClose.x;
+	}
+
+	//std::shared_ptr<VisualActor> generatedPlane = std::make_shared<VisualActor>("GeneratedPlane", Mesh::CreatePlane(pointsForNewMesh,nullptr));
+	//AddActorToLevel(generatedPlane);
+
+	// Makes the dubug actors for each section
+	if (enableDebug)
+	{
+		// Init root debug actor
+		std::shared_ptr<DebugActor> rootDebug = std::make_shared<DebugActor>("RootDebugSector");
+		AddActorToLevel(rootDebug);
+
+		// Iterate through all stored actors and add them as children,
+		// workaround for the ability to have optional debug visualization
+		for (std::shared_ptr<DebugActor> debugActor : debugActors)
+		{
+			rootDebug->AddChild(debugActor);
+		}
+		debugActors.clear();
+	}
+
+	LOG("Finished Assignment 1.3, generated mesh from point cloud terrain with chunk resolution: `%i`", chunkResolution);
+	LOG("	and Vertex resolution: `%i`", vertexResolution);
+
+	// Calculate time diff from start to finish for print
+	std::chrono::time_point<std::chrono::steady_clock> loadEnd = std::chrono::high_resolution_clock::now();
+	double elapsedTimeMs = std::chrono::duration<double, std::milli>(loadEnd - loadingStart).count();
+	double elapsedTimeS = elapsedTimeMs / 1000.0;
+	LOG_INFO("Finished loading `Folder Level`, time elapsed `%.2f` seconds", elapsedTimeS);
+}
+
 
 void LevelManager::UnloadContent()
 {

@@ -44,6 +44,8 @@ public:
     // Inherited from IRender, binds material and draws its self
     void Draw(const std::shared_ptr<Shader> _shader) const override;
 
+    void UpdateMesh();
+
 private:
     // ---------- Local functions --------------
 

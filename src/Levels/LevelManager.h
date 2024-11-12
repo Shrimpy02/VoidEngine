@@ -101,6 +101,8 @@ public:
 
     void LoadTestGame();
 
+    void LoadFolderLevel();
+
 	// Deletes pointers and clears all caches for texture, mesh and material.  
     void UnloadContent();
 

@@ -204,6 +204,42 @@ std::shared_ptr<Mesh> Mesh::CreatePlane(std::shared_ptr<Material> _material, con
     return plane;
 }
 
+std::shared_ptr<Mesh> Mesh::CreatePlane(std::vector<glm::vec3> planePoints, std::shared_ptr<Material> _material, const bool _instance, std::string _customName)
+{
+    // Default key
+    std::string planeKey = "DefaultPlane";
+
+    // Overwrites default key if custom name is added.
+    if (!_customName.empty())
+        planeKey = _customName;
+
+    // If instance enabled find mesh in cache and return it
+    if (_instance)
+    {
+        auto it = mCache.find(planeKey);
+        if (it != mCache.end())
+            return it->second;
+    }
+
+    // Gen vertices and indices from vector
+    std::vector<Vertex> vertices;
+    for (glm::vec3 position : planePoints)
+        vertices.push_back(Vertex(position, glm::vec3(0), glm::vec2(0)));
+
+
+    std::vector<Index> indices;
+    for (int i = 0; i < planePoints.size(); i++)
+        indices.push_back(i);
+
+    std::shared_ptr<DefaultMesh> plane = std::make_shared<DefaultMesh>(planeKey, std::move(vertices), std::move(indices), _material);
+
+    // If instance enabled add object to cache
+    if (_instance)
+        mCache[planeKey] = plane;
+
+    return plane;
+}
+
 std::shared_ptr<Mesh> Mesh::CreatePyramid(std::shared_ptr<Material> _material,const bool _instance, std::string _customName)
 {
     // Create key

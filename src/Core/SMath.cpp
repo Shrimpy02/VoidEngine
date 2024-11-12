@@ -619,6 +619,15 @@ glm::vec3 SMath::EvaluateBSplineNormal(float _u, float _v, int _du, int _dv, int
     return N;
 }
 
+void SMath::AdjustVertexCoordinates(std::shared_ptr<PointCloudMesh> _pcm, glm::vec3 _offsett)
+{
+    for (PointCloudVertex& vertex : _pcm->mVertices)
+    {
+        vertex.mPosition += _offsett;
+        //vertex.mPosition = abs(vertex.mPosition);
+    }
+}
+
 glm::vec3 SMath::GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3, glm::vec3 _objectPos)
 {
     // Sets all height to 0 so they do not interfere with calculations
