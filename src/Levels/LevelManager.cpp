@@ -32,6 +32,7 @@
 #include <RenderElements/Texture.h>
 #include <RenderElements/MeshTypes/PointCloudMesh.h>
 #include <RenderElements/VertexTypes/PointCloudVertex.h>
+#include <RenderElements/VertexTypes/DefaultVertex.h>
 #include <UserInterface/UserInterfaceManager.h>
 #include <OctTree.h>
 //#include <Core/SMath.h>
@@ -42,10 +43,8 @@
 
 void LevelManager::SpawnWave()
 {
-
 	for(int i = 0; i < 10 ; i++)
 	{
-		
 		std::shared_ptr<BaseActor> testEnemy = std::make_shared<BaseActor>("Enemy", Mesh::CreateCube(enemyMat), CollisionBase::AABB, glm::vec3(0, 2, -10), glm::vec3(1, 2, 1));
 		AddActorToLevel(testEnemy);
 		testEnemy->isEnemy = true;
@@ -63,9 +62,7 @@ void LevelManager::SpawnWave()
 		mHealthSystem->SetHealth(healthComp2, 1);
 
 		SSpawner::SetObjectLocationWithinBoundsRandomlyIgnoreY(testEnemy, Surface);
-
 	}
-
 }
 
 LevelManager::LevelManager(std::shared_ptr<ActorController> _inController, std::shared_ptr<UserInterfaceManager> _userIManager)
@@ -443,24 +440,28 @@ void LevelManager::LoadFolderLevel()
 	glm::vec3 extent = (maxExtent - minExtent);
 
 	// Changeable variables for mesh generation
-	int chunkResolution = 3;
+	int chunkResolution = 10;
 	float sectorOffsetSizePercent = 0.05f;
-	int vertexResolution = 4;
-	bool enableDebug = true;
+	int vertexResolution = 40;
+	float vertexOffsetSizePercent = 0.10f;
+	bool enableDebugConsole = true;
+	bool enableDebugMeshes = false;
 
 	// Initialize Storage vectors
 	std::vector<std::shared_ptr<DebugActor>> debugActors;
-	std::vector<glm::vec3> pointsForNewMesh;
+	std::vector<Vertex> verticesForNewMesh;
+	std::vector<Index> indicesForNewMesh;
 
 	// Initialize extent division based on resolution and position
 	glm::vec3 sectorFar = maxExtent;
 	glm::vec3 sectorClose;
 	glm::vec3 sectorExtent;
-	glm::vec3 sectorOffsetFar;
-	glm::vec3 sectorOffsetClose;
+
 	float sectorDivX = extent.x / chunkResolution;
 	float sectorDivZ = extent.z / chunkResolution;
 	float sectorFarZ = sectorFar.z;
+
+	int numVertices = 0;
 
 	for (int i = 1; i <= chunkResolution; i++)
 	{
@@ -473,11 +474,11 @@ void LevelManager::LoadFolderLevel()
 			sectorClose = sectorFar - glm::vec3(sectorDivX, sectorFar.y * 2, sectorDivZ);
 			sectorExtent = (sectorFar - sectorClose);
 			// Calc sector extent with offset size
-			sectorOffsetFar = glm::vec3(sectorFar.x + sectorDivX * sectorOffsetSizePercent, sectorFar.y, sectorFar.z + sectorDivZ * sectorOffsetSizePercent);
-			sectorOffsetClose = glm::vec3(sectorClose.x - sectorDivX * sectorOffsetSizePercent, sectorClose.y, sectorClose.z - sectorDivZ * sectorOffsetSizePercent);
+			glm::vec3 sectorOffsetFar = glm::vec3(sectorFar.x + sectorDivX * sectorOffsetSizePercent, sectorFar.y, sectorFar.z + sectorDivZ * sectorOffsetSizePercent);
+			glm::vec3 sectorOffsetClose = glm::vec3(sectorClose.x - sectorDivX * sectorOffsetSizePercent, sectorClose.y, sectorClose.z - sectorDivZ * sectorOffsetSizePercent);
 
 			// Optionally creates debug actors for visualization
-			if (enableDebug)
+			if (enableDebugMeshes)
 			{
 				std::shared_ptr<DebugActor> debug = std::make_shared<DebugActor>("DebugSector");
 				std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(sectorOffsetFar, sectorOffsetClose);
@@ -540,7 +541,7 @@ void LevelManager::LoadFolderLevel()
 					vertexClose = vertexFar - glm::vec3(vertexDivX, 0, vertexDivZ);
 
 					// Optionally creates debug actors for visualization
-					if (enableDebug)
+					if (enableDebugMeshes)
 					{
 						std::shared_ptr<DebugActor> debug = std::make_shared<DebugActor>("DebugVertexSector");
 						std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(vertexFar, vertexClose);
@@ -552,29 +553,161 @@ void LevelManager::LoadFolderLevel()
 
 					// Gen vertices from each vertex chunk
 
-					
+					// 4 verticeis in each square
+					glm::vec3 vertexCentre = (vertexClose + vertexFar) * glm::vec3(0.5);
+					glm::vec3 vertexOffsetFar = glm::vec3(vertexFar.x, 0, vertexFar.z);
+					glm::vec3 vertexOffsetClose = glm::vec3(vertexClose.x, 0, vertexClose.z);
+					glm::vec3 vertexExtent = (vertexFar - vertexClose);
+					float vertexOffsetDivX = vertexExtent.x / 2;
+					float vertexOffsetDivZ = vertexExtent.z / 2;
+					float vertexOffsetZ = vertexOffsetFar.z;
+					int vertexIt = 0;
+					for(int q = 1; q <= 2; q++)
+					{
+						vertexOffsetFar.z = vertexOffsetZ;
 
+						for(int w = 1; w <= 2; w++)
+						{
+							vertexOffsetClose = vertexOffsetFar - glm::vec3(vertexOffsetDivX, 0, vertexOffsetDivZ);
+							
+							// For use of all points, where vertices calculate all points in divided area
+							glm::vec3 vertexOffsetOffsetFar = glm::vec3();
+							glm::vec3 vertexOffsetOffsetClose = glm::vec3();
+							
+							if (vertexOffsetClose.z < vertexCentre.z)
+								vertexOffsetOffsetClose += glm::vec3(0, 0, vertexDivZ * vertexOffsetSizePercent);
+							if (vertexOffsetClose.x < vertexCentre.x)
+								vertexOffsetOffsetClose += glm::vec3(vertexDivX * vertexOffsetSizePercent, 0, 0 );
+							
+							if (vertexOffsetFar.z > vertexCentre.z)
+								vertexOffsetOffsetFar += glm::vec3(0, 0, vertexDivZ * vertexOffsetSizePercent);
+							if (vertexOffsetFar.x > vertexCentre.x)
+								vertexOffsetOffsetFar += glm::vec3(vertexDivX * vertexOffsetSizePercent, 0, 0);
 
-						// Update sector far for each z
-						vertexFar.z = vertexClose.z;
+							// Optionally creates debug actors for visualization
+							if (enableDebugMeshes)
+							{
+								std::shared_ptr<DebugActor> debug = std::make_shared<DebugActor>("DebugVertexOffsetSector");
+								std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(vertexOffsetFar + vertexOffsetOffsetFar, vertexOffsetClose - vertexOffsetOffsetClose);
+								debug->SetVisualMesh(pairExtent);
+								debug->SetColor(glm::vec3(0, 0, 1));
+								debug->SetGlobalPosition(terrainSector->GetGlobalPosition());
+								debugActors.push_back(debug);
+							}
+
+							// Calculate point for each corner
+							float vertexHeight = 0;
+							std::vector<float> pointHeightWithinVertexSection;
+
+							for (glm::vec3& pointPosition : pointsWithinSection)
+							{
+								// Get the extent around a vertex,
+								glm::vec3 tmpFar = (vertexOffsetFar + vertexOffsetOffsetFar);
+								glm::vec3 tmpClose = (vertexOffsetClose - vertexOffsetOffsetClose);
+
+								glm::vec3 localExtent = (tmpFar - tmpClose) * glm::vec3(0.5);
+								localExtent.y = sectorExtent.y;
+								glm::vec3 localCentre = (tmpClose + tmpFar) * glm::vec3(0.5);
+								glm::vec3 localdiff = pointPosition - localCentre;
+								bool isWithinSection = true;
+
+								// Check each axis for non intersection
+								for (int e = 0; e < 3; e++)
+								{
+									// if the difference in length is larger then the sum extent
+									// in each axis there is no intersection.
+									if (abs(localdiff[e]) > localExtent[e])
+									{
+										// Vertex not within section
+										isWithinSection = false;
+										break;
+									}
+								}
+
+								// If point is within section, add and calc average vertex position in section
+								if (isWithinSection)
+								{
+									pointHeightWithinVertexSection.push_back(pointPosition.y);
+									// Vertex is in target location
+								}
+							}
+
+							// average height around vertex
+							for (float pointHeight : pointHeightWithinVertexSection)
+								vertexHeight += pointHeight;
+
+							vertexHeight /= pointHeightWithinVertexSection.size();
+							vertexIt++;
+
+							glm::vec3 vertPos = glm::vec3(vertexFar.x, vertexHeight, vertexFar.z);
+							glm::vec3 vertNormal = glm::vec3(0);
+							glm::vec2 vertTex = glm::vec2(0);
+
+							switch (vertexIt) {
+							case 1:
+								
+								vertPos = glm::vec3(vertexFar.x, vertexHeight, vertexFar.z);
+								vertNormal = glm::vec3(0);
+								vertTex = glm::vec2(0);
+
+								break;
+							case 2:
+
+								vertPos = glm::vec3(vertexFar.x, vertexHeight, vertexClose.z);
+								vertNormal = glm::vec3(0);
+								vertTex = glm::vec2(0);
+
+								break;
+							case 3:
+
+								vertPos = glm::vec3(vertexClose.x, vertexHeight, vertexFar.z);
+								vertNormal = glm::vec3(0);
+								vertTex = glm::vec2(0);
+
+								break;
+							case 4:
+
+								vertPos = glm::vec3(vertexClose.x, vertexHeight, vertexClose.z);
+								vertNormal = glm::vec3(0);
+								vertTex = glm::vec2(0);
+
+								break;
+							default:
+
+								break;
+							}
+
+							Vertex vert(vertPos, vertNormal, vertTex);
+							verticesForNewMesh.push_back(vert);
+							numVertices ++;
+
+							// Update sector far for each z
+							vertexOffsetFar.z = vertexOffsetClose.z;
+						}
+
+						// Update sector far for each x
+						vertexOffsetFar.x = vertexOffsetClose.x;
+					}
+
+					// Generate indices for mesh
+					indicesForNewMesh.push_back(numVertices - 4); // 0
+					indicesForNewMesh.push_back(numVertices - 3); // 1
+					indicesForNewMesh.push_back(numVertices - 2); // 2
+					indicesForNewMesh.push_back(numVertices - 3); // 1
+					indicesForNewMesh.push_back(numVertices - 2); // 2
+					indicesForNewMesh.push_back(numVertices - 1); // 3
+
+					// Update sector far for each z
+					vertexFar.z = vertexClose.z;
 				}
 				// Update sector far for each x
 				vertexFar.x = vertexClose.x;
 			}
 
-			//// Instead of getting the average location of the entire chunk,
-			//// get the average location in an era around pre defined vertices (new res)
-			//glm::vec3 averageLocation = glm::vec3(0);
-			//for(glm::vec3 point : pointsWithinSection)
-			//	averageLocation += point;
-			//
-			//averageLocation /= pointsWithinSection.size();
-			//pointsForNewMesh.push_back(averageLocation);
-
 			// Update sector far for each z
 			sectorFar.z = sectorClose.z;
 
-			if (enableDebug)
+			if (enableDebugConsole)
 				std::cout << "Finished Iteration X:" << i << "/" << chunkResolution << " Y:" << j << "/" << chunkResolution << "\n";
 		}
 
@@ -582,11 +715,11 @@ void LevelManager::LoadFolderLevel()
 		sectorFar.x = sectorClose.x;
 	}
 
-	//std::shared_ptr<VisualActor> generatedPlane = std::make_shared<VisualActor>("GeneratedPlane", Mesh::CreatePlane(pointsForNewMesh,nullptr));
-	//AddActorToLevel(generatedPlane);
+	std::shared_ptr<VisualActor> generatedPlane = std::make_shared<VisualActor>("GeneratedPlane", Mesh::CreatePlane(verticesForNewMesh,indicesForNewMesh,nullptr));
+	AddActorToLevel(generatedPlane);
 
 	// Makes the dubug actors for each section
-	if (enableDebug)
+	if (enableDebugMeshes)
 	{
 		// Init root debug actor
 		std::shared_ptr<DebugActor> rootDebug = std::make_shared<DebugActor>("RootDebugSector");
