@@ -639,9 +639,9 @@ void LevelManager::Update(float _dt)
 		CheckLevelCollisionWithinBoxBounds(mConformBox);
 
 	// Component System Updates
-	mAiSystem->Update(_dt);
-	mHealthSystem->Update(_dt);
-	mPhysicsSystem->Update(_dt);
+	//mAiSystem->Update(_dt);
+	//mHealthSystem->Update(_dt);
+	//mPhysicsSystem->Update(_dt);
 
 	// Then handle collision for all objects in scene
 	CheckLevelCollision();

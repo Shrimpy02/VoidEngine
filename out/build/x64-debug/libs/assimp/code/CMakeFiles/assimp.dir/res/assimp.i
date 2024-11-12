@@ -8874,12 +8874,12 @@ BEGIN
             VALUE "Comments", "Licensed under a 3-clause BSD license"
             VALUE "CompanyName", "ASSIMP Team"
             VALUE "FileDescription", "Open Asset Import Library"
-            VALUE "FileVersion", "5" "." "3" "." "0" "." "0" " (Commit 348240de)"
+            VALUE "FileVersion", "5" "." "3" "." "0" "." "0" " (Commit b24e315e)"
             VALUE "InternalName", "assimp"
             VALUE "LegalCopyright", "\xA9 2006-2023"
             VALUE "OriginalFilename", "assimp-vc143-mtd.dll"
             VALUE "ProductName", "Open Asset Import Library"
-            VALUE "ProductVersion", "5" "." "3" "." "0" "." "0" " (Commit 348240de)"
+            VALUE "ProductVersion", "5" "." "3" "." "0" "." "0" " (Commit b24e315e)"
         END
     END
     BLOCK "VarFileInfo"
