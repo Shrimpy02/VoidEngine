@@ -90,6 +90,88 @@ bool SMath::ConformObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_
     return isInContact;
 }
 
+bool SMath::ConformPointToGeometry(glm::vec3& _point, std::shared_ptr<VisualActor> _surface, float _offsettHeight)
+{
+    bool isInContact = false;
+
+    if (!_surface) return isInContact;
+
+    float locationOnPlaneHeight(0);
+    if (IsWithinBarycentricCoordinates(_point, _surface, locationOnPlaneHeight))
+    {
+        _point.y = locationOnPlaneHeight + _offsettHeight;
+
+        isInContact = true;
+    }
+
+    return isInContact;
+}
+
+bool SMath::IsWithinBarycentricCoordinates(glm::vec3 _point, std::shared_ptr<VisualActor> _surface, float& _height)
+{
+    // --------------- Stage 1, Check if object is within extent --------
+    if (IsWithinTerrainXZExtent(_point, _surface))
+    {
+        std::shared_ptr<DefaultMesh> groundPlane = std::dynamic_pointer_cast<DefaultMesh>(_surface->GetActorVisualMesh());
+
+        std::vector<Vertex>& planeVertices = groundPlane->mVertices;
+        std::vector<Index>& planeIndices = groundPlane->GetIndices();
+
+        // --------------- Stage 2, Get surface global transform --------
+
+        glm::vec3 globalPosition = _surface->GetGlobalPosition();
+        glm::vec3 globalScale = _surface->GetGlobalScale();
+        glm::quat globalRotation = _surface->GetGlobalRotation();
+
+        glm::mat4 transformMatrix = glm::translate(
+            glm::mat4(1.0f), globalPosition) *
+            glm::mat4_cast(globalRotation) *
+            glm::scale(glm::mat4(1.0f), globalScale);
+
+        // --------------- Stage 3, Iterate through surface in pairs of 3 --------
+        for (int i = 0; i < planeIndices.size() - 2; i += 3)
+        {
+            unsigned int index1 = planeIndices[i];
+            unsigned int index2 = planeIndices[i + 1];
+            unsigned int index3 = planeIndices[i + 2];
+
+            glm::vec3 point1Pos(planeVertices[index1].mPosition);
+            glm::vec3 point2Pos(planeVertices[index2].mPosition);
+            glm::vec3 point3Pos(planeVertices[index3].mPosition);
+
+            // Apply the transform
+            point1Pos = glm::vec3(transformMatrix * glm::vec4(point1Pos, 1.0f));
+            point2Pos = glm::vec3(transformMatrix * glm::vec4(point2Pos, 1.0f));
+            point3Pos = glm::vec3(transformMatrix * glm::vec4(point3Pos, 1.0f));
+
+            glm::vec3 baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, _point);
+
+            // If object is on edge move object slightly and re-calculate
+            if (baryCoords.x == 0 || baryCoords.y == 0 || baryCoords.z == 0)
+            {
+                _point = _point + glm::vec3(0.01f, 0.f, 0.01f);
+                baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, _point);
+            }
+
+            // --------------- Stage 4, if object in triangle, update height --------
+            if (baryCoords.x > 0 && baryCoords.x < 1 &&
+                baryCoords.y > 0 && baryCoords.y < 1 &&
+                baryCoords.z > 0 && baryCoords.z < 1)
+            {
+                // Log triangle index
+                //std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
+
+                // Calculates and updates height from the barycentric coordinates
+                _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height)
 {
     // --------------- Stage 1, Check if object is within extent --------
@@ -437,6 +519,145 @@ void SMath::MovePointCloudPoints(std::shared_ptr<VisualActor> _terrain, glm::vec
     }
 }
 
+void SMath::MergeVerticesByXZ(std::vector<glm::vec3>& vertices, const int _quality)
+{
+    // Define a threshold for "neighboring" to avoid floating-point inaccuracies
+    const float EPSILON = 0.001f;
+    for(int i = 0; i < _quality; i++)
+    {
+        for (size_t j = 0; j < vertices.size(); ++j) {
+            glm::vec3& v1 = vertices[j];
+
+            for (size_t k = j + 1; k < vertices.size(); ++k) {
+                glm::vec3& v2 = vertices[k];
+
+                // Check if x and z values are the same within the threshold, but y values differ
+                if (std::fabs(v1.x - v2.x) < EPSILON &&
+                    std::fabs(v1.z - v2.z) < EPSILON &&
+                    std::fabs(v1.y - v2.y) > EPSILON) {
+
+                    // Calculate the y midpoint and update both vertices to the same y value
+                    float midpointY = (v1.y + v2.y) / 2.0f;
+                    v1.y = midpointY;
+                    v2.y = midpointY;
+                }
+            }
+        }
+    }
+
+}
+
+void SMath::MergeVerticesXZ(std::vector<glm::vec3>& vertices)
+{
+    // Define a threshold for "neighboring" to avoid floating-point inaccuracies
+    const float EPSILON = 0.001f;
+
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        glm::vec3& v1 = vertices[i];
+
+        for (size_t j = i + 1; j < vertices.size(); ++j) {
+            glm::vec3& v2 = vertices[j];
+
+            // Check if x and z values are the same within the threshold, but y values differ
+            if (std::fabs(v1.x - v2.x) < EPSILON &&
+                std::fabs(v1.z - v2.z) < EPSILON) {
+
+                v2.x = v1.x;
+                v2.y = v1.y;
+                v2.z = v1.z;
+            }
+        }
+    }
+}
+
+bool SMath::PointXZOverlapsWithVertex(const glm::vec3& _pos1, const glm::vec3& _pos2, const float _epsilon)
+{
+    return ((fabs(_pos1.x - _pos2.x) < _epsilon) && (fabs(_pos1.z - _pos2.z) < _epsilon));
+}
+
+void SMath::UpdateVerticesNormal(std::vector<Vertex>& _vertices, std::vector<Index>& _indices)
+{
+    for (size_t i = 0; i < _indices.size(); i += 3) {
+        int idx0 = _indices[i];
+        int idx1 = _indices[i + 1];
+        int idx2 = _indices[i + 2];
+
+        const glm::vec3& v0 = _vertices[idx0].mPosition;
+        const glm::vec3& v1 = _vertices[idx1].mPosition;
+        const glm::vec3& v2 = _vertices[idx2].mPosition;
+
+        glm::vec3 edge1 = v1 - v0;
+        glm::vec3 edge2 = v2 - v0;
+
+        glm::vec3 triangleNormal = glm::normalize(glm::cross(edge1, edge2));
+
+        _vertices[idx0].mNormal += triangleNormal;
+        _vertices[idx0].mNormal += triangleNormal;
+        _vertices[idx0].mNormal += triangleNormal;
+    }
+}
+
+bool SMath::PointWithinArea(glm::vec3 _point, glm::vec3 _minExtent, glm::vec3 _maxExtent)
+{
+    glm::vec3 localExtent = (_maxExtent - _minExtent) * glm::vec3(0.5);
+    glm::vec3 localCentre = (_minExtent + _maxExtent) * glm::vec3(0.5);
+    glm::vec3 localdiff = _point - localCentre;
+
+    // Check each axis for non intersection, uses early exit
+    for (int i = 0; i < 3; i++)
+    {
+        if (abs(localdiff[i]) > localExtent[i])
+        {
+            // Vertex not within section
+            return false;
+
+        }
+        else
+            return true;
+    }
+    return false;
+}
+
+bool SMath::PointWithinArea(glm::vec3 _point, glm::vec3 _minExtent, glm::vec3 _maxExtent, float _yOveride)
+{
+
+    glm::vec3 localExtent = (_maxExtent - _minExtent) * glm::vec3(0.5);
+    localExtent.y = _yOveride;
+    glm::vec3 localCentre = (_minExtent + _maxExtent) * glm::vec3(0.5);
+    glm::vec3 localdiff = _point - localCentre;
+
+    // Check each axis for non intersection, uses early exit
+    for (int i = 0; i < 3; i++)
+    {
+        if (abs(localdiff[i]) > localExtent[i])
+        {
+            // Vertex not within section
+            return false;
+
+        } else 
+        	return true;
+    }
+    return false;
+}
+
+void SMath::UpdateIndex(std::vector<glm::vec3>& vertexPointsForNewMesh, std::vector<Index>& indices,
+    const glm::vec3& vert1, const glm::vec3& vert2, const glm::vec3& vert3, const glm::vec3& vert4) {
+    // Use helper function to find or add vertices and return the correct index
+    int idx1 = FindOrAddVertex(vertexPointsForNewMesh, vert1);
+    int idx2 = FindOrAddVertex(vertexPointsForNewMesh, vert2);
+    int idx3 = FindOrAddVertex(vertexPointsForNewMesh, vert3);
+    int idx4 = FindOrAddVertex(vertexPointsForNewMesh, vert4);
+
+    // Add indices to create two triangles for the quad
+    indices.push_back(idx1);
+    indices.push_back(idx2);
+    indices.push_back(idx3);
+
+    indices.push_back(idx3);
+    indices.push_back(idx2);
+    indices.push_back(idx4);
+}
+
 std::vector<glm::vec3> SMath::NevillInterpolatedPoints(const std::vector<std::shared_ptr<GraphPoint>>& _controlPoints, const float _step)
 {
     std::vector<glm::vec3> temp;
@@ -681,4 +902,28 @@ bool SMath::IsWithinTerrainXZExtent(std::shared_ptr<Actor> _object, std::shared_
 
     return (_object->GetGlobalPosition().x >= -_surface->mExtent.x && _object->GetGlobalPosition().x <= _surface->mExtent.x) &&
         (_object->GetGlobalPosition().z >= -_surface->mExtent.z && _object->GetGlobalPosition().z <= _surface->mExtent.z);
+}
+
+bool SMath::IsWithinTerrainXZExtent(const glm::vec3& _point, std::shared_ptr<VisualActor> _surface)
+{
+    if (!_surface) { LOG_ERROR("No surface refrence for extentbounds"); return false; }
+
+    return (_point.x >= -_surface->mExtent.x && _point.x <= _surface->mExtent.x) &&
+        (_point.z >= -_surface->mExtent.z && _point.z <= _surface->mExtent.z);
+}
+
+int SMath::FindOrAddVertex(std::vector<glm::vec3>& vertices, const glm::vec3& pos)
+{
+    float const epsilon = 0.001f;
+
+    for (int i = 0; i < vertices.size(); ++i) {
+        if (std::fabs(vertices[i].x - pos.x) < epsilon &&
+            std::fabs(vertices[i].z - pos.z) < epsilon) {
+            // If the vertex is close enough, return the existing index
+            return i;
+        }
+    }
+    // If no matching vertex was found, add the new vertex and return its index
+    vertices.push_back(pos);
+    return vertices.size() - 1;
 }

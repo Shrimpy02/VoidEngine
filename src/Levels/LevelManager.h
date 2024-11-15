@@ -149,6 +149,8 @@ private:
     // Binds the camera objects to the shader for light processing
     void BindCamera(std::shared_ptr<Shader> _bindShader);
 
+    void AddDebugActor(std::vector<std::shared_ptr<DebugActor>>& _debActorStorage, const std::pair<glm::vec3, glm::vec3>& _extents, const glm::vec3& _position = glm::vec3(0), const glm::vec3& _color = glm::vec3(1));
+
 public:
     // ---------- Getters / setters / Adders --------------
 
