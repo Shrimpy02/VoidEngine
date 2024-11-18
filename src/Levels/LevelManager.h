@@ -24,6 +24,7 @@ class AISystem;
 class HealthSystem;
 class PhysicsSystem;
 class Material;
+class Mesh;
 
 /**
  * @class LevelManager
@@ -40,6 +41,8 @@ public:
     std::shared_ptr<BaseActor> PLayer{ nullptr };
     std::shared_ptr<VisualActor> Surface{ nullptr };
     std::shared_ptr<Material> enemyMat{ nullptr };
+    std::shared_ptr<DebugActor> mDebugSpawnerBall{ nullptr };
+    std::shared_ptr<VisualActor> mBallTerrain{ nullptr };
     
     // Component Systems
     std::shared_ptr<AISystem> mAiSystem;
@@ -150,6 +153,8 @@ private:
     void BindCamera(std::shared_ptr<Shader> _bindShader);
 
     void AddDebugActor(std::vector<std::shared_ptr<DebugActor>>& _debActorStorage, const std::pair<glm::vec3, glm::vec3>& _extents, const glm::vec3& _position = glm::vec3(0), const glm::vec3& _color = glm::vec3(1));
+
+    std::shared_ptr<Mesh> CreateTriangulatedMesh(std::shared_ptr<VisualActor> _root, const glm::vec3& _min, const glm::vec3& _max);
 
 public:
     // ---------- Getters / setters / Adders --------------

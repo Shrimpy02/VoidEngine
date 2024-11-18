@@ -405,14 +405,10 @@ void LevelManager::LoadFolderLevel()
 
 	// Folder Assignment 1.2 --------------------------------
 
-	// Creating base actor as point cloud root 
-	std::shared_ptr<Actor> terrainRoot = std::make_shared<Actor>("Terrain");
-	AddActorToLevel(terrainRoot);
-
 	// Init object
-	std::shared_ptr<VisualActor> terrainSector = std::make_shared<VisualActor>("TerrainSector", Mesh::CreatePointCloudFromLASFileSurface(InputHeightData.c_str(), 0.01f));
+	std::shared_ptr<VisualActor> terrainSector = std::make_shared<VisualActor>("PointCloudTerrain", Mesh::CreatePointCloudFromLASFileSurface(InputHeightData.c_str(), 0.01f));
 	terrainSector->SetShaderObjectType(ShaderObjectType::PointCloud);
-	terrainRoot->AddChild(terrainSector);
+	AddActorToLevel(terrainSector);
 
 	// Adjust terrain position
 	glm::vec3 centre = terrainSector->GetCentre();
@@ -424,6 +420,8 @@ void LevelManager::LoadFolderLevel()
 		SMath::AdjustVertexCoordinates(pCM, diff);
 		pCM->UpdateMesh();
 	}
+	terrainSector->GetActorVisualMesh()->SetIsVisible(false);
+
 	LOG("Finished Assignment 1.2, point cloud generated and adjusted to viewport");
 
 	// Folder Assignment 1.3 --------------------------------
@@ -440,326 +438,32 @@ void LevelManager::LoadFolderLevel()
 			maxExtent = glm::max(maxExtent, vertex.mPosition);
 		}
 	}
-	glm::vec3 extent = (maxExtent - minExtent);
 
-	// Changeable variables for mesh generation
-	constexpr int chunkResolution = 4;
-	constexpr float sectorOffsetSizePercent = 0.05f;
-	constexpr int vertexQuadResolution = 4;
-	constexpr float vertexQuadOffsetSizePercent = 0.10f;
-	constexpr bool enableDebugConsole = true;
-	constexpr bool enableDebugMeshes = false;
+	std::shared_ptr<Mesh> mesh = CreateTriangulatedMesh(terrainSector,minExtent,maxExtent);
+	mBallTerrain = std::make_shared<VisualActor>("GeneratedPlane", mesh);
+	AddActorToLevel(mBallTerrain);
 
-	// Initialize Storage vectors
-	std::vector<std::shared_ptr<DebugActor>> debugActors;
-	std::vector<glm::vec3> vertexPositions;
-	std::vector<Index> indices;
+	mBallTerrain->GetActorVisualMesh()->SetIsVisible(true);
 
-	// Initialize extent division based on resolution and position
-	glm::vec3 sectorFar = maxExtent;
-	glm::vec3 sectorClose;
-	glm::vec3 sectorExtent;
-	float sectorDivX = extent.x / chunkResolution;
-	float sectorDivZ = extent.z / chunkResolution;
-	float sectorFarZ = sectorFar.z;
-
-	// 1. Divide the point cloud extent into chunks, each chunk contains the point cloud points
-	// ----------------------------------------------------------------------------------------
-	for (int i = 1; i <= chunkResolution; i++)
-	{
-		// Reset Z spacing each chunk-x iteration
-		sectorFar.z = sectorFarZ;
-
-		for (int j = 1; j <= chunkResolution; j++)
-		{
-			// 1.1 ------------------------------------
-			// Find the chunks specific extent based on chunk resolution
-
-			// Update sector close for each z
-			sectorClose = sectorFar - glm::vec3(sectorDivX, sectorFar.y * 2, sectorDivZ);
-			sectorExtent = (sectorFar - sectorClose);
-			// Calc sector extent with offset for future vertex querying
-			glm::vec3 sectorOffsetFar = glm::vec3(sectorFar.x + sectorDivX * sectorOffsetSizePercent, sectorFar.y, sectorFar.z + sectorDivZ * sectorOffsetSizePercent);
-			glm::vec3 sectorOffsetClose = glm::vec3(sectorClose.x - sectorDivX * sectorOffsetSizePercent, sectorClose.y, sectorClose.z - sectorDivZ * sectorOffsetSizePercent);
-
-			if (enableDebugMeshes)
-			{
-				// Optionally creates debug actors for visualization
-				std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(sectorOffsetFar, sectorOffsetClose);
-				AddDebugActor(debugActors, pairExtent, terrainSector->GetGlobalPosition(),glm::vec3(1,0,0));
-			}
-
-			// 1.2 ------------------------------------
-			// Add all point cloud points that are contained by this chunk to its specific vector
-			std::vector<glm::vec3> pointsWithinSection;
-			if (std::shared_ptr<PointCloudMesh> pCM = std::dynamic_pointer_cast<PointCloudMesh>(terrainSector->GetMesh()))
-			{
-				for (PointCloudVertex& vertex : pCM->mVertices)
-				{
-					glm::vec3 localExtent = (sectorOffsetFar - sectorOffsetClose) * glm::vec3(0.5);
-					glm::vec3 localCentre = (sectorOffsetClose + sectorOffsetFar) * glm::vec3(0.5);
-					glm::vec3 localdiff = vertex.mPosition - localCentre;
-					bool isWithinSection = true;
-
-					// Check each axis for non intersection, uses early exit
-					for (int i = 0; i < 3; i++)
-					{
-						if (abs(localdiff[i]) > localExtent[i])
-						{
-							// Vertex not within section
-							isWithinSection = false;
-							break;
-						}
-					}
-					// Add vertex to vector if within section
-					if (isWithinSection)
-						pointsWithinSection.push_back(vertex.mPosition);
-				}
-			}
-
-			// 1.3 ------------------------------------
-			// Divide current chunk into quads based on vertex resolution
-			glm::vec3 vertexQuadFar = sectorFar;
-			glm::vec3 vertexQuadClose;
-			vertexQuadFar.y = 0;
-			vertexQuadClose.y = 0;
-			float vertexDivX = sectorExtent.x / vertexQuadResolution;
-			float vertexDivZ = sectorExtent.z / vertexQuadResolution;
-			float vertexFarZ = vertexQuadFar.z;
-
-			for (int k = 1; k <= vertexQuadResolution; k++)
-			{
-				// Reset Z spacing each vertexQuad-x iteration
-				vertexQuadFar.z = vertexFarZ;
-
-				for (int l = 1; l <= vertexQuadResolution; l++)
-				{
-					// Update vertexQuad close for each z
-					vertexQuadClose = vertexQuadFar - glm::vec3(vertexDivX, 0, vertexDivZ);
-
-					if (enableDebugMeshes)
-					{
-						// Optionally creates debug actors for visualization
-						std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(vertexQuadFar, vertexQuadClose);
-						AddDebugActor(debugActors, pairExtent, terrainSector->GetGlobalPosition(), glm::vec3(0, 1, 0));
-					}
-
-					// 1.3.1 ------------------------------------
-					// Create offset extents for each vertex to uniformly check chunk point cloud points for average height.
-					glm::vec3 vertexQuadCentre = (vertexQuadClose + vertexQuadFar) * glm::vec3(0.5);
-					glm::vec3 vertexQuadOffsetFar = glm::vec3(vertexQuadFar.x, 0, vertexQuadFar.z);
-					glm::vec3 vertexQuadOffsetClose = glm::vec3(vertexQuadClose.x, 0, vertexQuadClose.z);
-					glm::vec3 vertexQuadExtent = (vertexQuadFar - vertexQuadClose);
-					float vertexOffsetDivX = vertexQuadExtent.x / 2;
-					float vertexOffsetDivZ = vertexQuadExtent.z / 2;
-					float vertexOffsetZ = vertexQuadOffsetFar.z;
-					int vertexIt = 0;
-
-					// Storage for each vertex of a quad for indexing
-					glm::vec3 vert1 = glm::vec3(0);
-					glm::vec3 vert2 = glm::vec3(0);
-					glm::vec3 vert3 = glm::vec3(0);
-					glm::vec3 vert4 = glm::vec3(0);
-
-					for(int q = 1; q <= 2; q++)
-					{
-						// Reset Z spacing each vertexQuadOffset-x iteration
-						vertexQuadOffsetFar.z = vertexOffsetZ;
-
-						for(int w = 1; w <= 2; w++)
-						{
-							// Update vertexQuadOffset close for each z
-							vertexQuadOffsetClose = vertexQuadOffsetFar - glm::vec3(vertexOffsetDivX, 0, vertexOffsetDivZ);
-							
-							// The offset offsets for exact uniform distribution of vertex query zones
-							glm::vec3 vertexOffsetOffsetFar = glm::vec3();
-							glm::vec3 vertexOffsetOffsetClose = glm::vec3();
-
-							// edge checks for x and z in
-							// close
-							if (vertexQuadOffsetClose.z < vertexQuadCentre.z)
-								vertexOffsetOffsetClose += glm::vec3(0, 0, vertexDivZ * vertexQuadOffsetSizePercent);
-							if (vertexQuadOffsetClose.x < vertexQuadCentre.x)
-								vertexOffsetOffsetClose += glm::vec3(vertexDivX * vertexQuadOffsetSizePercent, 0, 0 );
-							// far
-							if (vertexQuadOffsetFar.z > vertexQuadCentre.z)
-								vertexOffsetOffsetFar += glm::vec3(0, 0, vertexDivZ * vertexQuadOffsetSizePercent);
-							if (vertexQuadOffsetFar.x > vertexQuadCentre.x)
-								vertexOffsetOffsetFar += glm::vec3(vertexDivX * vertexQuadOffsetSizePercent, 0, 0);
-
-							if (enableDebugMeshes)
-							{
-								// Optionally creates debug actors for visualization
-								std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(vertexQuadOffsetFar + vertexOffsetOffsetFar, vertexQuadOffsetClose - vertexOffsetOffsetClose);
-								AddDebugActor(debugActors, pairExtent, terrainSector->GetGlobalPosition(), glm::vec3(0, 0, 1));
-							}
-
-							// 1.3.2 ------------------------------------
-							// Calculate vertex position based grid x,z and average chunk-pointCloud positions y 
-							float vertexHeight = 0;
-							std::vector<float> pointHeightWithinVertexSection;
-							for (glm::vec3& pointPosition : pointsWithinSection)
-							{
-								// Get the extent around current vertex
-								glm::vec3 vertFarExtent = (vertexQuadOffsetFar + vertexOffsetOffsetFar);
-								glm::vec3 vertCloseExtent = (vertexQuadOffsetClose - vertexOffsetOffsetClose);
-
-								glm::vec3 vertLocalExtent = (vertFarExtent - vertCloseExtent) * glm::vec3(0.5);
-								vertLocalExtent.y = sectorExtent.y;
-								glm::vec3 vertCentre = (vertCloseExtent + vertFarExtent) * glm::vec3(0.5);
-								glm::vec3 localdiff = pointPosition - vertCentre;
-								bool isWithinVertexSection = true;
-
-								// Check each axis for non intersection, uses early exit
-								for (int e = 0; e < 3; e++)
-								{
-									if (abs(localdiff[e]) > vertLocalExtent[e])
-									{
-										// Vertex not within section
-										isWithinVertexSection = false;
-										break;
-									}
-								}
-
-								// If point is within vertex extent, add to vector
-								if (isWithinVertexSection)
-									pointHeightWithinVertexSection.push_back(pointPosition.y);
-							}
-
-							// Calculate the average point height in vertex sector
-							for (float pointHeight : pointHeightWithinVertexSection)
-								vertexHeight += pointHeight;
-							vertexHeight /= pointHeightWithinVertexSection.size();
-
-							// 1.3.3 ------------------------------------
-							// Create vertices based on what part of the for loop we are in
-							vertexIt++;
-							glm::vec3 vertPos = glm::vec3(0);
-
-							switch (vertexIt) {
-							case 1: vertPos = glm::vec3(vertexQuadFar.x, vertexHeight, vertexQuadFar.z); break; // top right
-							case 2: vertPos = glm::vec3(vertexQuadFar.x, vertexHeight, vertexQuadClose.z); break; // top left
-							case 3: vertPos = glm::vec3(vertexQuadClose.x, vertexHeight, vertexQuadFar.z); break; // bottom right
-							case 4: vertPos = glm::vec3(vertexQuadClose.x, vertexHeight, vertexQuadClose.z); break; // bottom left
-							default: break; }
-
-							// 1.3.4 ------------------------------------
-							// Make sure there is no duplicate vertices in any grid position
-							bool overlaps = false;
-							if(!vertexPositions.empty())
-							{
-								// Check if the new vertex is within the x an z bounds of any other vertex already created
-								for(glm::vec3& preExistingVertex : vertexPositions)
-								{
-									if(SMath::PointXZOverlapsWithVertex(preExistingVertex, vertPos))
-									{
-										// The new vertex is within bounds of a vertex
-										// Find the average height and update the existing vertex
-										float newY = (preExistingVertex.y + vertPos.y)/2;
-										preExistingVertex.y = newY;
-										overlaps = true;
-
-										// Update quad vertices for indexing 
-										switch (vertexIt) {
-										case 1: vert1 = preExistingVertex; break;
-										case 2: vert2 = preExistingVertex; break;
-										case 3: vert3 = preExistingVertex; break;
-										case 4: vert4 = preExistingVertex; break;
-										default: break;}
-									} 
-								}
-							}
-							
-							// If new vertex does not overlap with any preexisting vertices, update the quad vertices
-							if(!overlaps)
-							{
-								switch (vertexIt) {
-								case 1: vert1 = vertPos; break;
-								case 2: vert2 = vertPos; break;
-								case 3: vert3 = vertPos; break;
-								case 4: vert4 = vertPos; break;
-								default: break;}
-							}
-
-							// Update quad offset far for each z
-							vertexQuadOffsetFar.z = vertexQuadOffsetClose.z;
-						}
-
-						// Update quad offset far for each x
-						vertexQuadOffsetFar.x = vertexQuadOffsetClose.x;
-					}
-
-					// 1.4 ------------------------------------
-					// Index and update each quads vertices
-					// Helper function processes each quad vertex and adds its position if there is no overlap
-					// Additionally it manages indexing of each quad at a time
-					SMath::UpdateIndex(vertexPositions,indices,vert1,vert2,vert3,vert4);
-
-					// Update quad far for each z
-					vertexQuadFar.z = vertexQuadClose.z;
-				}
-				// Update quad far for each x
-				vertexQuadFar.x = vertexQuadClose.x;
-			}
-
-			// Update sector far for each z
-			sectorFar.z = sectorClose.z;
-
-			// Console out progress
-			if (enableDebugConsole)
-				std::cout << "Finished Iteration X:" << i << "/" << chunkResolution << " Y:" << j << "/" << chunkResolution << "\n";
-		}
-
-		// Update sector far for each x
-		sectorFar.x = sectorClose.x;
-	}
-
-	// 2. Update the calculated vertex positions into proper Vertex format for rendering
-	// ----------------------------------------------------------------------------------------
-	std::vector<Vertex> vertices;
-	for(glm::vec3 pos : vertexPositions)
-		vertices.push_back(Vertex(pos, glm::vec3(0), glm::vec2(0)));
-
-	// 3. Update the all vertices to include normals for shading
-	// ----------------------------------------------------------------------------------------
-	SMath::UpdateVerticesNormal(vertices,indices);
-
-	// 4. Create the object and mesh for the level
-	// ----------------------------------------------------------------------------------------
-	std::shared_ptr<VisualActor> generatedPlane = std::make_shared<VisualActor>("GeneratedPlane", Mesh::CreatePlane(vertices, indices,nullptr));
-	AddActorToLevel(generatedPlane);
-
-	// 5. Add Debug functionality
-	// ----------------------------------------------------------------------------------------
-	// Remove point cloudterrainSector
-	terrainSector->mVisualMesh->SetIsVisible(false);
-	RemoveActorFromLevel(terrainSector);
-
-	// Makes the dubug actors for each section
-	if (enableDebugMeshes)
-	{
-		// Init root debug actor
-		std::shared_ptr<DebugActor> rootDebug = std::make_shared<DebugActor>("RootDebugSector");
-		AddActorToLevel(rootDebug);
-
-		// Iterate through all stored actors and add them as children,
-		// workaround for the ability to have optional debug visualization
-		for (std::shared_ptr<DebugActor> debugActor : debugActors)
-		{
-			rootDebug->AddChild(debugActor);
-		}
-		debugActors.clear();
-	}
-
-	LOG("Finished Assignment 1.3, generated mesh from point cloud terrain with chunk resolution: `%i`", chunkResolution);
-	LOG("	and Vertex resolution: `%i`", vertexQuadResolution);
+	LOG("Finished Assignment 1.3, generated mesh from point cloud terrain");
 
 	// Folder Assignment 1.4 --------------------------------
 	// Create a B-Spline surface from the generated mesh
 
+	// Define degrees 2 = Bi-Quadratic
+	int Du = 2;
+	int Dv = 2;
+
+	// Define vertex resolution
+	int UResolution = 20;
+	int VResolution = 20;
+	bool enableDebug = false;
+	const int gridSize = 3;
+
+	// Get extents of mesh
 	glm::vec3 minExtentMesh = glm::vec3(0);
 	glm::vec3 maxExtentMesh = glm::vec3(0);
-	if (std::shared_ptr<DefaultMesh> gM = std::dynamic_pointer_cast<DefaultMesh>(generatedPlane->GetMesh()))
+	if (std::shared_ptr<DefaultMesh> gM = std::dynamic_pointer_cast<DefaultMesh>(mBallTerrain->GetMesh()))
 	{
 		for (Vertex& vertex : gM->mVertices)
 		{
@@ -768,42 +472,66 @@ void LevelManager::LoadFolderLevel()
 		}
 	}
 
-	// Define degrees 2 = Bi-Quadratic
-	int Du = 2;
-	int Dv = 2;
+	minExtentMesh += glm::vec3(0.1,0,0.1);
+	maxExtentMesh -= glm::vec3(0.1,0,0.1);
 
-	// Define resolution
-	int UResolution = 20;
-	int VResolution = 20;
+	// Compute control points as a grid over the mesh extents
+	std::vector<std::vector<glm::vec3>> controlPoints(gridSize, std::vector<glm::vec3>(gridSize));
 
-	// Define knot vectors
-	std::vector<float> uKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 };
-	std::vector<float> vKnot = { 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0 };
-
-	// Define control points (2D grid)
-	std::vector<std::vector<glm::vec3>> controlPoints = {
-		{glm::vec3(minExtentMesh.x, 1.0f, minExtentMesh.z), glm::vec3(maxExtentMesh.x - minExtentMesh.x, 1.0f, minExtentMesh.z), glm::vec3(maxExtentMesh.x, 1.0f, minExtentMesh.z)},
-		{glm::vec3(minExtentMesh.x, 2.0f, maxExtentMesh.z - minExtentMesh.z), glm::vec3(maxExtentMesh.x - minExtentMesh.x, 2.0f, maxExtentMesh.z - minExtentMesh.z), glm::vec3(maxExtentMesh.x, 2.0f, maxExtentMesh.z - minExtentMesh.z)},
-		{glm::vec3(minExtentMesh.x, 1.0f, maxExtentMesh.z), glm::vec3(maxExtentMesh.x- minExtentMesh.x, 1.0f, maxExtentMesh.z), glm::vec3(maxExtentMesh.x, 1.0f, maxExtentMesh.z)}
-	};
-
-	for(int i = 0; i < 3; i++)
+	// Generate control points
+	glm::vec3 step = (maxExtentMesh - minExtentMesh) / static_cast<float>(gridSize - 1);
+	for (int i = 0; i < controlPoints.size(); i++)
 	{
-		for(int j = 0; j < 3; j++)
+		for (int j = 0; j < controlPoints[0].size(); j++)
 		{
-			SMath::ConformPointToGeometry(controlPoints[i][j], generatedPlane);
+			controlPoints[i][j] = glm::vec3(minExtentMesh.x + step.x * j, 1.0f, minExtentMesh.z + step.z * i);
+		}
+	}
+	// Conform control point y to terrain height
+	for (int i = 0; i < controlPoints.size(); i++)
+	{
+		for (int j = 0; j < controlPoints[0].size(); j++)
+		{
+			SMath::ConformPointToGeometry(controlPoints[i][j], mBallTerrain);
 		}
 	}
 
-	std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
-	AddActorToLevel(BSplineSurface);
+	// Create debug objects for control points
+	if(enableDebug)
+	{
+		for (int i = 0; i < controlPoints.size(); i++)
+		{
+			for (int j = 0; j < controlPoints[0].size(); j++)
+			{
+				std::shared_ptr<DebugActor> debugControlPoint = std::make_shared<DebugActor>("DebugControlPoint");
+				debugControlPoint->SetVisualMesh(std::make_pair(glm::vec3(-0.2), glm::vec3(0.2)));
+				debugControlPoint->SetGlobalPosition(controlPoints[i][j]);
+				debugControlPoint->SetGlobalScale(glm::vec3(1));
+				mActiveLevel->AddActorToSceneGraph(debugControlPoint);
+			}
+		}
+	}
 
-	std::shared_ptr<DebugActor> debugActor = std::make_shared<DebugActor>("DebugActor");
-	std::pair<glm::vec3, glm::vec3> pair = std::make_pair(minExtentMesh, maxExtentMesh);
-	debugActor->SetVisualMesh(pair);
-	AddActorToLevel(debugActor);
+	// Define knot vectors
+	std::vector<float> uKnot = SMath::GenerateClampedKnotVector(controlPoints.size(), Du);
+	std::vector<float> vKnot = SMath::GenerateClampedKnotVector(controlPoints[0].size(), Dv);
+	
+	//std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
+	//AddActorToLevel(BSplineSurface);
+
+	//BSplineSurface->GetActorVisualMesh()->SetIsVisible(false);
 
 	LOG("Finished Assignment 1.4, B-Spline Surface from mesh");
+
+	// Folder Assignment 2.1 --------------------------------
+	// Ball rolling on terrain
+
+	// Create debug ball for spawning ball interactively
+	mDebugSpawnerBall = std::make_shared<DebugActor>("DebugInteractiveBallSpawner");
+	mDebugSpawnerBall->SetVisualMesh(std::make_pair(glm::vec3(-0.2), glm::vec3(0.2)));
+	mActiveLevel->AddActorToSceneGraph(mDebugSpawnerBall);
+
+	
 
 	// Calculate time diff from start to finish for print
 	std::chrono::time_point<std::chrono::steady_clock> loadEnd = std::chrono::high_resolution_clock::now();
@@ -899,7 +627,6 @@ void LevelManager::CheckLevelCollision()
 				continue;
 			}
 
-
 			// Skip intersection if either ignore response
 			if (actorColliderA->mCollisionProperties.IsIgnoreResponse() ||
 				actorColliderB->mCollisionProperties.IsIgnoreResponse())
@@ -918,7 +645,7 @@ void LevelManager::CheckLevelCollision()
 			if(actorColliderA->IsIntersecting(actorColliderB, &mtv))
 			{
 				// Eneables Physics component
-				//// check if both actors have physics components, if true do physics collision
+				// check if both actors have physics components, if true do physics collision
 				//if(collisionActors[i]->GetPhysicsComponent() && collisionActors[j]->GetPhysicsComponent())
 				//{
 				//	if(!actorACollided && !actorBCollided)
@@ -993,26 +720,26 @@ void LevelManager::CheckLevelCollision()
 
 				// mtv vector init for each object
 				glm::vec3 mtvA(0.f), mtvB(0.f);
-
+				
 				// If both actors are dynamic, split the MTV between them
 				if (actorColliderA->mCollisionProperties.IsDynamic() && actorColliderB->mCollisionProperties.IsDynamic()) {
 					mtvA = mtv * -0.5f;
 					mtvB = mtv * 0.5f;
 				}
-
+				
 				// If only actor A is dynamic, apply the full MTV to A
 				else if (actorColliderA->mCollisionProperties.IsDynamic())
 					mtvA = -mtv;
-
+				
 				// If only actor B is dynamic, apply the full MTV to B
 				else if (actorColliderB->mCollisionProperties.IsDynamic())
 					mtvB = mtv;
-
+				
 				// No adjustment for static objects
 				// Apply MTV adjustments to objects it has effected
 				if (actorColliderA->mCollisionProperties.IsDynamic())
 					collisionActors[i]->SetGlobalPosition(collisionActors[i]->GetGlobalPosition() + mtvA);
-
+				
 				if (actorColliderB->mCollisionProperties.IsDynamic())
 					collisionActors[j]->SetGlobalPosition(collisionActors[j]->GetGlobalPosition() + mtvB);
 
@@ -1380,6 +1107,319 @@ void LevelManager::AddDebugActor(std::vector<std::shared_ptr<DebugActor>>& _debA
 	debug->SetVisualMesh(_extents);
 	debug->SetGlobalPosition(_position);
 	_debActorStorage.push_back(debug);
+}
+
+std::shared_ptr<Mesh> LevelManager::CreateTriangulatedMesh(std::shared_ptr<VisualActor> _poinCloud, const glm::vec3& _min, const glm::vec3& _max)
+{
+	// Changeable variables for mesh generation
+	constexpr int chunkResolution = 2;
+	constexpr float sectorOffsetSizePercent = 0.05f;
+	constexpr int vertexQuadResolution = 4;
+	constexpr float vertexQuadOffsetSizePercent = 0.10f;
+	constexpr bool enableDebugConsole = true;
+	constexpr bool enableDebugMeshes = false;
+
+	// Initialize Storage vectors
+	std::vector<glm::vec3> vertexPositions;
+	std::vector<Index> indices;
+	std::vector<std::shared_ptr<DebugActor>> debugActors;
+
+	// Initialize extent division based on resolution and position
+	glm::vec3 sectorFar = _max;
+	glm::vec3 sectorClose;
+	glm::vec3 sectorExtent;
+	glm::vec3 extent = (_max - _min);
+	float sectorDivX = extent.x / chunkResolution;
+	float sectorDivZ = extent.z / chunkResolution;
+	float sectorFarZ = sectorFar.z;
+
+	// 1. Divide the point cloud extent into chunks, each chunk contains the point cloud points
+	// ----------------------------------------------------------------------------------------
+	for (int i = 1; i <= chunkResolution; i++)
+	{
+		// Reset Z spacing each chunk-x iteration
+		sectorFar.z = sectorFarZ;
+
+		for (int j = 1; j <= chunkResolution; j++)
+		{
+			// 1.1 ------------------------------------
+			// Find the chunks specific extent based on chunk resolution
+
+			// Update sector close for each z
+			sectorClose = sectorFar - glm::vec3(sectorDivX, sectorFar.y * 2, sectorDivZ);
+			sectorExtent = (sectorFar - sectorClose);
+			// Calc sector extent with offset for future vertex querying
+			glm::vec3 sectorOffsetFar = glm::vec3(sectorFar.x + sectorDivX * sectorOffsetSizePercent, sectorFar.y, sectorFar.z + sectorDivZ * sectorOffsetSizePercent);
+			glm::vec3 sectorOffsetClose = glm::vec3(sectorClose.x - sectorDivX * sectorOffsetSizePercent, sectorClose.y, sectorClose.z - sectorDivZ * sectorOffsetSizePercent);
+
+			if (enableDebugMeshes)
+			{
+				// Optionally creates debug actors for visualization
+				std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(sectorOffsetFar, sectorOffsetClose);
+				AddDebugActor(debugActors, pairExtent, _poinCloud->GetGlobalPosition(), glm::vec3(1, 0, 0));
+			}
+
+			// 1.2 ------------------------------------
+			// Add all point cloud points that are contained by this chunk to its specific vector
+			std::vector<glm::vec3> pointsWithinSection;
+			if (std::shared_ptr<PointCloudMesh> pCM = std::dynamic_pointer_cast<PointCloudMesh>(_poinCloud->GetMesh()))
+			{
+				for (PointCloudVertex& vertex : pCM->mVertices)
+				{
+					glm::vec3 localExtent = (sectorOffsetFar - sectorOffsetClose) * glm::vec3(0.5);
+					glm::vec3 localCentre = (sectorOffsetClose + sectorOffsetFar) * glm::vec3(0.5);
+					glm::vec3 localdiff = vertex.mPosition - localCentre;
+					bool isWithinSection = true;
+
+					// Check each axis for non intersection, uses early exit
+					for (int i = 0; i < 3; i++)
+					{
+						if (abs(localdiff[i]) > localExtent[i])
+						{
+							// Vertex not within section
+							isWithinSection = false;
+							break;
+						}
+					}
+					// Add vertex to vector if within section
+					if (isWithinSection)
+						pointsWithinSection.push_back(vertex.mPosition);
+				}
+			}
+
+			// 1.3 ------------------------------------
+			// Divide current chunk into quads based on vertex resolution
+			glm::vec3 vertexQuadFar = sectorFar;
+			glm::vec3 vertexQuadClose;
+			vertexQuadFar.y = 0;
+			vertexQuadClose.y = 0;
+			float vertexDivX = sectorExtent.x / vertexQuadResolution;
+			float vertexDivZ = sectorExtent.z / vertexQuadResolution;
+			float vertexFarZ = vertexQuadFar.z;
+
+			for (int k = 1; k <= vertexQuadResolution; k++)
+			{
+				// Reset Z spacing each vertexQuad-x iteration
+				vertexQuadFar.z = vertexFarZ;
+
+				for (int l = 1; l <= vertexQuadResolution; l++)
+				{
+					// Update vertexQuad close for each z
+					vertexQuadClose = vertexQuadFar - glm::vec3(vertexDivX, 0, vertexDivZ);
+
+					if (enableDebugMeshes)
+					{
+						// Optionally creates debug actors for visualization
+						std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(vertexQuadFar, vertexQuadClose);
+						AddDebugActor(debugActors, pairExtent, _poinCloud->GetGlobalPosition(), glm::vec3(0, 1, 0));
+					}
+
+					// 1.3.1 ------------------------------------
+					// Create offset extents for each vertex to uniformly check chunk point cloud points for average height.
+					glm::vec3 vertexQuadCentre = (vertexQuadClose + vertexQuadFar) * glm::vec3(0.5);
+					glm::vec3 vertexQuadOffsetFar = glm::vec3(vertexQuadFar.x, 0, vertexQuadFar.z);
+					glm::vec3 vertexQuadOffsetClose = glm::vec3(vertexQuadClose.x, 0, vertexQuadClose.z);
+					glm::vec3 vertexQuadExtent = (vertexQuadFar - vertexQuadClose);
+					float vertexOffsetDivX = vertexQuadExtent.x / 2;
+					float vertexOffsetDivZ = vertexQuadExtent.z / 2;
+					float vertexOffsetZ = vertexQuadOffsetFar.z;
+					int vertexIt = 0;
+
+					// Storage for each vertex of a quad for indexing
+					glm::vec3 vert1 = glm::vec3(0);
+					glm::vec3 vert2 = glm::vec3(0);
+					glm::vec3 vert3 = glm::vec3(0);
+					glm::vec3 vert4 = glm::vec3(0);
+
+					for (int q = 1; q <= 2; q++)
+					{
+						// Reset Z spacing each vertexQuadOffset-x iteration
+						vertexQuadOffsetFar.z = vertexOffsetZ;
+
+						for (int w = 1; w <= 2; w++)
+						{
+							// Update vertexQuadOffset close for each z
+							vertexQuadOffsetClose = vertexQuadOffsetFar - glm::vec3(vertexOffsetDivX, 0, vertexOffsetDivZ);
+
+							// The offset offsets for exact uniform distribution of vertex query zones
+							glm::vec3 vertexOffsetOffsetFar = glm::vec3();
+							glm::vec3 vertexOffsetOffsetClose = glm::vec3();
+
+							// edge checks for x and z in
+							// close
+							if (vertexQuadOffsetClose.z < vertexQuadCentre.z)
+								vertexOffsetOffsetClose += glm::vec3(0, 0, vertexDivZ * vertexQuadOffsetSizePercent);
+							if (vertexQuadOffsetClose.x < vertexQuadCentre.x)
+								vertexOffsetOffsetClose += glm::vec3(vertexDivX * vertexQuadOffsetSizePercent, 0, 0);
+							// far
+							if (vertexQuadOffsetFar.z > vertexQuadCentre.z)
+								vertexOffsetOffsetFar += glm::vec3(0, 0, vertexDivZ * vertexQuadOffsetSizePercent);
+							if (vertexQuadOffsetFar.x > vertexQuadCentre.x)
+								vertexOffsetOffsetFar += glm::vec3(vertexDivX * vertexQuadOffsetSizePercent, 0, 0);
+
+							if (enableDebugMeshes)
+							{
+								// Optionally creates debug actors for visualization
+								std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(vertexQuadOffsetFar + vertexOffsetOffsetFar, vertexQuadOffsetClose - vertexOffsetOffsetClose);
+								AddDebugActor(debugActors, pairExtent, _poinCloud->GetGlobalPosition(), glm::vec3(0, 0, 1));
+							}
+
+							// 1.3.2 ------------------------------------
+							// Calculate vertex position based grid x,z and average chunk-pointCloud positions y 
+							float vertexHeight = 0;
+							std::vector<float> pointHeightWithinVertexSection;
+							for (glm::vec3& pointPosition : pointsWithinSection)
+							{
+								// Get the extent around current vertex
+								glm::vec3 vertFarExtent = (vertexQuadOffsetFar + vertexOffsetOffsetFar);
+								glm::vec3 vertCloseExtent = (vertexQuadOffsetClose - vertexOffsetOffsetClose);
+
+								glm::vec3 vertLocalExtent = (vertFarExtent - vertCloseExtent) * glm::vec3(0.5);
+								vertLocalExtent.y = sectorExtent.y;
+								glm::vec3 vertCentre = (vertCloseExtent + vertFarExtent) * glm::vec3(0.5);
+								glm::vec3 localdiff = pointPosition - vertCentre;
+								bool isWithinVertexSection = true;
+
+								// Check each axis for non intersection, uses early exit
+								for (int e = 0; e < 3; e++)
+								{
+									if (abs(localdiff[e]) > vertLocalExtent[e])
+									{
+										// Vertex not within section
+										isWithinVertexSection = false;
+										break;
+									}
+								}
+
+								// If point is within vertex extent, add to vector
+								if (isWithinVertexSection)
+									pointHeightWithinVertexSection.push_back(pointPosition.y);
+							}
+
+							// Calculate the average point height in vertex sector
+							for (float pointHeight : pointHeightWithinVertexSection)
+								vertexHeight += pointHeight;
+							vertexHeight /= pointHeightWithinVertexSection.size();
+
+							// 1.3.3 ------------------------------------
+							// Create vertices based on what part of the for loop we are in
+							vertexIt++;
+							glm::vec3 vertPos = glm::vec3(0);
+
+							switch (vertexIt) {
+							case 1: vertPos = glm::vec3(vertexQuadFar.x, vertexHeight, vertexQuadFar.z); break; // top right
+							case 2: vertPos = glm::vec3(vertexQuadFar.x, vertexHeight, vertexQuadClose.z); break; // top left
+							case 3: vertPos = glm::vec3(vertexQuadClose.x, vertexHeight, vertexQuadFar.z); break; // bottom right
+							case 4: vertPos = glm::vec3(vertexQuadClose.x, vertexHeight, vertexQuadClose.z); break; // bottom left
+							default: break;
+							}
+
+							// 1.3.4 ------------------------------------
+							// Make sure there is no duplicate vertices in any grid position
+							bool overlaps = false;
+							if (!vertexPositions.empty())
+							{
+								// Check if the new vertex is within the x an z bounds of any other vertex already created
+								for (glm::vec3& preExistingVertex : vertexPositions)
+								{
+									if (SMath::PointXZOverlapsWithVertex(preExistingVertex, vertPos))
+									{
+										// The new vertex is within bounds of a vertex
+										// Find the average height and update the existing vertex
+										float newY = (preExistingVertex.y + vertPos.y) / 2;
+										preExistingVertex.y = newY;
+										overlaps = true;
+
+										// Update quad vertices for indexing 
+										switch (vertexIt) {
+										case 1: vert1 = preExistingVertex; break;
+										case 2: vert2 = preExistingVertex; break;
+										case 3: vert3 = preExistingVertex; break;
+										case 4: vert4 = preExistingVertex; break;
+										default: break;
+										}
+									}
+								}
+							}
+
+							// If new vertex does not overlap with any preexisting vertices, update the quad vertices
+							if (!overlaps)
+							{
+								switch (vertexIt) {
+								case 1: vert1 = vertPos; break;
+								case 2: vert2 = vertPos; break;
+								case 3: vert3 = vertPos; break;
+								case 4: vert4 = vertPos; break;
+								default: break;
+								}
+							}
+
+							// Update quad offset far for each z
+							vertexQuadOffsetFar.z = vertexQuadOffsetClose.z;
+						}
+
+						// Update quad offset far for each x
+						vertexQuadOffsetFar.x = vertexQuadOffsetClose.x;
+					}
+
+					// 1.4 ------------------------------------
+					// Index and update each quads vertices
+					// Helper function processes each quad vertex and adds its position if there is no overlap
+					// Additionally it manages indexing of each quad at a time
+					SMath::UpdateIndex(vertexPositions, indices, vert1, vert2, vert3, vert4);
+
+					// Update quad far for each z
+					vertexQuadFar.z = vertexQuadClose.z;
+				}
+				// Update quad far for each x
+				vertexQuadFar.x = vertexQuadClose.x;
+			}
+
+			// Update sector far for each z
+			sectorFar.z = sectorClose.z;
+
+			// Console out progress
+			if (enableDebugConsole)
+				std::cout << "Finished Iteration X:" << i << "/" << chunkResolution << " Y:" << j << "/" << chunkResolution << "\n";
+		}
+
+		// Update sector far for each x
+		sectorFar.x = sectorClose.x;
+	}
+
+	// 2. Update the calculated vertex positions into proper Vertex format for rendering
+	// ----------------------------------------------------------------------------------------
+	std::vector<Vertex> vertices;
+	for (glm::vec3 pos : vertexPositions)
+		vertices.push_back(Vertex(pos, glm::vec3(0), glm::vec2(0)));
+
+	// 3. Update the all vertices to include normals for shading
+	// ----------------------------------------------------------------------------------------
+	SMath::UpdateVerticesNormal(vertices, indices);
+
+	// 4. Add Debug functionality
+	// 
+	// ----------------------------------------------------------------------------------------
+
+	// Makes the dubug actors for each section
+	if (enableDebugMeshes)
+	{
+		// Init root debug actor
+		std::shared_ptr<DebugActor> rootDebug = std::make_shared<DebugActor>("RootDebugSector");
+		AddActorToLevel(rootDebug);
+
+		// Iterate through all stored actors and add them as children,
+		// workaround for the ability to have optional debug visualization
+		for (std::shared_ptr<DebugActor> debugActor : debugActors)
+		{
+			rootDebug->AddChild(debugActor);
+		}
+		debugActors.clear();
+	}
+
+	// 5. Create the object and mesh for the level
+	// ----------------------------------------------------------------------------------------
+	return Mesh::CreatePlane(vertices, indices, nullptr);
 }
 
 std::shared_ptr<CameraActor> LevelManager::GetActiveCamera()

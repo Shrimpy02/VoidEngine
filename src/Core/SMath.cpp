@@ -47,6 +47,50 @@ bool SMath::ConformCurveToGeometry(std::vector<std::shared_ptr<Actor>>& _points,
     return isInContact;
 }
 
+bool SMath::ConformPhysicsObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, glm::vec3& _normals, float _offsettHeight)
+{
+    bool isInContact = false;
+    float locationOnPlaneHeight(0);
+
+    if (!_surface) return isInContact;
+
+    if (std::shared_ptr<BaseActor> baseActor = std::dynamic_pointer_cast<BaseActor>(_object))
+    {
+        if (IsWithinBarycentricCoordinates(baseActor, _surface, locationOnPlaneHeight, _normals))
+        {
+            // If owning actor is bellow surface
+            if (baseActor->GetGlobalPosition().y < locationOnPlaneHeight + _offsettHeight + baseActor->GetExtent().y)
+            {
+                isInContact = true;
+
+                glm::vec3 playPos = baseActor->GetGlobalPosition();
+                playPos.y = locationOnPlaneHeight + _offsettHeight + baseActor->GetExtent().y;
+                baseActor->SetGlobalPosition(playPos);
+
+                return isInContact;
+            }
+        }
+
+        // If _object is just an actor do default logic
+    }
+    else if (IsWithinBarycentricCoordinates(_object, _surface, locationOnPlaneHeight, _normals)) {
+
+        // If owning actor is bellow surface
+        if (_object->GetGlobalPosition().y < locationOnPlaneHeight + _offsettHeight)
+        {
+            isInContact = true;
+
+            glm::vec3 playPos = _object->GetGlobalPosition();
+            playPos.y = locationOnPlaneHeight + _offsettHeight;
+            _object->SetGlobalPosition(playPos);
+
+            return isInContact;
+        }
+    }
+
+    return isInContact;
+}
+
 bool SMath::ConformObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, std::vector<glm::vec3>& _debugSurfacePoints, float _offsettHeight)
 {
     bool isInContact = false;
@@ -232,6 +276,74 @@ bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::
                 // Calculates and updates height from the barycentric coordinates
                 _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
     
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, glm::vec3& _normal)
+{
+    // --------------- Stage 1, Check if object is within extent --------
+    if (IsWithinTerrainXZExtent(_object, _surface))
+    {
+        std::shared_ptr<DefaultMesh> groundPlane = std::dynamic_pointer_cast<DefaultMesh>(_surface->GetActorVisualMesh());
+
+        std::vector<Vertex>& planeVertices = groundPlane->mVertices;
+        std::vector<Index>& planeIndices = groundPlane->GetIndices();
+
+        glm::vec3 actorPos(_object->GetGlobalPosition());
+
+        // --------------- Stage 2, Get surface global transform --------
+
+        glm::vec3 globalPosition = _surface->GetGlobalPosition();
+        glm::vec3 globalScale = _surface->GetGlobalScale();
+        glm::quat globalRotation = _surface->GetGlobalRotation();
+
+        glm::mat4 transformMatrix = glm::translate(
+            glm::mat4(1.0f), globalPosition) *
+            glm::mat4_cast(globalRotation) *
+            glm::scale(glm::mat4(1.0f), globalScale);
+
+        // --------------- Stage 3, Iterate through surface in pairs of 3 --------
+        for (int i = 0; i < planeIndices.size() - 2; i += 3)
+        {
+            unsigned int index1 = planeIndices[i];
+            unsigned int index2 = planeIndices[i + 1];
+            unsigned int index3 = planeIndices[i + 2];
+
+            glm::vec3 point1Pos(planeVertices[index1].mPosition);
+            glm::vec3 point2Pos(planeVertices[index2].mPosition);
+            glm::vec3 point3Pos(planeVertices[index3].mPosition);
+
+            // Apply the transform
+            point1Pos = glm::vec3(transformMatrix * glm::vec4(point1Pos, 1.0f));
+            point2Pos = glm::vec3(transformMatrix * glm::vec4(point2Pos, 1.0f));
+            point3Pos = glm::vec3(transformMatrix * glm::vec4(point3Pos, 1.0f));
+
+            glm::vec3 baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
+
+            // If object is on edge move object slightly and re-calculate
+            if (baryCoords.x == 0 || baryCoords.y == 0 || baryCoords.z == 0)
+            {
+                _object->SetGlobalPosition(_object->GetGlobalPosition() + glm::vec3(0.01f, 0.f, 0.01f));
+                actorPos = _object->GetGlobalPosition();
+                baryCoords = GetBarycentricCoordinates(point1Pos, point2Pos, point3Pos, actorPos);
+            }
+
+            // --------------- Stage 4, if object in triangle, update height --------
+            if (baryCoords.x > 0 && baryCoords.x < 1 &&
+                baryCoords.y > 0 && baryCoords.y < 1 &&
+                baryCoords.z > 0 && baryCoords.z < 1)
+            {
+                // Log triangle index
+                //std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
+
+                // Calculates and updates height from the barycentric coordinates
+                _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
+                _normal = GetTriangleNormalizedNormal(point1Pos, point2Pos, point3Pos);
                 return true;
             }
         }
@@ -840,6 +952,44 @@ glm::vec3 SMath::EvaluateBSplineNormal(float _u, float _v, int _du, int _dv, int
     return N;
 }
 
+std::vector<float> SMath::GenerateClampedKnotVector(int _numControlPoints, int _degree)
+{
+    int numKnots = _numControlPoints + _degree + 1;
+    std::vector<float> knotVector(numKnots);
+
+    // First `degree + 1` values are 0
+    for (int i = 0; i <= _degree; ++i) {
+        knotVector[i] = 0.0f;
+    }
+
+    // Last `degree + 1` values are 1
+    for (int i = numKnots - _degree - 1; i < numKnots; ++i) {
+        knotVector[i] = 1.0f;
+    }
+
+    // Uniformly distribute the middle values
+    int numMiddleKnots = numKnots - 2 * (_degree + 1);
+    for (int i = 1; i <= numMiddleKnots; ++i) {
+        knotVector[_degree + i] = static_cast<float>(i) / numMiddleKnots;
+    }
+
+    return knotVector;
+}
+
+std::vector<float> SMath::GenerateUniformKnotVector(int _numControlPoints, int _degree)
+{
+    int numKnots = _numControlPoints + _degree + 1;
+    std::vector<float> knotVector(numKnots);
+
+    // Uniformly distribute the knots
+    float interval = 1.0f / (numKnots - 1);
+    for (int i = 0; i < numKnots; ++i) {
+        knotVector[i] = i * interval;
+    }
+
+    return knotVector;
+}
+
 void SMath::AdjustVertexCoordinates(std::shared_ptr<PointCloudMesh> _pcm, glm::vec3 _offsett)
 {
     for (PointCloudVertex& vertex : _pcm->mVertices)
@@ -888,6 +1038,21 @@ glm::vec3 SMath::GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::ve
     barCoords.z = n.y / area_123;
 
     return barCoords;
+}
+
+glm::vec3 SMath::GetTriangleNormalizedNormal(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3)
+{
+    // Compute two edges of the triangle
+    glm::vec3 edge1 = _p2 - _p1;
+    glm::vec3 edge2 = _p3 - _p1;
+
+    // Compute the cross product of the two edges to get the normal
+    glm::vec3 normal = glm::cross(edge1, edge2);
+
+    // Normalize result
+    normal = glm::normalize(normal);
+
+    return normal;
 }
 
 float SMath::GetHeightFromBarycentricCoordinates(const glm::vec3& _barCoords, const glm::vec3& _p1, const glm::vec3& _p2, const glm::vec3& _p3)

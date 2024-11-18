@@ -8,10 +8,11 @@
 void PhysicsComponent::Update(float _dt)
 {
 	UpdateForces();
+	ConformToSurface();
 	UpdateVelocity(_dt);
 	UpdatePosition(_dt);
 
-    ConformToSurface();
+   
 
 	ResetValues();
 }
@@ -61,12 +62,24 @@ void PhysicsComponent::ConformToSurface()
 
 	mDebugBarryLocations.clear();
 
-	if (SMath::ConformObjectToGeometry(mOwner, mSurfaceReference, mDebugBarryLocations))
+	glm::vec3 faceNormals;
+	if (SMath::ConformPhysicsObjectToGeometry(mOwner, mSurfaceReference, faceNormals,0.1f))
 	{
 		inContactWithGround = true;
 		mVelocity.y = 0;
-	}
+
+		float gravity = -0.981f;
 		
+		glm::vec3 faceAcceleration = glm::vec3(
+			faceNormals.x * faceNormals.y * gravity,     // X 
+			(faceNormals.y * faceNormals.y - 1.0f) * gravity, // Y 
+			faceNormals.z * faceNormals.y * gravity      // Z 
+		);
+
+		faceAcceleration *= glm::vec3(-1, -1, -1);
+		mAcceleration += faceAcceleration;
+	}
+
 }
 
 void PhysicsComponent::Jump(float jumpStrength, glm::vec3 _jumpDirection)

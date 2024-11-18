@@ -898,7 +898,21 @@ void UserInterfaceManager::ui_WorldProperties()
 			mController->SetClickVelocity(clickVel);
 		}
 
+		ImGui::Separator();
 
+		if(mLevelManager->mDebugSpawnerBall)
+		{
+			if (ImGui::Button("Spawn Rolling ball", ImVec2(300, 25)))
+			{
+				// Create the ball that will be rolling on terrain and update its physics component
+				std::shared_ptr<BaseActor> rollingBall = std::make_shared<BaseActor>("RollingBall", Mesh::CreateSphere(nullptr), CollisionBase::BoundingSphere, mLevelManager->mDebugSpawnerBall->GetGlobalPosition(), glm::vec3(0.2f));
+				mLevelManager->AddActorToLevel(rollingBall);
+				rollingBall->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
+				rollingBall->AddComponent<PhysicsComponent>("PhysicsComp");
+				rollingBall->GetPhysicsComponent()->SetSurfaceReference(mLevelManager->mBallTerrain);
+				rollingBall->GetPhysicsComponent()->SetGravityEnabled(true);
+			}
+		}
 
 		ImGui::Separator();
 
@@ -1413,6 +1427,7 @@ void UserInterfaceManager::uiSub_WorldProperties(std::shared_ptr<Actor> _inActor
 
 void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 {
+	if (!_inMesh) return;
 
 	// Mesh display
 	// -----------------------------------
@@ -1425,7 +1440,7 @@ void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 	ImGui::Text("Material textures: ");
 
 	// Diffuse texture --------
-	if(_inMesh && _inMesh->GetMaterial()->GetTexture(Material::DIFFUSE))
+	if(_inMesh->GetMaterial() && _inMesh->GetMaterial()->GetTexture(Material::DIFFUSE))
 	{
 		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::DIFFUSE)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 		DrawBoarderAroundImage();
@@ -1465,7 +1480,7 @@ void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 	
 
 	// Specular texture --------
-	if(_inMesh && _inMesh->GetMaterial()->GetTexture(Material::SPECULAR))
+	if(_inMesh->GetMaterial() && _inMesh->GetMaterial()->GetTexture(Material::SPECULAR))
 	{
 		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::SPECULAR)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 		DrawBoarderAroundImage();
@@ -1506,7 +1521,7 @@ void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 	
 
 	// Normal texture --------
-	if(_inMesh && _inMesh->GetMaterial()->GetTexture(Material::NORMAL))
+	if(_inMesh->GetMaterial() && _inMesh->GetMaterial()->GetTexture(Material::NORMAL))
 	{
 		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::NORMAL)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 		DrawBoarderAroundImage();
@@ -1545,7 +1560,7 @@ void UserInterfaceManager::uiSub_MeshProperties(std::shared_ptr<Mesh> _inMesh)
 	}
 	
 	// Alpha texture --------
-	if(_inMesh && _inMesh->GetMaterial()->GetTexture(Material::ALPHA))
+	if(_inMesh->GetMaterial() && _inMesh->GetMaterial()->GetTexture(Material::ALPHA))
 	{
 		ImGui::Image((void*)(intptr_t)_inMesh->GetMaterial()->GetTexture(Material::ALPHA)->GetTextureID(), ImVec2(50.f, 50.f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 		DrawBoarderAroundImage();

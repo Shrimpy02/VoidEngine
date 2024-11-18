@@ -355,11 +355,11 @@ std::shared_ptr<Mesh> Mesh::CreateBSplineSurface(std::shared_ptr<Material> _mate
     // Gen spline surface ----
     for (int i = 0; i < _UResolution; ++i) {
         // Compute normalized u parameter in the [0, 1] range
-        double u = (double)i / (_UResolution - 1);
+        double u = _uKnot.front() + (i / static_cast<double>(_UResolution - 1)) * (_uKnot.back() - _uKnot.front());
 
         for (int j = 0; j < _VResolution; ++j) {
             // Compute normalized v parameter in the [0, 1] range
-            double v = (double)j / (_VResolution - 1);
+            double v = _vKnot.front() + (j / static_cast<double>(_VResolution - 1)) * (_vKnot.back() - _vKnot.front());
 
             // Evaluate the surface at (u, v)
             glm::vec3 surfacePoint = SMath::EvaluateBSplineSurface(u, v, _du, _dv, _uKnot, _vKnot, _controlPoints);
