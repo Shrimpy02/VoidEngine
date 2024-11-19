@@ -516,8 +516,8 @@ void LevelManager::LoadFolderLevel()
 	std::vector<float> uKnot = SMath::GenerateClampedKnotVector(controlPoints.size(), Du);
 	std::vector<float> vKnot = SMath::GenerateClampedKnotVector(controlPoints[0].size(), Dv);
 	
-	//std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
-	//AddActorToLevel(BSplineSurface);
+	std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
+	AddActorToLevel(BSplineSurface);
 
 	//BSplineSurface->GetActorVisualMesh()->SetIsVisible(false);
 
@@ -526,12 +526,43 @@ void LevelManager::LoadFolderLevel()
 	// Folder Assignment 2.1 --------------------------------
 	// Ball rolling on terrain
 
-	// Create debug ball for spawning ball interactively
+	// Implemented through the physics component, ball object spawned interactively in next section.
+
+	LOG("Finished Assignment 2.1, Ball Physics");
+
+
+	// Folder Assignment 2.2 --------------------------------
+	// Create debug cube for spawning ball interactively
 	mDebugSpawnerBall = std::make_shared<DebugActor>("DebugInteractiveBallSpawner");
 	mDebugSpawnerBall->SetVisualMesh(std::make_pair(glm::vec3(-0.2), glm::vec3(0.2)));
 	mActiveLevel->AddActorToSceneGraph(mDebugSpawnerBall);
+	// Click button "Spawn Ball" in the world manager tab on the right side of the UI
 
-	
+	LOG("Finished Assignment 2.2, Interactive ball spawning");
+
+	// Folder Assignment 2.3 --------------------------------
+	// Create friction visually and physically
+
+	// The friction is handled in the physics component along with the rest of the physics.
+	// Visually the friction zone is created when triangulating the mesh in 1.3
+
+	LOG("Finished Assignment 2.3, Friction visually and physically");
+
+	// Folder Assignment 2.4 --------------------------------
+	// Add Collision detection between balls
+
+	// Collision detection is done each frame in the update section of the level manager
+
+	LOG("Finished Assignment 2.4, Collision");
+
+	// Folder Assignment 2.5 --------------------------------
+	// Tracking of individual ball path
+
+
+	// Folder Assignment 2.6 --------------------------------
+	// Mass ball physics simulation
+
+
 
 	// Calculate time diff from start to finish for print
 	std::chrono::time_point<std::chrono::steady_clock> loadEnd = std::chrono::high_resolution_clock::now();
@@ -1114,10 +1145,12 @@ std::shared_ptr<Mesh> LevelManager::CreateTriangulatedMesh(std::shared_ptr<Visua
 	// Changeable variables for mesh generation
 	constexpr int chunkResolution = 2;
 	constexpr float sectorOffsetSizePercent = 0.05f;
-	constexpr int vertexQuadResolution = 4;
+	constexpr int vertexQuadResolution = 8;
 	constexpr float vertexQuadOffsetSizePercent = 0.10f;
 	constexpr bool enableDebugConsole = true;
 	constexpr bool enableDebugMeshes = false;
+	glm::vec3 frictionAreaOffset = glm::vec3();
+	constexpr float frictionRadius = 1.0f;
 
 	// Initialize Storage vectors
 	std::vector<glm::vec3> vertexPositions;
@@ -1129,6 +1162,7 @@ std::shared_ptr<Mesh> LevelManager::CreateTriangulatedMesh(std::shared_ptr<Visua
 	glm::vec3 sectorClose;
 	glm::vec3 sectorExtent;
 	glm::vec3 extent = (_max - _min);
+	glm::vec3 frictionAreaCentre = ((_min + _max) * 0.5f) + _poinCloud->GetGlobalPosition() + frictionAreaOffset;
 	float sectorDivX = extent.x / chunkResolution;
 	float sectorDivZ = extent.z / chunkResolution;
 	float sectorFarZ = sectorFar.z;
@@ -1391,7 +1425,23 @@ std::shared_ptr<Mesh> LevelManager::CreateTriangulatedMesh(std::shared_ptr<Visua
 	// ----------------------------------------------------------------------------------------
 	std::vector<Vertex> vertices;
 	for (glm::vec3 pos : vertexPositions)
-		vertices.push_back(Vertex(pos, glm::vec3(0), glm::vec2(0)));
+	{
+		// Calculate friction value between 0.1 and 0.9 based on distance away from friction centre
+		glm::vec3 diff = pos - frictionAreaCentre;
+		float distanceSquared = glm::dot(diff, diff);
+		float frictionCoef = 0.1f;
+		if (distanceSquared <= (frictionRadius * frictionRadius))
+		{
+			// Normalize the distance to [0, 1] based on the friction radius
+			float distance = sqrt(distanceSquared);
+			float normalizedDistance = distance / frictionRadius;
+
+			// Interpolate friction coefficient between 0.9 (center) and 0.1 (edge)
+			frictionCoef = 0.9f - (normalizedDistance * 0.8f);
+		}
+		
+		vertices.push_back(Vertex(pos, glm::vec3(0), glm::vec2(0), frictionCoef));
+	}
 
 	// 3. Update the all vertices to include normals for shading
 	// ----------------------------------------------------------------------------------------

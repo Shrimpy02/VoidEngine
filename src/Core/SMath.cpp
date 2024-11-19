@@ -47,7 +47,7 @@ bool SMath::ConformCurveToGeometry(std::vector<std::shared_ptr<Actor>>& _points,
     return isInContact;
 }
 
-bool SMath::ConformPhysicsObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, glm::vec3& _normals, float _offsettHeight)
+bool SMath::ConformPhysicsObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, glm::vec3& _normals, float& _faceFriction, float _offsettHeight)
 {
     bool isInContact = false;
     float locationOnPlaneHeight(0);
@@ -56,7 +56,7 @@ bool SMath::ConformPhysicsObjectToGeometry(std::shared_ptr<Actor> _object, std::
 
     if (std::shared_ptr<BaseActor> baseActor = std::dynamic_pointer_cast<BaseActor>(_object))
     {
-        if (IsWithinBarycentricCoordinates(baseActor, _surface, locationOnPlaneHeight, _normals))
+        if (IsWithinBarycentricCoordinates(baseActor, _surface, locationOnPlaneHeight, _normals, _faceFriction))
         {
             // If owning actor is bellow surface
             if (baseActor->GetGlobalPosition().y < locationOnPlaneHeight + _offsettHeight + baseActor->GetExtent().y)
@@ -73,7 +73,7 @@ bool SMath::ConformPhysicsObjectToGeometry(std::shared_ptr<Actor> _object, std::
 
         // If _object is just an actor do default logic
     }
-    else if (IsWithinBarycentricCoordinates(_object, _surface, locationOnPlaneHeight, _normals)) {
+    else if (IsWithinBarycentricCoordinates(_object, _surface, locationOnPlaneHeight, _normals, _faceFriction)) {
 
         // If owning actor is bellow surface
         if (_object->GetGlobalPosition().y < locationOnPlaneHeight + _offsettHeight)
@@ -270,12 +270,8 @@ bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::
                 baryCoords.y > 0 && baryCoords.y < 1 &&
                 baryCoords.z > 0 && baryCoords.z < 1)
             {
-                // Log triangle index
-                //std::cout << "Actor within triangle = " << index1 << " " << index2 << " " << index3 << std::endl;
-    
                 // Calculates and updates height from the barycentric coordinates
                 _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
-    
                 return true;
             }
         }
@@ -284,7 +280,7 @@ bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::
     return false;
 }
 
-bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, glm::vec3& _normal)
+bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, glm::vec3& _normal, float& _faceFriction)
 {
     // --------------- Stage 1, Check if object is within extent --------
     if (IsWithinTerrainXZExtent(_object, _surface))
@@ -344,6 +340,7 @@ bool SMath::IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::
                 // Calculates and updates height from the barycentric coordinates
                 _height = GetHeightFromBarycentricCoordinates(baryCoords, point1Pos, point2Pos, point3Pos);
                 _normal = GetTriangleNormalizedNormal(point1Pos, point2Pos, point3Pos);
+                _faceFriction = GetTriangleFriction(planeVertices[index1].mFrictionCoefficient, planeVertices[index2].mFrictionCoefficient, planeVertices[index3].mFrictionCoefficient);
                 return true;
             }
         }
@@ -1059,6 +1056,12 @@ float SMath::GetHeightFromBarycentricCoordinates(const glm::vec3& _barCoords, co
 {
     // Calculates height by barycentric coordinates and triangle points
     return ( _barCoords.x * _p1.y + _barCoords.y * _p2.y + _barCoords.z * _p3.y);
+}
+
+float SMath::GetTriangleFriction(float _f1, float _f2, float _f3)
+{
+    float avgFrictionCoef = (_f1 + _f2 + _f3) / 3;
+    return avgFrictionCoef;
 }
 
 bool SMath::IsWithinTerrainXZExtent(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface)

@@ -1,0 +1,35 @@
+{
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"ADD_CUSTOM_TARGET"
+		],
+		"files" : 
+		[
+			"libs/assimp/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 825,
+				"parent" : 0
+			}
+		]
+	},
+	"id" : "UpdateAssimpLibsDebugSymbolsAndDLLs::@5da26302a78c65b3bcac",
+	"name" : "UpdateAssimpLibsDebugSymbolsAndDLLs",
+	"paths" : 
+	{
+		"build" : "libs/assimp",
+		"source" : "libs/assimp"
+	},
+	"sources" : [],
+	"type" : "UTILITY"
+}

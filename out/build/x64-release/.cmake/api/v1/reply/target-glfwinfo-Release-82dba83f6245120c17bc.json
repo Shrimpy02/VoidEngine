@@ -1,0 +1,276 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "libs/glfw-3.3.9/tests/glfwinfo.exe"
+		},
+		{
+			"path" : "libs/glfw-3.3.9/tests/glfwinfo.pdb"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"add_definitions",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"libs/glfw-3.3.9/tests/CMakeLists.txt",
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 38,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 12,
+				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 14,
+				"parent" : 3
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 15,
+				"parent" : 3
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 16,
+				"parent" : 3
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 17,
+				"parent" : 3
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 18,
+				"parent" : 3
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 19,
+				"parent" : 3
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 20,
+				"parent" : 3
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 4,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /W3 /MD /O2 /Ob2 /DNDEBUG"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "_CRT_SECURE_NO_WARNINGS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 4,
+					"path" : "C:/SebsStuff/Projects/VoidEngine/includes"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/SebsStuff/Projects/VoidEngine/includes/imgui"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/SebsStuff/Projects/VoidEngine/src"
+				},
+				{
+					"backtrace" : 7,
+					"path" : "C:/SebsStuff/Projects/VoidEngine/libs/assimp/include"
+				},
+				{
+					"backtrace" : 8,
+					"path" : "C:/SebsStuff/Projects/VoidEngine/libs/LASzip/dll"
+				},
+				{
+					"backtrace" : 9,
+					"path" : "C:/SebsStuff/Projects/VoidEngine/libs/LASzip/include/laszip"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/SebsStuff/Projects/VoidEngine/libs/LASzip/src"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "C:/SebsStuff/Projects/VoidEngine/libs/glfw-3.3.9/deps"
+				},
+				{
+					"backtrace" : 1,
+					"path" : "C:/SebsStuff/Projects/VoidEngine/libs/glfw-3.3.9/include"
+				}
+			],
+			"language" : "C",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "99"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				2,
+				4,
+				6
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 1,
+			"id" : "glfw::@ab451f00c8df81f2d8d3"
+		}
+	],
+	"folder" : 
+	{
+		"name" : "GLFW3/Tests"
+	},
+	"id" : "glfwinfo::@4490ebfb7c7d6067dc90",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "/DWIN32 /D_WINDOWS /W3 /MD /O2 /Ob2 /DNDEBUG",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "/machine:x64 /INCREMENTAL:NO /subsystem:console",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 1,
+				"fragment" : "libs\\glfw-3.3.9\\src\\glfw3.lib",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib",
+				"role" : "libraries"
+			}
+		],
+		"language" : "C"
+	},
+	"name" : "glfwinfo",
+	"nameOnDisk" : "glfwinfo.exe",
+	"paths" : 
+	{
+		"build" : "libs/glfw-3.3.9/tests",
+		"source" : "libs/glfw-3.3.9/tests"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				2,
+				4,
+				6
+			]
+		},
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				1,
+				3,
+				5
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "libs/glfw-3.3.9/tests/glfwinfo.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "libs/glfw-3.3.9/deps/getopt.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "libs/glfw-3.3.9/deps/getopt.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "libs/glfw-3.3.9/deps/glad/gl.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "libs/glfw-3.3.9/deps/glad_gl.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "libs/glfw-3.3.9/deps/glad/vulkan.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "libs/glfw-3.3.9/deps/glad_vulkan.c",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

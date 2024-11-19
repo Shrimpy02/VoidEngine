@@ -36,7 +36,7 @@ public:
     static bool ConformCurveToGeometry(std::vector<std::shared_ptr<Actor>>& _points, std::shared_ptr<VisualActor> _surface, float _offsettHeight = 0.f);
 
     // Static function that conforms an actor _object to a visual actor _surface with the sett height offset. It returns true if _object is in contact with _surface.
-    static bool ConformPhysicsObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, glm::vec3& _normals, float _offsettHeight = 0.f);
+    static bool ConformPhysicsObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, glm::vec3& _normals, float& _faceFriction, float _offsettHeight = 0.f);
 
     static bool ConformObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, std::vector<glm::vec3>& _debugSurfacePoints, float _offsettHeight = 0.f);
 
@@ -47,7 +47,7 @@ public:
     // Static function returns true if _object is within the barycentric coordinates of _surface
 	static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height);
 
-    static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, glm::vec3& _normal);
+    static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, glm::vec3& _normal, float& _faceFriction);
 
     // Static function returns true if _object is within the barycentric coordinates of _surface
     static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, std::vector<glm::vec3>& _debugSurfacePoints);
@@ -140,6 +140,8 @@ private:
 
     // Static helper function returns the height of a barycentric coordinate in a triangle of three points
     static float GetHeightFromBarycentricCoordinates(const glm::vec3& _barCoords, const  glm::vec3& _p1, const  glm::vec3& _p2, const  glm::vec3& _p3);
+
+    static float GetTriangleFriction(float _p1, float _p2, float _p3);
 
     // Static helper function returns true of _object is within the X and Z extents of _surface
     static bool IsWithinTerrainXZExtent(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface);

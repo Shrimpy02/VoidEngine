@@ -63,21 +63,49 @@ void PhysicsComponent::ConformToSurface()
 	mDebugBarryLocations.clear();
 
 	glm::vec3 faceNormals;
-	if (SMath::ConformPhysicsObjectToGeometry(mOwner, mSurfaceReference, faceNormals,0.1f))
+	float faceFrictionCoefficient;
+	if (SMath::ConformPhysicsObjectToGeometry(mOwner, mSurfaceReference, faceNormals, faceFrictionCoefficient,0.1f))
 	{
 		inContactWithGround = true;
 		mVelocity.y = 0;
 
-		float gravity = -0.981f;
+		float gravity = -9.81f;
 		
-		glm::vec3 faceAcceleration = glm::vec3(
-			faceNormals.x * faceNormals.y * gravity,     // X 
-			(faceNormals.y * faceNormals.y - 1.0f) * gravity, // Y 
-			faceNormals.z * faceNormals.y * gravity      // Z 
-		);
+		glm::vec3 faceAcceleration = glm::vec3(faceNormals.x * faceNormals.y * gravity,(faceNormals.y * faceNormals.y - 1.0f) * gravity, faceNormals.z * faceNormals.y * gravity);
+		// Wrong face normal side, so inverse it
+		faceAcceleration *= glm::vec3(-1);
 
-		faceAcceleration *= glm::vec3(-1, -1, -1);
 		mAcceleration += faceAcceleration;
+
+		// Calculate friction
+		// Get n as a unit vector
+		// G = grav * m
+		// ny * G = Gy
+		// N = -Gy
+		// Ff = my * N
+		// Ff = m * a
+		// a = Ff*m/m
+
+		if(faceFrictionCoefficient > 0.1f)
+		{
+			// Calculate normal force (N = -Gy)
+			float Gy = faceNormals.y * gravity * (mMass / 1.1);
+			float NormalForce = -Gy;
+
+			// Calculate friction force (Ff = µ * N)
+			float FrictionForce = (faceFrictionCoefficient)*NormalForce;
+
+			// Get the velocity direction and make sure its not NAN
+			glm::vec3 velocityDirection = glm::normalize(glm::vec3(mVelocity.x, 0.0f, mVelocity.z));
+			if (velocityDirection != velocityDirection)
+				velocityDirection = glm::vec3(0);
+
+			// scale deceleration to velocity direction
+			glm::vec3 FrictionDecelerationVec = -velocityDirection * (FrictionForce / mMass);  // Opposes motion
+
+
+			mAcceleration += FrictionDecelerationVec;
+		}
 	}
 
 }

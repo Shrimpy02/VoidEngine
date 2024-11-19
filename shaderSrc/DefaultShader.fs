@@ -6,6 +6,7 @@ out vec4 FragColor;
 in vec2 TexCoord;
 in vec3 Normal;
 in vec3 FragPos;
+in float FrictionCoef;
 
 struct Material {
     sampler2D diffuseMap;
@@ -105,7 +106,8 @@ void main()
 
     vec3 directionalLightContribution = CalculateDirectionalLightContribution();
     vec3 pointLightsContribution = CalculatePointLightContribution();
-    vec3 finalColor = pointLightsContribution + directionalLightContribution;
+    float frictionColorOffset = (FrictionCoef - 1) * -1;
+    vec3 finalColor = (pointLightsContribution + directionalLightContribution) * frictionColorOffset;
     FragColor = vec4(finalColor, 1);    
     //FragColor = vec4(0,0,1,1); // blue color
    }
