@@ -949,6 +949,56 @@ glm::vec3 SMath::EvaluateBSplineNormal(float _u, float _v, int _du, int _dv, int
     return N;
 }
 
+std::vector<glm::vec3> SMath::BSplineFromPoints(const std::vector<std::shared_ptr<GraphPoint>>& _controlPoints,
+	const float& _step, const int& _dimension)
+{
+   
+    std::vector<float> knots = GenerateClampedKnotVector(_controlPoints.size(), _dimension);
+    std::vector<glm::vec3> curvePoints;
+    int resolution = (1 / (_step * 4)) * _controlPoints.size();
+
+    // Ensure correct parameter range
+    float tMin = knots[_dimension];
+    float tMax = knots[knots.size() - _dimension - 1];
+
+    for (int i = 0; i < resolution; ++i) {
+        float t = tMin + (tMax - tMin) * i / resolution;
+
+        glm::vec3 point(0.0f);
+        for (int j = 0; j < _controlPoints.size(); ++j) {
+            // Evaluate basis function
+            float basis = CoxDeBoorRecursive(j, _dimension, t, knots);
+            point += basis * _controlPoints[j]->GetGlobalPosition();
+        }
+
+        curvePoints.push_back(point);
+    }
+
+    return curvePoints;
+
+
+
+
+    //std::vector<glm::vec3> curvePoints;
+    //int resolution = 5;
+    //std::vector<float> knots = GenerateClampedKnotVector(_controlPoints.size(), _dimension);
+    //float tMin = knots[_dimension];
+    //float tMax = knots[knots.size() - _dimension - 1];
+
+    //for (int step = 0; step <= resolution; ++step) {
+    //    float t = tMin + (tMax - tMin) * step / resolution;
+    //    glm::vec3 point(0.0f);
+
+    //    for (int i = 0; i < _controlPoints.size(); ++i) {
+    //        float basis = CoxDeBoorRecursive(i, _dimension + 1, t, knots);
+    //        point += basis * _controlPoints[i]->GetGlobalPosition();
+    //    }
+    //    curvePoints.push_back(point);
+    //}
+    //return curvePoints;
+
+}
+
 std::vector<float> SMath::GenerateClampedKnotVector(int _numControlPoints, int _degree)
 {
     int numKnots = _numControlPoints + _degree + 1;

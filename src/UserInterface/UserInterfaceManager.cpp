@@ -911,6 +911,10 @@ void UserInterfaceManager::ui_WorldProperties()
 				rollingBall->AddComponent<PhysicsComponent>("PhysicsComp");
 				rollingBall->GetPhysicsComponent()->SetSurfaceReference(mLevelManager->mBallTerrain);
 				rollingBall->GetPhysicsComponent()->SetGravityEnabled(true);
+
+				std::shared_ptr<GraphActor> rollingballGraph = std::make_shared<GraphActor>("RollingBallGraphActor");
+				mLevelManager->AddActorToLevel(rollingballGraph);
+				rollingBall->mGraphActor = rollingballGraph;
 			}
 		}
 

@@ -388,6 +388,18 @@ void LevelManager::LoadTestGame()
 
 void LevelManager::LoadFolderLevel()
 {
+	bool enablePointCloud = true;
+	bool enableCustomFileForPointCloud = false;
+	bool enablePointCloudVis = false;
+	bool enableTriangulation = true;
+	bool enableTriangulationVis = false;
+	bool enableTriangulationDebug = false;
+	bool enableTriangulationConsole = true;
+	bool enableBSplineSurface = false;
+	bool enableBSplineDebug = false;
+	bool enableBallSpawner = true;
+	bool enableMassBalls = true;
+
 	LOG_INFO("Loading `Folder Level`");
 	std::chrono::time_point<std::chrono::steady_clock> loadingStart = std::chrono::high_resolution_clock::now();
 
@@ -395,32 +407,39 @@ void LevelManager::LoadFolderLevel()
 	BaseLevelRequiredObjects();
 
 	// Folder Assignment 1.1 --------------------------------
+	// Custom writing of point cloud to file
 
 	std::string InputHeightData = SOURCE_DIRECTORY("/UserAssets/HightData/Folder/32-1-498-99-22.laz");
 	std::string OutputHeightData = SOURCE_DIRECTORY("/UserAssets/HightData/Folder/Output.txt");
-
-	//SMath::LASFileToCustomFileOfPoints(InputHeightData.c_str(), OutputHeightData.c_str());
+	if (enableCustomFileForPointCloud)
+		SMath::LASFileToCustomFileOfPoints(InputHeightData.c_str(), OutputHeightData.c_str());
 	LOG("Finished Assignment 1.1, custom file written to:");
 	LOG("%s", OutputHeightData.c_str());
 
 	// Folder Assignment 1.2 --------------------------------
+	// moving point cloud terrain to viewport
 
 	// Init object
-	std::shared_ptr<VisualActor> terrainSector = std::make_shared<VisualActor>("PointCloudTerrain", Mesh::CreatePointCloudFromLASFileSurface(InputHeightData.c_str(), 0.01f));
-	terrainSector->SetShaderObjectType(ShaderObjectType::PointCloud);
-	AddActorToLevel(terrainSector);
-
-	// Adjust terrain position
-	glm::vec3 centre = terrainSector->GetCentre();
-	glm::vec3 diff = glm::vec3(0) - centre;
-
-	// Update the vertex position by applying the offset
-	if (std::shared_ptr<PointCloudMesh> pCM = std::dynamic_pointer_cast<PointCloudMesh>(terrainSector->GetMesh()))
+	std::shared_ptr<VisualActor> terrainSector;
+	if(enablePointCloud)
 	{
-		SMath::AdjustVertexCoordinates(pCM, diff);
-		pCM->UpdateMesh();
+		terrainSector = std::make_shared<VisualActor>("PointCloudTerrain", Mesh::CreatePointCloudFromLASFileSurface(InputHeightData.c_str(), 0.01f));
+		terrainSector->SetShaderObjectType(ShaderObjectType::PointCloud);
+		AddActorToLevel(terrainSector);
+
+		// Adjust terrain position
+		glm::vec3 centre = terrainSector->GetCentre();
+		glm::vec3 diff = glm::vec3(0) - centre;
+
+		// Update the vertex position by applying the offset
+		if (std::shared_ptr<PointCloudMesh> pCM = std::dynamic_pointer_cast<PointCloudMesh>(terrainSector->GetMesh()))
+		{
+			SMath::AdjustVertexCoordinates(pCM, diff);
+			pCM->UpdateMesh();
+		}
+		terrainSector->GetActorVisualMesh()->SetIsVisible(enablePointCloudVis);
 	}
-	terrainSector->GetActorVisualMesh()->SetIsVisible(false);
+	
 
 	LOG("Finished Assignment 1.2, point cloud generated and adjusted to viewport");
 
@@ -428,98 +447,106 @@ void LevelManager::LoadFolderLevel()
 	// Make a plane based on the height data.
 
 	// Get extents for pointCloud mesh
-	glm::vec3 minExtent = glm::vec3(0);
-	glm::vec3 maxExtent = glm::vec3(0);
-	if (std::shared_ptr<PointCloudMesh> pCM = std::dynamic_pointer_cast<PointCloudMesh>(terrainSector->GetMesh()))
+	if(terrainSector)
 	{
-		for (PointCloudVertex& vertex : pCM->mVertices)
+		glm::vec3 minExtent = glm::vec3(0);
+		glm::vec3 maxExtent = glm::vec3(0);
+		if (std::shared_ptr<PointCloudMesh> pCM = std::dynamic_pointer_cast<PointCloudMesh>(terrainSector->GetMesh()))
 		{
-			minExtent = glm::min(minExtent, vertex.mPosition);
-			maxExtent = glm::max(maxExtent, vertex.mPosition);
+			for (PointCloudVertex& vertex : pCM->mVertices)
+			{
+				minExtent = glm::min(minExtent, vertex.mPosition);
+				maxExtent = glm::max(maxExtent, vertex.mPosition);
+			}
+		}
+
+		if (enableTriangulation)
+		{
+			std::shared_ptr<Mesh> mesh = CreateTriangulatedMesh(terrainSector, minExtent, maxExtent, enableTriangulationDebug, enableTriangulationConsole);
+			mBallTerrain = std::make_shared<VisualActor>("GeneratedPlane", mesh);
+			AddActorToLevel(mBallTerrain);
+			mBallTerrain->GetActorVisualMesh()->SetIsVisible(enableTriangulationVis);
 		}
 	}
-
-	std::shared_ptr<Mesh> mesh = CreateTriangulatedMesh(terrainSector,minExtent,maxExtent);
-	mBallTerrain = std::make_shared<VisualActor>("GeneratedPlane", mesh);
-	AddActorToLevel(mBallTerrain);
-
-	mBallTerrain->GetActorVisualMesh()->SetIsVisible(true);
 
 	LOG("Finished Assignment 1.3, generated mesh from point cloud terrain");
 
 	// Folder Assignment 1.4 --------------------------------
 	// Create a B-Spline surface from the generated mesh
 
-	// Define degrees 2 = Bi-Quadratic
-	int Du = 2;
-	int Dv = 2;
-
-	// Define vertex resolution
-	int UResolution = 20;
-	int VResolution = 20;
-	bool enableDebug = false;
-	const int gridSize = 3;
-
-	// Get extents of mesh
-	glm::vec3 minExtentMesh = glm::vec3(0);
-	glm::vec3 maxExtentMesh = glm::vec3(0);
-	if (std::shared_ptr<DefaultMesh> gM = std::dynamic_pointer_cast<DefaultMesh>(mBallTerrain->GetMesh()))
+	if(enableBSplineSurface)
 	{
-		for (Vertex& vertex : gM->mVertices)
+		// Define degrees 2 = Bi-Quadratic
+		int Du = 2;
+		int Dv = 2;
+
+		// Define vertex resolution
+		int UResolution = 20;
+		int VResolution = 20;
+		const int gridSize = 3;
+
+		// Get extents of mesh
+		glm::vec3 minExtentMesh = glm::vec3(0);
+		glm::vec3 maxExtentMesh = glm::vec3(0);
+		if (std::shared_ptr<DefaultMesh> gM = std::dynamic_pointer_cast<DefaultMesh>(mBallTerrain->GetMesh()))
 		{
-			minExtentMesh = glm::min(minExtentMesh, vertex.mPosition);
-			maxExtentMesh = glm::max(maxExtentMesh, vertex.mPosition);
+			for (Vertex& vertex : gM->mVertices)
+			{
+				minExtentMesh = glm::min(minExtentMesh, vertex.mPosition);
+				maxExtentMesh = glm::max(maxExtentMesh, vertex.mPosition);
+			}
 		}
-	}
 
-	minExtentMesh += glm::vec3(0.1,0,0.1);
-	maxExtentMesh -= glm::vec3(0.1,0,0.1);
+		minExtentMesh += glm::vec3(0.1, 0, 0.1);
+		maxExtentMesh -= glm::vec3(0.1, 0, 0.1);
 
-	// Compute control points as a grid over the mesh extents
-	std::vector<std::vector<glm::vec3>> controlPoints(gridSize, std::vector<glm::vec3>(gridSize));
+		// Compute control points as a grid over the mesh extents
+		std::vector<std::vector<glm::vec3>> controlPoints(gridSize, std::vector<glm::vec3>(gridSize));
 
-	// Generate control points
-	glm::vec3 step = (maxExtentMesh - minExtentMesh) / static_cast<float>(gridSize - 1);
-	for (int i = 0; i < controlPoints.size(); i++)
-	{
-		for (int j = 0; j < controlPoints[0].size(); j++)
-		{
-			controlPoints[i][j] = glm::vec3(minExtentMesh.x + step.x * j, 1.0f, minExtentMesh.z + step.z * i);
-		}
-	}
-	// Conform control point y to terrain height
-	for (int i = 0; i < controlPoints.size(); i++)
-	{
-		for (int j = 0; j < controlPoints[0].size(); j++)
-		{
-			SMath::ConformPointToGeometry(controlPoints[i][j], mBallTerrain);
-		}
-	}
-
-	// Create debug objects for control points
-	if(enableDebug)
-	{
+		// Generate control points
+		glm::vec3 step = (maxExtentMesh - minExtentMesh) / static_cast<float>(gridSize - 1);
 		for (int i = 0; i < controlPoints.size(); i++)
 		{
 			for (int j = 0; j < controlPoints[0].size(); j++)
 			{
-				std::shared_ptr<DebugActor> debugControlPoint = std::make_shared<DebugActor>("DebugControlPoint");
-				debugControlPoint->SetVisualMesh(std::make_pair(glm::vec3(-0.2), glm::vec3(0.2)));
-				debugControlPoint->SetGlobalPosition(controlPoints[i][j]);
-				debugControlPoint->SetGlobalScale(glm::vec3(1));
-				mActiveLevel->AddActorToSceneGraph(debugControlPoint);
+				controlPoints[i][j] = glm::vec3(minExtentMesh.x + step.x * j, 1.0f, minExtentMesh.z + step.z * i);
 			}
 		}
+		// Conform control point y to terrain height
+		for (int i = 0; i < controlPoints.size(); i++)
+		{
+			for (int j = 0; j < controlPoints[0].size(); j++)
+			{
+				SMath::ConformPointToGeometry(controlPoints[i][j], mBallTerrain);
+			}
+		}
+
+		// Create debug objects for control points
+		if (enableBSplineDebug)
+		{
+			for (int i = 0; i < controlPoints.size(); i++)
+			{
+				for (int j = 0; j < controlPoints[0].size(); j++)
+				{
+					std::shared_ptr<DebugActor> debugControlPoint = std::make_shared<DebugActor>("DebugControlPoint");
+					debugControlPoint->SetVisualMesh(std::make_pair(glm::vec3(-0.2f), glm::vec3(0.2f)));
+					debugControlPoint->SetGlobalPosition(controlPoints[i][j]);
+					debugControlPoint->SetGlobalScale(glm::vec3(1));
+					mActiveLevel->AddActorToSceneGraph(debugControlPoint);
+				}
+			}
+		}
+
+		// Define knot vectors
+		std::vector<float> uKnot = SMath::GenerateClampedKnotVector(controlPoints.size(), Du);
+		std::vector<float> vKnot = SMath::GenerateClampedKnotVector(controlPoints[0].size(), Dv);
+
+		std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
+		AddActorToLevel(BSplineSurface);
+
+		//BSplineSurface->GetActorVisualMesh()->SetIsVisible(false);
 	}
-
-	// Define knot vectors
-	std::vector<float> uKnot = SMath::GenerateClampedKnotVector(controlPoints.size(), Du);
-	std::vector<float> vKnot = SMath::GenerateClampedKnotVector(controlPoints[0].size(), Dv);
 	
-	std::shared_ptr<VisualActor> BSplineSurface = std::make_shared<VisualActor>("BSurface", Mesh::CreateBSplineSurface(nullptr, UResolution, VResolution, Du, Dv, uKnot, vKnot, controlPoints));
-	AddActorToLevel(BSplineSurface);
-
-	//BSplineSurface->GetActorVisualMesh()->SetIsVisible(false);
 
 	LOG("Finished Assignment 1.4, B-Spline Surface from mesh");
 
@@ -533,10 +560,14 @@ void LevelManager::LoadFolderLevel()
 
 	// Folder Assignment 2.2 --------------------------------
 	// Create debug cube for spawning ball interactively
-	mDebugSpawnerBall = std::make_shared<DebugActor>("DebugInteractiveBallSpawner");
-	mDebugSpawnerBall->SetVisualMesh(std::make_pair(glm::vec3(-0.2), glm::vec3(0.2)));
-	mActiveLevel->AddActorToSceneGraph(mDebugSpawnerBall);
-	// Click button "Spawn Ball" in the world manager tab on the right side of the UI
+
+	if(enableTriangulation && enableBallSpawner)
+	{
+		mDebugSpawnerBall = std::make_shared<DebugActor>("DebugInteractiveBallSpawner");
+		mDebugSpawnerBall->SetVisualMesh(std::make_pair(glm::vec3(-0.2), glm::vec3(0.2)));
+		mActiveLevel->AddActorToSceneGraph(mDebugSpawnerBall);
+		// Click button "Spawn Ball" in the world manager tab on the right side of the UI
+	}
 
 	LOG("Finished Assignment 2.2, Interactive ball spawning");
 
@@ -558,11 +589,38 @@ void LevelManager::LoadFolderLevel()
 	// Folder Assignment 2.5 --------------------------------
 	// Tracking of individual ball path
 
+	// B-Spline complete, spawns a new control point for the b-spline graph each 0.5 second.
+	// The Graph actor manages the actual graph construction
+	LOG("Finished Assignment 2.5, B-Spline tracking of physics ball");
 
 	// Folder Assignment 2.6 --------------------------------
 	// Mass ball physics simulation
+	
+	// Generates many balls at the same time with tracking but without collision
+	// within the extents of the triangulated mesh
 
+	if(enableMassBalls && enableTriangulation)
+	{
+		for (int i = 0; i < 100; i++)
+		{
+			// Create the ball that will be rolling on terrain and update its physics component
+			std::shared_ptr<BaseActor> rollingBall = std::make_shared<BaseActor>("RollingBall", Mesh::CreateSphere(nullptr), CollisionBase::BoundingSphere, glm::vec3(0), glm::vec3(0.2f));
+			AddActorToLevel(rollingBall);
+			rollingBall->mCollisionProperties.SetCollisionType(CollisionType::DYNAMIC);
+			rollingBall->mCollisionProperties.SetCollisionResponse(CollisionResponse::IGNORE);
+			rollingBall->AddComponent<PhysicsComponent>("PhysicsComp");
+			rollingBall->GetPhysicsComponent()->SetSurfaceReference(mBallTerrain);
+			rollingBall->GetPhysicsComponent()->SetGravityEnabled(true);
+			SSpawner::SetObjectLocationWithinBoundsRandomly(rollingBall, mBallTerrain);
 
+			std::shared_ptr<GraphActor> rollingballGraph = std::make_shared<GraphActor>("RollingBallGraphActor");
+			AddActorToLevel(rollingballGraph);
+			rollingBall->mGraphActor = rollingballGraph;
+		}
+	}
+
+	LOG("Finished Assignment 2.6, Mass Ball spawing");
+	LOG("Finished all proccessign for Visualization and simulation folder");
 
 	// Calculate time diff from start to finish for print
 	std::chrono::time_point<std::chrono::steady_clock> loadEnd = std::chrono::high_resolution_clock::now();
@@ -1140,15 +1198,13 @@ void LevelManager::AddDebugActor(std::vector<std::shared_ptr<DebugActor>>& _debA
 	_debActorStorage.push_back(debug);
 }
 
-std::shared_ptr<Mesh> LevelManager::CreateTriangulatedMesh(std::shared_ptr<VisualActor> _poinCloud, const glm::vec3& _min, const glm::vec3& _max)
+std::shared_ptr<Mesh> LevelManager::CreateTriangulatedMesh(std::shared_ptr<VisualActor> _poinCloud, const glm::vec3& _min, const glm::vec3& _max, bool _enableDebug, bool _enableConsole)
 {
 	// Changeable variables for mesh generation
 	constexpr int chunkResolution = 2;
 	constexpr float sectorOffsetSizePercent = 0.05f;
 	constexpr int vertexQuadResolution = 8;
 	constexpr float vertexQuadOffsetSizePercent = 0.10f;
-	constexpr bool enableDebugConsole = true;
-	constexpr bool enableDebugMeshes = false;
 	glm::vec3 frictionAreaOffset = glm::vec3();
 	constexpr float frictionRadius = 1.0f;
 
@@ -1186,7 +1242,7 @@ std::shared_ptr<Mesh> LevelManager::CreateTriangulatedMesh(std::shared_ptr<Visua
 			glm::vec3 sectorOffsetFar = glm::vec3(sectorFar.x + sectorDivX * sectorOffsetSizePercent, sectorFar.y, sectorFar.z + sectorDivZ * sectorOffsetSizePercent);
 			glm::vec3 sectorOffsetClose = glm::vec3(sectorClose.x - sectorDivX * sectorOffsetSizePercent, sectorClose.y, sectorClose.z - sectorDivZ * sectorOffsetSizePercent);
 
-			if (enableDebugMeshes)
+			if (_enableDebug)
 			{
 				// Optionally creates debug actors for visualization
 				std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(sectorOffsetFar, sectorOffsetClose);
@@ -1241,7 +1297,7 @@ std::shared_ptr<Mesh> LevelManager::CreateTriangulatedMesh(std::shared_ptr<Visua
 					// Update vertexQuad close for each z
 					vertexQuadClose = vertexQuadFar - glm::vec3(vertexDivX, 0, vertexDivZ);
 
-					if (enableDebugMeshes)
+					if (_enableDebug)
 					{
 						// Optionally creates debug actors for visualization
 						std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(vertexQuadFar, vertexQuadClose);
@@ -1291,7 +1347,7 @@ std::shared_ptr<Mesh> LevelManager::CreateTriangulatedMesh(std::shared_ptr<Visua
 							if (vertexQuadOffsetFar.x > vertexQuadCentre.x)
 								vertexOffsetOffsetFar += glm::vec3(vertexDivX * vertexQuadOffsetSizePercent, 0, 0);
 
-							if (enableDebugMeshes)
+							if (_enableDebug)
 							{
 								// Optionally creates debug actors for visualization
 								std::pair<glm::vec3, glm::vec3> pairExtent = std::make_pair(vertexQuadOffsetFar + vertexOffsetOffsetFar, vertexQuadOffsetClose - vertexOffsetOffsetClose);
@@ -1413,7 +1469,7 @@ std::shared_ptr<Mesh> LevelManager::CreateTriangulatedMesh(std::shared_ptr<Visua
 			sectorFar.z = sectorClose.z;
 
 			// Console out progress
-			if (enableDebugConsole)
+			if (_enableConsole)
 				std::cout << "Finished Iteration X:" << i << "/" << chunkResolution << " Y:" << j << "/" << chunkResolution << "\n";
 		}
 
@@ -1452,7 +1508,7 @@ std::shared_ptr<Mesh> LevelManager::CreateTriangulatedMesh(std::shared_ptr<Visua
 	// ----------------------------------------------------------------------------------------
 
 	// Makes the dubug actors for each section
-	if (enableDebugMeshes)
+	if (_enableDebug)
 	{
 		// Init root debug actor
 		std::shared_ptr<DebugActor> rootDebug = std::make_shared<DebugActor>("RootDebugSector");

@@ -16,13 +16,15 @@ enum GraphMethod
 {
     DeCasteljau,
     Neville,
-    DeBoor
+    DeBoor,
+    BSpline
 };
 
 enum GraphType
 {
     Interpolated,
-    Approximated
+    Approximated,
+    BSpline_Clamped
 };
 
 /**
@@ -34,10 +36,12 @@ class GraphActor : public Actor, public IRender
 public:
     // ---------- Global Variables --------------
 
+    std::vector<std::shared_ptr<GraphPoint>> mControlPoints;
+
 private:
     // ---------- Local Variables --------------
 
-    std::vector<std::shared_ptr<GraphPoint>> mControlPoints;
+    
     std::vector<std::shared_ptr<GraphPoint>> mGraphPoints;
     std::vector<glm::vec3> mOldPositions;
     GraphMethod mGraphMethod = DeCasteljau;
@@ -55,7 +59,7 @@ public:
 
     virtual void Update(float _dt) override;
 
-    void CreateGraph(GraphMethod _inMethod, GraphType _inType, const float _step = 0.10f);
+    void CreateGraph(GraphMethod _inMethod, GraphType _inType, const float _step = 0.10f, int _dimension = 2);
 
     // Helper Graph creating functions
     void SetControlPoints(const std::vector<glm::vec3>& _controlPoints);
@@ -70,7 +74,7 @@ private:
     void CreateControlPoints(const std::vector<glm::vec3>& _controlPoints);
 
 
-    std::vector<glm::vec3> GetPointsFromMethod(GraphMethod _inMethod, GraphType _inType, const float _step);
+    std::vector<glm::vec3> GetPointsFromMethod(GraphMethod _inMethod, GraphType _inType, const float _step, int _dimension);
 
 public:
     // ---------- Getters / setters / Adders --------------

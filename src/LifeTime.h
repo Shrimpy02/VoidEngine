@@ -42,7 +42,7 @@ public:
 
 	// Getters ---------
 
-	time_t GetLifeTime() { return mCurrentLifeTime; }
+	time_t& GetLifeTime() { return mCurrentLifeTime; }
 
 	// Setters ---------
 

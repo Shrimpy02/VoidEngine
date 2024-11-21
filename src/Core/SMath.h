@@ -78,6 +78,8 @@ public:
 
     static glm::vec3 EvaluateBSplineNormal(float _u, float _v, int _du, int _dv, int _UResolution, int _VResolution, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints);
 
+    static std::vector<glm::vec3> BSplineFromPoints(const std::vector<std::shared_ptr<GraphPoint>>& _controlPoints, const float& _step, const int& _dimension);
+
     static std::vector<float> GenerateClampedKnotVector(int _numControlPointsInDirection, int _degree);
 
     static std::vector<float> GenerateUniformKnotVector(int _numControlPoints, int _degree);

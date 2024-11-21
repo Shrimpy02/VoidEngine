@@ -6,6 +6,8 @@
 #include <RenderElements/Material.h>
 #include <Utilities/Logger.h>
 
+#include "GraphActor.h"
+
 // Additional Includes
 
 BaseActor::BaseActor(const std::string& _name, std::shared_ptr<Mesh> _visualMesh, CollisionBase _collisionBase, glm::vec3 _pos, glm::vec3 _scale, glm::quat _rotation, std::shared_ptr<Mesh> _collisionMesh)
@@ -34,7 +36,7 @@ BaseActor::BaseActor(const std::string& _name, std::shared_ptr<Mesh> _visualMesh
         LOG_WARNING("BaseActor `%s` has no visible mesh", _name.c_str());
     }
 
-
+    InitializeLifeTime();
 
     //mCollisionMesh->SetIsVisible(false);
 
