@@ -629,6 +629,10 @@ void LevelManager::LoadFolderLevel()
 	LOG_INFO("Finished loading `Folder Level`, time elapsed `%.2f` seconds", elapsedTimeS);
 }
 
+void LevelManager::LoadFolderLevelGameEngine()
+{
+	// Game engine folder logic
+}
 
 void LevelManager::UnloadContent()
 {
