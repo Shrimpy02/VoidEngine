@@ -204,7 +204,7 @@ std::shared_ptr<Mesh> Mesh::CreatePlane(std::shared_ptr<Material> _material, con
     return plane;
 }
 
-std::shared_ptr<Mesh> Mesh::CreatePlane(std::vector<glm::vec3> planePoints, std::shared_ptr<Material> _material, const bool _instance, std::string _customName)
+std::shared_ptr<Mesh> Mesh::CreatePlane(std::vector<Vertex> _planePoints, std::vector<Index> _planeIndicesPoints, std::shared_ptr<Material> _material, const bool _instance, std::string _customName)
 {
     // Default key
     std::string planeKey = "DefaultPlane";
@@ -221,17 +221,7 @@ std::shared_ptr<Mesh> Mesh::CreatePlane(std::vector<glm::vec3> planePoints, std:
             return it->second;
     }
 
-    // Gen vertices and indices from vector
-    std::vector<Vertex> vertices;
-    for (glm::vec3 position : planePoints)
-        vertices.push_back(Vertex(position, glm::vec3(0), glm::vec2(0)));
-
-
-    std::vector<Index> indices;
-    for (int i = 0; i < planePoints.size(); i++)
-        indices.push_back(i);
-
-    std::shared_ptr<DefaultMesh> plane = std::make_shared<DefaultMesh>(planeKey, std::move(vertices), std::move(indices), _material);
+    std::shared_ptr<DefaultMesh> plane = std::make_shared<DefaultMesh>(planeKey, std::move(_planePoints), std::move(_planeIndicesPoints), _material);
 
     // If instance enabled add object to cache
     if (_instance)
@@ -365,11 +355,11 @@ std::shared_ptr<Mesh> Mesh::CreateBSplineSurface(std::shared_ptr<Material> _mate
     // Gen spline surface ----
     for (int i = 0; i < _UResolution; ++i) {
         // Compute normalized u parameter in the [0, 1] range
-        double u = (double)i / (_UResolution - 1);
+        double u = _uKnot.front() + (i / static_cast<double>(_UResolution - 1)) * (_uKnot.back() - _uKnot.front());
 
         for (int j = 0; j < _VResolution; ++j) {
             // Compute normalized v parameter in the [0, 1] range
-            double v = (double)j / (_VResolution - 1);
+            double v = _vKnot.front() + (j / static_cast<double>(_VResolution - 1)) * (_vKnot.back() - _vKnot.front());
 
             // Evaluate the surface at (u, v)
             glm::vec3 surfacePoint = SMath::EvaluateBSplineSurface(u, v, _du, _dv, _uKnot, _vKnot, _controlPoints);

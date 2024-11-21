@@ -26,6 +26,9 @@ public:
     inline static float SNodeLifeTime = 0.5f;
     static void ManageOctTreeNodeLifeTime(std::shared_ptr<Level> _level, std::shared_ptr<OctTree_Node> _octTreeNode);
 
+    inline static float SControlPointInterval = 2.f;
+    static void ManagePhysicsPathControlPointLifeTime(std::vector<std::shared_ptr<Actor>> _lifeTimeActors);
+
 private:
     // ---------- Local functions --------------
 

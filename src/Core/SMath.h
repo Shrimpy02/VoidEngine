@@ -1,6 +1,7 @@
 #pragma once
 
 // Includes
+#include <Utilities/Types.h>
 
 // Additional Includes
 #include <glm/glm.hpp>
@@ -13,6 +14,7 @@ class Actor;
 class Mesh;
 class GraphPoint;
 class PointCloudMesh;
+struct Vertex;
 
 /**
  * @class SMath
@@ -34,10 +36,18 @@ public:
     static bool ConformCurveToGeometry(std::vector<std::shared_ptr<Actor>>& _points, std::shared_ptr<VisualActor> _surface, float _offsettHeight = 0.f);
 
     // Static function that conforms an actor _object to a visual actor _surface with the sett height offset. It returns true if _object is in contact with _surface.
+    static bool ConformPhysicsObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, glm::vec3& _normals, float& _faceFriction, float _offsettHeight = 0.f);
+
     static bool ConformObjectToGeometry(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, std::vector<glm::vec3>& _debugSurfacePoints, float _offsettHeight = 0.f);
+
+    static bool ConformPointToGeometry(glm::vec3& _point, std::shared_ptr<VisualActor> _surface, float _offsettHeight = 0.f);
+
+    static bool IsWithinBarycentricCoordinates(glm::vec3 _point, std::shared_ptr<VisualActor> _surface, float& _height);
 
     // Static function returns true if _object is within the barycentric coordinates of _surface
 	static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height);
+
+    static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, glm::vec3& _normal, float& _faceFriction);
 
     // Static function returns true if _object is within the barycentric coordinates of _surface
     static bool IsWithinBarycentricCoordinates(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface, float& _height, std::vector<glm::vec3>& _debugSurfacePoints);
@@ -68,7 +78,29 @@ public:
 
     static glm::vec3 EvaluateBSplineNormal(float _u, float _v, int _du, int _dv, int _UResolution, int _VResolution, const std::vector<float>& _uKnot, const std::vector<float>& _vKnot, const std::vector<std::vector<glm::vec3>>& _controlPoints);
 
+    static std::vector<glm::vec3> BSplineFromPoints(const std::vector<std::shared_ptr<GraphPoint>>& _controlPoints, const float& _step, const int& _dimension);
+
+    static std::vector<float> GenerateClampedKnotVector(int _numControlPointsInDirection, int _degree);
+
+    static std::vector<float> GenerateUniformKnotVector(int _numControlPoints, int _degree);
+
+    // Mesh operations -----
+
     static void AdjustVertexCoordinates(std::shared_ptr<PointCloudMesh> _pcm, glm::vec3 _offsett);
+
+    static void MergeVerticesByXZ(std::vector<glm::vec3>& vertices, const int _quality = 1);
+
+    static void MergeVerticesXZ(std::vector<glm::vec3>& vertices);
+
+    static bool PointXZOverlapsWithVertex(const glm::vec3& _pos1, const glm::vec3& _pos2, const float _epsilon = 0.001f);
+
+    static void UpdateVerticesNormal(std::vector<Vertex>& _vertices, std::vector<Index>& _indices);
+
+    static bool PointWithinArea(glm::vec3 _point, glm::vec3 _minExtent, glm::vec3 _maxExtent);
+
+    static bool PointWithinArea(glm::vec3 _point, glm::vec3 _minExtent, glm::vec3 _maxExtent, float _yOveride);
+
+    static void UpdateIndex(std::vector<glm::vec3>& vertexPointsForNewMesh, std::vector<Index>& indices, const glm::vec3& vert1, const glm::vec3& vert2, const glm::vec3& vert3, const glm::vec3& vert4);
 
 	// Curves ------
 
@@ -106,12 +138,21 @@ private:
 	// Static helper function returns the barycentric coordinate between three triangle points given by a _objectPos as a vec3
     static glm::vec3 GetBarycentricCoordinates(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3, glm::vec3 _objectPos);
 
+    static glm::vec3 GetTriangleNormalizedNormal(glm::vec3 _p1, glm::vec3 _p2, glm::vec3 _p3);
+
     // Static helper function returns the height of a barycentric coordinate in a triangle of three points
     static float GetHeightFromBarycentricCoordinates(const glm::vec3& _barCoords, const  glm::vec3& _p1, const  glm::vec3& _p2, const  glm::vec3& _p3);
+
+    static float GetTriangleFriction(float _p1, float _p2, float _p3);
 
     // Static helper function returns true of _object is within the X and Z extents of _surface
     static bool IsWithinTerrainXZExtent(std::shared_ptr<Actor> _object, std::shared_ptr<VisualActor> _surface);
 
+    static bool IsWithinTerrainXZExtent(const glm::vec3& _point, std::shared_ptr<VisualActor> _surface);
+
+    // Mesh:
+
+    static int FindOrAddVertex(std::vector<glm::vec3>& vertices, const glm::vec3& pos);
 
 public:
     // ---------- Getters / setters / Adders --------------

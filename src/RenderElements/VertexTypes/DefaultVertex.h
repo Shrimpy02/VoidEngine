@@ -16,12 +16,13 @@ struct Vertex
     glm::vec3 mPosition;
     glm::vec3 mNormal;
     glm::vec2 mTexCoords;
+    float mFrictionCoefficient;
 
     // ----------- Functions ---------------
 
     // Constructor
-    Vertex(const glm::vec3& _position, const glm::vec3& _normal, const glm::vec2& _texCoords)
-        : mPosition(_position), mNormal(_normal), mTexCoords(_texCoords) {}
+    Vertex(const glm::vec3& _position, const glm::vec3& _normal, const glm::vec2& _texCoords, const float& _frictionCoef = 0.1f)
+        : mPosition(_position), mNormal(_normal), mTexCoords(_texCoords), mFrictionCoefficient(_frictionCoef) {}
 
     // Custom setup of attributes for this vertex type that contains position, normals and texture coordinates
     static void SetupAttributes()
@@ -37,7 +38,9 @@ struct Vertex
         // texture coordinates
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, mTexCoords));
         glEnableVertexAttribArray(2);
-    }
 
-    
+        // Friction Coefficient
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, mFrictionCoefficient));
+        glEnableVertexAttribArray(3);
+    }
 };

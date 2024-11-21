@@ -24,6 +24,8 @@ class AISystem;
 class HealthSystem;
 class PhysicsSystem;
 class Material;
+class Mesh;
+class GraphActor;
 
 /**
  * @class LevelManager
@@ -40,7 +42,10 @@ public:
     std::shared_ptr<BaseActor> PLayer{ nullptr };
     std::shared_ptr<VisualActor> Surface{ nullptr };
     std::shared_ptr<Material> enemyMat{ nullptr };
-    
+    std::shared_ptr<DebugActor> mDebugSpawnerBall{ nullptr };
+    std::shared_ptr<VisualActor> mBallTerrain{ nullptr };
+    std::vector<std::shared_ptr<GraphActor>> mBallTerrainGraphes{ nullptr };
+
     // Component Systems
     std::shared_ptr<AISystem> mAiSystem;
     std::shared_ptr<HealthSystem> mHealthSystem;
@@ -58,6 +63,7 @@ private:
     std::shared_ptr<Level> mActiveLevel{ nullptr }; 
 
     std::shared_ptr<ActorController> mController{ nullptr };
+
 
     std::shared_ptr<Shader> mDefaultShader{ nullptr };
     std::shared_ptr<Shader> mGraphShader{ nullptr };
@@ -148,6 +154,10 @@ private:
     void BindPointLights(std::shared_ptr<Shader> _bindShader);
     // Binds the camera objects to the shader for light processing
     void BindCamera(std::shared_ptr<Shader> _bindShader);
+
+    void AddDebugActor(std::vector<std::shared_ptr<DebugActor>>& _debActorStorage, const std::pair<glm::vec3, glm::vec3>& _extents, const glm::vec3& _position = glm::vec3(0), const glm::vec3& _color = glm::vec3(1));
+
+    std::shared_ptr<Mesh> CreateTriangulatedMesh(std::shared_ptr<VisualActor> _root, const glm::vec3& _min, const glm::vec3& _max, bool _enableDebug, bool _enableConsole);
 
 public:
     // ---------- Getters / setters / Adders --------------

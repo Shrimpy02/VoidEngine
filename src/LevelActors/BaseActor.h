@@ -4,6 +4,7 @@
 #include <Renderer.h>
 #include <Actor.h>
 #include <Collision/Collision.h>
+#include <LifeTime.h>
 
 // Additional Includes
 #include <memory>
@@ -11,13 +12,14 @@
 // Forward Declarations
 class Shader;
 class Mesh;
+class GraphActor;
 
 /**
  * @class BaseActor
  * @brief Represents a complete object in a scene, it inherits from actor for world location,
  * IRender for mesh rendering and IBounded for collision detection and processing.
  */
-class BaseActor : public Actor, public IRender, public IBounded
+class BaseActor : public Actor, public IRender, public IBounded, public ILifeTime
 {
 public:
     // ---------- Global Variables --------------
@@ -34,6 +36,9 @@ public:
     bool shouldMove = false;
     float bulletSpeed = 20.f;
     bool visualizeCollisionMesh = false;
+    std::shared_ptr<GraphActor> mGraphActor{ nullptr };
+    std::vector<glm::vec3> previusControlPoints;
+    time_t timeOffset = 0;
 
 private:
     // ---------- Local Variables --------------

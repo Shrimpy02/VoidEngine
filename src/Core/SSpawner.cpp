@@ -62,7 +62,7 @@ void SSpawner::SetObjectLocationWithinBoundsRandomly(std::shared_ptr<BaseActor> 
 	float posY = SMath::GetRandomFloatBetweenMinMax(boxMin.y, boxMax.y);
 	float posZ = SMath::GetRandomFloatBetweenMinMax(boxMin.z, boxMax.z);
 
-	_object->SetGlobalPosition(glm::vec3(posX, posY, posZ));
+	_object->SetGlobalPosition(glm::vec3(posX, 150, posZ));
 }
 
 void SSpawner::SetObjectLocationWithinBoundsRandomlyIgnoreY(std::shared_ptr<BaseActor> _object,
