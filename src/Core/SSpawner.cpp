@@ -77,3 +77,18 @@ void SSpawner::SetObjectLocationWithinBoundsRandomlyIgnoreY(std::shared_ptr<Base
 
 	_object->SetGlobalPosition(glm::vec3(posX, 1, posZ));
 }
+
+void SSpawner::SetObjectLocationWithinInSphere(std::shared_ptr<Actor> _object, glm::vec3 _centre, float _radius)
+{
+	float x = SMath::GetRandomFloatBetweenMinMax(-_radius, _radius);
+	float y = SMath::GetRandomFloatBetweenMinMax(-_radius, _radius);
+	float z = SMath::GetRandomFloatBetweenMinMax(-_radius, _radius);
+	float magnitude = sqrt((x * x) + (y * y) + (z * z));
+	float pointOnMagnitude = SMath::GetRandomFloatBetweenMinMax(0, 1) / magnitude;
+	x *= pointOnMagnitude;
+	y *= pointOnMagnitude;
+	z *= pointOnMagnitude;
+
+	glm::vec3 spawnPosition = glm::vec3(x, y, z) + _centre;
+	_object->SetGlobalPosition(spawnPosition);
+}

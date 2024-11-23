@@ -7,6 +7,12 @@
 #include <memory>
 #include <glm/glm.hpp>
 
+enum PhysicsPreset
+{
+	PP_Regular,
+	PP_Snow
+};
+
 // Forward Declarations
 class Actor;
 class VisualActor;
@@ -28,6 +34,8 @@ private:
 
 	glm::vec3 mVelocity{ 0.f };
 	glm::vec3 mAcceleration{ 0.f };
+	glm::vec3 mGravity{ 0, -9.81, 0 };
+	glm::vec3 mRandomVelocity{ 0,0,0 };
 	float mMass = 1.f;
 
 	float mMaxSpeed = 20.f;
@@ -107,5 +115,11 @@ public:
 	void SetMass(const float _inMass) { mMass = _inMass; }
 
 	bool IsGravityEnabled() { return mGravityEnabled; }
+
+	void SetGravity(float _gravity) { mGravity.y = _gravity; }
+
+	void SetGravity(glm::vec3 _gravity) { mGravity = _gravity; }
+
+	void SetPhysicsPreset(PhysicsPreset _inPreset);
 
 };

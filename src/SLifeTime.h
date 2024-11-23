@@ -29,6 +29,9 @@ public:
     inline static float SControlPointInterval = 2.f;
     static void ManagePhysicsPathControlPointLifeTime(std::vector<std::shared_ptr<Actor>> _lifeTimeActors);
 
+    static void ManageParticleLifeTime(std::vector<std::shared_ptr<Actor>> _lifeTimeActors);
+
+
 private:
     // ---------- Local functions --------------
 

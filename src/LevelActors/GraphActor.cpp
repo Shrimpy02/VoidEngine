@@ -24,10 +24,8 @@ void GraphActor::Update(float _dt)
 	{
 		if(mControlPoints[i]->GetLocalPosition() != mOldPositions[i])
 		{
-
-			//ClearGraph();
-			//CreateGraph(mGraphMethod,mGraphType, mStep);
-			//CreateGraph(BSpline, BSpline_Clamped, mStep, mControlPoints.size() - 1);
+			ClearGraph();
+			CreateGraph(mGraphMethod,mGraphType, mStep);
 		}
 		mOldPositions[i] = mControlPoints[i]->GetLocalPosition();
 	}
@@ -49,8 +47,8 @@ void GraphActor::CreateGraph(GraphMethod _inMethod, GraphType _inType, const flo
 	
 		std::shared_ptr<GraphPoint> point = std::make_shared<GraphPoint>(pointName, PointType::RegularPoint);
 		point->SetGlobalPosition(graphNodes[i]);
-		//point->SetGlobalScale(GetGlobalScale() / glm::vec3(2.f));
-		point->SetGlobalScale(glm::vec3(0.05f));
+		point->SetGlobalScale(GetGlobalScale() / glm::vec3(2.f));
+		//point->SetGlobalScale(glm::vec3(0.05f));
 		mGraphPoints.push_back(point);
 		AddChild(point);
 	}
@@ -72,17 +70,11 @@ void GraphActor::CreateControlPoints(const std::vector<glm::vec3>& _controlPoint
 		std::string name = GetTag() + "_ControlPoint_" + std::to_string(i);
 		std::shared_ptr<GraphPoint> pointPtr = std::make_shared<GraphPoint>(name, PointType::ControlPoint);
 		pointPtr->SetLocalPosition(_controlPoints[i]);
-		pointPtr->SetGlobalScale(glm::vec3(0.15f));
+		pointPtr->SetGlobalScale(glm::vec3(0.8f));
 		mOldPositions.push_back(_controlPoints[i]);
 		mControlPoints.push_back(pointPtr);
 		AddChild(pointPtr);
 	}
-
-	if (_controlPoints.size() == 2)
-		LOG("T");
-
-	ClearGraph();
-	CreateGraph(BSpline, BSpline_Clamped, 0.1f, mControlPoints.size() - 1);
 }
 
 void GraphActor::ClearGraph()

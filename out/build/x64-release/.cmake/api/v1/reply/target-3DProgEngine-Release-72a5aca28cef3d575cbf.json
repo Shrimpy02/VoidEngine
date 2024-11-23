@@ -212,9 +212,8 @@
 				39,
 				40,
 				41,
-				103,
+				42,
 				105,
-				106,
 				107,
 				108,
 				109,
@@ -225,7 +224,9 @@
 				114,
 				115,
 				116,
-				117
+				117,
+				118,
+				119
 			]
 		},
 		{
@@ -281,7 +282,7 @@
 			"language" : "C",
 			"sourceIndexes" : 
 			[
-				104
+				106
 			]
 		}
 	],
@@ -293,11 +294,11 @@
 		},
 		{
 			"backtrace" : 4,
-			"id" : "assimp::@c18b53e73a5197b875a6"
+			"id" : "zlibstatic::@142f1425b4d57e544353"
 		},
 		{
 			"backtrace" : 4,
-			"id" : "zlibstatic::@142f1425b4d57e544353"
+			"id" : "assimp::@c18b53e73a5197b875a6"
 		}
 	],
 	"id" : "3DProgEngine::@6890427a1f51a3e7e1df",
@@ -358,7 +359,6 @@
 				2,
 				3,
 				4,
-				42,
 				43,
 				44,
 				45,
@@ -418,7 +418,9 @@
 				99,
 				100,
 				101,
-				102
+				102,
+				103,
+				104
 			]
 		},
 		{
@@ -462,8 +464,7 @@
 				39,
 				40,
 				41,
-				103,
-				104,
+				42,
 				105,
 				106,
 				107,
@@ -476,7 +477,9 @@
 				114,
 				115,
 				116,
-				117
+				117,
+				118,
+				119
 			]
 		}
 	],
@@ -727,6 +730,12 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/Components/InventoryComponent.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/LevelActors/PartcleSystem/ParticleEmitter.cpp",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -1032,6 +1041,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "src/Components/InventoryComponent.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/LevelActors/PartcleSystem/ParticleEmitter.h",
 			"sourceGroupIndex" : 0
 		},
 		{

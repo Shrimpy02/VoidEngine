@@ -9,6 +9,7 @@
 #include <LevelActors/CameraActor.h>
 #include <LevelActors/GraphActor.h>
 #include <LevelActors/DebugActor.h>
+#include <LevelActors/PartcleSystem/ParticleEmitter.h>
 //#include <Material.h>
 //#include <Renderer.h>
 
@@ -92,7 +93,9 @@ void LevelManager::LoadContent()
 
 	//LoadTestGame();
 
-	LoadFolderLevel();
+	//LoadFolderLevel();
+
+	LoadFolderLevelGameEngine();
 }
 
 void LevelManager::BaseLevelRequiredObjects()
@@ -632,6 +635,72 @@ void LevelManager::LoadFolderLevel()
 void LevelManager::LoadFolderLevelGameEngine()
 {
 	// Game engine folder logic
+	LOG_INFO("Loading `Folder Level for GameEngine`");
+	std::chrono::time_point<std::chrono::steady_clock> loadingStart = std::chrono::high_resolution_clock::now();
+
+	// Bools for toggle-ing folder functionality
+	bool enableSceneGraphExample = false;
+	bool enableParticleSystem1 = true;
+
+	// Base requirements for level
+	BaseLevelRequiredObjects();
+
+	// Folder Assignment 2.1 --------------------------------
+	// Scene Graph Example
+
+	if(enableSceneGraphExample)
+	{
+		// Using a actors to show parent child scene graph relationship
+		std::shared_ptr<BaseActor> CuboeRoot = std::make_shared<BaseActor>("CubeRoot", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(0, 2, 0));
+		mActiveLevel->AddActorToSceneGraph(CuboeRoot);
+		std::shared_ptr<BaseActor> CubeChild1 = std::make_shared<BaseActor>("CubeChild1", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(0, -2, 0));
+		CuboeRoot->AddChild(CubeChild1);
+		std::shared_ptr<BaseActor> CubeChild2 = std::make_shared<BaseActor>("CubeChild2", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(0, -2, 0));
+		CubeChild1->AddChild(CubeChild2);
+	}
+
+	LOG("Finished Assignment 2.1, SceneGraph Example");
+
+	// Folder Assignment 2.2 --------------------------------
+	// Particle system
+
+	if(enableParticleSystem1)
+	{
+		std::shared_ptr<VisualActor> ground = std::make_shared<VisualActor>("Plane", Mesh::CreatePlane(nullptr), glm::vec3(0,-1,0), glm::vec3(10));
+		mActiveLevel->AddActorToSceneGraph(ground);
+
+		std::shared_ptr<ParticleEmitter> particleEmitter = std::make_shared<ParticleEmitter>("ParticleEmitter", Mesh::CreateSphere(nullptr,1,true,"ParticleSnow"), glm::vec3(0,5,0));
+		particleEmitter->SetSurfaceReference(ground);
+		mActiveLevel->AddActorToSceneGraph(particleEmitter);
+	}
+
+	LOG("Finished Assignment 2.2, particle system");
+	
+	// Folder Assignment 3.1 --------------------------------
+	// Collision System Example
+
+	// Completed and written to rapport
+
+	LOG("Finished Assignment 3.1, Collision System");
+
+	// Folder Assignment 3.2 --------------------------------
+	// ECS and DOD of engine systems
+	
+
+	LOG("Finished Assignment 3.2, ECS and DoD of engine systems");
+
+	// Folder Assignment 3.3 --------------------------------
+	// Lua Scripting
+	
+
+	LOG("Finished Assignment 3.3, Lua scripting");
+	LOG("Finished all proccessign for GameEngine Arcitecture folder");
+
+	// Calculate time diff from start to finish for print
+	std::chrono::time_point<std::chrono::steady_clock> loadEnd = std::chrono::high_resolution_clock::now();
+	double elapsedTimeMs = std::chrono::duration<double, std::milli>(loadEnd - loadingStart).count();
+	double elapsedTimeS = elapsedTimeMs / 1000.0;
+	LOG_INFO("Finished loading `Folder Level for GameEngine`, time elapsed `%.2f` seconds", elapsedTimeS);
 }
 
 void LevelManager::UnloadContent()
@@ -844,8 +913,6 @@ void LevelManager::CheckLevelCollision()
 			actorColliderB->SetIsColliding(actorBCollided);
 		}
 	}
-
-
 }
 
 void LevelManager::CheckLevelCollisionWithinBoxBounds(std::shared_ptr<VisualActor> _conformBox)
@@ -921,7 +988,6 @@ void LevelManager::RenderLevelSceneGraph(std::shared_ptr<Actor> _actor, Transfor
 
 	Transform actorGlobalTransform;
 	actorGlobalTransform.SetTransformMatrix(_globalTransform.GetTransformMatrix() * _actor->GetLocalTransformMatrix());
-
 
 	// Cast to actor to se if they inherit from IRender,
 	// if they do call their inherited draw function and bind the model matrix

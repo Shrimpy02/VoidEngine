@@ -58,6 +58,7 @@ void Level::LifeTimeUpdate()
 
     SLifeTime::ManageDebugActorLifeTime(shared_from_this(), lifeTimeActors);
     SLifeTime::ManagePhysicsPathControlPointLifeTime(lifeTimeActors);
+    SLifeTime::ManageParticleLifeTime(lifeTimeActors);
     if(mOctTreeRootNode)
 		SLifeTime::ManageOctTreeNodeLifeTime(shared_from_this(), mOctTreeRootNode);
 

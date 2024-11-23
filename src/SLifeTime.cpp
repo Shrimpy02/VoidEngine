@@ -5,6 +5,7 @@
 #include <LevelActors/DebugActor.h>
 #include <LevelActors/BaseActor.h>
 #include <LevelActors/GraphActor.h>
+#include <LevelActors/PartcleSystem/ParticleEmitter.h>
 #include <Levels/Level.h>
 #include <OctTree.h>
 
@@ -91,6 +92,20 @@ void SLifeTime::ManagePhysicsPathControlPointLifeTime(std::vector<std::shared_pt
                 		
                     lifetimeActor->timeOffset += 1.0f;
                 }
+            }
+        }
+    }
+}
+
+void SLifeTime::ManageParticleLifeTime(std::vector<std::shared_ptr<Actor>> _lifeTimeActors)
+{
+    if (!_lifeTimeActors.empty())
+    {
+        for (std::shared_ptr<Actor> actor : _lifeTimeActors)
+        {
+            if (std::shared_ptr<ParticleEmitter> lifetimeActor = std::dynamic_pointer_cast<ParticleEmitter>(actor))
+            {
+                lifetimeActor->UpdateLifeTime();
             }
         }
     }
