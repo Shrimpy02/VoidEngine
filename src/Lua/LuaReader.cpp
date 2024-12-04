@@ -77,6 +77,8 @@ int SLuaReader::Lua_CallCreateActorData(lua_State* _interpreter, const std::stri
 
 	LoadFunction(_interpreter, "CreateActor", 0, 4);
 
+	DebugLuaStack(_interpreter);
+
 	// Get the first return value, (name) ----------------------
 	std::string name = lua_tostring(_interpreter, 1); // Gets the first return value at the top of the stack being the name, then pops it off
 
@@ -131,20 +133,25 @@ int SLuaReader::Lua_CallCreateActorData(lua_State* _interpreter, const std::stri
 
 	// Get the fourth return value, (collisionType) ----------------------
 
-	int collisionTypeNum = luaL_checknumber(_interpreter, 4);
+	int collisionTypeNum = static_cast<int>(luaL_checknumber(_interpreter, 4));
 	lua_pop(_interpreter, 1);
 	CollisionBase collisionBase = CollisionBase::Compare;
 	switch (collisionTypeNum)
 	{
 		case 1:
 			collisionBase = CollisionBase::AABB;
+			break;
 		default:
 			LOG_WARNING("Lua::CollisionTypeMissmatch");
 		break;
 	}
 
+	lua_pop(_interpreter, 3);
+	DebugLuaStack(_interpreter);
+
 	std::shared_ptr<BaseActor> Cube1 = std::make_shared<BaseActor>(name, Mesh::CreateCube(nullptr), collisionBase, position, scale);
 	_level->AddActorToSceneGraph(Cube1);
+	Cube1->SetLuaControl(false);
 
 	return 0;
 }
@@ -153,22 +160,9 @@ int SLuaReader::Lua_CallCreateActorObject(lua_State* _interpreter, const std::st
 {
 	ReadFile(_interpreter, _luaSource);
 
-	LoadFunctionWithArgsForActorCreation(_interpreter, 4, 1);
+	LoadFunction(_interpreter,"newObject" , 0, 1);
 
-	//lua_getglobal(_interpreter, "Actor");          // Pushes `Actor` table onto stack
-	//lua_getfield(_interpreter, -1, "new");         // Pushes `Actor.new` function onto stack
-	//lua_remove(_interpreter, -2);                  // Remove `Actor` table, keeping `new` function
-
-	//// Call function
-	//if (lua_pcall(_interpreter, 0, 1, 0) != LUA_OK)
-	//{
-	//	const char* error = lua_tostring(_interpreter, -1);
-	//	LOG_ERROR("Lua Call Error: %s", error);
-	//	lua_pop(_interpreter, 1);
-	//	return false;
-	//}
-
-	DebugLuaStack(_interpreter);
+	//DebugLuaStack(_interpreter);
 
 	if(lua_istable(_interpreter,-1))
 	{
@@ -182,6 +176,7 @@ int SLuaReader::Lua_CallCreateActorObject(lua_State* _interpreter, const std::st
 
 		std::shared_ptr<BaseActor> Cube1 = std::make_shared<BaseActor>(name, Mesh::CreateCube(nullptr), collisionBase, position, scale);
 		_level->AddActorToSceneGraph(Cube1);
+		Cube1->SetLuaControl(true);
 
 	} else
 		LOG_ERROR("Lua stack index not table for object->Actor converting");
@@ -191,34 +186,61 @@ int SLuaReader::Lua_CallCreateActorObject(lua_State* _interpreter, const std::st
 	return 0;
 }
 
-int SLuaReader::Lua_SetActorPosition(lua_State* _interpreter)
+int SLuaReader::Lua_CallCreateActorObjectArgs(lua_State* _interpreter, const std::string& _luaSource, std::shared_ptr<Level> _level, 
+	std::string _name, int _collisionType, glm::vec3 _position, glm::vec3 _scale)
 {
-	//BaseActor* actor = reinterpret_cast<BaseActor*>(lua_touserdata(_interpreter, 1));
+	ReadFile(_interpreter, _luaSource);
 
-	//if(actor)
-	//{
-		//luaL_checktype(_interpreter, 2, LUA_TTABLE);
-		//
-		//// Extract position from Lua table
-		//lua_pushstring(_interpreter, "x");
-		//lua_gettable(_interpreter, 2);
-		//float x = static_cast<float>(luaL_checknumber(_interpreter, -1));
-		//lua_pop(_interpreter, 1);
-		//
-		//lua_pushstring(_interpreter, "y");
-		//lua_gettable(_interpreter, 2);
-		//float y = static_cast<float>(luaL_checknumber(_interpreter, -1));
-		//lua_pop(_interpreter, 1);
-		//
-		//lua_pushstring(_interpreter, "z");
-		//lua_gettable(_interpreter, 2);
-		//float z = static_cast<float>(luaL_checknumber(_interpreter, -1));
-		//lua_pop(_interpreter, 1);
-		//
-		//actor->SetGlobalPosition(glm::vec3(x, y, z));
-	//}
+	//DebugLuaStack(_interpreter);
+
+	LoadFunctionWithArgs(_interpreter, 4, 1,_name,_collisionType,_position,_scale);
+
+	if (lua_istable(_interpreter, -1))
+	{
+		std::string name = GetTableStringField(_interpreter, 1, "name");
+		int collisionType = static_cast<int>(GetTableFloatField(_interpreter, 1, "collisionType"));
+		CollisionBase collisionBase = CollisionBase::Compare;
+		if (collisionType == 1)
+			collisionBase = CollisionBase::AABB;
+		glm::vec3 position = GetTableVec3Field(_interpreter, 1, "position");
+		glm::vec3 scale = GetTableVec3Field(_interpreter, 1, "scale");
+
+		std::shared_ptr<BaseActor> Cube1 = std::make_shared<BaseActor>(name, Mesh::CreateCube(nullptr), collisionBase, position, scale);
+		_level->AddActorToSceneGraph(Cube1);
+		Cube1->SetLuaControl(false);
+
+	}
+	else
+		LOG_ERROR("Lua stack index not table for object->Actor converting");
+
+	lua_pop(_interpreter, 1);
 
 	return 0;
+}
+
+glm::vec3 SLuaReader::Lua_SetActorPosition(const std::string& _luaSource, lua_State* _interpreter)
+{
+	ReadFile(_interpreter, _luaSource);
+
+	LoadFunction(_interpreter, "GetPosition", 0, 1);
+
+	//DebugLuaStack(_interpreter);
+
+	glm::vec3 pos;
+
+	if (lua_istable(_interpreter, -1))
+	{
+		pos.x = GetTableFloatField(_interpreter, 1, "x");
+		pos.y = GetTableFloatField(_interpreter, 1, "y");
+		pos.z = GetTableFloatField(_interpreter, 1, "z");
+
+	}
+	else
+		LOG_ERROR("Lua stack index not table position updateing");
+
+	lua_pop(_interpreter, 1);
+
+	return pos;
 }
 
 bool SLuaReader::ReadFile(lua_State* _interpreter, const std::string& _luaSource)
@@ -253,38 +275,33 @@ bool SLuaReader::LoadFunction(lua_State* _interpreter, const std::string& _funct
 	return true;
 }
 
-bool SLuaReader::LoadFunctionWithArgsForActorCreation(lua_State* _interpreter, const int& _numArguments, const int& _numReturnValues, const int& _errorLocation)
+bool SLuaReader::LoadFunctionWithArgs(lua_State* _interpreter, const int& _numArguments, const int& _numReturnValues,
+	std::string _name, int _collisionType, glm::vec3 _position, glm::vec3 _scale, const int& _errorLocation)
 {
-	// Get the `Actor:new` function
-	lua_getglobal(_interpreter, "Actor");          // Pushes `Actor` table onto stack
-	lua_getfield(_interpreter, -1, "new");         // Pushes `Actor.new` function onto stack
-	lua_remove(_interpreter, -2);                  // Remove `Actor` table, keeping `new` function
+	//// Get the `Actor:new` function
+	lua_getglobal(_interpreter, "newObject");          // Pushes `Actor` table onto stack
+	//lua_getfield(_interpreter, -1, "new");         // Pushes `Actor.new` function onto stack
+	//lua_remove(_interpreter, -2);                  // Remove `Actor` table, keeping `new` function
 
 	// Push arguments for `Actor:new` important for pcall to not call error, even through the lua function can use default values
-	// Arguments must be in reverse order 
 
+	// Push name
+	lua_pushstring(_interpreter, _name.c_str());
 
-			// Push scale table
-	lua_newtable(_interpreter);
-	lua_pushstring(_interpreter, "x"); lua_pushnumber(_interpreter, 1.0); lua_settable(_interpreter, -3);
-	lua_pushstring(_interpreter, "y"); lua_pushnumber(_interpreter, 1.0); lua_settable(_interpreter, -3);
-	lua_pushstring(_interpreter, "z"); lua_pushnumber(_interpreter, 1.0); lua_settable(_interpreter, -3);
+	// Push collision type
+	lua_pushinteger(_interpreter, _collisionType);
 
 	// Push position table
 	lua_newtable(_interpreter);
-	lua_pushstring(_interpreter, "x"); lua_pushnumber(_interpreter, 0.0); lua_settable(_interpreter, -3);
-	lua_pushstring(_interpreter, "y"); lua_pushnumber(_interpreter, 1.0); lua_settable(_interpreter, -3);
-	lua_pushstring(_interpreter, "z"); lua_pushnumber(_interpreter, 2.0); lua_settable(_interpreter, -3);
+	lua_pushstring(_interpreter, "x"); lua_pushnumber(_interpreter, _position.x); lua_settable(_interpreter, -3);
+	lua_pushstring(_interpreter, "y"); lua_pushnumber(_interpreter, _position.y); lua_settable(_interpreter, -3);
+	lua_pushstring(_interpreter, "z"); lua_pushnumber(_interpreter, _position.z); lua_settable(_interpreter, -3);
 
-	// Push collision type
-	lua_pushinteger(_interpreter, 1);
-
-	// Push name
-	lua_pushstring(_interpreter, "MyLuaActor");
-
-
-
-	DebugLuaStack(_interpreter);
+	// Push scale table
+	lua_newtable(_interpreter);
+	lua_pushstring(_interpreter, "x"); lua_pushnumber(_interpreter, _scale.x); lua_settable(_interpreter, -3);
+	lua_pushstring(_interpreter, "y"); lua_pushnumber(_interpreter, _scale.y); lua_settable(_interpreter, -3);
+	lua_pushstring(_interpreter, "z"); lua_pushnumber(_interpreter, _scale.z); lua_settable(_interpreter, -3);
 
 	// Call function
 	if (lua_pcall(_interpreter, _numArguments, _numReturnValues, _errorLocation) != LUA_OK)
@@ -294,8 +311,6 @@ bool SLuaReader::LoadFunctionWithArgsForActorCreation(lua_State* _interpreter, c
 		lua_pop(_interpreter, 1);
 		return false;
 	}
-
-	DebugLuaStack(_interpreter);
 
 	return true;
 }

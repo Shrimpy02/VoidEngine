@@ -32,8 +32,9 @@ public:
     // Functionality uncompressed for remembering operation context
 	static int Lua_CallCreateActorData(lua_State* _interpreter, const std::string& _luaSource, std::shared_ptr<Level> _level);
     static int Lua_CallCreateActorObject(lua_State* _interpreter, const std::string& _luaSource, std::shared_ptr<Level> _level);
+    static int Lua_CallCreateActorObjectArgs(lua_State* _interpreter, const std::string& _luaSource, std::shared_ptr<Level> _level, std::string _name, int _collisionType, glm::vec3 _position, glm::vec3 _scale);
 
-	static int Lua_SetActorPosition(lua_State* _interpreter);
+	static glm::vec3 Lua_SetActorPosition(const std::string& _luaSource, lua_State* _interpreter);
 
 private:
     // ---------- Local functions --------------
@@ -43,7 +44,7 @@ private:
 
     // Finds the input function and calls it with appropriate arguments and return numbers
     static bool LoadFunction(lua_State* _interpreter, const std::string& _functionName, const int& _numArguments, const int& _numReturnValues, const int& _errorLocation = 0);
-    static bool LoadFunctionWithArgsForActorCreation(lua_State* _interpreter, const int& _numArguments, const int& _numReturnValues, const int& _errorLocation = 0);
+    static bool LoadFunctionWithArgs(lua_State* _interpreter, const int& _numArguments, const int& _numReturnValues, std::string _name, int _collisionType, glm::vec3 _position, glm::vec3 _scale, const int& _errorLocation = 0);
 
     // Gets the string value from a lua table
     static std::string GetTableStringField(lua_State* _interpreter, int tableIndex, const char* key);

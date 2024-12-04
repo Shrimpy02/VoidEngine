@@ -39,6 +39,7 @@ public:
     std::shared_ptr<GraphActor> mGraphActor{ nullptr };
     std::vector<glm::vec3> previusControlPoints;
     time_t timeOffset = 0;
+    bool luaControlPosition = false;
 
 private:
     // ---------- Local Variables --------------
@@ -75,6 +76,9 @@ public:
     // Adders
 
     // Setters
+
+    void SetLuaControl(bool _b) { luaControlPosition = _b; }
+
     glm::vec3 GetExtent() { return mExtent; }
 
     // Getters

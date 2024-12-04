@@ -649,8 +649,9 @@ void LevelManager::LoadFolderLevelGameEngine()
 	// Bools for toggle-ing folder functionality
 	bool enableSceneGraphExample = false;
 	bool enableParticleSystem1 = false;
+	bool enableOriginalCollisionsExample = true;
 	bool enableCollisionECSandDOD = false;
-	bool enableLuaScritpting = true;
+	bool enableLuaScripting = false;
 
 	// Base requirements for level
 	BaseLevelRequiredObjects();
@@ -690,6 +691,10 @@ void LevelManager::LoadFolderLevelGameEngine()
 	// Collision System Example
 
 	// Completed and written to rapport
+	if (enableOriginalCollisionsExample)
+	{
+		show ball collisions on plane
+	}
 
 	LOG("Finished Assignment 3.1, Collision System");
 
@@ -713,29 +718,29 @@ void LevelManager::LoadFolderLevelGameEngine()
 	// Folder Assignment 3.3 --------------------------------
 	// Lua Scripting
 
-	if(enableLuaScritpting)
+	if(enableLuaScripting)
 	{
 		// Init Lua Interpreter
 		mActiveLuaInterpreter = SLuaReader::InitLuaInterpreter();
 
 		// Create actor using lua data
-		//std::string CreateActorDataLuaSrc = SOURCE_DIRECTORY("src/Lua/LuaSrc/CreateActorData.lua");
-		//SLuaReader::Lua_CallCreateActorData(mActiveLuaInterpreter, CreateActorDataLuaSrc, mActiveLevel);
+		std::string CreateActorDataLuaSrc = SOURCE_DIRECTORY("src/Lua/LuaSrc/CreateActorData.lua");
+		SLuaReader::Lua_CallCreateActorData(mActiveLuaInterpreter, CreateActorDataLuaSrc, mActiveLevel);
 
-		// Creaet actor using lua
+		// Creaet actor using lua functionality
 		std::string CreateActorLuaSrc = SOURCE_DIRECTORY("src/Lua/LuaSrc/CreateActorObject.lua");
 		SLuaReader::Lua_CallCreateActorObject(mActiveLuaInterpreter, CreateActorLuaSrc, mActiveLevel);
 
+		// Creaet actor using c++ -> lua functionality
+		std::string CreateActorLuaArgsSrc = SOURCE_DIRECTORY("src/Lua/LuaSrc/CreateActorObjectArgs.lua");
+		SLuaReader::Lua_CallCreateActorObjectArgs(mActiveLuaInterpreter, CreateActorLuaArgsSrc, mActiveLevel, 
+		"LuaActorObjectArgs",1,glm::vec3(2,0,0),glm::vec3(1));
 
-		//lua_register(mActiveLuaInterpreter, "CreateActor", SLuaReader::Lua_CreateActor);
-		//lua_register(mActiveLuaInterpreter, "SetActorPosition", SLuaReader::Lua_SetActorPosition);
-
-		// Load script
-
+		// Example Scripts
 		//std::string FibSource = SOURCE_DIRECTORY("src/Lua/LuaSrc/Fib.lua");
 		//std::string AddSource = SOURCE_DIRECTORY("src/Lua/LuaSrc/Add.lua");
-		//int res = SLuaReader::Lua_CallAdd(AddSource, 10, 5);
-		//LOG("number is : %i", res);
+		//int result = SLuaReader::Lua_CallAdd(AddSource, 10, 5);
+		//LOG("Add Result is : %i", result);
 	}
 
 	LOG("Finished Assignment 3.3, Lua scripting");
