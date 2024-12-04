@@ -35,12 +35,6 @@ private:
 public:
 	// ---------- Global functions --------------
 
-	// Remove copy and move functionality
-	Component(const Component&) = delete;
-	Component& operator=(const Component&) = delete;
-	Component(Component&&) = delete;
-	Component& operator=(Component&&) = delete;
-
 	// De-constructor
 	virtual ~Component() { }
 
@@ -62,6 +56,7 @@ private:
 
 public:
 	// ---------- Getters and setters --------------
+	std::shared_ptr<Actor> GetOwner() const { return mOwner; }
 
 	// Getters
 	const std::string& GetTag() { return mTag.GetValue(); }

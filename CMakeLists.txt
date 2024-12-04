@@ -18,6 +18,7 @@ include_directories(libs/assimp/include)
 include_directories("${CMAKE_SOURCE_DIR}/libs/LASzip/dll")
 include_directories("${CMAKE_SOURCE_DIR}/libs/LASzip/include/laszip")
 include_directories("${CMAKE_SOURCE_DIR}/libs/LASzip/src")
+include_directories("${CMAKE_SOURCE_DIR}/libs/Lua/include")
 
 #Add IMGUI headers
 set( IMGUI_HEADERS
@@ -39,7 +40,7 @@ set( IMGUI_SOURCE
     includes/imgui/imgui_tables.cpp
     src/Components/PhysicsComponent.cpp
     "src/OutDated/SceneActors.cpp" 
-    "src/OutDated/BoundingSphere.cpp" "src/Core/SMath.cpp" "src/Components/AIComponent.cpp" "src/SkyBox/Skybox.cpp" "src/Levels/LevelManager.cpp"  "src/LevelActors/SceneGraph.cpp" "src/UserInterface/UserInterfaceManager.cpp"   "src/Collision/Collision.cpp"  "src/LevelActors/BaseActor.cpp" "src/LevelActors/VisualActor.cpp"  "src/LevelActors/GraphActor.cpp" "src/RenderElements/GraphPoint.cpp" "src/LevelActors/DebugActor.cpp" "src/OutDated/UIController.cpp" "src/Levels/Level.cpp" "src/LifeTime.cpp" "src/Core/SSpawner.cpp" "src/OctTree.cpp" "src/SLifeTime.cpp" "src/RenderElements/MeshTypes/PointCloudMesh.cpp" "src/RenderElements/MeshTypes/DefaultMesh.cpp" "src/RenderElements/MeshTypes/GraphMesh.cpp" "src/RenderElements/MeshTypes/DebugMesh.cpp" "src/Components/AISystem.cpp" "src/Components/HealthComponent.cpp" "src/Components/HealthSystem.cpp" "src/Components/PhysicsSystem.cpp" "src/Components/InventoryComponent.cpp" "src/LevelActors/PartcleSystem/ParticleEmitter.cpp")
+    "src/OutDated/BoundingSphere.cpp" "src/Core/SMath.cpp" "src/Components/AIComponent.cpp" "src/SkyBox/Skybox.cpp" "src/Levels/LevelManager.cpp"  "src/LevelActors/SceneGraph.cpp" "src/UserInterface/UserInterfaceManager.cpp"   "src/Collision/Collision.cpp"  "src/LevelActors/BaseActor.cpp" "src/LevelActors/VisualActor.cpp"  "src/LevelActors/GraphActor.cpp" "src/RenderElements/GraphPoint.cpp" "src/LevelActors/DebugActor.cpp" "src/OutDated/UIController.cpp" "src/Levels/Level.cpp" "src/LifeTime.cpp" "src/Core/SSpawner.cpp" "src/OctTree.cpp" "src/SLifeTime.cpp" "src/RenderElements/MeshTypes/PointCloudMesh.cpp" "src/RenderElements/MeshTypes/DefaultMesh.cpp" "src/RenderElements/MeshTypes/GraphMesh.cpp" "src/RenderElements/MeshTypes/DebugMesh.cpp" "src/Components/AISystem.cpp" "src/Components/HealthComponent.cpp" "src/Components/HealthSystem.cpp" "src/Components/PhysicsSystem.cpp" "src/Components/InventoryComponent.cpp" "src/LevelActors/PartcleSystem/ParticleEmitter.cpp" "src/Components/CollisionComponent.cpp" "src/Components/CollisionSystem.cpp" "src/Lua/LuaReader.cpp")
 
 set (HEADER_FILES
   includes/stb_image.h
@@ -72,7 +73,7 @@ set (HEADER_FILES
   src/Components/PhysicsComponent.h
   src/Components/Component.h
   "src/OutDated/SceneActors.h"
-   "src/Core/SMath.h" "src/Components/AIComponent.h" "src/SkyBox/Skybox.h"  "src/Levels/LevelManager.h" "src/Levels/Level.h" "src/LevelActors/SceneGraph.h" "src/UserInterface/UserInterfaceManager.h"   "src/Collision/CollisionProperties.h"  "src/LevelActors/BaseActor.h" "src/LevelActors/VisualActor.h"  "src/LevelActors/GraphActor.h" "src/RenderElements/GraphPoint.h" "src/RenderElements/VertexTypes/GraphVertex.h" "src/LevelActors/DebugActor.h" "src/RenderElements/VertexTypes/DebugVertex.h" "src/OutDated/UIController.h" "src/LifeTime.h" "src/Core/SSpawner.h" "src/OctTree.h" "src/SLifeTime.h" "src/RenderElements/VertexTypes/PointCloudVertex.h" "src/RenderElements/MeshTypes/PointCloudMesh.h" "src/RenderElements/MeshTypes/DefaultMesh.h" "src/RenderElements/MeshTypes/GraphMesh.h" "src/RenderElements/MeshTypes/DebugMesh.h"  "src/Components/AISystem.h" "src/Components/System.h" "src/Components/HealthComponent.h" "src/Components/HealthSystem.h" "src/Components/PhysicsSystem.h" "src/Components/InventoryComponent.h" "src/LevelActors/PartcleSystem/ParticleEmitter.h")
+   "src/Core/SMath.h" "src/Components/AIComponent.h" "src/SkyBox/Skybox.h"  "src/Levels/LevelManager.h" "src/Levels/Level.h" "src/LevelActors/SceneGraph.h" "src/UserInterface/UserInterfaceManager.h"   "src/Collision/CollisionProperties.h"  "src/LevelActors/BaseActor.h" "src/LevelActors/VisualActor.h"  "src/LevelActors/GraphActor.h" "src/RenderElements/GraphPoint.h" "src/RenderElements/VertexTypes/GraphVertex.h" "src/LevelActors/DebugActor.h" "src/RenderElements/VertexTypes/DebugVertex.h" "src/OutDated/UIController.h" "src/LifeTime.h" "src/Core/SSpawner.h" "src/OctTree.h" "src/SLifeTime.h" "src/RenderElements/VertexTypes/PointCloudVertex.h" "src/RenderElements/MeshTypes/PointCloudMesh.h" "src/RenderElements/MeshTypes/DefaultMesh.h" "src/RenderElements/MeshTypes/GraphMesh.h" "src/RenderElements/MeshTypes/DebugMesh.h"  "src/Components/AISystem.h" "src/Components/System.h" "src/Components/HealthComponent.h" "src/Components/HealthSystem.h" "src/Components/PhysicsSystem.h" "src/Components/InventoryComponent.h" "src/LevelActors/PartcleSystem/ParticleEmitter.h" "src/Components/CollisionComponent.h" "src/Components/CollisionSystem.h" "src/Lua/LuaReader.h")
 
 set (SRC_FILES
   3DProgEngine.cpp
@@ -103,8 +104,8 @@ add_executable (3DProgEngine ${IMGUI_HEADERS} ${IMGUI_SOURCE} ${HEADER_FILES} ${
 #target_link_libraries(3DProg-Main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Libs/glfw3.lib)
 target_link_libraries(3DProgEngine glfw)
 target_link_libraries(3DProgEngine "${CMAKE_SOURCE_DIR}/libs/LASzip/lib/laszip3.lib")
+target_link_libraries(3DProgEngine "${CMAKE_SOURCE_DIR}/libs/Lua/lua54.lib")
 target_link_libraries(3DProgEngine assimp)
-#target_link_libraries(3DProgEngine fbx)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET 3DProgEngine PROPERTY CXX_STANDARD 20)

@@ -36,9 +36,11 @@
 #include <RenderElements/MeshTypes/DefaultMesh.h>
 #include <RenderElements/VertexTypes/DefaultVertex.h>
 #include <UserInterface/UserInterfaceManager.h>
+#include <Components/CollisionSystem.h>
 #include <OctTree.h>
 //#include <Core/SMath.h>
 //#include <SkyBox/Skybox.h>
+#include <Lua/LuaReader.h>
 
 // Additional Includes
 #include <ctime>
@@ -72,6 +74,12 @@ LevelManager::LevelManager(std::shared_ptr<ActorController> _inController, std::
 	: mController(_inController), mUserInterfaceManager(_userIManager)
 {
 	mApplicationStartTime = time(nullptr);
+}
+
+LevelManager::~LevelManager()
+{
+	//lua_close(mActiveLuaInterpreter);
+	//mActiveLuaInterpreter = nullptr;
 }
 
 void LevelManager::LoadContent()
@@ -194,7 +202,7 @@ void LevelManager::LoadPhysicsBoxLevel()
 	}
 
 	// Objects ------------------------
-	// Since instancing is enabled  we can initalize the material once and assign it to the first of the instance
+	// Since instancing is enabled  we can initalize the mateSrial once and assign it to the first of the instance
 	std::shared_ptr<Texture> diffuseTex = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerDiffuse.jpg"));
 	std::shared_ptr<Texture> specularTex = Texture::Load(SOURCE_DIRECTORY("UserAssets/Textures/Container/ContainerSpecular.jpg"));
 	std::shared_ptr<Material> mat = Material::Load("cube1mat", { diffuseTex, specularTex }, { {glm::vec3(1.0f,1.0f,1.0f)}, {64} });
@@ -392,16 +400,16 @@ void LevelManager::LoadTestGame()
 void LevelManager::LoadFolderLevel()
 {
 	bool enablePointCloud = true;
-	bool enableCustomFileForPointCloud = false;
+	bool enableCustomFileForPointCloud = true;
 	bool enablePointCloudVis = false;
 	bool enableTriangulation = true;
-	bool enableTriangulationVis = false;
+	bool enableTriangulationVis = true;
 	bool enableTriangulationDebug = false;
 	bool enableTriangulationConsole = true;
 	bool enableBSplineSurface = false;
 	bool enableBSplineDebug = false;
 	bool enableBallSpawner = true;
-	bool enableMassBalls = true;
+	bool enableMassBalls = false;
 
 	LOG_INFO("Loading `Folder Level`");
 	std::chrono::time_point<std::chrono::steady_clock> loadingStart = std::chrono::high_resolution_clock::now();
@@ -640,7 +648,9 @@ void LevelManager::LoadFolderLevelGameEngine()
 
 	// Bools for toggle-ing folder functionality
 	bool enableSceneGraphExample = false;
-	bool enableParticleSystem1 = true;
+	bool enableParticleSystem1 = false;
+	bool enableCollisionECSandDOD = false;
+	bool enableLuaScritpting = true;
 
 	// Base requirements for level
 	BaseLevelRequiredObjects();
@@ -685,13 +695,48 @@ void LevelManager::LoadFolderLevelGameEngine()
 
 	// Folder Assignment 3.2 --------------------------------
 	// ECS and DOD of engine systems
-	
+
+	if(enableCollisionECSandDOD)
+	{
+		mCollisionSystem = std::make_shared<CollisionSystem>();
+
+		std::shared_ptr<BaseActor> Cube1 = std::make_shared<BaseActor>("Cube1", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(2, 0, 0));
+		mActiveLevel->AddActorToSceneGraph(Cube1);
+		mCollisionSystem->CrateComponent("CollisionComp", Cube1, CollisionResponse::BLOCK, CollisionType::DYNAMIC,CollisionBase::AABB);
+		std::shared_ptr<BaseActor> Cube2 = std::make_shared<BaseActor>("Cube2", Mesh::CreateCube(nullptr), CollisionBase::AABB, glm::vec3(-2, 0, 0));
+		mActiveLevel->AddActorToSceneGraph(Cube2);
+		mCollisionSystem->CrateComponent("CollisionComp", Cube2, CollisionResponse::BLOCK, CollisionType::DYNAMIC, CollisionBase::AABB);
+	}
 
 	LOG("Finished Assignment 3.2, ECS and DoD of engine systems");
 
 	// Folder Assignment 3.3 --------------------------------
 	// Lua Scripting
-	
+
+	if(enableLuaScritpting)
+	{
+		// Init Lua Interpreter
+		mActiveLuaInterpreter = SLuaReader::InitLuaInterpreter();
+
+		// Create actor using lua data
+		//std::string CreateActorDataLuaSrc = SOURCE_DIRECTORY("src/Lua/LuaSrc/CreateActorData.lua");
+		//SLuaReader::Lua_CallCreateActorData(mActiveLuaInterpreter, CreateActorDataLuaSrc, mActiveLevel);
+
+		// Creaet actor using lua
+		std::string CreateActorLuaSrc = SOURCE_DIRECTORY("src/Lua/LuaSrc/CreateActorObject.lua");
+		SLuaReader::Lua_CallCreateActorObject(mActiveLuaInterpreter, CreateActorLuaSrc, mActiveLevel);
+
+
+		//lua_register(mActiveLuaInterpreter, "CreateActor", SLuaReader::Lua_CreateActor);
+		//lua_register(mActiveLuaInterpreter, "SetActorPosition", SLuaReader::Lua_SetActorPosition);
+
+		// Load script
+
+		//std::string FibSource = SOURCE_DIRECTORY("src/Lua/LuaSrc/Fib.lua");
+		//std::string AddSource = SOURCE_DIRECTORY("src/Lua/LuaSrc/Add.lua");
+		//int res = SLuaReader::Lua_CallAdd(AddSource, 10, 5);
+		//LOG("number is : %i", res);
+	}
 
 	LOG("Finished Assignment 3.3, Lua scripting");
 	LOG("Finished all proccessign for GameEngine Arcitecture folder");
@@ -729,13 +774,21 @@ void LevelManager::Update(float _dt)
 	if(mConformBox)
 		CheckLevelCollisionWithinBoxBounds(mConformBox);
 
+	// Collision system using ECS+DOD
+	if (mCollisionSystem)
+	{
+		mCollisionSystem->Update(_dt);
+		mCollisionSystem->CheckCollision();
+	}
+		
+
 	// Component System Updates
-	//mAiSystem->Update(_dt);
+	//mAiSystem->Update(_dt);1
 	//mHealthSystem->Update(_dt);
 	//mPhysicsSystem->Update(_dt);
 
 	// Then handle collision for all objects in scene
-	CheckLevelCollision();
+	//CheckLevelCollision();
 
 	// Handles lifetime of level objects
 	mActiveLevel->LifeTimeUpdate();

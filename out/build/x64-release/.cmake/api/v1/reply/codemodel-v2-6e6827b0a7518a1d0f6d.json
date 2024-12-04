@@ -1,0 +1,607 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						6
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "libs/glfw-3.3.9",
+					"childIndexes" : 
+					[
+						2,
+						3,
+						4,
+						5
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-libs.glfw-3.3.9-Release-a3cbe75f9dcf0942ad5b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "libs/glfw-3.3.9",
+					"targetIndexes" : 
+					[
+						32
+					]
+				},
+				{
+					"build" : "libs/glfw-3.3.9/src",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-libs.glfw-3.3.9.src-Release-008b04266657e35e28ba.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "libs/glfw-3.3.9/src",
+					"targetIndexes" : 
+					[
+						11,
+						34
+					]
+				},
+				{
+					"build" : "libs/glfw-3.3.9/examples",
+					"jsonFile" : "directory-libs.glfw-3.3.9.examples-Release-b9c5a06fd49a81768b12.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "libs/glfw-3.3.9/examples",
+					"targetIndexes" : 
+					[
+						3,
+						10,
+						13,
+						20,
+						22,
+						24,
+						25,
+						26,
+						35
+					]
+				},
+				{
+					"build" : "libs/glfw-3.3.9/tests",
+					"jsonFile" : "directory-libs.glfw-3.3.9.tests-Release-86ac0c3a58244d3f020d.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "libs/glfw-3.3.9/tests",
+					"targetIndexes" : 
+					[
+						4,
+						5,
+						7,
+						8,
+						9,
+						12,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						21,
+						23,
+						27,
+						28,
+						29,
+						30,
+						31,
+						36
+					]
+				},
+				{
+					"build" : "libs/glfw-3.3.9/docs",
+					"jsonFile" : "directory-libs.glfw-3.3.9.docs-Release-4320a410d5dc58804c6f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "libs/glfw-3.3.9/docs",
+					"targetIndexes" : 
+					[
+						6
+					]
+				},
+				{
+					"build" : "libs/assimp",
+					"childIndexes" : 
+					[
+						7,
+						8,
+						9
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-libs.assimp-Release-c2bb07e885d712aa3391.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "libs/assimp",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "libs/assimp/contrib/zlib",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-libs.assimp.contrib.zlib-Release-21843646d8d0ee8efa75.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10.0"
+					},
+					"parentIndex" : 6,
+					"projectIndex" : 3,
+					"source" : "libs/assimp/contrib/zlib",
+					"targetIndexes" : 
+					[
+						37
+					]
+				},
+				{
+					"build" : "libs/assimp/code",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-libs.assimp.code-Release-0f4cd8550816b89229d1.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 6,
+					"projectIndex" : 2,
+					"source" : "libs/assimp/code",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "libs/assimp/test",
+					"childIndexes" : 
+					[
+						10
+					],
+					"jsonFile" : "directory-libs.assimp.test-Release-f85b6347cc6d2ea39a5e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 6,
+					"projectIndex" : 2,
+					"source" : "libs/assimp/test",
+					"targetIndexes" : 
+					[
+						33
+					]
+				},
+				{
+					"build" : "libs/assimp/test/headercheck",
+					"jsonFile" : "directory-libs.assimp.test.headercheck-Release-971f8a2d9dc9f102a1a5.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 9,
+					"projectIndex" : 2,
+					"source" : "libs/assimp/test/headercheck"
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "3DProgEngine",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"name" : "GLFW",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						34,
+						35,
+						36
+					]
+				},
+				{
+					"childIndexes" : 
+					[
+						3
+					],
+					"directoryIndexes" : 
+					[
+						6,
+						8,
+						9,
+						10
+					],
+					"name" : "Assimp",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						1,
+						2,
+						33
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						7
+					],
+					"name" : "zlib",
+					"parentIndex" : 2,
+					"targetIndexes" : 
+					[
+						37
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "3DProgEngine::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-3DProgEngine-Release-287bde114eda9bfdfe6c.json",
+					"name" : "3DProgEngine",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "UpdateAssimpLibsDebugSymbolsAndDLLs::@5da26302a78c65b3bcac",
+					"jsonFile" : "target-UpdateAssimpLibsDebugSymbolsAndDLLs-Release-b3432592abf965cdaa14.json",
+					"name" : "UpdateAssimpLibsDebugSymbolsAndDLLs",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 8,
+					"id" : "assimp::@c18b53e73a5197b875a6",
+					"jsonFile" : "target-assimp-Release-f42e0b91895ba5ad0aa8.json",
+					"name" : "assimp",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "boing::@64be7c3304c56a83b17d",
+					"jsonFile" : "target-boing-Release-4b4c1fe3f48d92043127.json",
+					"name" : "boing",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "clipboard::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-clipboard-Release-d21600f8fb545889e408.json",
+					"name" : "clipboard",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "cursor::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-cursor-Release-a681826f4ab7d90b48d3.json",
+					"name" : "cursor",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "docs::@f436d1bb401fc087a48d",
+					"jsonFile" : "target-docs-Release-30e254efa622b9f16fb0.json",
+					"name" : "docs",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "empty::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-empty-Release-67a99ec6a3c9c03ef43f.json",
+					"name" : "empty",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "events::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-events-Release-d4cab2af56f3de901aef.json",
+					"name" : "events",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "gamma::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-gamma-Release-95ce809be8de209d59b6.json",
+					"name" : "gamma",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "gears::@64be7c3304c56a83b17d",
+					"jsonFile" : "target-gears-Release-6b9c4abf97d8ca57af5e.json",
+					"name" : "gears",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "glfw::@ab451f00c8df81f2d8d3",
+					"jsonFile" : "target-glfw-Release-18f2b36eb979bf6a5054.json",
+					"name" : "glfw",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "glfwinfo::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-glfwinfo-Release-46c04f464e60368d78be.json",
+					"name" : "glfwinfo",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "heightmap::@64be7c3304c56a83b17d",
+					"jsonFile" : "target-heightmap-Release-38903394a2ec9b295a0d.json",
+					"name" : "heightmap",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "icon::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-icon-Release-0c7cfbc2c01b3453066e.json",
+					"name" : "icon",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "iconify::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-iconify-Release-932e693d0f2a0fc9a7f6.json",
+					"name" : "iconify",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "inputlag::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-inputlag-Release-60b2a0ab683ee28d578f.json",
+					"name" : "inputlag",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "joysticks::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-joysticks-Release-945a833477d51cf3db4c.json",
+					"name" : "joysticks",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "monitors::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-monitors-Release-e0874113b5392ce440f7.json",
+					"name" : "monitors",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "msaa::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-msaa-Release-cac0e42554e67e6e9b9b.json",
+					"name" : "msaa",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "offscreen::@64be7c3304c56a83b17d",
+					"jsonFile" : "target-offscreen-Release-41c12b4f0e97dabd6f9f.json",
+					"name" : "offscreen",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "opacity::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-opacity-Release-b7cb7c27ac21bcfbbb67.json",
+					"name" : "opacity",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "particles::@64be7c3304c56a83b17d",
+					"jsonFile" : "target-particles-Release-dd06ad720083f94549af.json",
+					"name" : "particles",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "reopen::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-reopen-Release-67cbc11c5082da9797ad.json",
+					"name" : "reopen",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "sharing::@64be7c3304c56a83b17d",
+					"jsonFile" : "target-sharing-Release-32638af034dd541fbe30.json",
+					"name" : "sharing",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "simple::@64be7c3304c56a83b17d",
+					"jsonFile" : "target-simple-Release-39c11978d1da1af1aeb0.json",
+					"name" : "simple",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "splitview::@64be7c3304c56a83b17d",
+					"jsonFile" : "target-splitview-Release-018d3054c7dcd11286e5.json",
+					"name" : "splitview",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "tearing::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-tearing-Release-05bbc0d44805098259a4.json",
+					"name" : "tearing",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "threads::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-threads-Release-15edca696f3011025011.json",
+					"name" : "threads",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "timeout::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-timeout-Release-e7c7c56187a0f1f2fff1.json",
+					"name" : "timeout",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "title::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-title-Release-c004de1263b8eecd7a98.json",
+					"name" : "title",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "triangle-vulkan::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-triangle-vulkan-Release-3ae9e5b95d9f07fdaed6.json",
+					"name" : "triangle-vulkan",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "uninstall::@5185605626cca494d380",
+					"jsonFile" : "target-uninstall-Release-097af84a431448fd718c.json",
+					"name" : "uninstall",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 9,
+					"id" : "unit::@74098f92f6dfa82f099a",
+					"jsonFile" : "target-unit-Release-5ca809d77ab2af5ca0f2.json",
+					"name" : "unit",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "update_mappings::@ab451f00c8df81f2d8d3",
+					"jsonFile" : "target-update_mappings-Release-5d1f9a6f167a423f7de0.json",
+					"name" : "update_mappings",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "wave::@64be7c3304c56a83b17d",
+					"jsonFile" : "target-wave-Release-b248daf0811d6603e49d.json",
+					"name" : "wave",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "windows::@4490ebfb7c7d6067dc90",
+					"jsonFile" : "target-windows-Release-cb3955cfd93c3c850b6b.json",
+					"name" : "windows",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 7,
+					"id" : "zlibstatic::@142f1425b4d57e544353",
+					"jsonFile" : "target-zlibstatic-Release-31c33c7e44674460dd97.json",
+					"name" : "zlibstatic",
+					"projectIndex" : 3
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/SebsStuff/Projects/VoidEngine/out/build/x64-release",
+		"source" : "C:/SebsStuff/Projects/VoidEngine"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

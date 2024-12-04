@@ -30,12 +30,6 @@ public:
         sExistingTags.insert(tag);
     }
 
-    // Removes ability to move or copy object
-    TagUnique(const TagUnique&) = delete;
-    TagUnique& operator=(const TagUnique&) = delete;
-    TagUnique(TagUnique&&) = default;
-    TagUnique& operator=(TagUnique&&) = default;
-
     // deconstructs object and erases its tag from all existing tags
     ~TagUnique()
     {

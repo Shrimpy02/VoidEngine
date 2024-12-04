@@ -6,6 +6,9 @@
 #include <memory> 
 #include <vector>
 
+// temp for lua
+#include "lua.h"
+
 // Forward Declarations
 struct Level;
 class WindowManager;
@@ -26,6 +29,7 @@ class PhysicsSystem;
 class Material;
 class Mesh;
 class GraphActor;
+class CollisionSystem;
 
 /**
  * @class LevelManager
@@ -45,11 +49,14 @@ public:
     std::shared_ptr<DebugActor> mDebugSpawnerBall{ nullptr };
     std::shared_ptr<VisualActor> mBallTerrain{ nullptr };
     std::vector<std::shared_ptr<GraphActor>> mBallTerrainGraphes{ nullptr };
-
+    
     // Component Systems
     std::shared_ptr<AISystem> mAiSystem;
     std::shared_ptr<HealthSystem> mHealthSystem;
     std::shared_ptr<PhysicsSystem> mPhysicsSystem;
+    std::shared_ptr<CollisionSystem> mCollisionSystem;
+
+    lua_State* mActiveLuaInterpreter{nullptr};
 
     void SpawnWave();
 
@@ -88,7 +95,7 @@ public:
     LevelManager(LevelManager&&) = delete;                // Move
     LevelManager& operator=(LevelManager&&) = delete;     // Move ref
     // Because this class is explicit.
-    ~LevelManager() = default;
+    ~LevelManager();
 
     // Function`s
     // ------------------------------------------------------------

@@ -124,7 +124,6 @@ void PhysicsComponent::ConformToSurface()
 			mAcceleration += FrictionDecelerationVec;
 		}
 	}
-
 }
 
 void PhysicsComponent::Jump(float jumpStrength, glm::vec3 _jumpDirection)

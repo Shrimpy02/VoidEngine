@@ -25,11 +25,6 @@ public:
 	// ---------- Global functions --------------
 	System(){};
 
-	// Remove copy and move functionality
-	System(const System&) = delete;
-	System& operator=(const System&) = delete;
-	System(System&&) = delete;
-	System& operator=(System&&) = delete;
 	// De-constructor
 	virtual ~System() { }
 
