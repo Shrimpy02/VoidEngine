@@ -9,6 +9,8 @@
 // Additional Includes
 #include <memory>
 
+#include "lua.h"
+
 // Forward Declarations
 class Shader;
 class Mesh;

@@ -84,7 +84,7 @@ void PhysicsComponent::ConformToSurface()
 
 	glm::vec3 faceNormals;
 	float faceFrictionCoefficient;
-	if (SMath::ConformPhysicsObjectToGeometry(mOwner, mSurfaceReference, faceNormals, faceFrictionCoefficient,0.1f))
+	if (SMath::ConformPhysicsObjectToGeometry(mOwner, mSurfaceReference, faceNormals, faceFrictionCoefficient,0.5f))
 	{
 		inContactWithGround = true;
 		mVelocity.y = 0;

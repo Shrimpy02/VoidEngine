@@ -108,7 +108,6 @@ int SLuaReader::Lua_CallCreateActorData(lua_State* _interpreter, const std::stri
 	lua_pop(_interpreter, 1);
 	glm::vec3 position = glm::vec3(posX, posY, posZ);
 
-
 	// Get the third return value, (x,y,z scale) ----------------------
 	luaL_checktype(_interpreter, 2, LUA_TTABLE);	// Auto throws error if type miss match
 
@@ -191,9 +190,7 @@ int SLuaReader::Lua_CallCreateActorObjectArgs(lua_State* _interpreter, const std
 {
 	ReadFile(_interpreter, _luaSource);
 
-	//DebugLuaStack(_interpreter);
-
-	LoadFunctionWithArgs(_interpreter, 4, 1,_name,_collisionType,_position,_scale);
+	LoadFunctionWithArgs(_interpreter, 4, 1,_name, _collisionType, _position, _scale);
 
 	if (lua_istable(_interpreter, -1))
 	{
@@ -242,6 +239,7 @@ glm::vec3 SLuaReader::Lua_SetActorPosition(const std::string& _luaSource, lua_St
 
 	return pos;
 }
+
 
 bool SLuaReader::ReadFile(lua_State* _interpreter, const std::string& _luaSource)
 {

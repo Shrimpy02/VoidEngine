@@ -649,9 +649,9 @@ void LevelManager::LoadFolderLevelGameEngine()
 	// Bools for toggle-ing folder functionality
 	bool enableSceneGraphExample = false;
 	bool enableParticleSystem1 = false;
-	bool enableOriginalCollisionsExample = true;
+	bool enableOriginalCollisionsExample = false;
 	bool enableCollisionECSandDOD = false;
-	bool enableLuaScripting = false;
+	bool enableLuaScripting = true;
 
 	// Base requirements for level
 	BaseLevelRequiredObjects();
@@ -693,7 +693,23 @@ void LevelManager::LoadFolderLevelGameEngine()
 	// Completed and written to rapport
 	if (enableOriginalCollisionsExample)
 	{
-		show ball collisions on plane
+		
+		std::shared_ptr<VisualActor> ground = std::make_shared<VisualActor>("Plane", Mesh::CreatePlane(nullptr), glm::vec3(0, -1, 0), glm::vec3(10));
+		mActiveLevel->AddActorToSceneGraph(ground);
+
+		std::shared_ptr<BaseActor> ball1 = std::make_shared<BaseActor>("Ball", Mesh::CreateSphere(nullptr), CollisionBase::BoundingSphere, glm::vec3(2, 0, 0), glm::vec3(1));
+		mActiveLevel->AddActorToSceneGraph(ball1);
+		ball1->AddComponent<PhysicsComponent>("PhysicsComp");
+		ball1->GetPhysicsComponent()->SetSurfaceReference(ground);
+		ball1->SetCollisionType(CollisionType::DYNAMIC);
+		ball1->GetPhysicsComponent()->SetGravityEnabled(true);
+
+		std::shared_ptr<BaseActor> ball2 = std::make_shared<BaseActor>("Ball", Mesh::CreateSphere(nullptr), CollisionBase::BoundingSphere, glm::vec3(-2, 0, 0), glm::vec3(1));
+		mActiveLevel->AddActorToSceneGraph(ball2);
+		ball2->AddComponent<PhysicsComponent>("PhysicsComp");
+		ball2->GetPhysicsComponent()->SetSurfaceReference(ground);
+		ball2->SetCollisionType(CollisionType::DYNAMIC);
+		ball2->GetPhysicsComponent()->SetGravityEnabled(true);
 	}
 
 	LOG("Finished Assignment 3.1, Collision System");
@@ -793,7 +809,7 @@ void LevelManager::Update(float _dt)
 	//mPhysicsSystem->Update(_dt);
 
 	// Then handle collision for all objects in scene
-	//CheckLevelCollision();
+	CheckLevelCollision();
 
 	// Handles lifetime of level objects
 	mActiveLevel->LifeTimeUpdate();

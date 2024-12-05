@@ -80,13 +80,15 @@ void BaseActor::Update(float _dt)
 
         // Init Lua Interpreter
         lua_State* interp = SLuaReader::InitLuaInterpreter();
-
+        
         // Create actor using lua data
         std::string luaPostiion = SOURCE_DIRECTORY("src/Lua/LuaSrc/SetPosition.lua");
         glm::vec3 position = SLuaReader::Lua_SetActorPosition(luaPostiion, interp);
-
+        
         SetGlobalPosition(position);
     }
+
+
 }
 
 void BaseActor::SetMinMaxExtent()
